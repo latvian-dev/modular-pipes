@@ -1,0 +1,8 @@
+# Item Group
+itemGroup.modularpipes=Modular Pipes
+
+# Blocks
+tile.modularpipes.pipe.name=Modular Pipe
+
+# Items
+item.modularpipes.module.name=Pipe Module
