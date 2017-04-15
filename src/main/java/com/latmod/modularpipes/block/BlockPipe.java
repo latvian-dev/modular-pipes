@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.block;
 
+import com.latmod.modularpipes.api.IPipeConnection;
 import com.latmod.modularpipes.tile.TilePipe;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
@@ -32,11 +33,10 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public class BlockPipe extends BlockBase
+public class BlockPipe extends BlockBase implements IPipeConnection
 {
     public static final float SIZE = 4F;
     public static final PropertyEnum<EnumPipeTier> TIER = PropertyEnum.create("tier", EnumPipeTier.class);
-    public static final PropertyBool OPAQUE = PropertyBool.create("opaque");
 
     public static final PropertyBool CON_DOWN = PropertyBool.create("con_down");
     public static final PropertyBool CON_UP = PropertyBool.create("con_up");
@@ -55,6 +55,7 @@ public class BlockPipe extends BlockBase
     {
         double d0 = (SIZE - 0.3D) / 16D;
         double d1 = 1D - d0;
+        //FIXME:
         BOXES[0] = new AxisAlignedBB(d0, 0D, d0, d1, d0, d1);
         BOXES[1] = new AxisAlignedBB(d0, d1, d0, d1, 1D, d1);
         BOXES[2] = new AxisAlignedBB(0D, d0, d0, d0, d1, d1);
@@ -69,7 +70,6 @@ public class BlockPipe extends BlockBase
         super(id, Material.ROCK, MapColor.GRAY);
         setDefaultState(blockState.getBaseState()
                 .withProperty(TIER, EnumPipeTier.MK0)
-                .withProperty(OPAQUE, false)
                 .withProperty(CON_DOWN, false)
                 .withProperty(CON_UP, false)
                 .withProperty(CON_NORTH, false)
@@ -81,20 +81,20 @@ public class BlockPipe extends BlockBase
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, TIER, OPAQUE, CON_DOWN, CON_UP, CON_NORTH, CON_SOUTH, CON_WEST, CON_EAST);
+        return new BlockStateContainer(this, TIER, CON_DOWN, CON_UP, CON_NORTH, CON_SOUTH, CON_WEST, CON_EAST);
     }
 
     @Deprecated
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(TIER, EnumPipeTier.getFromMeta(meta)).withProperty(OPAQUE, meta > 7);
+        return this.getDefaultState().withProperty(TIER, EnumPipeTier.getFromMeta(meta));
     }
 
     @Override
     public int getMetaFromState(IBlockState state)
     {
-        return state.getValue(TIER).ordinal() + (state.getValue(OPAQUE) ? 8 : 0);
+        return state.getValue(TIER).ordinal();
     }
 
     @Override
@@ -106,7 +106,7 @@ public class BlockPipe extends BlockBase
     @Override
     public boolean hasTileEntity(IBlockState state)
     {
-        return state.getValue(TIER).ordinal() > 0;
+        return !state.getValue(TIER).isBasic();
     }
 
     @Override
@@ -119,7 +119,7 @@ public class BlockPipe extends BlockBase
     @SideOnly(Side.CLIENT)
     public void getSubBlocks(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> list)
     {
-        for(int meta = 0; meta < 16; meta++)
+        for(int meta = 0; meta < 8; meta++)
         {
             list.add(new ItemStack(itemIn, 1, meta));
         }
@@ -130,7 +130,6 @@ public class BlockPipe extends BlockBase
     public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced)
     {
         tooltip.add("Tier: " + (stack.getMetadata() & 7));
-        tooltip.add("Opaque: " + (stack.getMetadata() > 7));
     }
 
     @Override
@@ -169,16 +168,11 @@ public class BlockPipe extends BlockBase
     @SideOnly(Side.CLIENT)
     public BlockRenderLayer getBlockLayer()
     {
-        return BlockRenderLayer.TRANSLUCENT;
-    }
-
-    @Override
-    public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer)
-    {
-        return layer == (state.getValue(OPAQUE) ? BlockRenderLayer.CUTOUT : BlockRenderLayer.TRANSLUCENT);
+        return BlockRenderLayer.CUTOUT;
     }
 
     @SideOnly(Side.CLIENT)
+    @Deprecated
     public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
         return true;
@@ -229,9 +223,9 @@ public class BlockPipe extends BlockBase
         IBlockState state = worldIn.getBlockState(pos1);
         Block block = state.getBlock();
 
-        if(block instanceof BlockPipe)
+        if(block instanceof IPipeConnection)
         {
-            return true;
+            return ((IPipeConnection) block).canPipeConnect(worldIn, pos1, state, facing.getOpposite());
         }
         else if(block.hasTileEntity(state))
         {
@@ -269,5 +263,11 @@ public class BlockPipe extends BlockBase
         }
 
         return c;
+    }
+
+    @Override
+    public boolean canPipeConnect(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing facing)
+    {
+        return true;
     }
 }

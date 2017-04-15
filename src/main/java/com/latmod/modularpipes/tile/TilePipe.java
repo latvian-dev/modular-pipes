@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.tile;
 
+import com.latmod.modularpipes.PipeNetwork;
 import com.latmod.modularpipes.block.EnumPipeTier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -45,6 +46,7 @@ public class TilePipe extends TileEntity
 
     public void onRightClick(EntityPlayer playerIn, EnumHand hand)
     {
-        playerIn.sendMessage(new TextComponentString("Test!"));
+        playerIn.sendMessage(new TextComponentString("Found on network: " + PipeNetwork.findPipes(this, false)));
+        playerIn.sendMessage(new TextComponentString("Blocks scanned: " + PipeNetwork.TEMP_POS_SET));
     }
 }

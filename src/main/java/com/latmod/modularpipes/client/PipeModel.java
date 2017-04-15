@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * @author LatvianModder
@@ -53,7 +54,6 @@ public class PipeModel implements IModel
     }
 
     public final EnumPipeTier tier;
-    public final boolean opaque;
     public final ResourceLocation markTex;
 
     public PipeModel(String variant)
@@ -67,7 +67,6 @@ public class PipeModel implements IModel
         }
 
         tier = BlockPipe.TIER.parseValue(map.get("tier")).get();
-        opaque = map.get("opaque").equals("true");
         markTex = tier.isBasic() ? null : PIPE_MK[tier.ordinal() - 1];
     }
 
@@ -87,7 +86,11 @@ public class PipeModel implements IModel
     public IBakedModel bake(IModelState state, VertexFormat format, com.google.common.base.Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
     {
         TextureAtlasSprite base = bakedTextureGetter.apply(PIPE_BASE);
+
         TextureAtlasSprite vertical = bakedTextureGetter.apply(PIPE_VERTICAL);
+        Function<EnumFacing, TextureAtlasSprite> verticalSprites = face -> face.getAxis().isVertical() ? null : vertical;
+        Function<EnumFacing, TextureAtlasSprite> connectionSprites = face -> face.getAxis().isVertical() ? null : base;
+
         TextureAtlasSprite mark = markTex == null ? null : bakedTextureGetter.apply(markTex);
 
         List<List<BakedQuad>> quads = new ArrayList<>(64);
@@ -97,19 +100,14 @@ public class PipeModel implements IModel
         float f1 = 16F - f0;
         float of0 = f0 - 0.03F;
         float of1 = f1 + 0.03F;
+        float t = 1F;
+        float tf0 = f0 + t;
+        float tf1 = f1 - t;
 
         for(int i = 0; i < 64; i++)
         {
             switch(i)
             {
-                case 0:
-                    builder.addCube(f0, f0, f0, f1, f1, f1, facing -> base);
-
-                    if(mark != null)
-                    {
-                        builder.addCube(of0, of0, of0, of1, of1, of1, facing -> mark);
-                    }
-                    break;
                 case BlockPipe.AXIS_X:
                 case BlockPipe.AXIS_Y:
                 case BlockPipe.AXIS_Z:
@@ -124,7 +122,10 @@ public class PipeModel implements IModel
                             builder.setRotation(ModelRotation.X90_Y0);
                         }
 
-                        builder.addCube(f0, 0F, f0, f1, 16F, f1, face -> face.getAxis().isVertical() ? null : vertical);
+                        builder.addCube(f0, 0F, f0, tf0, 16F, tf0, verticalSprites);
+                        builder.addCube(tf1, 0F, f0, f1, 16F, tf0, verticalSprites);
+                        builder.addCube(f0, 0F, tf1, tf0, 16F, f1, verticalSprites);
+                        builder.addCube(tf1, 0F, tf1, f1, 16F, f1, verticalSprites);
                         builder.setRotation(ModelRotation.X0_Y0);
                         break;
                     }
@@ -134,26 +135,44 @@ public class PipeModel implements IModel
                         if(((i >> facing.ordinal()) & 1) != 0)
                         {
                             builder.setRotation(facing);
-                            builder.addCube(f0, 0F, f0, f1, f0, f1, face -> face.getAxis().isVertical() ? null : base);
+                            builder.addCube(f0, 0F, f0, tf0, f0, tf0, connectionSprites);
+                            builder.addCube(tf1, 0F, f0, f1, f0, tf0, connectionSprites);
+                            builder.addCube(f0, 0F, tf1, tf0, f0, f1, connectionSprites);
+                            builder.addCube(tf1, 0F, tf1, f1, f0, f1, connectionSprites);
                             builder.setRotation(ModelRotation.X0_Y0);
                         }
-                        else
+                        else if(mark != null)
                         {
-                            builder.addQuad(f0, f0, f0, f1, f1, f1, facing, base);
-
-                            if(mark != null)
-                            {
-                                builder.addQuad(of0, of0, of0, of1, of1, of1, facing, mark);
-                            }
+                            builder.addQuad(of0, of0, of0, of1, of1, of1, facing, mark);
                         }
                     }
+
+                    builder.addCube(f0, f0, f0, tf0, f1, tf0, base);
+                    builder.addCube(tf1, f0, f0, f1, f1, tf0, base);
+                    builder.addCube(f0, f0, tf1, tf0, f1, f1, base);
+                    builder.addCube(tf1, f0, tf1, f1, f1, f1, base);
+
+                    builder.addCube(f0, f0, tf0, tf0, tf0, tf1, base);
+                    builder.addCube(tf1, f0, tf0, f1, tf0, tf1, base);
+                    builder.addCube(tf0, f0, f0, tf1, tf0, tf0, base);
+                    builder.addCube(tf0, f0, tf1, tf1, tf0, f1, base);
+
+                    builder.addCube(f0, tf1, tf0, tf0, f1, tf1, base);
+                    builder.addCube(tf1, tf1, tf0, f1, f1, tf1, base);
+                    builder.addCube(tf0, tf1, f0, tf1, f1, tf0, base);
+                    builder.addCube(tf0, tf1, tf1, tf1, f1, f1, base);
+
+                    //builder.addQuad(tf0, tf0, tf0, tf1, tf1, tf1, EnumFacing.NORTH, base);
+                    //builder.addQuad(tf0, tf0, tf0, tf1, tf1, tf1, EnumFacing.SOUTH, base);
+                    //builder.addQuad(tf0, tf0, tf0, tf1, tf1, tf1, EnumFacing.WEST, base);
+                    //builder.addQuad(tf0, tf0, tf0, tf1, tf1, tf1, EnumFacing.EAST, base);
             }
 
             quads.add(builder.getQuads());
             builder.clear();
         }
 
-        builder.addCube(f0, 0F, f0, f1, 16F, f1, face -> base);
+        builder.addCube(f0, 0F, f0, f1, 16F, f1, base);
 
         if(mark != null)
         {

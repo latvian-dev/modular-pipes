@@ -97,11 +97,27 @@ public class ModelBuilder
         }
     }
 
+    public void addCube(float fromX, float fromY, float fromZ, float toX, float toY, float toZ, TextureAtlasSprite sprite)
+    {
+        for(EnumFacing facing : EnumFacing.VALUES)
+        {
+            addQuad(fromX, fromY, fromZ, toX, toY, toZ, facing, sprite);
+        }
+    }
+
     public void addInvertedCube(float fromX, float fromY, float fromZ, float toX, float toY, float toZ, Function<EnumFacing, TextureAtlasSprite> sprites)
     {
         for(EnumFacing facing : EnumFacing.VALUES)
         {
             addQuad(toX, toY, toZ, fromX, fromY, fromZ, facing, sprites.apply(facing));
+        }
+    }
+
+    public void addInvertedCube(float fromX, float fromY, float fromZ, float toX, float toY, float toZ, TextureAtlasSprite sprite)
+    {
+        for(EnumFacing facing : EnumFacing.VALUES)
+        {
+            addQuad(toX, toY, toZ, fromX, fromY, fromZ, facing, sprite);
         }
     }
 

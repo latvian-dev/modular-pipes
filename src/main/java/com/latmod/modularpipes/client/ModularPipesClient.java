@@ -28,9 +28,9 @@ public class ModularPipesClient extends ModularPipesCommon
 
         List<ModelResourceLocation> pipeVariants = new ArrayList<>();
 
-        for(int meta = 0; meta < 16; meta++)
+        for(int meta = 0; meta < 8; meta++)
         {
-            pipeVariants.add(new ModelResourceLocation(ModularPipesItems.PIPE.getRegistryName(), "opaque=" + (meta > 7) + ",tier=" + EnumPipeTier.getFromMeta(meta).getName()));
+            pipeVariants.add(new ModelResourceLocation(ModularPipesItems.PIPE.getRegistryName(), "tier=" + EnumPipeTier.getFromMeta(meta).getName()));
         }
 
         ModelLoader.registerItemVariants(pipeItem, pipeVariants.toArray(new ModelResourceLocation[pipeVariants.size()]));

@@ -33,10 +33,5 @@ public class ModularPipesCommon
 
     public void postInit()
     {
-        for(int meta = 0; meta < 8; meta++)
-        {
-            GameRegistry.addShapelessRecipe(new ItemStack(ModularPipesItems.PIPE, 1, meta + 8), new ItemStack(ModularPipesItems.PIPE, 1, meta));
-            GameRegistry.addShapelessRecipe(new ItemStack(ModularPipesItems.PIPE, 1, meta), new ItemStack(ModularPipesItems.PIPE, 1, meta + 8));
-        }
     }
 }
