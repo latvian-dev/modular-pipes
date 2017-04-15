@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
  */
 public class ModularPipesCommon
 {
-    public static final CreativeTabs TAB = new CreativeTabs(ModularPipes.MODID)
+    public static final CreativeTabs TAB = new CreativeTabs(ModularPipes.MOD_ID)
     {
         @Override
         public ItemStack getTabIconItem()
@@ -28,7 +28,7 @@ public class ModularPipesCommon
 
         GameRegistry.register(ModularPipesItems.MODULE);
 
-        GameRegistry.registerTileEntity(TilePipe.class, ModularPipes.MODID + ".pipe");
+        GameRegistry.registerTileEntity(TilePipe.class, ModularPipes.MOD_ID + ".pipe");
     }
 
     public void postInit()

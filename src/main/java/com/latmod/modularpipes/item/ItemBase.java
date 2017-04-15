@@ -11,8 +11,8 @@ public class ItemBase extends Item
 {
     public ItemBase(String id)
     {
-        setUnlocalizedName(ModularPipes.MODID + '.' + id);
-        setRegistryName(ModularPipes.MODID + ':' + id);
+        setUnlocalizedName(ModularPipes.MOD_ID + '.' + id);
+        setRegistryName(ModularPipes.MOD_ID + ':' + id);
         setCreativeTab(ModularPipesCommon.TAB);
     }
 }

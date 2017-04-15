@@ -1,7 +1,7 @@
 package com.latmod.modularpipes.block;
 
 import com.latmod.modularpipes.tile.TilePipe;
-import net.minecraft.block.BlockLog;
+import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
@@ -21,7 +21,9 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -32,16 +34,16 @@ public class BlockPipe extends BlockBase
     public static final PropertyEnum<EnumPipeTier> TIER = PropertyEnum.create("tier", EnumPipeTier.class);
     public static final PropertyBool OPAQUE = PropertyBool.create("opaque");
 
-    private static final PropertyBool CON_DOWN = PropertyBool.create("con_down");
-    private static final PropertyBool CON_UP = PropertyBool.create("con_up");
-    private static final PropertyBool CON_NORTH = PropertyBool.create("con_north");
-    private static final PropertyBool CON_SOUTH = PropertyBool.create("con_south");
-    private static final PropertyBool CON_WEST = PropertyBool.create("con_west");
-    private static final PropertyBool CON_EAST = PropertyBool.create("con_east");
-    private static final PropertyEnum<BlockLog.EnumAxis> AXIS = PropertyEnum.create("axis", BlockLog.EnumAxis.class);
-    private static final int AXIS_X = 48;//1 << EnumFacing.WEST.ordinal() | 1 << EnumFacing.EAST.ordinal();
-    private static final int AXIS_Y = 3;//1 << EnumFacing.DOWN.ordinal() | 1 << EnumFacing.UP.ordinal();
-    private static final int AXIS_Z = 12;//1 << EnumFacing.NORTH.ordinal() | 1 << EnumFacing.SOUTH.ordinal();
+    public static final PropertyBool CON_DOWN = PropertyBool.create("con_down");
+    public static final PropertyBool CON_UP = PropertyBool.create("con_up");
+    public static final PropertyBool CON_NORTH = PropertyBool.create("con_north");
+    public static final PropertyBool CON_SOUTH = PropertyBool.create("con_south");
+    public static final PropertyBool CON_WEST = PropertyBool.create("con_west");
+    public static final PropertyBool CON_EAST = PropertyBool.create("con_east");
+    public static final PropertyBool[] CONNECTIONS = {CON_DOWN, CON_UP, CON_NORTH, CON_SOUTH, CON_WEST, CON_EAST};
+    public static final int AXIS_X = 48;//1 << EnumFacing.WEST.ordinal() | 1 << EnumFacing.EAST.ordinal();
+    public static final int AXIS_Y = 3;//1 << EnumFacing.DOWN.ordinal() | 1 << EnumFacing.UP.ordinal();
+    public static final int AXIS_Z = 12;//1 << EnumFacing.NORTH.ordinal() | 1 << EnumFacing.SOUTH.ordinal();
 
     public BlockPipe(String id)
     {
@@ -54,14 +56,13 @@ public class BlockPipe extends BlockBase
                 .withProperty(CON_NORTH, false)
                 .withProperty(CON_SOUTH, false)
                 .withProperty(CON_WEST, false)
-                .withProperty(CON_EAST, false)
-                .withProperty(AXIS, BlockLog.EnumAxis.NONE));
+                .withProperty(CON_EAST, false));
     }
 
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, TIER, OPAQUE, CON_DOWN, CON_UP, CON_NORTH, CON_SOUTH, CON_WEST, CON_EAST, AXIS);
+        return new BlockStateContainer(this, TIER, OPAQUE, CON_DOWN, CON_UP, CON_NORTH, CON_SOUTH, CON_WEST, CON_EAST);
     }
 
     @Deprecated
@@ -131,50 +132,55 @@ public class BlockPipe extends BlockBase
     @Deprecated
     public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
-        int c = getConnections(worldIn, pos);
-        switch(c)
-        {
-            case 0:
-                return state;
-            case AXIS_X:
-                return state.withProperty(AXIS, BlockLog.EnumAxis.X);
-            case AXIS_Y:
-                return state.withProperty(AXIS, BlockLog.EnumAxis.Y);
-            case AXIS_Z:
-                return state.withProperty(AXIS, BlockLog.EnumAxis.Z);
-            default:
-                return state
-                        .withProperty(CON_DOWN, con(c, EnumFacing.DOWN))
-                        .withProperty(CON_UP, con(c, EnumFacing.UP))
-                        .withProperty(CON_NORTH, con(c, EnumFacing.NORTH))
-                        .withProperty(CON_SOUTH, con(c, EnumFacing.SOUTH))
-                        .withProperty(CON_WEST, con(c, EnumFacing.WEST))
-                        .withProperty(CON_EAST, con(c, EnumFacing.EAST));
-        }
-    }
-
-    private static boolean con(int c, EnumFacing facing)
-    {
-        return ((c >> facing.ordinal()) & 1) != 0;
-    }
-
-    public static int getConnections(IBlockAccess worldIn, BlockPos pos)
-    {
-        int c = 0;
-
-        for(EnumFacing facing : EnumFacing.VALUES)
-        {
-            if(canConnectTo(worldIn, pos, facing))
-            {
-                c |= 1 << facing.ordinal();
-            }
-        }
-
-        return c;
+        return state
+                .withProperty(CON_DOWN, canConnectTo(worldIn, pos, EnumFacing.DOWN))
+                .withProperty(CON_UP, canConnectTo(worldIn, pos, EnumFacing.UP))
+                .withProperty(CON_NORTH, canConnectTo(worldIn, pos, EnumFacing.NORTH))
+                .withProperty(CON_SOUTH, canConnectTo(worldIn, pos, EnumFacing.SOUTH))
+                .withProperty(CON_WEST, canConnectTo(worldIn, pos, EnumFacing.WEST))
+                .withProperty(CON_EAST, canConnectTo(worldIn, pos, EnumFacing.EAST));
     }
 
     public static boolean canConnectTo(IBlockAccess worldIn, BlockPos pos, EnumFacing facing)
     {
-        return worldIn.getBlockState(pos.offset(facing)).getBlock() instanceof BlockPipe;
+        pos = pos.offset(facing);
+        IBlockState state = worldIn.getBlockState(pos);
+        Block block = state.getBlock();
+
+        if(block instanceof BlockPipe)
+        {
+            return true;
+        }
+        else if(block.hasTileEntity(state))
+        {
+            TileEntity tileEntity = worldIn.getTileEntity(pos);
+
+            if(tileEntity != null && tileEntity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, facing.getOpposite()))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static int getConnectionsFromState(@Nullable IBlockState state)
+    {
+        if(state == null)
+        {
+            return 0;
+        }
+
+        int c = 0;
+
+        for(int facing = 0; facing < 6; facing++)
+        {
+            if(state.getValue(CONNECTIONS[facing]))
+            {
+                c |= 1 << facing;
+            }
+        }
+
+        return c;
     }
 }
