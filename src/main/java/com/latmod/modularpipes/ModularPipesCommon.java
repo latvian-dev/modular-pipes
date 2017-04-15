@@ -28,7 +28,7 @@ public class ModularPipesCommon
 
         GameRegistry.register(ModularPipesItems.MODULE);
 
-        GameRegistry.registerTileEntity(TilePipe.class, ModularPipes.MOD_ID + ".pipe");
+        GameRegistry.registerTileEntity(TilePipe.class, ModularPipes.MOD_ID + ":pipe");
     }
 
     public void postInit()

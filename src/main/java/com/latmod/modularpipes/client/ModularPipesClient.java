@@ -22,7 +22,7 @@ public class ModularPipesClient extends ModularPipesCommon
     public void preInit()
     {
         super.preInit();
-        ModelLoader.setCustomStateMapper(ModularPipesItems.PIPE, new StateMap.Builder().ignore(BlockPipe.OPAQUE, BlockPipe.CON_DOWN, BlockPipe.CON_UP, BlockPipe.CON_NORTH, BlockPipe.CON_SOUTH, BlockPipe.CON_WEST, BlockPipe.CON_EAST).build());
+        ModelLoader.setCustomStateMapper(ModularPipesItems.PIPE, new StateMap.Builder().ignore(BlockPipe.CON_DOWN, BlockPipe.CON_UP, BlockPipe.CON_NORTH, BlockPipe.CON_SOUTH, BlockPipe.CON_WEST, BlockPipe.CON_EAST).build());
         ModelLoaderRegistry.registerLoader(new ModularPipesModels());
         Item pipeItem = Item.getItemFromBlock(ModularPipesItems.PIPE);
 
@@ -30,7 +30,7 @@ public class ModularPipesClient extends ModularPipesCommon
 
         for(int meta = 0; meta < 16; meta++)
         {
-            pipeVariants.add(new ModelResourceLocation(ModularPipesItems.PIPE.getRegistryName(), "tier=" + EnumPipeTier.getFromMeta(meta).getName()));
+            pipeVariants.add(new ModelResourceLocation(ModularPipesItems.PIPE.getRegistryName(), "opaque=" + (meta > 7) + ",tier=" + EnumPipeTier.getFromMeta(meta).getName()));
         }
 
         ModelLoader.registerItemVariants(pipeItem, pipeVariants.toArray(new ModelResourceLocation[pipeVariants.size()]));

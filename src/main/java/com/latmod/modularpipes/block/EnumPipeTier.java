@@ -34,4 +34,9 @@ public enum EnumPipeTier implements IStringSerializable
     {
         return VALUES[meta & 7];
     }
+
+    public boolean isBasic()
+    {
+        return this == MK0;
+    }
 }

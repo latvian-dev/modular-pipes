@@ -17,7 +17,9 @@ import net.minecraftforge.common.model.TRSRTransformation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author LatvianModder
@@ -51,12 +53,22 @@ public class PipeModel implements IModel
     }
 
     public final EnumPipeTier tier;
+    public final boolean opaque;
     public final ResourceLocation markTex;
 
     public PipeModel(String variant)
     {
-        tier = BlockPipe.TIER.parseValue(variant.split("=")[1]).get();
-        markTex = tier.ordinal() > 0 ? PIPE_MK[tier.ordinal() - 1] : null;
+        Map<String, String> map = new HashMap<>();
+
+        for(String s : variant.split(","))
+        {
+            String[] s1 = s.split("=");
+            map.put(s1[0], s1[1]);
+        }
+
+        tier = BlockPipe.TIER.parseValue(map.get("tier")).get();
+        opaque = map.get("opaque").equals("true");
+        markTex = tier.isBasic() ? null : PIPE_MK[tier.ordinal() - 1];
     }
 
     @Override
@@ -81,16 +93,21 @@ public class PipeModel implements IModel
         List<List<BakedQuad>> quads = new ArrayList<>(64);
         ModelBuilder builder = new ModelBuilder(ModelRotation.X0_Y0);
 
+        float f0 = BlockPipe.SIZE;
+        float f1 = 16F - f0;
+        float of0 = f0 - 0.03F;
+        float of1 = f1 + 0.03F;
+
         for(int i = 0; i < 64; i++)
         {
             switch(i)
             {
                 case 0:
-                    builder.addCube(4F, 4F, 4F, 12F, 12F, 12F, facing -> base);
+                    builder.addCube(f0, f0, f0, f1, f1, f1, facing -> base);
 
                     if(mark != null)
                     {
-                        builder.addCube(3.97F, 3.97F, 3.97F, 12.03F, 12.03F, 12.03F, facing -> mark);
+                        builder.addCube(of0, of0, of0, of1, of1, of1, facing -> mark);
                     }
                     break;
                 case BlockPipe.AXIS_X:
@@ -107,7 +124,7 @@ public class PipeModel implements IModel
                             builder.setRotation(ModelRotation.X90_Y0);
                         }
 
-                        builder.addCube(4F, 0F, 4F, 12F, 16F, 12F, face -> face.getAxis().isVertical() ? null : vertical);
+                        builder.addCube(f0, 0F, f0, f1, 16F, f1, face -> face.getAxis().isVertical() ? null : vertical);
                         builder.setRotation(ModelRotation.X0_Y0);
                         break;
                     }
@@ -117,16 +134,16 @@ public class PipeModel implements IModel
                         if(((i >> facing.ordinal()) & 1) != 0)
                         {
                             builder.setRotation(facing);
-                            builder.addCube(4F, 0F, 4F, 12F, 4F, 12F, face -> face.getAxis().isVertical() ? null : base);
+                            builder.addCube(f0, 0F, f0, f1, f0, f1, face -> face.getAxis().isVertical() ? null : base);
                             builder.setRotation(ModelRotation.X0_Y0);
                         }
                         else
                         {
-                            builder.addQuad(4F, 4F, 4F, 12F, 12F, 12F, facing, base);
+                            builder.addQuad(f0, f0, f0, f1, f1, f1, facing, base);
 
                             if(mark != null)
                             {
-                                builder.addQuad(3.97F, 3.97F, 3.97F, 12.03F, 12.03F, 12.03F, facing, mark);
+                                builder.addQuad(of0, of0, of0, of1, of1, of1, facing, mark);
                             }
                         }
                     }
@@ -136,11 +153,11 @@ public class PipeModel implements IModel
             builder.clear();
         }
 
-        builder.addCube(4F, 0F, 4F, 12F, 16F, 12F, face -> base);
+        builder.addCube(f0, 0F, f0, f1, 16F, f1, face -> base);
 
         if(mark != null)
         {
-            builder.addCube(3.97F, 3.97F, 3.97F, 12.03F, 12.03F, 12.03F, face -> face.getAxis().isVertical() ? null : mark);
+            builder.addCube(of0, of0, of0, of1, of1, of1, face -> face.getAxis().isVertical() ? null : mark);
         }
 
         return new PipeBakedModel(base, quads, builder.getQuads());

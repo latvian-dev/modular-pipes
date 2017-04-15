@@ -9,13 +9,16 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -31,6 +34,7 @@ import java.util.List;
  */
 public class BlockPipe extends BlockBase
 {
+    public static final float SIZE = 4F;
     public static final PropertyEnum<EnumPipeTier> TIER = PropertyEnum.create("tier", EnumPipeTier.class);
     public static final PropertyBool OPAQUE = PropertyBool.create("opaque");
 
@@ -44,6 +48,21 @@ public class BlockPipe extends BlockBase
     public static final int AXIS_X = 48;//1 << EnumFacing.WEST.ordinal() | 1 << EnumFacing.EAST.ordinal();
     public static final int AXIS_Y = 3;//1 << EnumFacing.DOWN.ordinal() | 1 << EnumFacing.UP.ordinal();
     public static final int AXIS_Z = 12;//1 << EnumFacing.NORTH.ordinal() | 1 << EnumFacing.SOUTH.ordinal();
+
+    public static final AxisAlignedBB[] BOXES = new AxisAlignedBB[7];
+
+    static
+    {
+        double d0 = (SIZE - 0.3D) / 16D;
+        double d1 = 1D - d0;
+        BOXES[0] = new AxisAlignedBB(d0, 0D, d0, d1, d0, d1);
+        BOXES[1] = new AxisAlignedBB(d0, d1, d0, d1, 1D, d1);
+        BOXES[2] = new AxisAlignedBB(0D, d0, d0, d0, d1, d1);
+        BOXES[3] = new AxisAlignedBB(d1, d0, d0, 1D, d1, d1);
+        BOXES[4] = new AxisAlignedBB(d0, d0, 0D, d1, d1, d0);
+        BOXES[5] = new AxisAlignedBB(d0, d0, d1, d1, d1, 1D);
+        BOXES[6] = new AxisAlignedBB(d0, d0, d0, d1, d1, d1);
+    }
 
     public BlockPipe(String id)
     {
@@ -79,6 +98,12 @@ public class BlockPipe extends BlockBase
     }
 
     @Override
+    public int damageDropped(IBlockState state)
+    {
+        return getMetaFromState(state);
+    }
+
+    @Override
     public boolean hasTileEntity(IBlockState state)
     {
         return state.getValue(TIER).ordinal() > 0;
@@ -109,6 +134,24 @@ public class BlockPipe extends BlockBase
     }
 
     @Override
+    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+    {
+        if(state.getValue(TIER).isBasic())
+        {
+            return false;
+        }
+
+        TileEntity tileEntity = worldIn.getTileEntity(pos);
+
+        if(tileEntity instanceof TilePipe)
+        {
+            ((TilePipe) tileEntity).onRightClick(playerIn, hand);
+        }
+
+        return true;
+    }
+
+    @Override
     @Deprecated
     public boolean isOpaqueCube(IBlockState state)
     {
@@ -123,9 +166,22 @@ public class BlockPipe extends BlockBase
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
+    public BlockRenderLayer getBlockLayer()
+    {
+        return BlockRenderLayer.TRANSLUCENT;
+    }
+
+    @Override
     public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer)
     {
         return layer == (state.getValue(OPAQUE) ? BlockRenderLayer.CUTOUT : BlockRenderLayer.TRANSLUCENT);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
+    {
+        return true;
     }
 
     @Override
@@ -141,10 +197,36 @@ public class BlockPipe extends BlockBase
                 .withProperty(CON_EAST, canConnectTo(worldIn, pos, EnumFacing.EAST));
     }
 
+    @Deprecated
+    public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean p_185477_7_)
+    {
+        if(entityIn != null && entityIn.isSneaking())
+        {
+            return;
+        }
+
+        addCollisionBoxToList(pos, entityBox, collidingBoxes, BOXES[6]);
+
+        for(EnumFacing facing : EnumFacing.VALUES)
+        {
+            if(canConnectTo(worldIn, pos, facing))
+            {
+                addCollisionBoxToList(pos, entityBox, collidingBoxes, BOXES[facing.ordinal()]);
+            }
+        }
+    }
+
+    @Override
+    @Deprecated
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess world, BlockPos pos)
+    {
+        return BOXES[6];
+    }
+
     public static boolean canConnectTo(IBlockAccess worldIn, BlockPos pos, EnumFacing facing)
     {
-        pos = pos.offset(facing);
-        IBlockState state = worldIn.getBlockState(pos);
+        BlockPos pos1 = pos.offset(facing);
+        IBlockState state = worldIn.getBlockState(pos1);
         Block block = state.getBlock();
 
         if(block instanceof BlockPipe)
@@ -153,7 +235,12 @@ public class BlockPipe extends BlockBase
         }
         else if(block.hasTileEntity(state))
         {
-            TileEntity tileEntity = worldIn.getTileEntity(pos);
+            if(worldIn.getBlockState(pos).getValue(TIER).isBasic())
+            {
+                return false;
+            }
+
+            TileEntity tileEntity = worldIn.getTileEntity(pos1);
 
             if(tileEntity != null && tileEntity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, facing.getOpposite()))
             {
