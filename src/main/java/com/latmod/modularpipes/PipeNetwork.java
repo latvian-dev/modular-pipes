@@ -40,13 +40,13 @@ public class PipeNetwork
 
         for(EnumFacing facing : EnumFacing.VALUES)
         {
-            findPipes0(source.getWorld(), source.getPos().offset(facing), facing.getOpposite(), list);
+            findPipes0(source.getWorld(), source.getPos().offset(facing), facing.getOpposite().getIndex(), list);
         }
 
         return list;
     }
 
-    public static void findPipes0(World world, BlockPos pos, EnumFacing from, Collection<TilePipe> pipes)
+    public static void findPipes0(World world, BlockPos pos, int from, Collection<TilePipe> pipes)
     {
         IBlockState state = world.getBlockState(pos);
 
@@ -67,11 +67,11 @@ public class PipeNetwork
             }
         }
 
-        for(EnumFacing facing : EnumFacing.VALUES)
+        for(int i = 0; i < 6; i++)
         {
-            if(facing != from)
+            if(i != from)
             {
-                findPipes0(world, pos.offset(facing), facing.getOpposite(), pipes);
+                findPipes0(world, pos.offset(EnumFacing.VALUES[i]), MathUtils.OPPOSITE[i], pipes);
             }
         }
     }

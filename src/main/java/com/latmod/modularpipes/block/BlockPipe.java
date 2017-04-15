@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.block;
 
+import com.latmod.modularpipes.MathUtils;
 import com.latmod.modularpipes.api.IPipeConnection;
 import com.latmod.modularpipes.tile.TilePipe;
 import net.minecraft.block.Block;
@@ -9,6 +10,7 @@ import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -21,6 +23,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -50,19 +54,32 @@ public class BlockPipe extends BlockBase implements IPipeConnection
     public static final int AXIS_Z = 12;//1 << EnumFacing.NORTH.ordinal() | 1 << EnumFacing.SOUTH.ordinal();
 
     public static final AxisAlignedBB[] BOXES = new AxisAlignedBB[7];
+    private static final AxisAlignedBB BOXES_COMBINED[] = new AxisAlignedBB[64];
 
     static
     {
         double d0 = (SIZE - 0.3D) / 16D;
         double d1 = 1D - d0;
         //FIXME:
+
+        for(int i = 0; i < BOXES_COMBINED.length; i++)
+        {
+            boolean x0 = (i & MathUtils.FACING_BIT_WEST) != 0;
+            boolean x1 = (i & MathUtils.FACING_BIT_EAST) != 0;
+            boolean y0 = (i & MathUtils.FACING_BIT_DOWN) != 0;
+            boolean y1 = (i & MathUtils.FACING_BIT_UP) != 0;
+            boolean z0 = (i & MathUtils.FACING_BIT_NORTH) != 0;
+            boolean z1 = (i & MathUtils.FACING_BIT_SOUTH) != 0;
+            BOXES_COMBINED[i] = new AxisAlignedBB(x0 ? 0D : d0, y0 ? 0D : d0, z0 ? 0D : d0, x1 ? 1D : d1, y1 ? 1D : d1, z1 ? 1D : d1);
+        }
+
         BOXES[0] = new AxisAlignedBB(d0, 0D, d0, d1, d0, d1);
         BOXES[1] = new AxisAlignedBB(d0, d1, d0, d1, 1D, d1);
-        BOXES[2] = new AxisAlignedBB(0D, d0, d0, d0, d1, d1);
-        BOXES[3] = new AxisAlignedBB(d1, d0, d0, 1D, d1, d1);
-        BOXES[4] = new AxisAlignedBB(d0, d0, 0D, d1, d1, d0);
-        BOXES[5] = new AxisAlignedBB(d0, d0, d1, d1, d1, 1D);
-        BOXES[6] = new AxisAlignedBB(d0, d0, d0, d1, d1, d1);
+        BOXES[2] = new AxisAlignedBB(d0, d0, 0D, d1, d1, d0);
+        BOXES[3] = new AxisAlignedBB(d0, d0, d1, d1, d1, 1D);
+        BOXES[4] = new AxisAlignedBB(0D, d0, d0, d0, d1, d1);
+        BOXES[5] = new AxisAlignedBB(d1, d0, d0, 1D, d1, d1);
+        BOXES[6] = BOXES_COMBINED[0];
     }
 
     public BlockPipe(String id)
@@ -129,7 +146,7 @@ public class BlockPipe extends BlockBase implements IPipeConnection
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced)
     {
-        tooltip.add("Tier: " + (stack.getMetadata() & 7));
+        tooltip.add(EnumPipeTier.getFromMeta(stack.getMetadata()).getName());
     }
 
     @Override
@@ -191,14 +208,52 @@ public class BlockPipe extends BlockBase implements IPipeConnection
                 .withProperty(CON_EAST, canConnectTo(worldIn, pos, EnumFacing.EAST));
     }
 
+    @Override
+    @Nullable
+    @Deprecated
+    public RayTraceResult collisionRayTrace(IBlockState blockState, World worldIn, BlockPos pos, Vec3d start, Vec3d end)
+    {
+        Vec3d start1 = start.subtract(pos.getX(), pos.getY(), pos.getZ());
+        Vec3d end1 = end.subtract(pos.getX(), pos.getY(), pos.getZ());
+        RayTraceResult ray1 = null;
+
+        double dist = Double.POSITIVE_INFINITY;
+
+        for(int i = 0; i < BOXES.length; i++)
+        {
+            if(i < 6 && !canConnectTo(worldIn, pos, EnumFacing.VALUES[i]))
+            {
+                continue;
+            }
+
+            RayTraceResult ray = BOXES[i].calculateIntercept(start1, end1);
+
+            if(ray != null)
+            {
+                double dist1 = ray.hitVec.squareDistanceTo(start1);
+
+                if(dist >= dist1)
+                {
+                    dist = dist1;
+                    ray1 = ray;
+                    ray1.subHit = i;
+                }
+            }
+        }
+
+        if(ray1 != null)
+        {
+            RayTraceResult ray2 = new RayTraceResult(ray1.hitVec.addVector(pos.getX(), pos.getY(), pos.getZ()), ray1.sideHit, pos);
+            ray2.subHit = ray1.subHit;
+            return ray2;
+        }
+
+        return null;
+    }
+
     @Deprecated
     public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean p_185477_7_)
     {
-        if(entityIn != null && entityIn.isSneaking())
-        {
-            return;
-        }
-
         addCollisionBoxToList(pos, entityBox, collidingBoxes, BOXES[6]);
 
         for(EnumFacing facing : EnumFacing.VALUES)
@@ -212,9 +267,31 @@ public class BlockPipe extends BlockBase implements IPipeConnection
 
     @Override
     @Deprecated
-    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess world, BlockPos pos)
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
-        return BOXES[6];
+        TileEntity te = source.getTileEntity(pos);
+
+        if(te instanceof TilePipe)
+        {
+            return BOXES_COMBINED[getConnectionsFromState(state)];
+        }
+
+        return BOXES_COMBINED[0];
+    }
+
+    @Override
+    @Deprecated
+    @SideOnly(Side.CLIENT)
+    public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos)
+    {
+        RayTraceResult mop = Minecraft.getMinecraft().objectMouseOver;
+
+        if(mop != null && mop.subHit >= 0 && mop.subHit < BOXES.length)
+        {
+            return BOXES[mop.subHit].offset(pos);
+        }
+
+        return BOXES_COMBINED[0].offset(pos);
     }
 
     public static boolean canConnectTo(IBlockAccess worldIn, BlockPos pos, EnumFacing facing)
