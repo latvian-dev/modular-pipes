@@ -8,6 +8,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.text.TextComponentString;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author LatvianModder
  */
@@ -46,7 +49,19 @@ public class TilePipe extends TileEntity
 
     public void onRightClick(EntityPlayer playerIn, EnumHand hand)
     {
-        playerIn.sendMessage(new TextComponentString("Found on network: " + PipeNetwork.findPipes(this, false)));
-        playerIn.sendMessage(new TextComponentString("Blocks scanned: " + PipeNetwork.TEMP_POS_SET));
+        if(world.isRemote)
+        {
+            return;
+        }
+
+        List<TilePipe> list = PipeNetwork.findPipes(this, false);
+        List<String> list1 = new ArrayList<>();
+
+        for(TilePipe t : list)
+        {
+            list1.add("[" + t.getPos().getX() + ", " + t.getPos().getY() + ", " + t.getPos().getZ() + "]");
+        }
+
+        playerIn.sendMessage(new TextComponentString("Found " + list.size() + " pipes on network: " + list1));
     }
 }
