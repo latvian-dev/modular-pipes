@@ -1,0 +1,19 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"model": "modularpipes:controller"
+	},
+	"variants": {
+		"inventory": [{}],
+		"error": {
+			"true": {
+				"textures": {
+					"all": "modularpipes:blocks/controller_error",
+					"particle": "modularpipes:blocks/controller_error"
+				}
+			},
+			"false": {
+			}
+		}
+	}
+}

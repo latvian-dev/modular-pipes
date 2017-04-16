@@ -1,13 +1,15 @@
 package com.latmod.modularpipes.block;
 
-import com.latmod.modularpipes.MathUtils;
 import com.latmod.modularpipes.api.IPipeConnection;
 import com.latmod.modularpipes.tile.TilePipe;
+import com.latmod.modularpipes.util.MathUtils;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockLog;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -40,8 +42,9 @@ import java.util.List;
 public class BlockPipe extends BlockBase implements IPipeConnection
 {
     public static final float SIZE = 4F;
-    public static final PropertyEnum<EnumPipeTier> TIER = PropertyEnum.create("tier", EnumPipeTier.class);
+    public static final PropertyInteger TIER = PropertyInteger.create("tier", 0, 7);
 
+    public static final PropertyEnum<BlockLog.EnumAxis> MODEL = PropertyEnum.create("model", BlockLog.EnumAxis.class);
     public static final PropertyBool CON_DOWN = PropertyBool.create("con_down");
     public static final PropertyBool CON_UP = PropertyBool.create("con_up");
     public static final PropertyBool CON_NORTH = PropertyBool.create("con_north");
@@ -58,9 +61,8 @@ public class BlockPipe extends BlockBase implements IPipeConnection
 
     static
     {
-        double d0 = (SIZE - 0.3D) / 16D;
+        double d0 = SIZE / 16D;
         double d1 = 1D - d0;
-        //FIXME:
 
         for(int i = 0; i < BOXES_COMBINED.length; i++)
         {
@@ -86,7 +88,8 @@ public class BlockPipe extends BlockBase implements IPipeConnection
     {
         super(id, Material.ROCK, MapColor.GRAY);
         setDefaultState(blockState.getBaseState()
-                .withProperty(TIER, EnumPipeTier.MK0)
+                .withProperty(TIER, 0)
+                .withProperty(MODEL, BlockLog.EnumAxis.NONE)
                 .withProperty(CON_DOWN, false)
                 .withProperty(CON_UP, false)
                 .withProperty(CON_NORTH, false)
@@ -98,20 +101,20 @@ public class BlockPipe extends BlockBase implements IPipeConnection
     @Override
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, TIER, CON_DOWN, CON_UP, CON_NORTH, CON_SOUTH, CON_WEST, CON_EAST);
+        return new BlockStateContainer(this, TIER, MODEL, CON_DOWN, CON_UP, CON_NORTH, CON_SOUTH, CON_WEST, CON_EAST);
     }
 
     @Deprecated
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(TIER, EnumPipeTier.getFromMeta(meta));
+        return this.getDefaultState().withProperty(TIER, meta & 7);
     }
 
     @Override
     public int getMetaFromState(IBlockState state)
     {
-        return state.getValue(TIER).ordinal();
+        return state.getValue(TIER);
     }
 
     @Override
@@ -123,7 +126,7 @@ public class BlockPipe extends BlockBase implements IPipeConnection
     @Override
     public boolean hasTileEntity(IBlockState state)
     {
-        return !state.getValue(TIER).isBasic();
+        return state.getValue(TIER) > 0;
     }
 
     @Override
@@ -146,13 +149,13 @@ public class BlockPipe extends BlockBase implements IPipeConnection
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced)
     {
-        tooltip.add(EnumPipeTier.getFromMeta(stack.getMetadata()).getName());
+        tooltip.add("Tier " + stack.getMetadata());
     }
 
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
-        if(state.getValue(TIER).isBasic())
+        if(state.getValue(TIER) == 0)
         {
             return false;
         }
@@ -185,7 +188,7 @@ public class BlockPipe extends BlockBase implements IPipeConnection
     @SideOnly(Side.CLIENT)
     public BlockRenderLayer getBlockLayer()
     {
-        return BlockRenderLayer.CUTOUT;
+        return BlockRenderLayer.TRANSLUCENT;
     }
 
     @SideOnly(Side.CLIENT)
@@ -199,13 +202,30 @@ public class BlockPipe extends BlockBase implements IPipeConnection
     @Deprecated
     public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
-        return state
-                .withProperty(CON_DOWN, canConnectTo(worldIn, pos, EnumFacing.DOWN))
-                .withProperty(CON_UP, canConnectTo(worldIn, pos, EnumFacing.UP))
-                .withProperty(CON_NORTH, canConnectTo(worldIn, pos, EnumFacing.NORTH))
-                .withProperty(CON_SOUTH, canConnectTo(worldIn, pos, EnumFacing.SOUTH))
-                .withProperty(CON_WEST, canConnectTo(worldIn, pos, EnumFacing.WEST))
-                .withProperty(CON_EAST, canConnectTo(worldIn, pos, EnumFacing.EAST));
+        boolean d = canConnectTo(worldIn, pos, EnumFacing.DOWN);
+        boolean u = canConnectTo(worldIn, pos, EnumFacing.UP);
+        boolean n = canConnectTo(worldIn, pos, EnumFacing.NORTH);
+        boolean s = canConnectTo(worldIn, pos, EnumFacing.SOUTH);
+        boolean w = canConnectTo(worldIn, pos, EnumFacing.WEST);
+        boolean e = canConnectTo(worldIn, pos, EnumFacing.EAST);
+
+        if(state.getValue(TIER) == 0)
+        {
+            if(!d && !u && !n && !s && w && e)
+            {
+                return state.withProperty(MODEL, BlockLog.EnumAxis.X);
+            }
+            else if(d && u && !n && !s && !w && !e)
+            {
+                return state.withProperty(MODEL, BlockLog.EnumAxis.Y);
+            }
+            else if(!d && !u && n && s && !w && !e)
+            {
+                return state.withProperty(MODEL, BlockLog.EnumAxis.Z);
+            }
+        }
+
+        return state.withProperty(CON_DOWN, d).withProperty(CON_UP, u).withProperty(CON_NORTH, n).withProperty(CON_SOUTH, s).withProperty(CON_WEST, w).withProperty(CON_EAST, e);
     }
 
     @Override
@@ -269,14 +289,7 @@ public class BlockPipe extends BlockBase implements IPipeConnection
     @Deprecated
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
-        TileEntity te = source.getTileEntity(pos);
-
-        if(te instanceof TilePipe)
-        {
-            return BOXES_COMBINED[getConnectionsFromState(state)];
-        }
-
-        return BOXES_COMBINED[0];
+        return BOXES_COMBINED[getConnectionsFromState(state)];
     }
 
     @Override
@@ -284,6 +297,23 @@ public class BlockPipe extends BlockBase implements IPipeConnection
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos)
     {
+        if(state.getValue(TIER) == 0)
+        {
+            state = getActualState(state, worldIn, pos);
+
+            switch(state.getValue(MODEL))
+            {
+                case NONE:
+                    return BOXES_COMBINED[getConnectionsFromState(state)].offset(pos);
+                case X:
+                    return BOXES_COMBINED[AXIS_X].offset(pos);
+                case Y:
+                    return BOXES_COMBINED[AXIS_Y].offset(pos);
+                case Z:
+                    return BOXES_COMBINED[AXIS_Z].offset(pos);
+            }
+        }
+
         RayTraceResult mop = Minecraft.getMinecraft().objectMouseOver;
 
         if(mop != null && mop.subHit >= 0 && mop.subHit < BOXES.length)
@@ -297,16 +327,16 @@ public class BlockPipe extends BlockBase implements IPipeConnection
     public static boolean canConnectTo(IBlockAccess worldIn, BlockPos pos, EnumFacing facing)
     {
         BlockPos pos1 = pos.offset(facing);
-        IBlockState state = worldIn.getBlockState(pos1);
-        Block block = state.getBlock();
+        IBlockState state1 = worldIn.getBlockState(pos1);
+        Block block = state1.getBlock();
 
         if(block instanceof IPipeConnection)
         {
-            return ((IPipeConnection) block).canPipeConnect(worldIn, pos1, state, facing.getOpposite());
+            return ((IPipeConnection) block).canPipeConnect(worldIn, pos1, state1, facing.getOpposite());
         }
-        else if(block.hasTileEntity(state))
+        else if(block.hasTileEntity(state1))
         {
-            if(worldIn.getBlockState(pos).getValue(TIER).isBasic())
+            if(worldIn.getBlockState(pos).getValue(TIER) == 0)
             {
                 return false;
             }
@@ -335,7 +365,7 @@ public class BlockPipe extends BlockBase implements IPipeConnection
         {
             if(state.getValue(CONNECTIONS[facing]))
             {
-                c |= 1 << facing;
+                c |= MathUtils.FACING_BIT[facing];
             }
         }
 
@@ -346,5 +376,21 @@ public class BlockPipe extends BlockBase implements IPipeConnection
     public boolean canPipeConnect(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing facing)
     {
         return true;
+    }
+
+    @Override
+    public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
+    {
+        if(!worldIn.isRemote && state.getValue(TIER) > 0)
+        {
+            TileEntity tileEntity = worldIn.getTileEntity(pos);
+
+            if(tileEntity instanceof TilePipe)
+            {
+                ((TilePipe) tileEntity).onBroken();
+            }
+        }
+
+        super.breakBlock(worldIn, pos, state);
     }
 }

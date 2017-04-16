@@ -1,0 +1,30 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"model": "modularpipes:pipe"
+	},
+	"variants": {
+		"model": {
+			"none": {},
+			"x": {"model": "modularpipes:pipe_vertical", "x": 90, "y": 90},
+			"y": {"model": "modularpipes:pipe_vertical"},
+			"z": {"model": "modularpipes:pipe_vertical", "x": 90, "y": 0}
+		},
+		"tier": {
+			"0": {},
+			"1": {"textures": {"overlay": "modularpipes:blocks/pipes/mk1"}, "submodel": {"overlay": {"model": "modularpipes:pipe_overlay"}}},
+			"2": {"submodel": {"overlay": {"model": "modularpipes:pipe_overlay"}}, "textures": {"overlay": "modularpipes:blocks/pipes/mk2"}},
+			"3": {"submodel": {"overlay": {"model": "modularpipes:pipe_overlay"}}, "textures": {"overlay": "modularpipes:blocks/pipes/mk3"}},
+			"4": {"submodel": {"overlay": {"model": "modularpipes:pipe_overlay"}}, "textures": {"overlay": "modularpipes:blocks/pipes/mk4"}},
+			"5": {"submodel": {"overlay": {"model": "modularpipes:pipe_overlay"}}, "textures": {"overlay": "modularpipes:blocks/pipes/mk5"}},
+			"6": {"submodel": {"overlay": {"model": "modularpipes:pipe_overlay"}}, "textures": {"overlay": "modularpipes:blocks/pipes/mk6"}},
+			"7": {"submodel": {"overlay": {"model": "modularpipes:pipe_overlay"}}, "textures": {"overlay": "modularpipes:blocks/pipes/mk7"}}
+		},
+		"con_down": {"true": {"submodel": {"down": {"model": "modularpipes:pipe_con", "x": 0, "y": 0}}}, "false": {}},
+		"con_up": {"true": {"submodel": {"up": {"model": "modularpipes:pipe_con", "x": 180, "y": 0}}}, "false": {}},
+		"con_north": {"true": {"submodel": {"north": {"model": "modularpipes:pipe_con", "x": 90, "y": 180}}}, "false": {}},
+		"con_south": {"true": {"submodel": {"south": {"model": "modularpipes:pipe_con", "x": 90, "y": 0}}}, "false": {}},
+		"con_west": {"true": {"submodel": {"west": {"model": "modularpipes:pipe_con", "x": 90, "y": 90}}}, "false": {}},
+		"con_east": {"true": {"submodel": {"east": {"model": "modularpipes:pipe_con", "x": 90, "y": 270}}}, "false": {}}
+	}
+}

@@ -3,6 +3,10 @@ itemGroup.modularpipes=Modular Pipes
 
 # Blocks
 tile.modularpipes.pipe.name=Modular Pipe
+tile.modularpipes.controller.name=Modular Pipe Controller
 
 # Items
 item.modularpipes.module.name=Pipe Module
+
+## Modules
+item.modularpipes.module.extract.name=Extract

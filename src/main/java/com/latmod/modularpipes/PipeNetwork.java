@@ -2,6 +2,8 @@ package com.latmod.modularpipes;
 
 import com.latmod.modularpipes.block.BlockPipe;
 import com.latmod.modularpipes.tile.TilePipe;
+import com.latmod.modularpipes.util.BlockDimPos;
+import com.latmod.modularpipes.util.MathUtils;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -10,16 +12,27 @@ import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author LatvianModder
  */
 public class PipeNetwork
 {
+    public static final Map<BlockDimPos, TileEntity> NETWORK = new HashMap<>();
     private static final List<TilePipe> TEMP_LIST = new ArrayList<>();
     public static final Collection<BlockPos> TEMP_POS_SET = new HashSet<>();
+
+    public static void addToNetwork(TileEntity tile, boolean notifyOthers)
+    {
+    }
+
+    public static void removeFromNetwork(TileEntity tile, boolean notifyOthers)
+    {
+    }
 
     public static List<TilePipe> findPipes(TilePipe source, boolean newList)
     {

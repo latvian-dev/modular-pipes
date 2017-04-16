@@ -1,0 +1,21 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"overlay": "modularpipes:blocks/pipes/mk1",
+		"particle": "modularpipes:blocks/pipes/base"
+	},
+	"elements": [
+		{
+			"from": [3.97, 3.97, 3.97],
+			"to": [12.03, 12.03, 12.03],
+			"faces": {
+				"north": {"texture": "#overlay", "uv": [4, 4, 12, 12]},
+				"east": {"texture": "#overlay", "uv": [4, 4, 12, 12]},
+				"south": {"texture": "#overlay", "uv": [4, 4, 12, 12]},
+				"west": {"texture": "#overlay", "uv": [4, 4, 12, 12]},
+				"up": {"texture": "#overlay", "uv": [4, 4, 12, 12]},
+				"down": {"texture": "#overlay", "uv": [4, 4, 12, 12]}
+			}
+		}
+	]
+}

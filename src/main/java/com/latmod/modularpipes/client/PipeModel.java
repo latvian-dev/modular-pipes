@@ -2,7 +2,7 @@ package com.latmod.modularpipes.client;
 
 import com.latmod.modularpipes.ModularPipes;
 import com.latmod.modularpipes.block.BlockPipe;
-import com.latmod.modularpipes.block.EnumPipeTier;
+import com.latmod.modularpipes.util.ModelBuilder;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelRotation;
@@ -36,7 +36,7 @@ public class PipeModel implements IModel
 
     public static final ResourceLocation PIPE_BASE = pipeTex("base");
     public static final ResourceLocation PIPE_VERTICAL = pipeTex("vertical");
-    public static final ResourceLocation[] PIPE_MK = {pipeTex("mk1"), pipeTex("mk2"), pipeTex("mk3"), pipeTex("mk4"), pipeTex("mk5"), pipeTex("mk6"), pipeTex("mk7")};
+    public static final ResourceLocation[] PIPE_MK = {null, pipeTex("mk1"), pipeTex("mk2"), pipeTex("mk3"), pipeTex("mk4"), pipeTex("mk5"), pipeTex("mk6"), pipeTex("mk7")};
     public static final Collection<ResourceLocation> TEXTURES;
 
     static
@@ -47,14 +47,16 @@ public class PipeModel implements IModel
 
         for(ResourceLocation tex : PIPE_MK)
         {
-            c.add(tex);
+            if(tex != null)
+            {
+                c.add(tex);
+            }
         }
 
         TEXTURES = Collections.unmodifiableCollection(c);
     }
 
-    public final EnumPipeTier tier;
-    public final ResourceLocation markTex;
+    public final int tier;
 
     public PipeModel(String variant)
     {
@@ -66,8 +68,7 @@ public class PipeModel implements IModel
             map.put(s1[0], s1[1]);
         }
 
-        tier = BlockPipe.TIER.parseValue(map.get("tier")).get();
-        markTex = tier.isBasic() ? null : PIPE_MK[tier.ordinal() - 1];
+        tier = Integer.parseInt(map.get("tier"));
     }
 
     @Override
@@ -91,16 +92,17 @@ public class PipeModel implements IModel
         Function<EnumFacing, TextureAtlasSprite> verticalSprites = face -> face.getAxis().isVertical() ? null : vertical;
         Function<EnumFacing, TextureAtlasSprite> connectionSprites = face -> face.getAxis().isVertical() ? null : base;
 
-        TextureAtlasSprite mark = markTex == null ? null : bakedTextureGetter.apply(markTex);
+        TextureAtlasSprite mark = PIPE_MK[tier] == null ? null : bakedTextureGetter.apply(PIPE_MK[tier]);
 
         List<List<BakedQuad>> quads = new ArrayList<>(64);
         ModelBuilder builder = new ModelBuilder(ModelRotation.X0_Y0);
+        builder.setShading(false);
 
         float f0 = BlockPipe.SIZE;
         float f1 = 16F - f0;
         float of0 = f0 - 0.03F;
         float of1 = f1 + 0.03F;
-        float t = 1F;
+        float t = 0.5F;
         float tf0 = f0 + t;
         float tf1 = f1 - t;
 
@@ -111,7 +113,7 @@ public class PipeModel implements IModel
                 case BlockPipe.AXIS_X:
                 case BlockPipe.AXIS_Y:
                 case BlockPipe.AXIS_Z:
-                    if(markTex == null)
+                    if(mark == null)
                     {
                         if(i == BlockPipe.AXIS_X)
                         {
@@ -168,6 +170,8 @@ public class PipeModel implements IModel
                     //builder.addQuad(tf0, tf0, tf0, tf1, tf1, tf1, EnumFacing.EAST, base);
             }
 
+            builder.clear();
+            builder.addCube(0F, 0F, 0F, 16, 16, 16, base);
             quads.add(builder.getQuads());
             builder.clear();
         }
