@@ -1,6 +1,6 @@
 package com.latmod.modularpipes.item;
 
-import com.latmod.modularpipes.ModularPipesCommon;
+import com.latmod.modularpipes.ModularPipesCaps;
 import com.latmod.modularpipes.api.Module;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
@@ -38,14 +38,14 @@ public class ItemModule extends ItemBase
         @Override
         public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing)
         {
-            return capability == ModularPipesCommon.CAP_MODULE;
+            return capability == ModularPipesCaps.MODULE;
         }
 
         @Nullable
         @Override
         public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing)
         {
-            return capability == ModularPipesCommon.CAP_MODULE ? (T) module : null;
+            return capability == ModularPipesCaps.MODULE ? (T) module : null;
         }
     }
 

@@ -1,10 +1,12 @@
 package com.latmod.modularpipes;
 
+import com.latmod.modularpipes.api.ModuleContainer;
 import com.latmod.modularpipes.block.BlockPipe;
 import com.latmod.modularpipes.tile.TilePipe;
 import com.latmod.modularpipes.util.BlockDimPos;
 import com.latmod.modularpipes.util.MathUtils;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -26,12 +28,14 @@ public class PipeNetwork
     private static final List<TilePipe> TEMP_LIST = new ArrayList<>();
     public static final Collection<BlockPos> TEMP_POS_SET = new HashSet<>();
 
-    public static void addToNetwork(TileEntity tile, boolean notifyOthers)
+    public static void addToNetwork(TileEntity tile, int dim)
     {
+        NETWORK.put(new BlockDimPos(tile.getPos(), dim), tile);
     }
 
-    public static void removeFromNetwork(TileEntity tile, boolean notifyOthers)
+    public static void removeFromNetwork(TileEntity tile, int dim)
     {
+        NETWORK.remove(new BlockDimPos(tile.getPos(), dim));
     }
 
     public static List<TilePipe> findPipes(TilePipe source, boolean newList)
@@ -87,5 +91,10 @@ public class PipeNetwork
                 findPipes0(world, pos.offset(EnumFacing.VALUES[i]), MathUtils.OPPOSITE[i], pipes);
             }
         }
+    }
+
+    public static void sendItemFrom(ModuleContainer container, ItemStack stack)
+    {
+        //TODO: Helper method for item extraction
     }
 }

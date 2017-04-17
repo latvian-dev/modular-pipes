@@ -9,6 +9,15 @@ import net.minecraft.util.EnumFacing;
  */
 public interface ModuleContainer
 {
+    default boolean hasModule()
+    {
+        return !getModule().isEmpty();
+    }
+
+    int getFilters();
+
+    int getTick();
+
     Module getModule();
 
     TileEntity getTile();

@@ -5,9 +5,4 @@ package com.latmod.modularpipes.api;
  */
 public interface IPipeController extends IPipeNetworkTile
 {
-    @Override
-    default IPipeController getPipeController()
-    {
-        return this;
-    }
 }

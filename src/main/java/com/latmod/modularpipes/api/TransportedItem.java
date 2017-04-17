@@ -2,15 +2,12 @@ package com.latmod.modularpipes.api;
 
 import com.latmod.modularpipes.util.MathUtils;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * @author LatvianModder
@@ -21,7 +18,8 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
     {
         NONE,
         REMOVE,
-        UPDATE;
+        UPDATE,
+        HIDE;
 
         public static final Action[] VALUES = values();
     }
@@ -39,13 +37,6 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
         action = Action.NONE;
         prevProgress = progress;
         progress += speed;
-    }
-
-    @SideOnly(Side.CLIENT)
-    public void render(float partialTick)
-    {
-        GlStateManager.pushMatrix();
-        GlStateManager.popMatrix();
     }
 
     @Override
@@ -127,5 +118,10 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
         speed = buf.readFloat();
         progress = buf.readFloat();
         prevProgress = buf.readFloat();
+    }
+
+    public void copyFrom(TransportedItem item)
+    {
+
     }
 }

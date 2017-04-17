@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.item;
 
+import com.latmod.modularpipes.block.BlockBasicPipe;
 import com.latmod.modularpipes.block.BlockController;
 import com.latmod.modularpipes.block.BlockPipe;
 import com.latmod.modularpipes.item.module.ModuleExtract;
@@ -12,6 +13,7 @@ import java.util.List;
  */
 public class ModularPipesItems
 {
+    public static final BlockBasicPipe PIPE_BASIC = new BlockBasicPipe("pipe_basic");
     public static final BlockPipe PIPE = new BlockPipe("pipe");
     public static final BlockController CONTROLLER = new BlockController("controller");
 

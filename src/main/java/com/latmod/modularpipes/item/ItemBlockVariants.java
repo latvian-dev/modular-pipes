@@ -6,9 +6,9 @@ import net.minecraft.item.ItemBlock;
 /**
  * @author LatvianModder
  */
-public class ItemBlockPipe extends ItemBlock
+public class ItemBlockVariants extends ItemBlock
 {
-    public ItemBlockPipe(Block block)
+    public ItemBlockVariants(Block block)
     {
         super(block);
         setHasSubtypes(true);

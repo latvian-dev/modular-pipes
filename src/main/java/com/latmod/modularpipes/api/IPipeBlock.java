@@ -8,7 +8,11 @@ import net.minecraft.world.IBlockAccess;
 /**
  * @author LatvianModder
  */
-public interface IPipeConnection
+public interface IPipeBlock
 {
+    float getSpeedModifier(IBlockAccess world, BlockPos pos, IBlockState state);
+
     boolean canPipeConnect(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing facing);
+
+    EnumFacing getItemDirection(IBlockAccess world, BlockPos pos, IBlockState state, TransportedItem item, EnumFacing source);
 }

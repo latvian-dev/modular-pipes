@@ -1,49 +1,56 @@
 package com.latmod.modularpipes.tile;
 
-import com.latmod.modularpipes.ModularPipesCommon;
 import com.latmod.modularpipes.api.ModuleContainer;
+import com.latmod.modularpipes.api.TransportedItem;
 import com.latmod.modularpipes.util.MathUtils;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.ITickable;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.ItemHandlerHelper;
 
-import java.util.Arrays;
-
 /**
  * @author LatvianModder
  */
-public class TilePipe extends TileEntity implements ITickable
+public class TilePipe extends TilePipeNetBase
 {
     private int tier;
-    private boolean isDirty;
-    public final ModuleContainer[] modules;
+    public final ModuleContainerImpl[] modules;
 
     public TilePipe()
     {
-        this(1);
+        this(0, 0);
     }
 
-    public TilePipe(int t)
+    public TilePipe(int dim, int t)
     {
+        super(dim);
         tier = t;
-        isDirty = true;
-        modules = new ModuleContainer[6];
+        modules = new ModuleContainerImpl[6];
+
+        for(int i = 0; i < 6; i++)
+        {
+            modules[i] = new ModuleContainerImpl(this, EnumFacing.VALUES[i], ItemStack.EMPTY);
+        }
     }
 
     public int getTier()
     {
         return tier;
+    }
+
+    public void clearModules()
+    {
+        for(int i = 0; i < 6; i++)
+        {
+            modules[i].setStack(ItemStack.EMPTY);
+        }
     }
 
     @Override
@@ -55,10 +62,7 @@ public class TilePipe extends TileEntity implements ITickable
 
         for(ModuleContainer c : modules)
         {
-            if(c != null)
-            {
-                moduleList.appendTag(ModuleContainerImpl.writeToNBT(c));
-            }
+            moduleList.appendTag(ModuleContainerImpl.writeToNBT(c));
         }
 
         nbt.setTag("Modules", moduleList);
@@ -70,45 +74,27 @@ public class TilePipe extends TileEntity implements ITickable
     {
         super.readFromNBT(nbt);
         tier = nbt.getByte("Tier");
-        Arrays.fill(modules, null);
+
+        clearModules();
 
         NBTTagList moduleList = nbt.getTagList("Modules", Constants.NBT.TAG_COMPOUND);
 
         for(int i = 0; i < moduleList.tagCount(); i++)
         {
-            ModuleContainer c = ModuleContainerImpl.readFromNBT(this, moduleList.getCompoundTagAt(i));
+            ModuleContainerImpl c = new ModuleContainerImpl(this, moduleList.getCompoundTagAt(i));
             modules[c.getFacing().getIndex()] = c;
         }
-    }
-
-    public void markDirty()
-    {
-        isDirty = true;
     }
 
     @Override
     public void update()
     {
-        for(ModuleContainer c : modules)
+        for(ModuleContainerImpl c : modules)
         {
-            if(c != null)
-            {
-                c.getModule().update(c);
-            }
+            c.update();
         }
 
-        if(isDirty)
-        {
-            if(world != null && world.isRemote)
-            {
-                updateContainingBlockInfo();
-                world.markChunkDirty(pos, this);
-                IBlockState state = world.getBlockState(pos);
-                world.notifyBlockUpdate(pos, state, state, 255);
-            }
-
-            isDirty = false;
-        }
+        super.update();
     }
 
     public void onRightClick(EntityPlayer playerIn, EnumHand hand)
@@ -133,43 +119,48 @@ public class TilePipe extends TileEntity implements ITickable
         }
 
         ItemStack stack = playerIn.getHeldItem(hand);
+        ModuleContainerImpl c = modules[facing];
 
-        if(modules[facing] == null)
+        if(stack.getCount() == 0 && playerIn.isSneaking())
         {
-            if(stack.getCount() > 0 && stack.hasCapability(ModularPipesCommon.CAP_MODULE, null))
+            if(c.getItemStack().getCount() > 0)
             {
-                ModuleContainer c = new ModuleContainerImpl(this, EnumFacing.VALUES[facing], ItemHandlerHelper.copyStackWithSize(stack, 1));
+                c.getModule().removeFromPipe(c, playerIn);
 
-                if(c.getModule().insertInPipe(c, playerIn))
+                if(c.getData().shouldSave())
                 {
-                    stack.shrink(1);
-                    modules[c.getFacing().getIndex()] = c;
-                    markDirty();
-                }
-            }
-        }
-        else
-        {
-            if(stack.getCount() == 0 && playerIn.isSneaking())
-            {
-                //TODO: Extract
-
-                modules[facing].getModule().removeFromPipe(modules[facing], playerIn);
-
-                if(!playerIn.inventory.addItemStackToInventory(modules[facing].getItemStack()) && modules[facing].getItemStack().getCount() > 0)
-                {
-                    world.spawnEntity(new EntityItem(world, playerIn.posX, playerIn.posY, playerIn.posZ, modules[facing].getItemStack()));
+                    c.getItemStack().setTagInfo("ModuleData", c.getData().serializeNBT());
                 }
 
-                modules[facing] = null;
+                if(!playerIn.inventory.addItemStackToInventory(c.getItemStack()) && c.getItemStack().getCount() > 0)
+                {
+                    world.spawnEntity(new EntityItem(world, playerIn.posX, playerIn.posY, playerIn.posZ, c.getItemStack()));
+                }
+
+                c.setStack(ItemStack.EMPTY);
                 markDirty();
             }
-            else if(!modules[facing].getModule().onRightClick(modules[facing], playerIn, hand))
+        }
+        else if(c.getItemStack().getCount() == 0)
+        {
+            c.setStack(ItemHandlerHelper.copyStackWithSize(stack, 1));
+
+            if(c.hasModule() && c.getModule().insertInPipe(c, playerIn))
             {
-                //TODO: Open GUI
-                playerIn.sendMessage(new TextComponentString("GUI Not Implemented!"));
+                stack.shrink(1);
+                markDirty();
+            }
+            else
+            {
+                c.setStack(ItemStack.EMPTY);
             }
         }
+        else if(!c.getModule().onRightClick(c, playerIn, hand))
+        {
+            //TODO: Open GUI
+            playerIn.sendMessage(new TextComponentString("GUI Not Implemented!"));
+        }
+            
 
         /*
         List<TilePipe> list = PipeNetwork.findPipes(this, false);
@@ -188,12 +179,26 @@ public class TilePipe extends TileEntity implements ITickable
     {
         for(ModuleContainer c : modules)
         {
-            if(c != null && c.getItemStack().getCount() > 0)
+            c.getModule().pipeBroken(c);
+
+            if(c.getData().shouldSave())
             {
-                world.spawnEntity(new EntityItem(world, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, c.getItemStack()));
+                c.getItemStack().setTagInfo("ModuleData", c.getData().serializeNBT());
+            }
+
+            if(c.getItemStack().getCount() > 0)
+            {
+                EntityItem entityItem = new EntityItem(world, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, c.getItemStack());
+                entityItem.setPickupDelay(10);
+                world.spawnEntity(entityItem);
             }
         }
 
-        Arrays.fill(modules, null);
+        clearModules();
+    }
+
+    public EnumFacing getItemDirection(TransportedItem item, EnumFacing source)
+    {
+        return source;
     }
 }

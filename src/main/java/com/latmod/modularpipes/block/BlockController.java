@@ -1,6 +1,7 @@
 package com.latmod.modularpipes.block;
 
-import com.latmod.modularpipes.api.IPipeConnection;
+import com.latmod.modularpipes.api.IPipeBlock;
+import com.latmod.modularpipes.api.TransportedItem;
 import com.latmod.modularpipes.tile.TileController;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
@@ -18,7 +19,7 @@ import net.minecraft.world.World;
 /**
  * @author LatvianModder
  */
-public class BlockController extends BlockBase implements IPipeConnection
+public class BlockController extends BlockBase implements IPipeBlock
 {
     public static final PropertyBool ERROR = PropertyBool.create("error");
 
@@ -56,7 +57,7 @@ public class BlockController extends BlockBase implements IPipeConnection
     @Override
     public TileEntity createTileEntity(World world, IBlockState state)
     {
-        return new TileController();
+        return new TileController(world.provider.getDimension());
     }
 
     @Override
@@ -67,7 +68,7 @@ public class BlockController extends BlockBase implements IPipeConnection
 
         if(tileEntity instanceof TileController)
         {
-            return state.withProperty(ERROR, ((TileController) tileEntity).error);
+            return state.withProperty(ERROR, ((TileController) tileEntity).hasError());
         }
 
         return state;
@@ -80,8 +81,20 @@ public class BlockController extends BlockBase implements IPipeConnection
     }
 
     @Override
+    public float getSpeedModifier(IBlockAccess world, BlockPos pos, IBlockState state)
+    {
+        return 0F;
+    }
+
+    @Override
     public boolean canPipeConnect(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing facing)
     {
         return true;
+    }
+
+    @Override
+    public EnumFacing getItemDirection(IBlockAccess world, BlockPos pos, IBlockState state, TransportedItem item, EnumFacing source)
+    {
+        return source;
     }
 }

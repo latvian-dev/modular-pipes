@@ -1,8 +1,11 @@
 package com.latmod.modularpipes.client;
 
 import com.latmod.modularpipes.ModularPipesCommon;
+import com.latmod.modularpipes.block.BlockBasicPipe;
+import com.latmod.modularpipes.block.BlockPipe;
 import com.latmod.modularpipes.item.ItemModule;
 import com.latmod.modularpipes.item.ModularPipesItems;
+import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.model.ModelLoader;
@@ -14,38 +17,43 @@ import net.minecraftforge.common.MinecraftForge;
 public class ModularPipesClient extends ModularPipesCommon
 {
     @Override
-    public void preInit()
+    public void onPreInit()
     {
-        super.preInit();
-        /*
-        ModelLoader.setCustomStateMapper(ModularPipesItems.PIPE, new StateMap.Builder().ignore(BlockPipe.CON_DOWN, BlockPipe.CON_UP, BlockPipe.CON_NORTH, BlockPipe.CON_SOUTH, BlockPipe.CON_WEST, BlockPipe.CON_EAST).build());
-        ModelLoaderRegistry.registerLoader(new ModularPipesModels());
-        Item pipeItem = Item.getItemFromBlock(ModularPipesItems.PIPE);
+        super.onPreInit();
 
-        List<ModelResourceLocation> pipeVariants = new ArrayList<>();
-
-        for(int meta = 0; meta < 8; meta++)
+        for(BlockBasicPipe.Variant v : BlockBasicPipe.Variant.VALUES)
         {
-            pipeVariants.add(new ModelResourceLocation(ModularPipesItems.PIPE.getRegistryName(), "tier=" + meta));
+            registerModel(ModularPipesItems.PIPE_BASIC, v.ordinal(), "model=none,variant=" + v.getName());
         }
 
-        ModelLoader.registerItemVariants(pipeItem, pipeVariants.toArray(new ModelResourceLocation[pipeVariants.size()]));
-        ModelLoader.setCustomMeshDefinition(pipeItem, new PipeItemMeshDefinition(pipeVariants));
-        */
-
-        Item pipeItem = Item.getItemFromBlock(ModularPipesItems.PIPE);
-        for(int meta = 0; meta < 8; meta++)
+        for(int meta : BlockPipe.TIER.getAllowedValues())
         {
-            ModelLoader.setCustomModelResourceLocation(pipeItem, meta, new ModelResourceLocation(ModularPipesItems.PIPE.getRegistryName(), "con_down=false,con_east=false,con_north=false,con_south=false,con_up=false,con_west=false,model=none,tier=" + meta));
+            registerModel(ModularPipesItems.PIPE, meta, "con_d=0,con_e=0,con_n=0,con_s=0,con_u=0,con_w=0,tier=" + meta);
         }
 
-        ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(ModularPipesItems.CONTROLLER), 0, new ModelResourceLocation(ModularPipesItems.CONTROLLER.getRegistryName(), "inventory"));
-        ModelLoader.setCustomModelResourceLocation(ModularPipesItems.MODULE, 0, new ModelResourceLocation(ModularPipesItems.MODULE.getRegistryName(), "inventory"));
+        registerModel(ModularPipesItems.CONTROLLER, 0, "error=false");
+        registerModel(ModularPipesItems.MODULE, 0, "inventory");
 
         for(ItemModule m : ModularPipesItems.MODULE_LIST)
         {
             ModelLoader.setCustomModelResourceLocation(m, 0, new ModelResourceLocation(m.getRegistryName().toString().replace("module_", "module/"), "inventory"));
         }
+    }
+
+    private void registerModel(Block block, int meta, String variant)
+    {
+        registerModel(Item.getItemFromBlock(block), meta, variant);
+    }
+
+    private void registerModel(Item item, int meta, String variant)
+    {
+        ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation(item.getRegistryName(), variant));
+    }
+
+    @Override
+    public void onInit()
+    {
+        super.onInit();
 
         MinecraftForge.EVENT_BUS.register(ModularPipesClientEventHandler.class);
     }

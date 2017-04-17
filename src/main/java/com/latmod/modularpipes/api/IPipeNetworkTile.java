@@ -5,5 +5,9 @@ package com.latmod.modularpipes.api;
  */
 public interface IPipeNetworkTile
 {
+    boolean hasError();
+
+    void setPipeController(IPipeController controller);
+
     IPipeController getPipeController();
 }

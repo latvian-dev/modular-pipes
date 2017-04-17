@@ -1,22 +1,17 @@
 package com.latmod.modularpipes;
 
-import com.latmod.modularpipes.api.IPipeController;
-import com.latmod.modularpipes.api.IPipeNetworkTile;
-import com.latmod.modularpipes.api.Module;
-import com.latmod.modularpipes.item.ItemBlockPipe;
+import com.latmod.modularpipes.item.ItemBlockVariants;
 import com.latmod.modularpipes.item.ItemModule;
 import com.latmod.modularpipes.item.ModularPipesItems;
 import com.latmod.modularpipes.net.MessageUpdateItems;
+import com.latmod.modularpipes.tile.TileController;
 import com.latmod.modularpipes.tile.TilePipe;
-import com.latmod.modularpipes.util.EmptyStorage;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
-import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.ShapedOreRecipe;
@@ -35,44 +30,48 @@ public class ModularPipesCommon
         }
     };
 
-    @CapabilityInject(Module.class)
-    public static Capability<Module> CAP_MODULE;
-
-    @CapabilityInject(IPipeNetworkTile.class)
-    public static Capability<Module> CAP_PIPE_NET_TILE;
-
-    @CapabilityInject(IPipeController.class)
-    public static Capability<Module> CAP_PIPE_CONTROLLER;
-
-    public void preInit()
+    public void onPreInit()
     {
-        GameRegistry.register(ModularPipesItems.PIPE);
-        GameRegistry.register(new ItemBlockPipe(ModularPipesItems.PIPE).setRegistryName(ModularPipesItems.PIPE.getRegistryName()));
-
-        GameRegistry.register(ModularPipesItems.CONTROLLER);
-        GameRegistry.register(new ItemBlock(ModularPipesItems.CONTROLLER).setRegistryName(ModularPipesItems.CONTROLLER.getRegistryName()));
-
-        GameRegistry.register(ModularPipesItems.MODULE);
+        register(new ItemBlockVariants(ModularPipesItems.PIPE_BASIC));
+        register(new ItemBlockVariants(ModularPipesItems.PIPE));
+        register(new ItemBlock(ModularPipesItems.CONTROLLER));
+        register(ModularPipesItems.MODULE);
 
         for(ItemModule m : ModularPipesItems.MODULE_LIST)
         {
-            GameRegistry.register(m);
+            register(m);
         }
 
         GameRegistry.registerTileEntity(TilePipe.class, ModularPipes.MOD_ID + ":pipe");
+        GameRegistry.registerTileEntity(TileController.class, ModularPipes.MOD_ID + ":controller");
 
-        CapabilityManager.INSTANCE.register(Module.class, EmptyStorage.getInstance(), () -> null);
-        CapabilityManager.INSTANCE.register(IPipeNetworkTile.class, EmptyStorage.getInstance(), () -> null);
-        CapabilityManager.INSTANCE.register(IPipeController.class, EmptyStorage.getInstance(), () -> null);
-
-        MinecraftForge.EVENT_BUS.register(ModularPipesEventHandler.class);
-
+        ModularPipesCaps.init();
         ModularPipes.NET.registerMessage(MessageUpdateItems.class, MessageUpdateItems.class, 1, Side.CLIENT);
     }
 
-    public void postInit()
+    private void register(Item item)
     {
-        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ModularPipesItems.PIPE, 8, 0), " R ", "SGS", " R ", 'S', "cobblestone", 'G', "paneGlass", 'R', "dustRedstone"));
+        if(item instanceof ItemBlock)
+        {
+            ItemBlock block = (ItemBlock) item;
+            GameRegistry.register(block.getBlock());
+            GameRegistry.register(block.setRegistryName(block.getBlock().getRegistryName()));
+        }
+        else
+        {
+            GameRegistry.register(item);
+        }
+    }
+
+    public void onInit()
+    {
+        MinecraftForge.EVENT_BUS.register(ModularPipesEventHandler.class);
+        Object basicPipe = new ItemStack(ModularPipesItems.PIPE_BASIC, 1, 0);
+
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ModularPipesItems.PIPE_BASIC, 8, 0), " R ", "SGS", " R ", 'S', "cobblestone", 'G', "paneGlass", 'R', "dustRedstone"));
+        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ModularPipesItems.PIPE_BASIC, 1, 1), "NGN", "GPG", "NGN", 'N', "nuggetGold", 'G', "dustGlowstone", 'P', basicPipe));
+
+        addCircularOreRecipe(new ItemStack(ModularPipesItems.PIPE, 8, 0), "dustRedstone", basicPipe);
 
         Object[] items = {
                 "ingotIron",
@@ -90,6 +89,8 @@ public class ModularPipesCommon
         }
 
         GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ModularPipesItems.CONTROLLER), "IPI", "PCP", "IPI", 'C', Items.COMPARATOR, 'I', "ingotIron", 'P', new ItemStack(ModularPipesItems.PIPE, 1, 4)));
+
+        addCircularOreRecipe(new ItemStack(ModularPipesItems.MODULE, 8), basicPipe, "ingotIron");
     }
 
     private static void addCircularOreRecipe(ItemStack out, Object center, Object around)

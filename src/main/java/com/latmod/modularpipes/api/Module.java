@@ -8,8 +8,22 @@ import net.minecraft.util.EnumHand;
  */
 public class Module
 {
+    public static final Module EMPTY = new Module()
+    {
+        @Override
+        public boolean isEmpty()
+        {
+            return true;
+        }
+    };
+
     public Module()
     {
+    }
+
+    public boolean isEmpty()
+    {
+        return false;
     }
 
     public ModuleData createData(ModuleContainer container)
