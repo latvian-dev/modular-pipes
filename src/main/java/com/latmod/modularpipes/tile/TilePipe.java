@@ -143,6 +143,22 @@ public class TilePipe extends TilePipeNetBase
         }
         else if(c.getItemStack().getCount() == 0)
         {
+            int modulesSize = 0;
+
+            for(int i = 0; i < modules.length; i++)
+            {
+                if(modules[i].hasModule())
+                {
+                    modulesSize++;
+                }
+            }
+
+            if(tier <= modulesSize)
+            {
+                playerIn.sendMessage(new TextComponentString("Can't insert any more modules!"));//TODO: Lang
+                return;
+            }
+
             c.setStack(ItemHandlerHelper.copyStackWithSize(stack, 1));
 
             if(c.hasModule() && c.getModule().insertInPipe(c, playerIn))

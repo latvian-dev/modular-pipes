@@ -9,6 +9,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -59,6 +60,13 @@ public class BlockPipeBase extends BlockBase implements IPipeBlock
     public BlockPipeBase(String id, MapColor color)
     {
         super(id, Material.ROCK, color);
+        setHardness(1F);
+    }
+
+    @Override
+    public boolean canHarvestBlock(IBlockAccess world, BlockPos pos, EntityPlayer player)
+    {
+        return true;
     }
 
     @Override
@@ -107,7 +115,7 @@ public class BlockPipeBase extends BlockBase implements IPipeBlock
     @Deprecated
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
-        return BOXES_64[getConnectionIdFromState(state)];
+        return BOXES_64[getConnectionIdFromState(getActualState(state, source, pos))];
     }
 
     @Override

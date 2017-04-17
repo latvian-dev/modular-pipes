@@ -2,6 +2,7 @@
 itemGroup.modularpipes=Modular Pipes
 
 # Blocks
+tile.modularpipes.pipe_basic.name=Basic Pipe
 tile.modularpipes.pipe.name=Modular Pipe
 tile.modularpipes.controller.name=Modular Pipe Controller
 

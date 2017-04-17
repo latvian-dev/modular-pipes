@@ -9,7 +9,7 @@
 			"speed": {
 				"textures": {
 					"base": "modularpipes:blocks/pipes/base_speed",
-					"particle": "modularpipes:blocks/pipes/base_speed"
+					"particle": "modularpipes:blocks/pipes/particle_speed"
 				}
 			}
 		},
