@@ -1,44 +1,73 @@
 package com.latmod.modularpipes;
 
 import com.latmod.modularpipes.api.ModuleContainer;
-import com.latmod.modularpipes.block.BlockPipe;
-import com.latmod.modularpipes.tile.TilePipe;
+import com.latmod.modularpipes.api.TransportedItem;
+import com.latmod.modularpipes.net.MessageUpdateItems;
 import com.latmod.modularpipes.util.BlockDimPos;
-import com.latmod.modularpipes.util.MathUtils;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import gnu.trove.list.array.TIntArrayList;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author LatvianModder
  */
-public class PipeNetwork
+public class PipeNetwork implements INBTSerializable<NBTTagCompound>
 {
-    public static final Map<BlockDimPos, TileEntity> NETWORK = new HashMap<>();
-    private static final List<TilePipe> TEMP_LIST = new ArrayList<>();
-    public static final Collection<BlockPos> TEMP_POS_SET = new HashSet<>();
+    public static PipeNetwork INSTANCE;
 
-    public static void addToNetwork(TileEntity tile, int dim)
+    private final List<Path> pathList = new ArrayList<>();
+    public final List<TransportedItem> items = new ArrayList<>();
+    private int nextItemId = 0;
+    private final List<TransportedItem> updateCache = new ArrayList<>();
+    private final TIntArrayList removeCache = new TIntArrayList();
+
+    public void clear()
     {
-        NETWORK.put(new BlockDimPos(tile.getPos(), dim), tile);
+        nextItemId = 0;
+        items.clear();
     }
 
-    public static void removeFromNetwork(TileEntity tile, int dim)
+    public void addOrUpdatePipe(BlockDimPos pos)
     {
-        NETWORK.remove(new BlockDimPos(tile.getPos(), dim));
     }
 
-    public static List<TilePipe> findPipes(TilePipe source, boolean newList)
+    public void removePipe(BlockDimPos pos)
+    {
+        Iterator<Path> iterator = pathList.iterator();
+
+        while(iterator.hasNext())
+        {
+            Path p = iterator.next();
+
+            if(p.contains(pos))
+            {
+                iterator.remove();
+            }
+        }
+    }
+
+    public void addItem(TransportedItem item)
+    {
+        item.id = ++nextItemId;
+        item.action = TransportedItem.Action.UPDATE;
+
+        if(nextItemId == 2000000000)
+        {
+            nextItemId = 0;
+        }
+
+        items.add(item);
+    }
+
+    /*
+    public List<TilePipe> findPipes(TilePipe source, boolean newList)
     {
         List<TilePipe> list;
 
@@ -48,12 +77,12 @@ public class PipeNetwork
         }
         else
         {
-            TEMP_LIST.clear();
-            list = TEMP_LIST;
+            tempList.clear();
+            list = tempList;
         }
 
-        TEMP_POS_SET.clear();
-        TEMP_POS_SET.add(source.getPos());
+        tempPosSet.clear();
+        tempPosSet.add(source.getPos());
 
         for(EnumFacing facing : EnumFacing.VALUES)
         {
@@ -63,16 +92,16 @@ public class PipeNetwork
         return list;
     }
 
-    public static void findPipes0(World world, BlockPos pos, int from, Collection<TilePipe> pipes)
+    public void findPipes0(World world, BlockPos pos, int from, Collection<TilePipe> pipes)
     {
         IBlockState state = world.getBlockState(pos);
 
-        if(!(state.getBlock() instanceof BlockPipe) || TEMP_POS_SET.contains(pos))
+        if(!(state.getBlock() instanceof BlockPipe) || tempPosSet.contains(pos))
         {
             return;
         }
 
-        TEMP_POS_SET.add(pos);
+        tempPosSet.add(pos);
 
         if(state.getBlock().hasTileEntity(state))
         {
@@ -92,9 +121,95 @@ public class PipeNetwork
             }
         }
     }
+    */
 
-    public static void sendItemFrom(ModuleContainer container, ItemStack stack)
+    public boolean generatePath(ModuleContainer container, TransportedItem item)
     {
-        //TODO: Helper method for item extraction
+        return false;
+    }
+
+    public void update()
+    {
+        updateCache.clear();
+        removeCache.clear();
+
+        Iterator<TransportedItem> iterator = items.iterator();
+        while(iterator.hasNext())
+        {
+            TransportedItem item = iterator.next();
+            item.update();
+
+            if(item.action == TransportedItem.Action.REMOVE)
+            {
+                removeCache.add(item.id);
+                iterator.remove();
+            }
+            else if(item.action == TransportedItem.Action.UPDATE)
+            {
+                updateCache.add(item);
+            }
+        }
+
+        if(!updateCache.isEmpty() || removeCache.isEmpty())
+        {
+            sync();
+        }
+    }
+
+    @Override
+    public NBTTagCompound serializeNBT()
+    {
+        NBTTagCompound nbt = new NBTTagCompound();
+        NBTTagList list = new NBTTagList();
+
+        for(TransportedItem item : items)
+        {
+            list.appendTag(item.serializeNBT());
+        }
+
+        nbt.setTag("Items", list);
+        list = new NBTTagList();
+
+        for(Path path : pathList)
+        {
+            list.appendTag(path.writeToNBT());
+        }
+        nbt.setTag("PathList", list);
+        return nbt;
+    }
+
+    @Override
+    public void deserializeNBT(NBTTagCompound nbt)
+    {
+        NBTTagList list = nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
+
+        for(int i = 0; i < list.tagCount(); i++)
+        {
+            TransportedItem item = new TransportedItem();
+            item.deserializeNBT(list.getCompoundTagAt(i));
+
+            if(item.action != TransportedItem.Action.REMOVE)
+            {
+                item.action = TransportedItem.Action.UPDATE;
+                items.add(item);
+            }
+        }
+
+        list = nbt.getTagList("PathList", Constants.NBT.TAG_COMPOUND);
+
+        for(int i = 0; i < list.tagCount(); i++)
+        {
+            pathList.add(new Path(list.getCompoundTagAt(i)));
+        }
+    }
+
+    public void sync()
+    {
+        ModularPipes.NET.sendToAll(new MessageUpdateItems(updateCache, removeCache));
+    }
+
+    public void syncOnLogin(EntityPlayerMP playerMP)
+    {
+        ModularPipes.NET.sendTo(new MessageUpdateItems(items, new TIntArrayList()), playerMP);
     }
 }

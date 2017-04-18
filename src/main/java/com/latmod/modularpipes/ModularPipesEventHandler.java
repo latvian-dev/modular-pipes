@@ -1,68 +1,39 @@
 package com.latmod.modularpipes;
 
-import com.latmod.modularpipes.api.TransportedItem;
-import com.latmod.modularpipes.net.MessageUpdateItems;
-import gnu.trove.list.array.TIntArrayList;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * @author LatvianModder
  */
 public class ModularPipesEventHandler
 {
-    public static final List<TransportedItem> ITEMS = new ArrayList<>();
-    public static int nextItemId = 0;
-    private static final List<TransportedItem> UPDATE_CACHE = new ArrayList<>();
-    private static final TIntArrayList REMOVE_CACHE = new TIntArrayList();
-
     @SubscribeEvent
     public static void onTickEvent(TickEvent.WorldTickEvent event)
     {
         if(event.world.provider.getDimension() == 0 && event.phase == TickEvent.Phase.END)
         {
-            UPDATE_CACHE.clear();
-            REMOVE_CACHE.clear();
-
-            Iterator<TransportedItem> iterator = ITEMS.iterator();
-            while(iterator.hasNext())
-            {
-                TransportedItem item = iterator.next();
-                item.update();
-
-                if(item.action == TransportedItem.Action.REMOVE)
-                {
-                    REMOVE_CACHE.add(item.id);
-                    iterator.remove();
-                }
-                else if(item.action == TransportedItem.Action.UPDATE)
-                {
-                    UPDATE_CACHE.add(item);
-                }
-            }
-
-            if(!UPDATE_CACHE.isEmpty() || REMOVE_CACHE.isEmpty())
-            {
-                ModularPipes.NET.sendToAll(new MessageUpdateItems(UPDATE_CACHE, REMOVE_CACHE));
-            }
+            PipeNetwork.INSTANCE.update();
         }
     }
 
     @SubscribeEvent
     public static void onWorldLoaded(WorldEvent.Load event)
     {
-        nextItemId = 0;
-        ITEMS.clear();
+        if(event.getWorld().provider.getDimension() != 0)
+        {
+            return;
+        }
+
+        PipeNetwork.INSTANCE = new PipeNetwork();
+        PipeNetwork.INSTANCE.clear();
 
         File file = new File(event.getWorld().getSaveHandler().getWorldDirectory(), "data/modularpipes.dat");
 
@@ -71,11 +42,11 @@ public class ModularPipesEventHandler
             return;
         }
 
-        NBTTagCompound data;
+        NBTTagCompound nbt;
 
         try
         {
-            data = CompressedStreamTools.read(file);
+            nbt = CompressedStreamTools.read(file);
         }
         catch(Exception ex)
         {
@@ -83,39 +54,22 @@ public class ModularPipesEventHandler
             return;
         }
 
-        NBTTagList list = data.getTagList("Items", Constants.NBT.TAG_COMPOUND);
-
-        for(int i = 0; i < list.tagCount(); i++)
-        {
-            TransportedItem item = new TransportedItem();
-            item.deserializeNBT(list.getCompoundTagAt(i));
-
-            if(item.action != TransportedItem.Action.REMOVE)
-            {
-                item.action = TransportedItem.Action.UPDATE;
-                ITEMS.add(item);
-            }
-        }
+        PipeNetwork.INSTANCE.deserializeNBT(nbt);
     }
 
     @SubscribeEvent
     public static void onWorldSaved(WorldEvent.Save event)
     {
-        NBTTagCompound nbt = new NBTTagCompound();
-        NBTTagList list = new NBTTagList();
-
-        for(TransportedItem item : ITEMS)
+        if(event.getWorld().provider.getDimension() != 0)
         {
-            list.appendTag(item.serializeNBT());
+            return;
         }
-
-        nbt.setTag("Items", list);
 
         File file = new File(event.getWorld().getSaveHandler().getWorldDirectory(), "data/modularpipes.dat");
 
         try
         {
-            CompressedStreamTools.write(nbt, file);
+            CompressedStreamTools.write(PipeNetwork.INSTANCE.serializeNBT(), file);
         }
         catch(Exception ex)
         {
@@ -123,16 +77,12 @@ public class ModularPipesEventHandler
         }
     }
 
-    public static void addItem(TransportedItem item)
+    @SubscribeEvent
+    public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event)
     {
-        item.id = ++nextItemId;
-        item.action = TransportedItem.Action.UPDATE;
-
-        if(nextItemId == 2000000000)
+        if(event.player instanceof EntityPlayerMP)
         {
-            nextItemId = 0;
+            PipeNetwork.INSTANCE.syncOnLogin((EntityPlayerMP) event.player);
         }
-
-        ITEMS.add(item);
     }
 }

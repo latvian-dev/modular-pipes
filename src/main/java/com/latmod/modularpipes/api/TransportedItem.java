@@ -1,13 +1,18 @@
 package com.latmod.modularpipes.api;
 
-import com.latmod.modularpipes.util.MathUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.NBTTagIntArray;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author LatvianModder
@@ -25,10 +30,10 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
     }
 
     public int id;
-    public int startingPosX, startingPosY, startingPosZ;
+    public int dimension;
+    public final List<BlockPos> path = new ArrayList<>();
     public ItemStack stack = ItemStack.EMPTY;
-    public int filters = 0, movingDistance = 0;
-    public EnumFacing movingDirection = null, dstTurn = null;
+    public int filters = 0;
     public float speed = 0F, progress = 0F, prevProgress = 0F;
     public Action action = Action.NONE;
 
@@ -44,11 +49,17 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
     {
         NBTTagCompound nbt = new NBTTagCompound();
         nbt.setTag("Item", stack.serializeNBT());
-        nbt.setIntArray("Pos", new int[] {startingPosX, startingPosY, startingPosZ});
+        nbt.setInteger("Dim", dimension);
+
+        NBTTagList pathTag = new NBTTagList();
+
+        for(BlockPos p : path)
+        {
+            pathTag.appendTag(new NBTTagIntArray(new int[] {p.getX(), p.getY(), p.getZ()}));
+        }
+
+        nbt.setTag("Path", pathTag);
         nbt.setInteger("Filters", filters);
-        nbt.setShort("MovingDistance", (short) movingDistance);
-        nbt.setByte("MovingDirection", (byte) MathUtils.getFacingIndex(movingDirection));
-        nbt.setByte("DstTurn", (byte) MathUtils.getFacingIndex(dstTurn));
         nbt.setFloat("Speed", speed);
         nbt.setFloat("Progress", progress);
         return nbt;
@@ -59,14 +70,21 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
     {
         action = Action.NONE;
         stack = new ItemStack(nbt.getCompoundTag("Item"));
-        int pos[] = nbt.getIntArray("Pos");
-        startingPosX = pos[0];
-        startingPosY = pos[1];
-        startingPosZ = pos[2];
+        dimension = nbt.getInteger("Dim");
+
+        path.clear();
+        NBTTagList pathTag = nbt.getTagList("Path", Constants.NBT.TAG_INT_ARRAY);
+        for(int i = 0; i < pathTag.tagCount(); i++)
+        {
+            int pos[] = pathTag.getIntArrayAt(i);
+
+            if(pos.length >= 3)
+            {
+                path.add(new BlockPos(pos[0], pos[1], pos[2]));
+            }
+        }
+
         filters = nbt.getInteger("Filters");
-        movingDistance = nbt.getShort("MovingDistance") & 0xFFFF;
-        movingDirection = MathUtils.getFacing(nbt.getByte("MovingDirection"));
-        dstTurn = MathUtils.getFacing(nbt.getByte("DstTurn"));
         speed = nbt.getFloat("Speed");
         progress = nbt.getFloat("Progress");
 
@@ -87,13 +105,17 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
         }
 
         ByteBufUtils.writeItemStack(buf, stack);
-        buf.writeInt(startingPosX);
-        buf.writeInt(startingPosY);
-        buf.writeInt(startingPosZ);
+        buf.writeInt(dimension);
+        buf.writeInt(path.size());
+
+        for(BlockPos p : path)
+        {
+            buf.writeInt(p.getX());
+            buf.writeInt(p.getY());
+            buf.writeInt(p.getZ());
+        }
+
         buf.writeShort(filters);
-        buf.writeShort(movingDistance);
-        buf.writeByte(MathUtils.getFacingIndex(movingDirection));
-        buf.writeByte(MathUtils.getFacingIndex(dstTurn));
         buf.writeFloat(speed);
         buf.writeFloat(progress);
         buf.writeFloat(prevProgress);
@@ -110,11 +132,19 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
         }
 
         stack = ByteBufUtils.readItemStack(buf);
-        startingPosX = buf.readInt();
-        startingPosY = buf.readInt();
-        startingPosZ = buf.readInt();
+        dimension = buf.readInt();
+        path.clear();
+        int s = buf.readInt();
+
+        while(--s >= 0)
+        {
+            int x = buf.readInt();
+            int y = buf.readInt();
+            int z = buf.readInt();
+            path.add(new BlockPos(x, y, z));
+        }
+
         filters = buf.readUnsignedShort();
-        movingDistance = buf.readUnsignedShort();
         speed = buf.readFloat();
         progress = buf.readFloat();
         prevProgress = buf.readFloat();
@@ -122,6 +152,14 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
 
     public void copyFrom(TransportedItem item)
     {
-
+        dimension = item.dimension;
+        path.clear();
+        path.addAll(item.path);
+        stack = item.stack.copy();
+        filters = item.filters;
+        speed = item.speed;
+        progress = item.progress;
+        prevProgress = item.prevProgress;
+        action = item.action;
     }
 }

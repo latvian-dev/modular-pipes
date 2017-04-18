@@ -1,18 +1,25 @@
 package com.latmod.modularpipes.tile;
 
+import com.latmod.modularpipes.api.IPipeBlock;
 import com.latmod.modularpipes.api.ModuleContainer;
 import com.latmod.modularpipes.api.TransportedItem;
 import com.latmod.modularpipes.util.MathUtils;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 /**
@@ -21,6 +28,7 @@ import net.minecraftforge.items.ItemHandlerHelper;
 public class TilePipe extends TilePipeNetBase
 {
     private int tier;
+    private int connections = -1;
     public final ModuleContainerImpl[] modules;
 
     public TilePipe()
@@ -58,6 +66,7 @@ public class TilePipe extends TilePipeNetBase
     {
         super.writeToNBT(nbt);
         nbt.setByte("Tier", (byte) tier);
+        nbt.setByte("Connections", (byte) connections);
         NBTTagList moduleList = new NBTTagList();
 
         for(ModuleContainer c : modules)
@@ -74,6 +83,7 @@ public class TilePipe extends TilePipeNetBase
     {
         super.readFromNBT(nbt);
         tier = nbt.getByte("Tier");
+        connections = nbt.getByte("Connections") & 0xFF;
 
         clearModules();
 
@@ -87,11 +97,23 @@ public class TilePipe extends TilePipeNetBase
     }
 
     @Override
+    public void updateContainingBlockInfo()
+    {
+        super.updateContainingBlockInfo();
+        connections = -1;
+    }
+
+    @Override
     public void update()
     {
         for(ModuleContainerImpl c : modules)
         {
             c.update();
+        }
+
+        if(!world.isRemote)
+        {
+            getConnections();
         }
 
         super.update();
@@ -216,5 +238,60 @@ public class TilePipe extends TilePipeNetBase
     public EnumFacing getItemDirection(TransportedItem item, EnumFacing source)
     {
         return source;
+    }
+
+    public int getConnections()
+    {
+        if(connections == -1)
+        {
+            connections = 0;
+
+            for(EnumFacing facing : EnumFacing.VALUES)
+            {
+                if(canConnectTo0(facing))
+                {
+                    connections |= MathUtils.FACING_BIT[facing.getIndex()];
+                }
+            }
+
+            markDirty();
+        }
+
+        return connections;
+    }
+
+    public boolean canConnectTo(EnumFacing facing)
+    {
+        return (getConnections() & MathUtils.FACING_BIT[facing.getIndex()]) != 0;
+    }
+
+    private boolean canConnectTo0(EnumFacing facing)
+    {
+        BlockPos pos1 = pos.offset(facing);
+        IBlockState state1 = world.getBlockState(pos1);
+        Block block1 = state1.getBlock();
+
+        if(block1 instanceof IPipeBlock)
+        {
+            return ((IPipeBlock) block1).canPipeConnect(world, pos1, state1, facing.getOpposite());
+        }
+        else if(block1.hasTileEntity(state1))
+        {
+            TileEntity tileEntity = world.getTileEntity(pos1);
+
+            if(tileEntity != null)
+            {
+                if(tileEntity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, facing.getOpposite()))
+                {
+                    return true;
+                }
+                else if(tileEntity.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing.getOpposite()))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

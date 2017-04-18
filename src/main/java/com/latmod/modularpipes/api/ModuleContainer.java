@@ -4,6 +4,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 
+import javax.annotation.Nullable;
+
 /**
  * @author LatvianModder
  */
@@ -14,7 +16,7 @@ public interface ModuleContainer
         return !getModule().isEmpty();
     }
 
-    int getFilters();
+    FilterConfig getFilterConfig();
 
     int getTick();
 
@@ -27,4 +29,15 @@ public interface ModuleContainer
     ItemStack getItemStack();
 
     ModuleData getData();
+
+    @Nullable
+    default TileEntity getFacingTile()
+    {
+        return getTile().getWorld().getTileEntity(getTile().getPos().offset(getFacing()));
+    }
+
+    default boolean isRemote()
+    {
+        return getTile().getWorld().isRemote;
+    }
 }

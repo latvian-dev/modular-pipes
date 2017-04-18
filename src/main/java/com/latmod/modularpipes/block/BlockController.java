@@ -81,6 +81,12 @@ public class BlockController extends BlockBase implements IPipeBlock
     }
 
     @Override
+    public boolean isNode(IBlockAccess world, BlockPos pos, IBlockState state)
+    {
+        return false;
+    }
+
+    @Override
     public float getSpeedModifier(IBlockAccess world, BlockPos pos, IBlockState state)
     {
         return 0F;

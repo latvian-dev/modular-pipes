@@ -10,6 +10,8 @@ import net.minecraft.world.IBlockAccess;
  */
 public interface IPipeBlock
 {
+    boolean isNode(IBlockAccess world, BlockPos pos, IBlockState state);
+
     float getSpeedModifier(IBlockAccess world, BlockPos pos, IBlockState state);
 
     boolean canPipeConnect(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing facing);

@@ -1,6 +1,5 @@
 package com.latmod.modularpipes.tile;
 
-import com.latmod.modularpipes.PipeNetwork;
 import com.latmod.modularpipes.api.IPipeController;
 import com.latmod.modularpipes.api.IPipeNetworkTile;
 import net.minecraft.block.state.IBlockState;
@@ -44,12 +43,7 @@ public class TilePipeNetBase extends TileEntity implements ITickable, IPipeNetwo
     {
         super.readFromNBT(nbt);
         dimension = nbt.getInteger("Dim");
-    }
-
-    @Override
-    public void onLoad()
-    {
-        PipeNetwork.addToNetwork(this, dimension);
+        isDirty = true;
     }
 
     @Override
@@ -76,7 +70,7 @@ public class TilePipeNetBase extends TileEntity implements ITickable, IPipeNetwo
     {
         if(isDirty)
         {
-            if(world != null && !world.isRemote)
+            if(world != null)
             {
                 updateContainingBlockInfo();
                 world.markChunkDirty(pos, this);

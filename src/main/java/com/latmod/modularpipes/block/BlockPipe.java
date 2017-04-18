@@ -1,6 +1,5 @@
 package com.latmod.modularpipes.block;
 
-import com.latmod.modularpipes.api.IPipeBlock;
 import com.latmod.modularpipes.api.TransportedItem;
 import com.latmod.modularpipes.tile.TilePipe;
 import net.minecraft.block.Block;
@@ -21,10 +20,8 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -35,12 +32,12 @@ import java.util.List;
 public class BlockPipe extends BlockPipeBase
 {
     public static final PropertyInteger TIER = PropertyInteger.create("tier", 0, 7);
-    public static final PropertyInteger CON_D = PropertyInteger.create("con_d", 0, 1);
-    public static final PropertyInteger CON_U = PropertyInteger.create("con_u", 0, 1);
-    public static final PropertyInteger CON_N = PropertyInteger.create("con_n", 0, 1);
-    public static final PropertyInteger CON_S = PropertyInteger.create("con_s", 0, 1);
-    public static final PropertyInteger CON_W = PropertyInteger.create("con_w", 0, 1);
-    public static final PropertyInteger CON_E = PropertyInteger.create("con_e", 0, 1);
+    public static final PropertyInteger CON_D = PropertyInteger.create("con_d", 0, 2);
+    public static final PropertyInteger CON_U = PropertyInteger.create("con_u", 0, 2);
+    public static final PropertyInteger CON_N = PropertyInteger.create("con_n", 0, 2);
+    public static final PropertyInteger CON_S = PropertyInteger.create("con_s", 0, 2);
+    public static final PropertyInteger CON_W = PropertyInteger.create("con_w", 0, 2);
+    public static final PropertyInteger CON_E = PropertyInteger.create("con_e", 0, 2);
     public static final PropertyInteger[] CONNECTIONS = {CON_D, CON_U, CON_N, CON_S, CON_W, CON_E};
 
     public BlockPipe(String id)
@@ -129,6 +126,11 @@ public class BlockPipe extends BlockPipeBase
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
+        if(state.getValue(TIER) == 0)
+        {
+            return false;
+        }
+
         TileEntity tileEntity = worldIn.getTileEntity(pos);
 
         if(tileEntity instanceof TilePipe)
@@ -143,13 +145,35 @@ public class BlockPipe extends BlockPipeBase
     @Deprecated
     public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
-        int d = canConnectTo(worldIn, pos, EnumFacing.DOWN) ? 1 : 0;
-        int u = canConnectTo(worldIn, pos, EnumFacing.UP) ? 1 : 0;
-        int n = canConnectTo(worldIn, pos, EnumFacing.NORTH) ? 1 : 0;
-        int s = canConnectTo(worldIn, pos, EnumFacing.SOUTH) ? 1 : 0;
-        int w = canConnectTo(worldIn, pos, EnumFacing.WEST) ? 1 : 0;
-        int e = canConnectTo(worldIn, pos, EnumFacing.EAST) ? 1 : 0;
-        return state.withProperty(CON_D, d).withProperty(CON_U, u).withProperty(CON_N, n).withProperty(CON_S, s).withProperty(CON_W, w).withProperty(CON_E, e);
+        TileEntity tileEntity = worldIn.getTileEntity(pos);
+
+        if(tileEntity instanceof TilePipe)
+        {
+            TilePipe pipe = (TilePipe) tileEntity;
+
+            for(int i = 0; i < 6; i++)
+            {
+                int j = pipe.modules[i].hasModule() ? 2 : 0;
+                state = state.withProperty(CONNECTIONS[i], j == 0 ? (pipe.canConnectTo(EnumFacing.VALUES[i]) ? 1 : 0) : j);
+            }
+        }
+
+        return state;
+    }
+
+    @Override
+    @Deprecated
+    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
+    {
+        if(!worldIn.isRemote)
+        {
+            TileEntity tileEntity = worldIn.getTileEntity(pos);
+
+            if(tileEntity != null)
+            {
+                tileEntity.updateContainingBlockInfo();
+            }
+        }
     }
 
     @Override
@@ -198,32 +222,8 @@ public class BlockPipe extends BlockPipeBase
     @Override
     public boolean canConnectTo(IBlockAccess worldIn, BlockPos pos, EnumFacing facing)
     {
-        BlockPos pos1 = pos.offset(facing);
-        IBlockState state1 = worldIn.getBlockState(pos1);
-        Block block1 = state1.getBlock();
-
-        if(block1 instanceof IPipeBlock)
-        {
-            return ((IPipeBlock) block1).canPipeConnect(worldIn, pos1, state1, facing.getOpposite());
-        }
-        else if(block1.hasTileEntity(state1))
-        {
-            TileEntity tileEntity = worldIn.getTileEntity(pos1);
-
-            if(tileEntity != null)
-            {
-                if(tileEntity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, facing.getOpposite()))
-                {
-                    return true;
-                }
-                else if(tileEntity.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing.getOpposite()))
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        TileEntity tileEntity = worldIn.getTileEntity(pos);
+        return tileEntity instanceof TilePipe && ((TilePipe) tileEntity).canConnectTo(facing);
     }
 
     @Override
@@ -238,10 +238,16 @@ public class BlockPipe extends BlockPipeBase
 
         for(int facing = 0; facing < 6; facing++)
         {
-            c |= state.getValue(CONNECTIONS[facing]) << facing;
+            c |= Math.min(1, state.getValue(CONNECTIONS[facing])) << facing;
         }
 
         return c;
+    }
+
+    @Override
+    public boolean isNode(IBlockAccess world, BlockPos pos, IBlockState state)
+    {
+        return true;
     }
 
     @Override

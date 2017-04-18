@@ -1,6 +1,7 @@
 package com.latmod.modularpipes.tile;
 
 import com.latmod.modularpipes.ModularPipesCaps;
+import com.latmod.modularpipes.api.FilterConfig;
 import com.latmod.modularpipes.api.Module;
 import com.latmod.modularpipes.api.ModuleContainer;
 import com.latmod.modularpipes.api.ModuleData;
@@ -21,21 +22,20 @@ public final class ModuleContainerImpl implements ModuleContainer, ITickable
     private Module module;
     private ItemStack stack;
     private ModuleData data;
-    private int filters;
+    private FilterConfig filterConfig;
     private int tick;
 
     public ModuleContainerImpl(TileEntity t, EnumFacing f, ItemStack stack)
     {
         tile = t;
         facing = f;
+        filterConfig = new FilterConfig();
         setStack(stack);
     }
 
     public ModuleContainerImpl(TileEntity t, NBTTagCompound nbt)
     {
         this(t, EnumFacing.VALUES[nbt.getByte("Facing")], ItemStack.EMPTY);
-
-        setFilters(nbt.getInteger("Filters"));
 
         if(nbt.hasKey("Item"))
         {
@@ -45,6 +45,11 @@ public final class ModuleContainerImpl implements ModuleContainer, ITickable
             {
                 data.deserializeNBT(stack.getTagCompound().getCompoundTag("ModuleData"));
             }
+        }
+
+        if(nbt.hasKey("FilterConfig"))
+        {
+            filterConfig.deserializeNBT(nbt.getTag("FilterConfig"));
         }
 
         tick = nbt.getInteger("Tick");
@@ -66,6 +71,7 @@ public final class ModuleContainerImpl implements ModuleContainer, ITickable
             {
                 module = m;
                 data = module.createData(this);
+                filterConfig = module.createFilterConfig(this);
             }
         }
     }
@@ -101,20 +107,15 @@ public final class ModuleContainerImpl implements ModuleContainer, ITickable
     }
 
     @Override
-    public int getFilters()
+    public FilterConfig getFilterConfig()
     {
-        return filters;
+        return filterConfig;
     }
 
     @Override
     public int getTick()
     {
         return tick;
-    }
-
-    public void setFilters(int f)
-    {
-        filters = f;
     }
 
     @Override
@@ -136,9 +137,9 @@ public final class ModuleContainerImpl implements ModuleContainer, ITickable
         {
             nbt.setInteger("Tick", c.getTick());
         }
-        if(c.getFilters() != 0)
+        if(c.getFilterConfig().shouldSave())
         {
-            nbt.setInteger("Filters", c.getFilters());
+            nbt.setTag("FilterConfig", c.getFilterConfig().serializeNBT());
         }
         if(c.getItemStack().getCount() > 0)
         {

@@ -14,11 +14,11 @@
 			"6": {"textures": {"overlay": "modularpipes:blocks/pipes/mk6"}},
 			"7": {"textures": {"overlay": "modularpipes:blocks/pipes/mk7"}}
 		},
-		"con_d": {"0": {}, "1": {"submodel": {"d": {"model": "modularpipes:pipe_con", "x": 0, "y": 0}}}},
-		"con_u": {"0": {}, "1": {"submodel": {"u": {"model": "modularpipes:pipe_con", "x": 180, "y": 0}}}},
-		"con_n": {"0": {}, "1": {"submodel": {"n": {"model": "modularpipes:pipe_con", "x": 90, "y": 180}}}},
-		"con_s": {"0": {}, "1": {"submodel": {"s": {"model": "modularpipes:pipe_con", "x": 90, "y": 0}}}},
-		"con_w": {"0": {}, "1": {"submodel": {"w": {"model": "modularpipes:pipe_con", "x": 90, "y": 90}}}},
-		"con_e": {"0": {}, "1": {"submodel": {"e": {"model": "modularpipes:pipe_con", "x": 90, "y": 270}}}}
+		"con_d": {"0": {}, "1": {"submodel": {"d": {"model": "modularpipes:pipe_con", "x": 0, "y": 0}}}, "2": {"submodel": {"d": {"model": "modularpipes:pipe_module", "x": 0, "y": 0}}}},
+		"con_u": {"0": {}, "1": {"submodel": {"u": {"model": "modularpipes:pipe_con", "x": 180, "y": 0}}}, "2": {"submodel": {"u": {"model": "modularpipes:pipe_module", "x": 180, "y": 0}}}},
+		"con_n": {"0": {}, "1": {"submodel": {"n": {"model": "modularpipes:pipe_con", "x": 90, "y": 180}}}, "2": {"submodel": {"n": {"model": "modularpipes:pipe_module", "x": 90, "y": 180}}}},
+		"con_s": {"0": {}, "1": {"submodel": {"s": {"model": "modularpipes:pipe_con", "x": 90, "y": 0}}}, "2": {"submodel": {"s": {"model": "modularpipes:pipe_module", "x": 90, "y": 0}}}},
+		"con_w": {"0": {}, "1": {"submodel": {"w": {"model": "modularpipes:pipe_con", "x": 90, "y": 90}}}, "2": {"submodel": {"w": {"model": "modularpipes:pipe_module", "x": 90, "y": 90}}}},
+		"con_e": {"0": {}, "1": {"submodel": {"e": {"model": "modularpipes:pipe_con", "x": 90, "y": 270}}}, "2": {"submodel": {"e": {"model": "modularpipes:pipe_module", "x": 90, "y": 270}}}}
 	}
 }
