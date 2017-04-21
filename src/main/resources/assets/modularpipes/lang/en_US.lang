@@ -3,7 +3,7 @@ itemGroup.modularpipes=Modular Pipes
 
 # Blocks
 tile.modularpipes.pipe_basic.name=Basic Pipe
-tile.modularpipes.pipe.name=Modular Pipe
+tile.modularpipes.pipe_modular.name=Modular Pipe
 tile.modularpipes.controller.name=Modular Pipe Controller
 
 # Items
@@ -11,3 +11,5 @@ item.modularpipes.module.name=Pipe Module
 
 ## Modules
 item.modularpipes.module.extract.name=Extract
+item.modularpipes.module.rightclick_extract.name=Extract On Right-click (Dev item)
+item.modularpipes.module.block_items.name=Block Items From Passing Trough

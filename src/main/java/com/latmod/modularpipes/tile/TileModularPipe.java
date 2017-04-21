@@ -1,8 +1,11 @@
 package com.latmod.modularpipes.tile;
 
 import com.latmod.modularpipes.api.IPipeBlock;
+import com.latmod.modularpipes.api.IPipeNetwork;
 import com.latmod.modularpipes.api.ModuleContainer;
 import com.latmod.modularpipes.api.TransportedItem;
+import com.latmod.modularpipes.api_impl.Node;
+import com.latmod.modularpipes.api_impl.PipeNetwork;
 import com.latmod.modularpipes.util.MathUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -25,18 +28,19 @@ import net.minecraftforge.items.ItemHandlerHelper;
 /**
  * @author LatvianModder
  */
-public class TilePipe extends TilePipeNetBase
+public class TileModularPipe extends TilePipeNetBase
 {
     private int tier;
     private int connections = -1;
     public final ModuleContainerImpl[] modules;
+    private IPipeNetwork network;
 
-    public TilePipe()
+    public TileModularPipe()
     {
         this(0, 0);
     }
 
-    public TilePipe(int dim, int t)
+    public TileModularPipe(int dim, int t)
     {
         super(dim);
         tier = t;
@@ -161,9 +165,11 @@ public class TilePipe extends TilePipeNetBase
 
                 c.setStack(ItemStack.EMPTY);
                 markDirty();
+                return;
             }
         }
-        else if(c.getItemStack().getCount() == 0)
+
+        if(c.getItemStack().getCount() == 0)
         {
             int modulesSize = 0;
 
@@ -187,13 +193,15 @@ public class TilePipe extends TilePipeNetBase
             {
                 stack.shrink(1);
                 markDirty();
+                return;
             }
             else
             {
                 c.setStack(ItemStack.EMPTY);
             }
         }
-        else if(!c.getModule().onRightClick(c, playerIn, hand))
+
+        if(!c.getModule().onRightClick(c, playerIn, hand))
         {
             //TODO: Open GUI
             playerIn.sendMessage(new TextComponentString("GUI Not Implemented!"));
@@ -201,16 +209,32 @@ public class TilePipe extends TilePipeNetBase
             
 
         /*
-        List<TilePipe> list = PipeNetwork.findPipes(this, false);
+        List<TileModularPipe> list = PipeNetwork.findPipes(this, false);
         List<String> list1 = new ArrayList<>();
 
-        for(TilePipe t : list)
+        for(TileModularPipe t : list)
         {
             list1.add("[" + t.getPos().getX() + ", " + t.getPos().getY() + ", " + t.getPos().getZ() + "]");
         }
 
         playerIn.sendMessage(new TextComponentString("Found " + list.size() + " pipes on network: " + list1));
         */
+    }
+
+    @Override
+    public void onLoad()
+    {
+        super.onLoad();
+
+        if(world != null && !world.isRemote)
+        {
+            dimension = world.provider.getDimension();
+
+            if(getNetwork().getNode(pos) == null)
+            {
+                getNetwork().setNode(pos, new Node(getNetwork(), pos));
+            }
+        }
     }
 
     public void onBroken()
@@ -233,6 +257,7 @@ public class TilePipe extends TilePipeNetBase
         }
 
         clearModules();
+        getNetwork().setNode(pos, null);
     }
 
     public EnumFacing getItemDirection(TransportedItem item, EnumFacing source)
@@ -293,5 +318,15 @@ public class TilePipe extends TilePipeNetBase
         }
 
         return false;
+    }
+
+    public IPipeNetwork getNetwork()
+    {
+        if(network == null)
+        {
+            network = PipeNetwork.get(world);
+        }
+
+        return network;
     }
 }

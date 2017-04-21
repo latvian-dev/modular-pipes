@@ -1,14 +1,12 @@
 package com.latmod.modularpipes;
 
+import com.latmod.modularpipes.api_impl.PipeNetwork;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-
-import java.io.File;
 
 /**
  * @author LatvianModder
@@ -18,63 +16,34 @@ public class ModularPipesEventHandler
     @SubscribeEvent
     public static void onTickEvent(TickEvent.WorldTickEvent event)
     {
-        if(event.world.provider.getDimension() == 0 && event.phase == TickEvent.Phase.END)
+        if(event.phase == TickEvent.Phase.END)
         {
-            PipeNetwork.INSTANCE.update();
+            PipeNetwork.get(event.world).update();
         }
     }
 
     @SubscribeEvent
     public static void onWorldLoaded(WorldEvent.Load event)
     {
-        if(event.getWorld().provider.getDimension() != 0)
+        if(event.getWorld() instanceof WorldServer)
         {
-            return;
+            PipeNetwork.load(event.getWorld());
         }
+    }
 
-        PipeNetwork.INSTANCE = new PipeNetwork();
-        PipeNetwork.INSTANCE.clear();
-
-        File file = new File(event.getWorld().getSaveHandler().getWorldDirectory(), "data/modularpipes.dat");
-
-        if(!file.exists())
+    @SubscribeEvent
+    public static void onWorldUnloaded(WorldEvent.Unload event)
+    {
+        if(event.getWorld() instanceof WorldServer)
         {
-            return;
+            PipeNetwork.unload(event.getWorld());
         }
-
-        NBTTagCompound nbt;
-
-        try
-        {
-            nbt = CompressedStreamTools.read(file);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            return;
-        }
-
-        PipeNetwork.INSTANCE.deserializeNBT(nbt);
     }
 
     @SubscribeEvent
     public static void onWorldSaved(WorldEvent.Save event)
     {
-        if(event.getWorld().provider.getDimension() != 0)
-        {
-            return;
-        }
-
-        File file = new File(event.getWorld().getSaveHandler().getWorldDirectory(), "data/modularpipes.dat");
-
-        try
-        {
-            CompressedStreamTools.write(PipeNetwork.INSTANCE.serializeNBT(), file);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-        }
+        PipeNetwork.save(event.getWorld());
     }
 
     @SubscribeEvent
@@ -82,7 +51,7 @@ public class ModularPipesEventHandler
     {
         if(event.player instanceof EntityPlayerMP)
         {
-            PipeNetwork.INSTANCE.syncOnLogin((EntityPlayerMP) event.player);
+            PipeNetwork.get(((EntityPlayerMP) event.player).world).playerLoggedIn((EntityPlayerMP) event.player);
         }
     }
 }

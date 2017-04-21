@@ -1,7 +1,7 @@
 package com.latmod.modularpipes.block;
 
 import com.latmod.modularpipes.api.IPipeBlock;
-import com.latmod.modularpipes.api.TransportedItem;
+import com.latmod.modularpipes.api_impl.PipeNetwork;
 import com.latmod.modularpipes.util.MathUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
@@ -9,7 +9,9 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -166,8 +168,22 @@ public class BlockPipeBase extends BlockBase implements IPipeBlock
     }
 
     @Override
-    public EnumFacing getItemDirection(IBlockAccess world, BlockPos pos, IBlockState state, TransportedItem item, EnumFacing source)
+    public EnumFacing getPipeFacing(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing source)
     {
         return source;
+    }
+
+    @Override
+    public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
+    {
+        super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
+        PipeNetwork.get(worldIn).addOrUpdatePipe(pos, state);
+    }
+
+    @Override
+    public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
+    {
+        PipeNetwork.get(worldIn).removeLinkAt(pos, state);
+        super.breakBlock(worldIn, pos, state);
     }
 }

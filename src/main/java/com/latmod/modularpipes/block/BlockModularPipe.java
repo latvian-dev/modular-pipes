@@ -1,7 +1,7 @@
 package com.latmod.modularpipes.block;
 
 import com.latmod.modularpipes.api.TransportedItem;
-import com.latmod.modularpipes.tile.TilePipe;
+import com.latmod.modularpipes.tile.TileModularPipe;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.properties.PropertyInteger;
@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public class BlockPipe extends BlockPipeBase
+public class BlockModularPipe extends BlockPipeBase
 {
     public static final PropertyInteger TIER = PropertyInteger.create("tier", 0, 7);
     public static final PropertyInteger CON_D = PropertyInteger.create("con_d", 0, 2);
@@ -40,7 +40,7 @@ public class BlockPipe extends BlockPipeBase
     public static final PropertyInteger CON_E = PropertyInteger.create("con_e", 0, 2);
     public static final PropertyInteger[] CONNECTIONS = {CON_D, CON_U, CON_N, CON_S, CON_W, CON_E};
 
-    public BlockPipe(String id)
+    public BlockModularPipe(String id)
     {
         super(id, MapColor.GRAY);
         setDefaultState(blockState.getBaseState()
@@ -87,7 +87,7 @@ public class BlockPipe extends BlockPipeBase
     @Override
     public TileEntity createTileEntity(World world, IBlockState state)
     {
-        return new TilePipe(world.provider.getDimension(), state.getValue(TIER));
+        return new TileModularPipe(world.provider.getDimension(), state.getValue(TIER));
     }
 
     @Override
@@ -133,9 +133,9 @@ public class BlockPipe extends BlockPipeBase
 
         TileEntity tileEntity = worldIn.getTileEntity(pos);
 
-        if(tileEntity instanceof TilePipe)
+        if(tileEntity instanceof TileModularPipe)
         {
-            ((TilePipe) tileEntity).onRightClick(playerIn, hand);
+            ((TileModularPipe) tileEntity).onRightClick(playerIn, hand);
         }
 
         return true;
@@ -147,9 +147,9 @@ public class BlockPipe extends BlockPipeBase
     {
         TileEntity tileEntity = worldIn.getTileEntity(pos);
 
-        if(tileEntity instanceof TilePipe)
+        if(tileEntity instanceof TileModularPipe)
         {
-            TilePipe pipe = (TilePipe) tileEntity;
+            TileModularPipe pipe = (TileModularPipe) tileEntity;
 
             for(int i = 0; i < 6; i++)
             {
@@ -165,13 +165,16 @@ public class BlockPipe extends BlockPipeBase
     @Deprecated
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
-        if(!worldIn.isRemote)
-        {
-            TileEntity tileEntity = worldIn.getTileEntity(pos);
+        TileEntity tileEntity = worldIn.getTileEntity(pos);
 
-            if(tileEntity != null)
+        if(tileEntity instanceof TileModularPipe)
+        {
+            tileEntity.updateContainingBlockInfo();
+            ((TileModularPipe) tileEntity).getConnections();
+
+            if(worldIn.isRemote)
             {
-                tileEntity.updateContainingBlockInfo();
+                worldIn.notifyBlockUpdate(pos, state, state, 255);
             }
         }
     }
@@ -223,7 +226,7 @@ public class BlockPipe extends BlockPipeBase
     public boolean canConnectTo(IBlockAccess worldIn, BlockPos pos, EnumFacing facing)
     {
         TileEntity tileEntity = worldIn.getTileEntity(pos);
-        return tileEntity instanceof TilePipe && ((TilePipe) tileEntity).canConnectTo(facing);
+        return tileEntity instanceof TileModularPipe && ((TileModularPipe) tileEntity).canConnectTo(facing);
     }
 
     @Override
@@ -255,9 +258,9 @@ public class BlockPipe extends BlockPipeBase
     {
         TileEntity tileEntity = world.getTileEntity(pos);
 
-        if(tileEntity instanceof TilePipe)
+        if(tileEntity instanceof TileModularPipe)
         {
-            return ((TilePipe) tileEntity).getItemDirection(item, source);
+            return ((TileModularPipe) tileEntity).getItemDirection(item, source);
         }
 
         return source;
@@ -268,9 +271,9 @@ public class BlockPipe extends BlockPipeBase
     {
         TileEntity tileEntity = worldIn.getTileEntity(pos);
 
-        if(tileEntity instanceof TilePipe)
+        if(tileEntity instanceof TileModularPipe)
         {
-            ((TilePipe) tileEntity).onBroken();
+            ((TileModularPipe) tileEntity).onBroken();
         }
 
         super.breakBlock(worldIn, pos, state);

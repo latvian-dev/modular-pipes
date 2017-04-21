@@ -2,6 +2,7 @@ package com.latmod.modularpipes.tile;
 
 import com.latmod.modularpipes.ModularPipesCaps;
 import com.latmod.modularpipes.api.FilterConfig;
+import com.latmod.modularpipes.api.IPipeNetwork;
 import com.latmod.modularpipes.api.Module;
 import com.latmod.modularpipes.api.ModuleContainer;
 import com.latmod.modularpipes.api.ModuleData;
@@ -17,7 +18,7 @@ import net.minecraft.util.ITickable;
  */
 public final class ModuleContainerImpl implements ModuleContainer, ITickable
 {
-    private final TileEntity tile;
+    private final TileModularPipe tile;
     private final EnumFacing facing;
     private Module module;
     private ItemStack stack;
@@ -25,7 +26,7 @@ public final class ModuleContainerImpl implements ModuleContainer, ITickable
     private FilterConfig filterConfig;
     private int tick;
 
-    public ModuleContainerImpl(TileEntity t, EnumFacing f, ItemStack stack)
+    public ModuleContainerImpl(TileModularPipe t, EnumFacing f, ItemStack stack)
     {
         tile = t;
         facing = f;
@@ -33,7 +34,7 @@ public final class ModuleContainerImpl implements ModuleContainer, ITickable
         setStack(stack);
     }
 
-    public ModuleContainerImpl(TileEntity t, NBTTagCompound nbt)
+    public ModuleContainerImpl(TileModularPipe t, NBTTagCompound nbt)
     {
         this(t, EnumFacing.VALUES[nbt.getByte("Facing")], ItemStack.EMPTY);
 
@@ -53,6 +54,12 @@ public final class ModuleContainerImpl implements ModuleContainer, ITickable
         }
 
         tick = nbt.getInteger("Tick");
+    }
+
+    @Override
+    public IPipeNetwork getNetwork()
+    {
+        return tile.getNetwork();
     }
 
     public void setStack(ItemStack s)

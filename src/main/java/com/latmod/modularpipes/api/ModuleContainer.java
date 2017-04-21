@@ -11,6 +11,8 @@ import javax.annotation.Nullable;
  */
 public interface ModuleContainer
 {
+    IPipeNetwork getNetwork();
+
     default boolean hasModule()
     {
         return !getModule().isEmpty();

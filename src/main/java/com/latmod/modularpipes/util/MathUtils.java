@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.util;
 
+import net.minecraft.block.BlockLog;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.EnumFacing;
@@ -44,6 +45,80 @@ public class MathUtils
     public static int getFacingIndex(@Nullable EnumFacing facing)
     {
         return facing == null ? -1 : facing.getIndex();
+    }
+
+    private static boolean isNumberBetween(int num, int num1, int num2)
+    {
+        int min = Math.min(num1, num2);
+        int max = Math.max(num1, num2);
+        return num >= min && num <= max;
+    }
+
+    public static BlockLog.EnumAxis getAxis(BlockPos pos1, BlockPos pos2)
+    {
+        int x = pos1.getX() - pos2.getX();
+        int y = pos1.getY() - pos2.getY();
+        int z = pos1.getZ() - pos2.getZ();
+
+        if(x != 0 && y == 0 && z == 0)
+        {
+            return BlockLog.EnumAxis.X;
+        }
+        else if(x == 0 && y != 0 && z == 0)
+        {
+            return BlockLog.EnumAxis.Y;
+        }
+        else if(x == 0 && y == 0 && z != 0)
+        {
+            return BlockLog.EnumAxis.Z;
+        }
+
+        return BlockLog.EnumAxis.NONE;
+    }
+
+    public static boolean isPosBetween(BlockPos pos, BlockPos pos1, BlockPos pos2)
+    {
+        switch(getAxis(pos1, pos2))
+        {
+            case X:
+                return isNumberBetween(pos.getX(), pos1.getX(), pos2.getX());
+            case Y:
+                return isNumberBetween(pos.getY(), pos1.getY(), pos2.getY());
+            case Z:
+                return isNumberBetween(pos.getZ(), pos1.getZ(), pos2.getZ());
+            default:
+                return pos1.equals(pos) || pos2.equals(pos);
+        }
+    }
+
+    @Nullable
+    public static EnumFacing getFacing(BlockPos pos1, BlockPos pos2)
+    {
+        if(pos1.getY() > pos2.getY())
+        {
+            return EnumFacing.DOWN;
+        }
+        else if(pos1.getY() < pos2.getY())
+        {
+            return EnumFacing.UP;
+        }
+        else if(pos1.getZ() > pos2.getZ())
+        {
+            return EnumFacing.NORTH;
+        }
+        else if(pos1.getZ() < pos2.getZ())
+        {
+            return EnumFacing.SOUTH;
+        }
+        else if(pos1.getX() > pos2.getX())
+        {
+            return EnumFacing.WEST;
+        }
+        else if(pos1.getX() < pos2.getX())
+        {
+            return EnumFacing.EAST;
+        }
+        return null;
     }
 
     public static Vec3d getEyePosition(EntityPlayer ep)

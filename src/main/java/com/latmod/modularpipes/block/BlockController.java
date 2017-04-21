@@ -1,7 +1,6 @@
 package com.latmod.modularpipes.block;
 
 import com.latmod.modularpipes.api.IPipeBlock;
-import com.latmod.modularpipes.api.TransportedItem;
 import com.latmod.modularpipes.tile.TileController;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
@@ -99,7 +98,7 @@ public class BlockController extends BlockBase implements IPipeBlock
     }
 
     @Override
-    public EnumFacing getItemDirection(IBlockAccess world, BlockPos pos, IBlockState state, TransportedItem item, EnumFacing source)
+    public EnumFacing getPipeFacing(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing source)
     {
         return source;
     }

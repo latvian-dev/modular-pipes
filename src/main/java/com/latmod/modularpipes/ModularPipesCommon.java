@@ -1,11 +1,11 @@
 package com.latmod.modularpipes;
 
+import com.latmod.modularpipes.api_impl.PipeNetwork;
 import com.latmod.modularpipes.item.ItemBlockVariants;
 import com.latmod.modularpipes.item.ItemModule;
 import com.latmod.modularpipes.item.ModularPipesItems;
 import com.latmod.modularpipes.net.MessageUpdateItems;
-import com.latmod.modularpipes.tile.TileController;
-import com.latmod.modularpipes.tile.TilePipe;
+import com.latmod.modularpipes.tile.TileModularPipe;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -26,15 +26,15 @@ public class ModularPipesCommon
         @Override
         public ItemStack getTabIconItem()
         {
-            return new ItemStack(ModularPipesItems.PIPE);
+            return new ItemStack(ModularPipesItems.PIPE_BASIC, 1, 1);
         }
     };
 
     public void onPreInit()
     {
         register(new ItemBlockVariants(ModularPipesItems.PIPE_BASIC));
-        register(new ItemBlockVariants(ModularPipesItems.PIPE));
-        register(new ItemBlock(ModularPipesItems.CONTROLLER));
+        register(new ItemBlockVariants(ModularPipesItems.PIPE_MODULAR));
+        //register(new ItemBlock(ModularPipesItems.CONTROLLER));
         register(ModularPipesItems.MODULE);
 
         for(ItemModule m : ModularPipesItems.MODULE_LIST)
@@ -42,8 +42,8 @@ public class ModularPipesCommon
             register(m);
         }
 
-        GameRegistry.registerTileEntity(TilePipe.class, ModularPipes.MOD_ID + ":pipe");
-        GameRegistry.registerTileEntity(TileController.class, ModularPipes.MOD_ID + ":controller");
+        GameRegistry.registerTileEntity(TileModularPipe.class, ModularPipes.MOD_ID + ":pipe_modular");
+        //GameRegistry.registerTileEntity(TileController.class, ModularPipes.MOD_ID + ":controller");
 
         ModularPipesCaps.init();
         ModularPipes.NET.registerMessage(MessageUpdateItems.class, MessageUpdateItems.class, 1, Side.CLIENT);
@@ -71,7 +71,7 @@ public class ModularPipesCommon
         GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ModularPipesItems.PIPE_BASIC, 8, 0), " R ", "SGS", " R ", 'S', "cobblestone", 'G', "paneGlass", 'R', "dustRedstone"));
         GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ModularPipesItems.PIPE_BASIC, 1, 1), "NGN", "GPG", "NGN", 'N', "nuggetGold", 'G', "dustGlowstone", 'P', basicPipe));
 
-        addCircularOreRecipe(new ItemStack(ModularPipesItems.PIPE, 8, 0), "dustRedstone", basicPipe);
+        addCircularOreRecipe(new ItemStack(ModularPipesItems.PIPE_MODULAR, 8, 0), "dustRedstone", basicPipe);
 
         Object[] items = {
                 "ingotIron",
@@ -85,12 +85,17 @@ public class ModularPipesCommon
 
         for(int meta = 0; meta < 7; meta++)
         {
-            addCircularOreRecipe(new ItemStack(ModularPipesItems.PIPE, 8, meta + 1), items[meta], new ItemStack(ModularPipesItems.PIPE, 1, meta));
+            addCircularOreRecipe(new ItemStack(ModularPipesItems.PIPE_MODULAR, 8, meta + 1), items[meta], new ItemStack(ModularPipesItems.PIPE_MODULAR, 1, meta));
         }
 
-        GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ModularPipesItems.CONTROLLER), "IPI", "PCP", "IPI", 'C', Items.COMPARATOR, 'I', "ingotIron", 'P', new ItemStack(ModularPipesItems.PIPE, 1, 4)));
+        //GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(ModularPipesItems.CONTROLLER), "IPI", "PCP", "IPI", 'C', Items.COMPARATOR, 'I', "ingotIron", 'P', new ItemStack(ModularPipesItems.PIPE_MODULAR, 1, 4)));
 
         addCircularOreRecipe(new ItemStack(ModularPipesItems.MODULE, 8), basicPipe, "ingotIron");
+    }
+
+    public PipeNetwork getClientNetwork()
+    {
+        return null;
     }
 
     private static void addCircularOreRecipe(ItemStack out, Object center, Object around)

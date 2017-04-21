@@ -1,6 +1,5 @@
 package com.latmod.modularpipes.block;
 
-import com.latmod.modularpipes.api.TransportedItem;
 import gnu.trove.map.hash.TIntIntHashMap;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.properties.PropertyEnum;
@@ -200,8 +199,8 @@ public class BlockBasicPipe extends BlockPipeBase
     }
 
     @Override
-    public EnumFacing getItemDirection(IBlockAccess world, BlockPos pos, IBlockState state, TransportedItem item, EnumFacing source)
+    public EnumFacing getPipeFacing(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing source)
     {
-        return state.getValue(MODEL).getItemDirection(source);
+        return getActualState(state, world, pos).getValue(MODEL).getItemDirection(source);
     }
 }

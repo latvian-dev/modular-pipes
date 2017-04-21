@@ -1,6 +1,5 @@
 package com.latmod.modularpipes.item.module;
 
-import com.latmod.modularpipes.PipeNetwork;
 import com.latmod.modularpipes.api.Module;
 import com.latmod.modularpipes.api.ModuleContainer;
 import com.latmod.modularpipes.api.TransportedItem;
@@ -50,10 +49,10 @@ public class ModuleExtract extends Module
                     item.stack = stack;
                     item.filters = container.getFilterConfig().get();
 
-                    if(PipeNetwork.INSTANCE.generatePath(container, item))
+                    if(container.getNetwork().generatePath(container, item))
                     {
                         handler.extractItem(slot, 1, false);
-                        PipeNetwork.INSTANCE.addItem(item);
+                        container.getNetwork().addItem(item);
                     }
                 }
             }

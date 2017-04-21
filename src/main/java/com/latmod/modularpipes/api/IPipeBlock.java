@@ -16,5 +16,10 @@ public interface IPipeBlock
 
     boolean canPipeConnect(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing facing);
 
-    EnumFacing getItemDirection(IBlockAccess world, BlockPos pos, IBlockState state, TransportedItem item, EnumFacing source);
+    EnumFacing getPipeFacing(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing source);
+
+    default EnumFacing getItemDirection(IBlockAccess world, BlockPos pos, IBlockState state, TransportedItem item, EnumFacing source)
+    {
+        return getPipeFacing(world, pos, state, source);
+    }
 }

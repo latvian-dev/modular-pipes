@@ -58,7 +58,7 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
             pathTag.appendTag(new NBTTagIntArray(new int[] {p.getX(), p.getY(), p.getZ()}));
         }
 
-        nbt.setTag("Path", pathTag);
+        nbt.setTag("Link", pathTag);
         nbt.setInteger("Filters", filters);
         nbt.setFloat("Speed", speed);
         nbt.setFloat("Progress", progress);
@@ -73,7 +73,7 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
         dimension = nbt.getInteger("Dim");
 
         path.clear();
-        NBTTagList pathTag = nbt.getTagList("Path", Constants.NBT.TAG_INT_ARRAY);
+        NBTTagList pathTag = nbt.getTagList("Link", Constants.NBT.TAG_INT_ARRAY);
         for(int i = 0; i < pathTag.tagCount(); i++)
         {
             int pos[] = pathTag.getIntArrayAt(i);
