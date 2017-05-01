@@ -1,52 +1,51 @@
 package com.latmod.modularpipes.net;
 
-import com.latmod.modularpipes.api.TransportedItem;
+import com.feed_the_beast.ftbl.lib.net.MessageToClient;
+import com.feed_the_beast.ftbl.lib.net.NetworkWrapper;
 import com.latmod.modularpipes.client.ModularPipesClientEventHandler;
-import gnu.trove.list.array.TIntArrayList;
+import com.latmod.modularpipes.data.TransportedItem;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.entity.player.EntityPlayer;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author LatvianModder
  */
-public class MessageUpdateItems implements IMessage, IMessageHandler<MessageUpdateItems, IMessage>
+public class MessageUpdateItems extends MessageToClient<MessageUpdateItems>
 {
-    public List<TransportedItem> updated;
-    public TIntArrayList removed;
+    private Map<Integer, TransportedItem> updated;
 
     public MessageUpdateItems()
     {
     }
 
-    public MessageUpdateItems(List<TransportedItem> u, TIntArrayList r)
+    public MessageUpdateItems(Map<Integer, TransportedItem> u)
     {
         updated = u;
-        removed = r;
+    }
+
+    @Override
+    public NetworkWrapper getWrapper()
+    {
+        return ModularPipesNet.NET;
     }
 
     @Override
     public void fromBytes(ByteBuf buf)
     {
         int s = buf.readInt();
-        updated = new ArrayList<>(s);
+        updated = new HashMap<>(s);
         while(--s >= 0)
         {
             TransportedItem item = new TransportedItem();
             item.readFromByteBuf(buf);
-            updated.add(item);
-        }
 
-        s = buf.readInt();
-        removed = new TIntArrayList(s);
-        while(--s >= 0)
-        {
-            removed.add(buf.readInt());
+            if(!item.action.remove())
+            {
+                updated.put(item.id, item);
+            }
         }
     }
 
@@ -54,22 +53,15 @@ public class MessageUpdateItems implements IMessage, IMessageHandler<MessageUpda
     public void toBytes(ByteBuf buf)
     {
         buf.writeInt(updated.size());
-        for(TransportedItem item : updated)
+        for(TransportedItem item : updated.values())
         {
             item.writeToByteBuf(buf);
-        }
-
-        buf.writeInt(removed.size());
-        for(int i = 0; i < removed.size(); i++)
-        {
-            buf.writeInt(removed.get(i));
         }
     }
 
     @Override
-    public IMessage onMessage(MessageUpdateItems message, MessageContext ctx)
+    public void onMessage(MessageUpdateItems message, EntityPlayer player)
     {
-        Minecraft.getMinecraft().addScheduledTask(() -> ModularPipesClientEventHandler.updateItems(message.updated, message.removed));
-        return null;
+        message.updated.forEach(ModularPipesClientEventHandler.FOREACH_UPDATE_ITEMS);
     }
 }

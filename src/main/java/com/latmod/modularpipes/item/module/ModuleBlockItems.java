@@ -1,7 +1,7 @@
 package com.latmod.modularpipes.item.module;
 
-import com.latmod.modularpipes.api.Module;
-import com.latmod.modularpipes.api.TransportedItem;
+import com.latmod.modularpipes.data.Module;
+import com.latmod.modularpipes.data.TransportedItem;
 import net.minecraft.util.EnumFacing;
 
 import javax.annotation.Nullable;

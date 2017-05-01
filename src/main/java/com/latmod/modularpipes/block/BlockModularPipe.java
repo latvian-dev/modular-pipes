@@ -1,8 +1,8 @@
 package com.latmod.modularpipes.block;
 
-import com.latmod.modularpipes.api.TransportedItem;
+import com.feed_the_beast.ftbl.lib.block.ItemBlockBase;
+import com.latmod.modularpipes.data.TransportedItem;
 import com.latmod.modularpipes.tile.TileModularPipe;
-import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
@@ -10,6 +10,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -79,6 +80,12 @@ public class BlockModularPipe extends BlockPipeBase
     }
 
     @Override
+    public ItemBlock createItemBlock()
+    {
+        return new ItemBlockBase(this, true);
+    }
+
+    @Override
     public boolean hasTileEntity(IBlockState state)
     {
         return true;
@@ -126,11 +133,6 @@ public class BlockModularPipe extends BlockPipeBase
     @Override
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
-        if(state.getValue(TIER) == 0)
-        {
-            return false;
-        }
-
         TileEntity tileEntity = worldIn.getTileEntity(pos);
 
         if(tileEntity instanceof TileModularPipe)
@@ -163,19 +165,13 @@ public class BlockModularPipe extends BlockPipeBase
 
     @Override
     @Deprecated
-    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
+    public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
     {
-        TileEntity tileEntity = worldIn.getTileEntity(pos);
+        TileEntity tileEntity = world.getTileEntity(pos);
 
         if(tileEntity instanceof TileModularPipe)
         {
-            tileEntity.updateContainingBlockInfo();
-            ((TileModularPipe) tileEntity).getConnections();
-
-            if(worldIn.isRemote)
-            {
-                worldIn.notifyBlockUpdate(pos, state, state, 255);
-            }
+            ((TileModularPipe) tileEntity).onNeighborChange();
         }
     }
 

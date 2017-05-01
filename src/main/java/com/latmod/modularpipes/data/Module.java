@@ -1,4 +1,4 @@
-package com.latmod.modularpipes.api;
+package com.latmod.modularpipes.data;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;

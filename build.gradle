@@ -9,7 +9,11 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "0.0.1"
+version = System.properties['mod_version']
+if (version == null) {
+    version = "Dev"
+}
+
 group = "com.latmod.modularpipes"
 archivesBaseName = "ModularPipes"
 
@@ -19,12 +23,28 @@ compileJava {
 }
 
 minecraft {
-    version = "1.11.2-13.20.0.2282"
+    version = "1.11.2-13.20.0.2285"
     runDir = "run"
     mappings = "snapshot_20161220"
 }
 
+repositories {
+    ivy {
+        name "LatMod"
+        artifactPattern "http://mods.latmod.com/[module]/[revision]/[module]-[revision](-[classifier]).[ext]"
+    }
+    maven {
+        url "http://maven.k-4u.nl"
+    }
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
 dependencies {
+    compile 'LatMod:FTBLib:1.1x-3.6.0:api'
+    deobfCompile "com.github.mcjty:compatlayer:1.11.2-0.2.7"
 }
 
 processResources {
@@ -32,7 +52,7 @@ processResources {
     inputs.property "mcversion", project.minecraft.version
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-        expand 'version':project.version, 'mcversion':project.minecraft.version
+        expand 'version': project.version, 'mcversion': project.minecraft.version
     }
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'

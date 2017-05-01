@@ -1,9 +1,7 @@
-package com.latmod.modularpipes.api_impl;
+package com.latmod.modularpipes.data;
 
-import com.latmod.modularpipes.api.ILink;
-import com.latmod.modularpipes.api.INode;
-import com.latmod.modularpipes.api.IPipeNetwork;
-import com.latmod.modularpipes.util.MathUtils;
+import com.feed_the_beast.ftbl.lib.math.MathUtils;
+import com.feed_the_beast.ftbl.lib.util.NetUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.BlockLog;
 import net.minecraft.nbt.NBTTagCompound;
@@ -12,28 +10,31 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
 /**
  * @author LatvianModder
  */
-public final class Link implements ILink
+public final class Link
 {
-    private final IPipeNetwork network;
-    private final UUID uuid;
-    private INode start, end;
-    private List<BlockPos> path;
-    private float length;
-    private int actualLength;
+    public static final Comparator<Link> COMPARATOR = Comparator.comparing(link -> link.length);
 
-    public Link(IPipeNetwork n, UUID id)
+    public final PipeNetwork network;
+    public final UUID uuid;
+    public Node start, end;
+    public List<BlockPos> path;
+    public float length;
+    public int actualLength;
+
+    public Link(PipeNetwork n, UUID id)
     {
         network = n;
         uuid = id;
     }
 
-    public Link(IPipeNetwork n, NBTTagCompound nbt)
+    public Link(PipeNetwork n, NBTTagCompound nbt)
     {
         network = n;
         uuid = nbt.getUniqueId("ID");
@@ -54,41 +55,32 @@ public final class Link implements ILink
         length = nbt.getFloat("Length");
     }
 
-    public Link(IPipeNetwork n, ByteBuf buf)
+    public Link(PipeNetwork n, ByteBuf buf)
     {
         network = n;
-        long msb = buf.readLong();
-        long lsb = buf.readLong();
-        uuid = new UUID(msb, lsb);
+        uuid = NetUtils.readUUID(buf);
         int s = buf.readUnsignedShort();
         path = new ArrayList<>(s);
         while(--s >= 0)
         {
-            int x = buf.readInt();
-            int y = buf.readInt();
-            int z = buf.readInt();
-            path.add(new BlockPos(x, y, z));
+            path.add(NetUtils.readPos(buf));
         }
         actualLength = buf.readInt();
         length = buf.readFloat();
     }
 
-    public static void writeToBuf(ByteBuf buf, ILink link)
+    public static void writeToBuf(ByteBuf buf, Link link)
     {
-        buf.writeLong(link.getId().getMostSignificantBits());
-        buf.writeLong(link.getId().getLeastSignificantBits());
-        buf.writeShort(link.getPath().size());
-        for(BlockPos pos : link.getPath())
+        NetUtils.writeUUID(buf, link.uuid);
+        buf.writeShort(link.path.size());
+        for(BlockPos pos : link.path)
         {
-            buf.writeInt(pos.getX());
-            buf.writeInt(pos.getY());
-            buf.writeInt(pos.getZ());
+            NetUtils.writePos(buf, pos);
         }
-        buf.writeInt(link.getActualLength());
-        buf.writeFloat(link.getLength());
+        buf.writeInt(link.actualLength);
+        buf.writeFloat(link.length);
     }
 
-    @Override
     public void simplify()
     {
         if(path.size() <= 2)
@@ -127,22 +119,21 @@ public final class Link implements ILink
         path = newPath;
     }
 
-    public Link copyForItem(INode start, INode end, BlockPos pathStart)
+    public Link copyForItem(Node start, Node end, BlockPos pathStart)
     {
         List<BlockPos> list = new ArrayList<>();
-        list.add(start.getPos());
+        list.add(start.pos);
         //FIXME
-        list.add(end.getPos());
+        list.add(end.pos);
         Link link = new Link(network, uuid);
-        link.setStart(start);
-        link.setEnd(end);
-        link.setPath(list);
-        link.setActualLength(actualLength + 2);
-        link.setLength(length + 2F);
+        link.start = start;
+        link.end = end;
+        link.path = list;
+        link.actualLength = actualLength + 2;
+        link.length = length + 2F;
         return link;
     }
 
-    @Override
     public boolean contains(BlockPos pos)
     {
         for(int i = 0; i < path.size() - 1; i++)
@@ -189,72 +180,5 @@ public final class Link implements ILink
     public boolean equals(Object o)
     {
         return o == this || (o instanceof Link && ((Link) o).uuid.equals(uuid));
-    }
-
-    @Override
-    public IPipeNetwork getNetwork()
-    {
-        return network;
-    }
-
-    @Override
-    public UUID getId()
-    {
-        return uuid;
-    }
-
-    @Override
-    public INode getStart()
-    {
-        return start;
-    }
-
-    public void setStart(INode node)
-    {
-        start = node;
-    }
-
-    @Override
-    public INode getEnd()
-    {
-        return end;
-    }
-
-    public void setEnd(INode node)
-    {
-        end = node;
-    }
-
-    @Override
-    public List<BlockPos> getPath()
-    {
-        return path;
-    }
-
-    public void setPath(List<BlockPos> p)
-    {
-        path = p;
-    }
-
-    @Override
-    public int getActualLength()
-    {
-        return actualLength;
-    }
-
-    public void setActualLength(int l)
-    {
-        actualLength = l;
-    }
-
-    @Override
-    public float getLength()
-    {
-        return length;
-    }
-
-    public void setLength(float l)
-    {
-        length = l;
     }
 }

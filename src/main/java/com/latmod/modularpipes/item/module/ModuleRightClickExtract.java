@@ -1,8 +1,8 @@
 package com.latmod.modularpipes.item.module;
 
-import com.latmod.modularpipes.api.Module;
-import com.latmod.modularpipes.api.ModuleContainer;
-import com.latmod.modularpipes.api.TransportedItem;
+import com.latmod.modularpipes.data.Module;
+import com.latmod.modularpipes.data.ModuleContainer;
+import com.latmod.modularpipes.data.TransportedItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -33,7 +33,7 @@ public class ModuleRightClickExtract extends Module
                 {
                     stack = handler.extractItem(i, 1, true);
 
-                    if(stack.getCount() > 0)
+                    if(!stack.isEmpty())
                     {
                         slot = i;
                         break;

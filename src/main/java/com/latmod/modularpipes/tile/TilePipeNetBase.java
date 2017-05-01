@@ -1,7 +1,6 @@
 package com.latmod.modularpipes.tile;
 
-import com.latmod.modularpipes.api.IPipeController;
-import com.latmod.modularpipes.api.IPipeNetworkTile;
+import com.latmod.modularpipes.data.IPipeNetworkTile;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -17,7 +16,6 @@ import javax.annotation.Nullable;
 public class TilePipeNetBase extends TileEntity implements ITickable, IPipeNetworkTile
 {
     private boolean isDirty = true;
-    private IPipeController controller;
     public int dimension;
 
     public TilePipeNetBase(int dim)
@@ -80,23 +78,5 @@ public class TilePipeNetBase extends TileEntity implements ITickable, IPipeNetwo
 
             isDirty = false;
         }
-    }
-
-    @Override
-    public boolean hasError()
-    {
-        return false;
-    }
-
-    @Override
-    public void setPipeController(IPipeController c)
-    {
-        controller = c;
-    }
-
-    @Override
-    public IPipeController getPipeController()
-    {
-        return controller;
     }
 }

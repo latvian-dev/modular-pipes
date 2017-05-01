@@ -1,7 +1,7 @@
 package com.latmod.modularpipes.item;
 
 import com.latmod.modularpipes.ModularPipesCaps;
-import com.latmod.modularpipes.api.Module;
+import com.latmod.modularpipes.data.Module;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;

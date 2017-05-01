@@ -1,8 +1,8 @@
 package com.latmod.modularpipes.block;
 
-import com.latmod.modularpipes.api.IPipeBlock;
-import com.latmod.modularpipes.api_impl.PipeNetwork;
-import com.latmod.modularpipes.util.MathUtils;
+import com.feed_the_beast.ftbl.lib.math.MathUtils;
+import com.latmod.modularpipes.data.IPipeBlock;
+import com.latmod.modularpipes.data.PipeNetwork;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
@@ -177,13 +177,21 @@ public class BlockPipeBase extends BlockBase implements IPipeBlock
     public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
         super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
-        PipeNetwork.get(worldIn).addOrUpdatePipe(pos, state);
+
+        if(!worldIn.isRemote)
+        {
+            PipeNetwork.get(worldIn).addOrUpdatePipe(pos, state);
+        }
     }
 
     @Override
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
-        PipeNetwork.get(worldIn).removeLinkAt(pos, state);
+        if(!worldIn.isRemote)
+        {
+            PipeNetwork.get(worldIn).removeLinkAt(pos, state);
+        }
+
         super.breakBlock(worldIn, pos, state);
     }
 }

@@ -1,8 +1,8 @@
 package com.latmod.modularpipes.item.module;
 
-import com.latmod.modularpipes.api.Module;
-import com.latmod.modularpipes.api.ModuleContainer;
-import com.latmod.modularpipes.api.TransportedItem;
+import com.latmod.modularpipes.data.Module;
+import com.latmod.modularpipes.data.ModuleContainer;
+import com.latmod.modularpipes.data.TransportedItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -30,13 +30,13 @@ public class ModuleExtract extends Module
             if(handler != null)
             {
                 int slot = -1;
-                ItemStack stack = null;
+                ItemStack stack = ItemStack.EMPTY;
 
                 for(int i = 0; i < handler.getSlots(); i++)
                 {
                     stack = handler.extractItem(i, 1, true);
 
-                    if(stack.getCount() > 0)
+                    if(!stack.isEmpty())
                     {
                         slot = i;
                         break;

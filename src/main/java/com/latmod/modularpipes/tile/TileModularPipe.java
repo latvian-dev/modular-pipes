@@ -1,12 +1,12 @@
 package com.latmod.modularpipes.tile;
 
-import com.latmod.modularpipes.api.IPipeBlock;
-import com.latmod.modularpipes.api.IPipeNetwork;
-import com.latmod.modularpipes.api.ModuleContainer;
-import com.latmod.modularpipes.api.TransportedItem;
-import com.latmod.modularpipes.api_impl.Node;
-import com.latmod.modularpipes.api_impl.PipeNetwork;
-import com.latmod.modularpipes.util.MathUtils;
+import com.feed_the_beast.ftbl.lib.math.MathUtils;
+import com.latmod.modularpipes.ModularPipesCaps;
+import com.latmod.modularpipes.data.IPipeBlock;
+import com.latmod.modularpipes.data.ModuleContainer;
+import com.latmod.modularpipes.data.Node;
+import com.latmod.modularpipes.data.PipeNetwork;
+import com.latmod.modularpipes.data.TransportedItem;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
@@ -32,8 +32,8 @@ public class TileModularPipe extends TilePipeNetBase
 {
     private int tier;
     private int connections = -1;
-    public final ModuleContainerImpl[] modules;
-    private IPipeNetwork network;
+    public final ModuleContainer[] modules;
+    private PipeNetwork network;
 
     public TileModularPipe()
     {
@@ -44,11 +44,11 @@ public class TileModularPipe extends TilePipeNetBase
     {
         super(dim);
         tier = t;
-        modules = new ModuleContainerImpl[6];
+        modules = new ModuleContainer[6];
 
         for(int i = 0; i < 6; i++)
         {
-            modules[i] = new ModuleContainerImpl(this, EnumFacing.VALUES[i], ItemStack.EMPTY);
+            modules[i] = new ModuleContainer(this, EnumFacing.VALUES[i], ItemStack.EMPTY);
         }
     }
 
@@ -75,7 +75,7 @@ public class TileModularPipe extends TilePipeNetBase
 
         for(ModuleContainer c : modules)
         {
-            moduleList.appendTag(ModuleContainerImpl.writeToNBT(c));
+            moduleList.appendTag(ModuleContainer.writeToNBT(c));
         }
 
         nbt.setTag("Modules", moduleList);
@@ -95,7 +95,7 @@ public class TileModularPipe extends TilePipeNetBase
 
         for(int i = 0; i < moduleList.tagCount(); i++)
         {
-            ModuleContainerImpl c = new ModuleContainerImpl(this, moduleList.getCompoundTagAt(i));
+            ModuleContainer c = new ModuleContainer(this, moduleList.getCompoundTagAt(i));
             modules[c.getFacing().getIndex()] = c;
         }
     }
@@ -110,7 +110,7 @@ public class TileModularPipe extends TilePipeNetBase
     @Override
     public void update()
     {
-        for(ModuleContainerImpl c : modules)
+        for(ModuleContainer c : modules)
         {
             c.update();
         }
@@ -145,11 +145,11 @@ public class TileModularPipe extends TilePipeNetBase
         }
 
         ItemStack stack = playerIn.getHeldItem(hand);
-        ModuleContainerImpl c = modules[facing];
+        ModuleContainer c = modules[facing];
 
-        if(stack.getCount() == 0 && playerIn.isSneaking())
+        if(stack.isEmpty() && playerIn.isSneaking())
         {
-            if(c.getItemStack().getCount() > 0)
+            if(!c.getItemStack().isEmpty())
             {
                 c.getModule().removeFromPipe(c, playerIn);
 
@@ -158,7 +158,7 @@ public class TileModularPipe extends TilePipeNetBase
                     c.getItemStack().setTagInfo("ModuleData", c.getData().serializeNBT());
                 }
 
-                if(!playerIn.inventory.addItemStackToInventory(c.getItemStack()) && c.getItemStack().getCount() > 0)
+                if(!playerIn.inventory.addItemStackToInventory(c.getItemStack()) && !c.getItemStack().isEmpty())
                 {
                     world.spawnEntity(new EntityItem(world, playerIn.posX, playerIn.posY, playerIn.posZ, c.getItemStack()));
                 }
@@ -169,13 +169,13 @@ public class TileModularPipe extends TilePipeNetBase
             }
         }
 
-        if(c.getItemStack().getCount() == 0)
+        if(c.getItemStack().isEmpty() && stack.hasCapability(ModularPipesCaps.MODULE, null))
         {
             int modulesSize = 0;
 
-            for(int i = 0; i < modules.length; i++)
+            for(ModuleContainer module : modules)
             {
-                if(modules[i].hasModule())
+                if(module.hasModule())
                 {
                     modulesSize++;
                 }
@@ -248,7 +248,7 @@ public class TileModularPipe extends TilePipeNetBase
                 c.getItemStack().setTagInfo("ModuleData", c.getData().serializeNBT());
             }
 
-            if(c.getItemStack().getCount() > 0)
+            if(!c.getItemStack().isEmpty())
             {
                 EntityItem entityItem = new EntityItem(world, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, c.getItemStack());
                 entityItem.setPickupDelay(10);
@@ -320,7 +320,7 @@ public class TileModularPipe extends TilePipeNetBase
         return false;
     }
 
-    public IPipeNetwork getNetwork()
+    public PipeNetwork getNetwork()
     {
         if(network == null)
         {
@@ -328,5 +328,17 @@ public class TileModularPipe extends TilePipeNetBase
         }
 
         return network;
+    }
+
+    public void onNeighborChange()
+    {
+        updateContainingBlockInfo();
+        getConnections();
+
+        if(world != null)
+        {
+            IBlockState state = world.getBlockState(pos);
+            world.notifyBlockUpdate(pos, state, state, 255);
+        }
     }
 }

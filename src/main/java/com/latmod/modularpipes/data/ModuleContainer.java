@@ -1,22 +1,19 @@
-package com.latmod.modularpipes.tile;
+package com.latmod.modularpipes.data;
 
 import com.latmod.modularpipes.ModularPipesCaps;
-import com.latmod.modularpipes.api.FilterConfig;
-import com.latmod.modularpipes.api.IPipeNetwork;
-import com.latmod.modularpipes.api.Module;
-import com.latmod.modularpipes.api.ModuleContainer;
-import com.latmod.modularpipes.api.ModuleData;
-import com.latmod.modularpipes.api.NoData;
+import com.latmod.modularpipes.tile.TileModularPipe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 
+import javax.annotation.Nullable;
+
 /**
  * @author LatvianModder
  */
-public final class ModuleContainerImpl implements ModuleContainer, ITickable
+public final class ModuleContainer implements ITickable
 {
     private final TileModularPipe tile;
     private final EnumFacing facing;
@@ -26,7 +23,7 @@ public final class ModuleContainerImpl implements ModuleContainer, ITickable
     private FilterConfig filterConfig;
     private int tick;
 
-    public ModuleContainerImpl(TileModularPipe t, EnumFacing f, ItemStack stack)
+    public ModuleContainer(TileModularPipe t, EnumFacing f, ItemStack stack)
     {
         tile = t;
         facing = f;
@@ -34,7 +31,7 @@ public final class ModuleContainerImpl implements ModuleContainer, ITickable
         setStack(stack);
     }
 
-    public ModuleContainerImpl(TileModularPipe t, NBTTagCompound nbt)
+    public ModuleContainer(TileModularPipe t, NBTTagCompound nbt)
     {
         this(t, EnumFacing.VALUES[nbt.getByte("Facing")], ItemStack.EMPTY);
 
@@ -56,22 +53,26 @@ public final class ModuleContainerImpl implements ModuleContainer, ITickable
         tick = nbt.getInteger("Tick");
     }
 
-    @Override
-    public IPipeNetwork getNetwork()
+    public PipeNetwork getNetwork()
     {
         return tile.getNetwork();
     }
 
-    public void setStack(ItemStack s)
+    public boolean hasModule()
+    {
+        return !getModule().isEmpty();
+    }
+
+    public void setStack(ItemStack is)
     {
         module = Module.EMPTY;
         data = NoData.INSTANCE;
         stack = ItemStack.EMPTY;
         tick = 0;
 
-        if(s.getCount() > 0 && s.hasCapability(ModularPipesCaps.MODULE, null))
+        if(!is.isEmpty() && is.hasCapability(ModularPipesCaps.MODULE, null))
         {
-            stack = s;
+            stack = is;
             Module m = stack.getCapability(ModularPipesCaps.MODULE, null);
 
             if(m != null)
@@ -83,43 +84,36 @@ public final class ModuleContainerImpl implements ModuleContainer, ITickable
         }
     }
 
-    @Override
     public Module getModule()
     {
         return module;
     }
 
-    @Override
     public TileEntity getTile()
     {
         return tile;
     }
 
-    @Override
     public EnumFacing getFacing()
     {
         return facing;
     }
 
-    @Override
     public ItemStack getItemStack()
     {
         return stack;
     }
 
-    @Override
     public ModuleData getData()
     {
         return data;
     }
 
-    @Override
     public FilterConfig getFilterConfig()
     {
         return filterConfig;
     }
 
-    @Override
     public int getTick()
     {
         return tick;
@@ -135,6 +129,17 @@ public final class ModuleContainerImpl implements ModuleContainer, ITickable
         }
     }
 
+    @Nullable
+    public TileEntity getFacingTile()
+    {
+        return getTile().getWorld().getTileEntity(getTile().getPos().offset(getFacing()));
+    }
+
+    public boolean isRemote()
+    {
+        return getTile().getWorld().isRemote;
+    }
+
     public static NBTTagCompound writeToNBT(ModuleContainer c)
     {
         NBTTagCompound nbt = new NBTTagCompound();
@@ -148,7 +153,7 @@ public final class ModuleContainerImpl implements ModuleContainer, ITickable
         {
             nbt.setTag("FilterConfig", c.getFilterConfig().serializeNBT());
         }
-        if(c.getItemStack().getCount() > 0)
+        if(!c.getItemStack().isEmpty())
         {
             nbt.setTag("Item", c.getItemStack().serializeNBT());
 

@@ -1,13 +1,11 @@
 package com.latmod.modularpipes.client;
 
 import com.latmod.modularpipes.ModularPipesCommon;
-import com.latmod.modularpipes.api_impl.PipeNetwork;
 import com.latmod.modularpipes.block.BlockBasicPipe;
 import com.latmod.modularpipes.block.BlockModularPipe;
 import com.latmod.modularpipes.item.ItemModule;
 import com.latmod.modularpipes.item.ModularPipesItems;
 import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.model.ModelLoader;
@@ -18,8 +16,6 @@ import net.minecraftforge.common.MinecraftForge;
  */
 public class ModularPipesClient extends ModularPipesCommon
 {
-    private static PipeNetwork CLIENT_NETWORK = null;
-
     @Override
     public void onPreInit()
     {
@@ -37,6 +33,7 @@ public class ModularPipesClient extends ModularPipesCommon
 
         //registerModel(ModularPipesItems.CONTROLLER, 0, "error=false");
         registerModel(ModularPipesItems.MODULE, 0, "inventory");
+        registerModel(ModularPipesItems.DEBUG, 0, "inventory");
 
         for(ItemModule m : ModularPipesItems.MODULE_LIST)
         {
@@ -60,16 +57,5 @@ public class ModularPipesClient extends ModularPipesCommon
         super.onInit();
 
         MinecraftForge.EVENT_BUS.register(ModularPipesClientEventHandler.class);
-    }
-
-    @Override
-    public PipeNetwork getClientNetwork()
-    {
-        if(CLIENT_NETWORK == null || CLIENT_NETWORK.getDimension() != Minecraft.getMinecraft().world.provider.getDimension())
-        {
-            CLIENT_NETWORK = new PipeNetwork(Minecraft.getMinecraft().world.provider.getDimension());
-        }
-
-        return CLIENT_NETWORK;
     }
 }

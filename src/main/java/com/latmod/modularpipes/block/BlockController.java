@@ -1,6 +1,6 @@
 package com.latmod.modularpipes.block;
 
-import com.latmod.modularpipes.api.IPipeBlock;
+import com.latmod.modularpipes.data.IPipeBlock;
 import com.latmod.modularpipes.tile.TileController;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
@@ -67,7 +67,7 @@ public class BlockController extends BlockBase implements IPipeBlock
 
         if(tileEntity instanceof TileController)
         {
-            return state.withProperty(ERROR, ((TileController) tileEntity).hasError());
+            return state.withProperty(ERROR, false);
         }
 
         return state;

@@ -3,4 +3,4 @@
  */
 @mcp.MethodsReturnNonnullByDefault
 @javax.annotation.ParametersAreNonnullByDefault
-package com.latmod.modularpipes.util;
+package com.latmod.modularpipes.data;

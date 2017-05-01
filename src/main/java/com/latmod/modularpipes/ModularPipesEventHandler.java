@@ -1,6 +1,6 @@
 package com.latmod.modularpipes;
 
-import com.latmod.modularpipes.api_impl.PipeNetwork;
+import com.latmod.modularpipes.data.PipeNetwork;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.world.WorldEvent;
@@ -16,7 +16,7 @@ public class ModularPipesEventHandler
     @SubscribeEvent
     public static void onTickEvent(TickEvent.WorldTickEvent event)
     {
-        if(event.phase == TickEvent.Phase.END)
+        if(event.phase == TickEvent.Phase.END && !event.world.isRemote)
         {
             PipeNetwork.get(event.world).update();
         }
@@ -27,7 +27,7 @@ public class ModularPipesEventHandler
     {
         if(event.getWorld() instanceof WorldServer)
         {
-            PipeNetwork.load(event.getWorld());
+            PipeNetwork.get(event.getWorld()).load();
         }
     }
 
@@ -36,14 +36,14 @@ public class ModularPipesEventHandler
     {
         if(event.getWorld() instanceof WorldServer)
         {
-            PipeNetwork.unload(event.getWorld());
+            PipeNetwork.get(event.getWorld()).unload();
         }
     }
 
     @SubscribeEvent
     public static void onWorldSaved(WorldEvent.Save event)
     {
-        PipeNetwork.save(event.getWorld());
+        PipeNetwork.get(event.getWorld()).save();
     }
 
     @SubscribeEvent
@@ -51,7 +51,7 @@ public class ModularPipesEventHandler
     {
         if(event.player instanceof EntityPlayerMP)
         {
-            PipeNetwork.get(((EntityPlayerMP) event.player).world).playerLoggedIn((EntityPlayerMP) event.player);
+            PipeNetwork.get(event.player.world).playerLoggedIn(event.player);
         }
     }
 }
