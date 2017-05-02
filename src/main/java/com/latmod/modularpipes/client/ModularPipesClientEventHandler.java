@@ -43,7 +43,7 @@ public class ModularPipesClientEventHandler
     };
 
     public static float partialTicks;
-    public static RenderItem RENDER_ITEM;
+    public static RenderItem RENDER_ITEM = Minecraft.getMinecraft().getRenderItem();
 
     public static void clear()
     {
@@ -78,8 +78,6 @@ public class ModularPipesClientEventHandler
             return;
         }
 
-        Minecraft mc = Minecraft.getMinecraft();
-        RENDER_ITEM = mc.getRenderItem();
         partialTicks = event.getPartialTicks();
         GlStateManager.pushMatrix();
         GlStateManager.translate(-FTBLibClient.playerX, -FTBLibClient.playerY, -FTBLibClient.playerZ);
