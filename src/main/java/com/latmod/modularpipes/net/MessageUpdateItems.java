@@ -3,9 +3,7 @@ package com.latmod.modularpipes.net;
 import com.feed_the_beast.ftbl.lib.net.MessageToClient;
 import com.feed_the_beast.ftbl.lib.net.NetworkWrapper;
 import com.feed_the_beast.ftbl.lib.util.NetUtils;
-import com.latmod.modularpipes.ModularPipes;
 import com.latmod.modularpipes.client.ClientPipeNetwork;
-import com.latmod.modularpipes.data.PipeNetwork;
 import com.latmod.modularpipes.data.TransportedItem;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -40,12 +38,11 @@ public class MessageUpdateItems extends MessageToClient<MessageUpdateItems>
     @Override
     public void fromBytes(ByteBuf buf)
     {
-        PipeNetwork network = ModularPipes.PROXY.getClientNetwork();
         int s = buf.readInt();
         updated = new HashMap<>(s);
         while(--s >= 0)
         {
-            TransportedItem item = new TransportedItem(network);
+            TransportedItem item = new TransportedItem(null);
             item.id = buf.readInt();
             item.action = TransportedItem.Action.VALUES[buf.readUnsignedByte()];
 
