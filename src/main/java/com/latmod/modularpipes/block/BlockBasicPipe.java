@@ -204,6 +204,7 @@ public class BlockBasicPipe extends BlockPipeBase
         return state.withProperty(MODEL, Model.VALUES[Model.CONNECTION_MAP.get(d | u << 1 | n << 2 | s << 3 | w << 4 | e << 5)]);
     }
 
+    @Override
     public int getConnectionIdFromState(@Nullable IBlockState state)
     {
         return state == null ? 0 : state.getValue(MODEL).connectionId;

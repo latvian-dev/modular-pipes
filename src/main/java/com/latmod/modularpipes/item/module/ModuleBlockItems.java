@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
  */
 public class ModuleBlockItems extends Module
 {
+    @Override
     @Nullable
     public EnumFacing changeItemDirection(EnumFacing source, TransportedItem item)
     {

@@ -27,7 +27,7 @@ public class ModularPipesEventHandler
     {
         if(event.getWorld() instanceof WorldServer)
         {
-            PipeNetwork.get(event.getWorld()).load();
+            PipeNetwork.get(event.getWorld()).server().load();
         }
     }
 
@@ -36,14 +36,14 @@ public class ModularPipesEventHandler
     {
         if(event.getWorld() instanceof WorldServer)
         {
-            PipeNetwork.get(event.getWorld()).unload();
+            PipeNetwork.get(event.getWorld()).server().unload();
         }
     }
 
     @SubscribeEvent
     public static void onWorldSaved(WorldEvent.Save event)
     {
-        PipeNetwork.get(event.getWorld()).save();
+        PipeNetwork.get(event.getWorld()).server().save();
     }
 
     @SubscribeEvent
@@ -51,7 +51,7 @@ public class ModularPipesEventHandler
     {
         if(event.player instanceof EntityPlayerMP)
         {
-            PipeNetwork.get(event.player.world).playerLoggedIn(event.player);
+            PipeNetwork.get(event.player.world).server().playerLoggedIn(event.player);
         }
     }
 }

@@ -2,6 +2,7 @@ package com.latmod.modularpipes.block;
 
 import com.feed_the_beast.ftbl.lib.block.ItemBlockBase;
 import com.latmod.modularpipes.data.TransportedItem;
+import com.latmod.modularpipes.item.ItemModule;
 import com.latmod.modularpipes.tile.TileModularPipe;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.properties.PropertyInteger;
@@ -94,7 +95,7 @@ public class BlockModularPipe extends BlockPipeBase
     @Override
     public TileEntity createTileEntity(World world, IBlockState state)
     {
-        return new TileModularPipe(world.provider.getDimension(), state.getValue(TIER));
+        return new TileModularPipe(state.getValue(TIER));
     }
 
     @Override
@@ -183,12 +184,13 @@ public class BlockModularPipe extends BlockPipeBase
         Vec3d start1 = start.subtract(pos.getX(), pos.getY(), pos.getZ());
         Vec3d end1 = end.subtract(pos.getX(), pos.getY(), pos.getZ());
         RayTraceResult ray1 = null;
-
+        EntityPlayer player = worldIn.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 5D, false);
+        boolean holdingModule = player != null && (player.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemModule || player.getHeldItem(EnumHand.OFF_HAND).getItem() instanceof ItemModule);
         double dist = Double.POSITIVE_INFINITY;
 
         for(int i = 0; i < BlockPipeBase.BOXES.length; i++)
         {
-            if(i < 6 && !canConnectTo(worldIn, pos, EnumFacing.VALUES[i]))
+            if(i < 6 && !(holdingModule || canConnectTo(worldIn, pos, EnumFacing.VALUES[i])))
             {
                 continue;
             }

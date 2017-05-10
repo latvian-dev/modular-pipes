@@ -9,6 +9,7 @@ tile.modularpipes.controller.name=Modular Pipe Controller
 
 # Items
 item.modularpipes.module.name=Pipe Module
+item.modularpipes.debug.name=Modular Pipes Debug Item
 
 ## Modules
 item.modularpipes.module.extract.name=Extract

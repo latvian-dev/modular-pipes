@@ -1,18 +1,17 @@
 package com.latmod.modularpipes.item;
 
+import com.feed_the_beast.ftbl.lib.item.ItemBase;
 import com.latmod.modularpipes.ModularPipes;
 import com.latmod.modularpipes.ModularPipesCommon;
-import net.minecraft.item.Item;
 
 /**
  * @author LatvianModder
  */
-public class ItemBase extends Item
+public class ItemMPBase extends ItemBase
 {
-    public ItemBase(String id)
+    public ItemMPBase(String id)
     {
-        setUnlocalizedName(ModularPipes.MOD_ID + '.' + id);
-        setRegistryName(ModularPipes.MOD_ID + ':' + id);
+        super(ModularPipes.MOD_ID + ':' + id);
         setCreativeTab(ModularPipesCommon.TAB);
     }
 }

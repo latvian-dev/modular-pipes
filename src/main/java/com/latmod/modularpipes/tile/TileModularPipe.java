@@ -1,6 +1,7 @@
 package com.latmod.modularpipes.tile;
 
 import com.feed_the_beast.ftbl.lib.math.MathUtils;
+import com.feed_the_beast.ftbl.lib.tile.TileBase;
 import com.latmod.modularpipes.ModularPipesCaps;
 import com.latmod.modularpipes.data.IPipeBlock;
 import com.latmod.modularpipes.data.ModuleContainer;
@@ -17,6 +18,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextComponentString;
@@ -28,7 +30,7 @@ import net.minecraftforge.items.ItemHandlerHelper;
 /**
  * @author LatvianModder
  */
-public class TileModularPipe extends TilePipeNetBase
+public class TileModularPipe extends TileBase implements ITickable
 {
     private int tier;
     private int connections = -1;
@@ -37,12 +39,11 @@ public class TileModularPipe extends TilePipeNetBase
 
     public TileModularPipe()
     {
-        this(0, 0);
+        this(0);
     }
 
-    public TileModularPipe(int dim, int t)
+    public TileModularPipe(int t)
     {
-        super(dim);
         tier = t;
         modules = new ModuleContainer[6];
 
@@ -120,7 +121,7 @@ public class TileModularPipe extends TilePipeNetBase
             getConnections();
         }
 
-        super.update();
+        checkIfDirty();
     }
 
     public void onRightClick(EntityPlayer playerIn, EnumHand hand)
@@ -228,8 +229,6 @@ public class TileModularPipe extends TilePipeNetBase
 
         if(world != null && !world.isRemote)
         {
-            dimension = world.provider.getDimension();
-
             if(getNetwork().getNode(pos) == null)
             {
                 getNetwork().setNode(pos, new Node(getNetwork(), pos));

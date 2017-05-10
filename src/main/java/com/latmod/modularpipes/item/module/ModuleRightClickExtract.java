@@ -42,14 +42,14 @@ public class ModuleRightClickExtract extends Module
 
                 if(slot != -1)
                 {
-                    TransportedItem item = new TransportedItem();
+                    TransportedItem item = new TransportedItem(container.getNetwork());
                     item.stack = stack;
                     item.filters = container.getFilterConfig().get();
 
                     if(container.getNetwork().generatePath(container, item))
                     {
                         handler.extractItem(slot, 1, false);
-                        container.getNetwork().addItem(item);
+                        item.addToNetwork();
                     }
                 }
             }

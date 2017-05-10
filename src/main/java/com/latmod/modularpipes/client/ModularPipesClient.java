@@ -3,6 +3,7 @@ package com.latmod.modularpipes.client;
 import com.latmod.modularpipes.ModularPipesCommon;
 import com.latmod.modularpipes.block.BlockBasicPipe;
 import com.latmod.modularpipes.block.BlockModularPipe;
+import com.latmod.modularpipes.data.PipeNetwork;
 import com.latmod.modularpipes.item.ItemModule;
 import com.latmod.modularpipes.item.ModularPipesItems;
 import net.minecraft.block.Block;
@@ -57,5 +58,11 @@ public class ModularPipesClient extends ModularPipesCommon
         super.onInit();
 
         MinecraftForge.EVENT_BUS.register(ModularPipesClientEventHandler.class);
+    }
+
+    @Override
+    public PipeNetwork getClientNetwork()
+    {
+        return ClientPipeNetwork.get();
     }
 }

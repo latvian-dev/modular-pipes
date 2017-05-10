@@ -43,7 +43,7 @@ configurations.all {
 }
 
 dependencies {
-    compile 'LatMod:FTBLib:1.1x-3.6.0:api'
+    compile 'LatMod:FTBLib:1.1x-3.6.4:api'
     deobfCompile "com.github.mcjty:compatlayer:1.11.2-0.2.7"
 }
 

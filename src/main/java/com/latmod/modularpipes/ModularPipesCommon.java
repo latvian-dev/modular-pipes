@@ -1,13 +1,14 @@
 package com.latmod.modularpipes;
 
+import com.feed_the_beast.ftbl.lib.item.ODItems;
 import com.feed_the_beast.ftbl.lib.util.LMUtils;
 import com.feed_the_beast.ftbl.lib.util.RecipeUtils;
+import com.latmod.modularpipes.data.PipeNetwork;
 import com.latmod.modularpipes.item.ItemModule;
 import com.latmod.modularpipes.item.ModularPipesItems;
 import com.latmod.modularpipes.net.ModularPipesNet;
 import com.latmod.modularpipes.tile.TileModularPipe;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -30,7 +31,6 @@ public class ModularPipesCommon
     {
         LMUtils.register(ModularPipesItems.PIPE_BASIC);
         LMUtils.register(ModularPipesItems.PIPE_MODULAR);
-        //LMUtils.register(ModularPipesItems.CONTROLLER);
 
         LMUtils.register(ModularPipesItems.MODULE);
         LMUtils.register(ModularPipesItems.DEBUG);
@@ -41,7 +41,6 @@ public class ModularPipesCommon
         }
 
         GameRegistry.registerTileEntity(TileModularPipe.class, ModularPipes.MOD_ID + ":pipe_modular");
-        //GameRegistry.registerTileEntity(TileController.class, ModularPipes.MOD_ID + ":controller");
 
         ModularPipesCaps.init();
         ModularPipesNet.init();
@@ -52,28 +51,23 @@ public class ModularPipesCommon
         MinecraftForge.EVENT_BUS.register(ModularPipesEventHandler.class);
         Object basicPipe = new ItemStack(ModularPipesItems.PIPE_BASIC, 1, 0);
 
-        RecipeUtils.addRecipe(new ItemStack(ModularPipesItems.PIPE_BASIC, 8, 0), " R ", "SGS", " R ", 'S', "cobblestone", 'G', "paneGlass", 'R', "dustRedstone");
-        RecipeUtils.addRecipe(new ItemStack(ModularPipesItems.PIPE_BASIC, 1, 1), "NGN", "GPG", "NGN", 'N', "nuggetGold", 'G', "dustGlowstone", 'P', basicPipe);
+        RecipeUtils.addRecipe(new ItemStack(ModularPipesItems.PIPE_BASIC, 8, 0), " R ", "SGS", " R ", 'S', ODItems.COBBLE, 'G', ODItems.GLASS_PANE_ANY, 'R', ODItems.REDSTONE);
+        RecipeUtils.addRecipe(new ItemStack(ModularPipesItems.PIPE_BASIC, 1, 1), "NGN", "GPG", "NGN", 'N', ODItems.NUGGET_GOLD, 'G', ODItems.GLOWSTONE, 'P', basicPipe);
 
-        RecipeUtils.addCircularRecipe(new ItemStack(ModularPipesItems.PIPE_MODULAR, 8, 0), "dustRedstone", basicPipe);
+        RecipeUtils.addCircularRecipe(new ItemStack(ModularPipesItems.PIPE_MODULAR, 8, 0), ODItems.REDSTONE, basicPipe);
 
-        Object[] items = {
-                "ingotIron",
-                "ingotGold",
-                "gemQuartz",
-                "gemLapis",
-                "gemEmerald",
-                "enderpearl",
-                Items.NETHER_STAR
-        };
+        Object[] items = {ODItems.IRON, ODItems.GOLD, ODItems.QUARTZ, ODItems.LAPIS, ODItems.EMERALD, ODItems.ENDERPEARL, ODItems.NETHERSTAR};
 
         for(int meta = 0; meta < 7; meta++)
         {
             RecipeUtils.addCircularRecipe(new ItemStack(ModularPipesItems.PIPE_MODULAR, 8, meta + 1), items[meta], new ItemStack(ModularPipesItems.PIPE_MODULAR, 1, meta));
         }
 
-        //RecipeUtils.addRecipe(new ItemStack(ModularPipesItems.CONTROLLER), "IPI", "PCP", "IPI", 'C', Items.COMPARATOR, 'I', "ingotIron", 'P', new ItemStack(ModularPipesItems.PIPE_MODULAR, 1, 4));
+        RecipeUtils.addCircularRecipe(new ItemStack(ModularPipesItems.MODULE, 8), basicPipe, ODItems.IRON);
+    }
 
-        RecipeUtils.addCircularRecipe(new ItemStack(ModularPipesItems.MODULE, 8), basicPipe, "ingotIron");
+    public PipeNetwork getClientNetwork()
+    {
+        throw new IllegalStateException();
     }
 }

@@ -1,6 +1,6 @@
 package com.latmod.modularpipes;
 
-import com.latmod.modularpipes.data.PipeNetwork;
+import com.latmod.modularpipes.data.ServerPipeNetwork;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -34,6 +34,6 @@ public class ModularPipes
     @EventHandler
     public void onServerAboutToStart(FMLServerAboutToStartEvent event)
     {
-        PipeNetwork.clearAll();
+        ServerPipeNetwork.clearAll();
     }
 }

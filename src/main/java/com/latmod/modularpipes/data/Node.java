@@ -27,7 +27,7 @@ public class Node
     @Nullable
     public TileEntity getTile()
     {
-        if(tile == null)
+        if(tile == null || tile.isInvalid())
         {
             tile = network.world.getTileEntity(pos);
         }

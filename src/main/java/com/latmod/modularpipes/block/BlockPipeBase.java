@@ -1,6 +1,7 @@
 package com.latmod.modularpipes.block;
 
 import com.feed_the_beast.ftbl.lib.math.MathUtils;
+import com.latmod.modularpipes.ModularPipes;
 import com.latmod.modularpipes.data.IPipeBlock;
 import com.latmod.modularpipes.data.PipeNetwork;
 import net.minecraft.block.Block;
@@ -28,7 +29,7 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public class BlockPipeBase extends BlockBase implements IPipeBlock
+public class BlockPipeBase extends BlockMPBase implements IPipeBlock
 {
     public static final float SIZE = 4F;
     public static final AxisAlignedBB[] BOXES = new AxisAlignedBB[7];
@@ -92,6 +93,7 @@ public class BlockPipeBase extends BlockBase implements IPipeBlock
         return BlockRenderLayer.CUTOUT;
     }
 
+    @Override
     @SideOnly(Side.CLIENT)
     @Deprecated
     public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
@@ -99,6 +101,7 @@ public class BlockPipeBase extends BlockBase implements IPipeBlock
         return true;
     }
 
+    @Override
     @Deprecated
     public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean p_185477_7_)
     {
@@ -177,6 +180,8 @@ public class BlockPipeBase extends BlockBase implements IPipeBlock
     public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
         super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
+
+        ModularPipes.LOGGER.info("Placed");
 
         if(!worldIn.isRemote)
         {

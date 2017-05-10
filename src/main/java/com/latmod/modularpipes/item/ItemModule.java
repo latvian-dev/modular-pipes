@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public class ItemModule extends ItemBase
+public class ItemModule extends ItemMPBase
 {
     private static class ModuleCapabilityProvider implements ICapabilityProvider
     {
