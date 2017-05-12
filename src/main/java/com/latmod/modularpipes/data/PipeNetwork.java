@@ -80,10 +80,6 @@ public abstract class PipeNetwork implements ITickable
         return null;
     }
 
-    public void setNode(BlockPos pos, @Nullable Node node)
-    {
-    }
-
     public Collection<Node> getNodes()
     {
         return Collections.emptyList();
@@ -95,16 +91,16 @@ public abstract class PipeNetwork implements ITickable
     }
 
     @Nullable
-    public Link getBestPath(BlockPos from, BlockPos to)
+    public Link getBestPath(Node from, Node to)
     {
         return null;
     }
 
-    public void addOrUpdatePipe(BlockPos pos, IBlockState state)
+    public void addOrUpdatePipe(BlockPos pos, IBlockState state, IPipeBlock block)
     {
     }
 
-    public void removeLinkAt(BlockPos pos, IBlockState state)
+    public void removePipe(BlockPos pos, IBlockState state, IPipeBlock block)
     {
     }
 

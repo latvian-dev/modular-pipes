@@ -1,43 +1,77 @@
 package com.latmod.modularpipes.data;
 
 import com.feed_the_beast.ftbl.lib.math.MathUtils;
-import com.feed_the_beast.ftbl.lib.util.NetUtils;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.block.BlockLog;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
+import java.util.function.Predicate;
 
 /**
  * @author LatvianModder
  */
-public final class Link
+public final class Link implements INBTSerializable<NBTTagCompound>
 {
-    public static final Comparator<Link> COMPARATOR = Comparator.comparing(link -> link.length);
+    public static final Comparator<Link> COMPARATOR = Comparator.<Link>comparingDouble(link -> link.length).thenComparingInt(value -> value.actualLength);
 
-    public final PipeNetwork network;
-    public final UUID uuid;
-    public Node start, end;
-    public List<BlockPos> path;
-    public float length;
-    public int actualLength;
-
-    public Link(PipeNetwork n, UUID id)
+    public static class PosPredicate implements Predicate<Link>
     {
-        network = n;
-        uuid = id;
+        private final BlockPos pos;
+        private final boolean contains;
+        private final boolean endpoint;
+
+        public PosPredicate(BlockPos p, boolean c, boolean e)
+        {
+            pos = p;
+            contains = c;
+            endpoint = e;
+        }
+
+        @Override
+        public boolean test(Link link)
+        {
+            return link.invalid() || contains == (endpoint ? link.isEndpoint(pos) : link.contains(pos));
+        }
     }
 
-    public Link(PipeNetwork n, NBTTagCompound nbt)
+    public final PipeNetwork network;
+    public Node start, end;
+    public List<BlockPos> path;
+    public double length;
+    public int actualLength;
+
+    public Link(PipeNetwork n)
     {
         network = n;
-        uuid = nbt.getUniqueId("ID");
+    }
+
+    @Override
+    public NBTTagCompound serializeNBT()
+    {
+        NBTTagCompound nbt = new NBTTagCompound();
+        NBTTagList list1 = new NBTTagList();
+
+        for(BlockPos pos : path)
+        {
+            list1.appendTag(new NBTTagIntArray(new int[] {pos.getX(), pos.getY(), pos.getZ()}));
+        }
+
+        nbt.setTag("Link", list1);
+        nbt.setDouble("Length", length);
+        nbt.setInteger("ActualLength", actualLength);
+        return nbt;
+    }
+
+    @Override
+    public void deserializeNBT(NBTTagCompound nbt)
+    {
         path = new ArrayList<>();
         NBTTagList list = nbt.getTagList("Link", Constants.NBT.TAG_INT_ARRAY);
 
@@ -51,39 +85,56 @@ public final class Link
             }
         }
 
+        setPath(path, false);
+        length = nbt.getDouble("Length");
         actualLength = nbt.getInteger("ActualLength");
-        length = nbt.getFloat("Length");
     }
 
-    public Link(PipeNetwork n, ByteBuf buf)
+    public void setPath(List<BlockPos> p, boolean copy)
     {
-        network = n;
-        uuid = NetUtils.readUUID(buf);
-        int s = buf.readUnsignedShort();
-        path = new ArrayList<>(s);
-        while(--s >= 0)
+        start = end = null;
+
+        if(copy)
         {
-            path.add(NetUtils.readPos(buf));
+            if(path == null)
+            {
+                path = new ArrayList<>();
+            }
+
+            path.clear();
         }
-        actualLength = buf.readInt();
-        length = buf.readFloat();
+
+        if(p.size() >= 2)
+        {
+            if(copy)
+            {
+                path.addAll(p);
+            }
+            else
+            {
+                path = p;
+            }
+
+            start = network.getNode(path.get(0));
+            end = network.getNode(path.get(path.size() - 1));
+
+            if(start == null || end == null || start.equals(end))
+            {
+                start = null;
+                end = null;
+                path.clear();
+            }
+        }
     }
 
-    public static void writeToBuf(ByteBuf buf, Link link)
+    public boolean invalid()
     {
-        NetUtils.writeUUID(buf, link.uuid);
-        buf.writeShort(link.path.size());
-        for(BlockPos pos : link.path)
-        {
-            NetUtils.writePos(buf, pos);
-        }
-        buf.writeInt(link.actualLength);
-        buf.writeFloat(link.length);
+        return start == null || end == null;
     }
 
     public void simplify()
     {
-        if(path.size() <= 2)
+        if(invalid())
         {
             return;
         }
@@ -116,26 +167,25 @@ public final class Link
             newPath.add(prevPos);
         }
 
-        path = newPath;
+        setPath(newPath, false);
     }
 
-    public Link copyForItem(Node start, Node end, BlockPos pathStart)
+    public boolean isEndpoint(BlockPos pos)
     {
-        List<BlockPos> list = new ArrayList<>();
-        list.add(start.pos);
-        //FIXME
-        list.add(end.pos);
-        Link link = new Link(network, uuid);
-        link.start = start;
-        link.end = end;
-        link.path = list;
-        link.actualLength = actualLength + 2;
-        link.length = length + 2F;
-        return link;
+        return !invalid() && (start.equals(pos) || end.equals(pos));
     }
 
     public boolean contains(BlockPos pos)
     {
+        if(invalid())
+        {
+            return false;
+        }
+        else if(isEndpoint(pos))
+        {
+            return true;
+        }
+
         for(int i = 0; i < path.size() - 1; i++)
         {
             if(MathUtils.isPosBetween(pos, path.get(i), path.get(i + 1)))
@@ -147,15 +197,9 @@ public final class Link
         return false;
     }
 
-    public int hashCode()
-    {
-        return uuid.hashCode();
-    }
-
     public String toString()
     {
-        StringBuilder builder = new StringBuilder(uuid.toString());
-        builder.append(":[");
+        StringBuilder builder = new StringBuilder("[");
 
         for(int i = 0; i < path.size(); i++)
         {
@@ -175,10 +219,5 @@ public final class Link
 
         builder.append(']');
         return builder.toString();
-    }
-
-    public boolean equals(Object o)
-    {
-        return o == this || (o instanceof Link && ((Link) o).uuid.equals(uuid));
     }
 }

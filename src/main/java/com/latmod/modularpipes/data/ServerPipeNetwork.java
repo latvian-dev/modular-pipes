@@ -4,7 +4,6 @@ import com.latmod.modularpipes.net.MessageUpdateItems;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagIntArray;
@@ -21,10 +20,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * @author LatvianModder
@@ -85,15 +82,11 @@ public class ServerPipeNetwork extends PipeNetwork
 
             //ModularPipes.LOGGER.info("Saved pipe info to " + dir.getAbsolutePath());
             NBTTagCompound nbt = new NBTTagCompound();
-            NBTTagCompound nbt1;
             NBTTagList list = new NBTTagList();
 
             for(Node node : getNodes())
             {
-                //nbt1 = new NBTTagCompound();
-                //nbt1.setIntArray("Pos", new int[] {node.getPos().getX(), node.getPos().getY(), node.getPos().getZ()});
-                //list.appendTag(nbt1);
-                list.appendTag(new NBTTagIntArray(new int[] {node.pos.getX(), node.pos.getY(), node.pos.getZ()}));
+                list.appendTag(new NBTTagIntArray(new int[] {node.getX(), node.getY(), node.getZ()}));
             }
 
             nbt.setTag("Nodes", list);
@@ -102,41 +95,14 @@ public class ServerPipeNetwork extends PipeNetwork
             for(Link link : linkList)
             {
                 //link.simplify();
-
-                nbt1 = new NBTTagCompound();
-                NBTTagList list1 = new NBTTagList();
-
-                for(BlockPos pos : link.path)
-                {
-                    list1.appendTag(new NBTTagIntArray(new int[] {pos.getX(), pos.getY(), pos.getZ()}));
-                }
-
-                nbt1.setTag("Link", list1);
-                nbt1.setFloat("Length", link.length);
-                nbt1.setFloat("ActualLength", link.actualLength);
-
-                list1.appendTag(nbt1);
+                list.appendTag(link.serializeNBT());
             }
-            nbt.setTag("PathList", list);
+            nbt.setTag("Links", list);
             list = new NBTTagList();
 
             for(TransportedItem item : items.values())
             {
-                nbt1 = new NBTTagCompound();
-                nbt1.setTag("Item", item.stack.serializeNBT());
-
-                NBTTagList pathTag = new NBTTagList();
-
-                for(BlockPos p : item.path)
-                {
-                    pathTag.appendTag(new NBTTagIntArray(new int[] {p.getX(), p.getY(), p.getZ()}));
-                }
-
-                nbt1.setTag("Link", pathTag);
-                nbt1.setInteger("Filters", item.filters);
-                nbt1.setFloat("Speed", item.speed);
-                nbt1.setFloat("Progress", item.progress);
-                list.appendTag(nbt1);
+                list.appendTag(item.serializeNBT());
             }
 
             nbt.setTag("Items", list);
@@ -174,7 +140,7 @@ public class ServerPipeNetwork extends PipeNetwork
             return;
         }
 
-        NBTTagList list = nbt.getTagList("Nodes", Constants.NBT.TAG_COMPOUND);
+        NBTTagList list = nbt.getTagList("Nodes", Constants.NBT.TAG_INT_ARRAY);
 
         for(int i = 0; i < list.tagCount(); i++)
         {
@@ -182,16 +148,18 @@ public class ServerPipeNetwork extends PipeNetwork
 
             if(pos.length >= 3)
             {
-                Node node = new Node(this, new BlockPos(pos[0], pos[1], pos[2]));
-                nodeMap.put(node.pos, node);
+                Node node = new Node(this, pos[0], pos[1], pos[2]);
+                nodeMap.put(node, node);
             }
         }
 
-        list = nbt.getTagList("PathList", Constants.NBT.TAG_COMPOUND);
+        list = nbt.getTagList("Links", Constants.NBT.TAG_COMPOUND);
 
         for(int i = 0; i < list.tagCount(); i++)
         {
-            linkList.add(new Link(this, list.getCompoundTagAt(i)));
+            Link link = new Link(this);
+            link.deserializeNBT(list.getCompoundTagAt(i));
+            linkList.add(link);
         }
 
         list = nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
@@ -199,29 +167,11 @@ public class ServerPipeNetwork extends PipeNetwork
         for(int i = 0; i < list.tagCount(); i++)
         {
             TransportedItem item = new TransportedItem(this);
-            NBTTagCompound nbt1 = list.getCompoundTagAt(i);
-            item.id = ++nextItemId;
-            item.action = TransportedItem.Action.NONE;
-            item.stack = new ItemStack(nbt1.getCompoundTag("Item"));
-
-            item.path.clear();
-            NBTTagList pathTag = nbt1.getTagList("Link", Constants.NBT.TAG_INT_ARRAY);
-            for(int j = 0; j < pathTag.tagCount(); j++)
-            {
-                int pos[] = pathTag.getIntArrayAt(j);
-
-                if(pos.length >= 3)
-                {
-                    item.path.add(new BlockPos(pos[0], pos[1], pos[2]));
-                }
-            }
-
-            item.filters = nbt1.getInteger("Filters");
-            item.speed = nbt1.getFloat("Speed");
-            item.progress = nbt1.getFloat("Progress");
+            item.deserializeNBT(list.getCompoundTagAt(i));
 
             if(!item.remove())
             {
+                item.id = ++nextItemId;
                 item.action = TransportedItem.Action.UPDATE;
                 items.put(item.id, item);
             }
@@ -248,21 +198,6 @@ public class ServerPipeNetwork extends PipeNetwork
     }
 
     @Override
-    public void setNode(BlockPos pos, @Nullable Node node)
-    {
-        if(node == null)
-        {
-            nodeMap.remove(pos);
-            //ModularPipes.LOGGER.info("Node @ " + pos + " removed");
-        }
-        else
-        {
-            nodeMap.put(pos, node);
-            //ModularPipes.LOGGER.info("Node @ " + pos + " placed");
-        }
-    }
-
-    @Override
     public Collection<Node> getNodes()
     {
         return nodeMap.values();
@@ -271,22 +206,23 @@ public class ServerPipeNetwork extends PipeNetwork
     @Override
     public List<Link> getPathList(BlockPos pos, boolean useTempList)
     {
-        linkListTemp.clear();
+        List<Link> list = useTempList ? linkListTemp : new ArrayList<>();
+        list.clear();
 
         for(Link path : linkList)
         {
             if(path.contains(pos))
             {
-                linkListTemp.add(path);
+                list.add(path);
             }
         }
 
-        return linkListTemp;
+        return list;
     }
 
     @Override
     @Nullable
-    public Link getBestPath(BlockPos from, BlockPos to)
+    public Link getBestPath(Node from, Node to)
     {
         List<Link> list = getPathList(from, true);
 
@@ -295,15 +231,7 @@ public class ServerPipeNetwork extends PipeNetwork
             return null;
         }
 
-        Iterator<Link> iterator = list.iterator();
-
-        while(iterator.hasNext())
-        {
-            if(!iterator.next().contains(to))
-            {
-                iterator.remove();
-            }
-        }
+        list.removeIf(new Link.PosPredicate(to, false, true));
 
         if(list.isEmpty())
         {
@@ -318,18 +246,19 @@ public class ServerPipeNetwork extends PipeNetwork
     }
 
     @Override
-    public void addOrUpdatePipe(BlockPos pos, IBlockState state)
+    public void addOrUpdatePipe(BlockPos pos, IBlockState state, IPipeBlock block)
     {
-        if(!loaded || !(state.getBlock() instanceof IPipeBlock))
+        if(!loaded)
         {
             return;
         }
 
-        removeLinkAt(pos, state);
+        removePipe(pos, state, block);
 
-        if(((IPipeBlock) state.getBlock()).isNode(world, pos, state))
+        if(block.isNode(world, pos, state))
         {
             Node node = new Node(this, pos);
+            nodeMap.put(node, node);
 
             for(EnumFacing facing : EnumFacing.VALUES)
             {
@@ -354,19 +283,19 @@ public class ServerPipeNetwork extends PipeNetwork
     }
 
     @Nullable
-    private Link findNode(Node start, EnumFacing facing)
+    private Link findNode(BlockPos start, EnumFacing facing)
     {
         List<BlockPos> list = new ArrayList<>();
         HashSet<BlockPos> set = new HashSet<>();
-        float length = 0F;
-        list.add(start.pos);
-        set.add(start.pos);
+        double length = 0D;
+        list.add(start);
+        set.add(start);
         int actualLength = 0;
-        BlockPos pos = start.pos.offset(facing);
+        BlockPos pos = start.offset(facing);
         EnumFacing source = facing.getOpposite();
         IBlockState state1;
 
-        while(actualLength < 256) //TODO: Config option
+        while(actualLength < 250) //TODO: Config option
         {
             state1 = world.getBlockState(pos);
 
@@ -381,10 +310,10 @@ public class ServerPipeNetwork extends PipeNetwork
             if(pipe.isNode(world, pos, state1))
             {
                 list.add(pos);
-                Link link = new Link(this, UUID.randomUUID());
-                link.path = list;
-                link.actualLength = actualLength;
-                link.length = length;
+                Link link = new Link(this);
+                link.setPath(list, false);
+                link.actualLength = actualLength + 2;
+                link.length = length + 2D;
                 //path.simplify();
                 return link;
             }
@@ -399,7 +328,7 @@ public class ServerPipeNetwork extends PipeNetwork
                 }
                 else
                 {
-                    length += 1F / pipe.getSpeedModifier(world, pos, state1);
+                    length += 1D / pipe.getSpeedModifier(world, pos, state1);
                     source = facing1.getOpposite();
                     pos = pos.offset(facing1);
 
@@ -422,24 +351,18 @@ public class ServerPipeNetwork extends PipeNetwork
     }
 
     @Override
-    public void removeLinkAt(BlockPos pos, IBlockState state)
+    public void removePipe(BlockPos pos, IBlockState state, IPipeBlock block)
     {
-        if(!loaded)
+        if(loaded)
         {
-            return;
-        }
-
-        Iterator<Link> iterator = linkList.iterator();
-
-        while(iterator.hasNext())
-        {
-            Link p = iterator.next();
-
-            if(p.contains(pos))
+            if(block.isNode(world, pos, state))
             {
-                //ModularPipes.LOGGER.info("Link " + p.getId() + " removed from " + pos);
-                //p.onRemoved(worldIn);
-                iterator.remove();
+                nodeMap.remove(pos);
+                linkList.removeIf(new Link.PosPredicate(pos, true, true));
+            }
+            else
+            {
+                linkList.removeIf(new Link.PosPredicate(pos, true, false));
             }
         }
     }
@@ -449,7 +372,6 @@ public class ServerPipeNetwork extends PipeNetwork
     {
         item.id = ++nextItemId;
         item.progress = 0;
-        item.speed = 0.01F;
 
         if(nextItemId == 2000000000)
         {

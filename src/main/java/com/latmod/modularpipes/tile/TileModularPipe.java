@@ -5,7 +5,6 @@ import com.feed_the_beast.ftbl.lib.tile.TileBase;
 import com.latmod.modularpipes.ModularPipesCaps;
 import com.latmod.modularpipes.data.IPipeBlock;
 import com.latmod.modularpipes.data.ModuleContainer;
-import com.latmod.modularpipes.data.Node;
 import com.latmod.modularpipes.data.PipeNetwork;
 import com.latmod.modularpipes.data.TransportedItem;
 import net.minecraft.block.Block;
@@ -222,20 +221,6 @@ public class TileModularPipe extends TileBase implements ITickable
         */
     }
 
-    @Override
-    public void onLoad()
-    {
-        super.onLoad();
-
-        if(world != null && !world.isRemote)
-        {
-            if(getNetwork().getNode(pos) == null)
-            {
-                getNetwork().setNode(pos, new Node(getNetwork(), pos));
-            }
-        }
-    }
-
     public void onBroken()
     {
         for(ModuleContainer c : modules)
@@ -256,7 +241,6 @@ public class TileModularPipe extends TileBase implements ITickable
         }
 
         clearModules();
-        getNetwork().setNode(pos, null);
     }
 
     public EnumFacing getItemDirection(TransportedItem item, EnumFacing source)

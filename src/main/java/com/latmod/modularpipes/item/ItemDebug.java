@@ -50,8 +50,12 @@ public class ItemDebug extends ItemMPBase
                 item.stack = new ItemStack(Blocks.LOG);
             }
 
-            item.path.add(pos);
-            item.path.add(pos.offset(EnumFacing.EAST, 3));
+            item.resetPath(pos);
+            item.path.add(new TransportedItem.PathPoint(EnumFacing.EAST, 3));
+            item.path.add(new TransportedItem.PathPoint(EnumFacing.UP, 3));
+            item.path.add(new TransportedItem.PathPoint(EnumFacing.WEST, 1));
+            item.path.add(new TransportedItem.PathPoint(EnumFacing.NORTH, 2));
+            item.setPath();
             item.addToNetwork();
             return EnumActionResult.SUCCESS;
         }

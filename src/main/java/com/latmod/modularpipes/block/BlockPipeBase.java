@@ -1,7 +1,6 @@
 package com.latmod.modularpipes.block;
 
 import com.feed_the_beast.ftbl.lib.math.MathUtils;
-import com.latmod.modularpipes.ModularPipes;
 import com.latmod.modularpipes.data.IPipeBlock;
 import com.latmod.modularpipes.data.PipeNetwork;
 import net.minecraft.block.Block;
@@ -153,39 +152,13 @@ public class BlockPipeBase extends BlockMPBase implements IPipeBlock
     }
 
     @Override
-    public boolean isNode(IBlockAccess world, BlockPos pos, IBlockState state)
-    {
-        return false;
-    }
-
-    @Override
-    public float getSpeedModifier(IBlockAccess world, BlockPos pos, IBlockState state)
-    {
-        return 1F;
-    }
-
-    @Override
-    public boolean canPipeConnect(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing facing)
-    {
-        return true;
-    }
-
-    @Override
-    public EnumFacing getPipeFacing(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing source)
-    {
-        return source;
-    }
-
-    @Override
     public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
         super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
 
-        ModularPipes.LOGGER.info("Placed");
-
         if(!worldIn.isRemote)
         {
-            PipeNetwork.get(worldIn).addOrUpdatePipe(pos, state);
+            PipeNetwork.get(worldIn).addOrUpdatePipe(pos, state, this);
         }
     }
 
@@ -194,7 +167,7 @@ public class BlockPipeBase extends BlockMPBase implements IPipeBlock
     {
         if(!worldIn.isRemote)
         {
-            PipeNetwork.get(worldIn).removeLinkAt(pos, state);
+            PipeNetwork.get(worldIn).removePipe(pos, state, this);
         }
 
         super.breakBlock(worldIn, pos, state);

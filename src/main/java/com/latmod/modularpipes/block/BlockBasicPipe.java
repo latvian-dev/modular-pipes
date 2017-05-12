@@ -1,6 +1,7 @@
 package com.latmod.modularpipes.block;
 
 import com.feed_the_beast.ftbl.lib.block.ItemBlockBase;
+import com.latmod.modularpipes.ModularPipesConfig;
 import gnu.trove.map.hash.TIntIntHashMap;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.properties.PropertyEnum;
@@ -29,19 +30,17 @@ public class BlockBasicPipe extends BlockPipeBase
 {
     public enum Variant implements IStringSerializable
     {
-        BASIC("basic", 1F, MapColor.GRAY),
-        SPEED("speed", 3F, MapColor.GOLD);
+        BASIC("basic", MapColor.GRAY),
+        SPEED("speed", MapColor.GOLD);
 
         public static final Variant[] VALUES = values();
         private final String name;
-        public final float speedModifier;
         public final MapColor color;
         public final String uname;
 
-        Variant(String n, float s, MapColor c)
+        Variant(String n, MapColor c)
         {
             name = n;
-            speedModifier = s;
             color = c;
             uname = "tile.modularpipes.pipe_basic." + n;
         }
@@ -50,6 +49,11 @@ public class BlockBasicPipe extends BlockPipeBase
         public String getName()
         {
             return name;
+        }
+
+        public static Variant getFromMeta(int meta)
+        {
+            return (meta < 0 || meta >= VALUES.length || VALUES[meta] == null) ? BASIC : VALUES[meta];
         }
     }
 
@@ -140,7 +144,7 @@ public class BlockBasicPipe extends BlockPipeBase
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        return getDefaultState().withProperty(VARIANT, Variant.VALUES[meta]);
+        return getDefaultState().withProperty(VARIANT, Variant.getFromMeta(meta));
     }
 
     @Override
@@ -163,7 +167,7 @@ public class BlockBasicPipe extends BlockPipeBase
             @Override
             public String getUnlocalizedName(ItemStack stack)
             {
-                return Variant.VALUES[stack.getMetadata()].uname;
+                return Variant.getFromMeta(stack.getMetadata()).uname;
             }
         };
     }
@@ -211,9 +215,9 @@ public class BlockBasicPipe extends BlockPipeBase
     }
 
     @Override
-    public float getSpeedModifier(IBlockAccess world, BlockPos pos, IBlockState state)
+    public double getSpeedModifier(IBlockAccess world, BlockPos pos, IBlockState state)
     {
-        return state.getValue(VARIANT).speedModifier;
+        return state.getValue(VARIANT) == Variant.SPEED ? ModularPipesConfig.SPEED_PIPE_MODIFIER.getAsDouble() : 1D;
     }
 
     @Override
