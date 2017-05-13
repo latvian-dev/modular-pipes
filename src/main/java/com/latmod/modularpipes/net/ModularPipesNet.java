@@ -13,5 +13,6 @@ public class ModularPipesNet
     public static void init()
     {
         NET.register(0, new MessageUpdateItems());
+        NET.register(1, new MessageVisualizeNetwork());
     }
 }

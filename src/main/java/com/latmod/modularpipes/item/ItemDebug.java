@@ -73,13 +73,10 @@ public class ItemDebug extends ItemMPBase
             return new ActionResult<>(EnumActionResult.SUCCESS, stack);
         }
 
+        PipeNetwork network = PipeNetwork.get(worldIn);
         if(playerIn.isSneaking())
         {
-            PipeNetwork.get(worldIn).items.values().forEach(value -> value.action = TransportedItem.Action.REMOVE);
-        }
-        else
-        {
-            PipeNetwork.get(worldIn).server().playerLoggedIn(playerIn);
+            network.items.values().forEach(value -> value.action = TransportedItem.Action.REMOVE);
         }
 
         return new ActionResult<>(EnumActionResult.SUCCESS, stack);

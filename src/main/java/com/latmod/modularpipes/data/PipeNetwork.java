@@ -43,6 +43,7 @@ public abstract class PipeNetwork implements ITickable
     public final World world;
     public final Map<Integer, TransportedItem> items = new HashMap<>();
     private boolean itemsRemoved = false;
+    public boolean networkUpdated;
 
     private final Consumer<TransportedItem> foreachUpdate = item ->
     {
@@ -85,6 +86,11 @@ public abstract class PipeNetwork implements ITickable
         return Collections.emptyList();
     }
 
+    public Collection<Link> getLinks()
+    {
+        return Collections.emptyList();
+    }
+
     public List<Link> getPathList(BlockPos pos, boolean useTempList)
     {
         return Collections.emptyList();
@@ -96,11 +102,11 @@ public abstract class PipeNetwork implements ITickable
         return null;
     }
 
-    public void addOrUpdatePipe(BlockPos pos, IBlockState state, IPipeBlock block)
+    public void addOrUpdatePipe(BlockPos pos, IBlockState state)
     {
     }
 
-    public void removePipe(BlockPos pos, IBlockState state, IPipeBlock block)
+    public void removePipe(BlockPos pos, IBlockState state)
     {
     }
 

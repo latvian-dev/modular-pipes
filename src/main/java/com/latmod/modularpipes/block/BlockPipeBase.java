@@ -158,7 +158,7 @@ public class BlockPipeBase extends BlockMPBase implements IPipeBlock
 
         if(!worldIn.isRemote)
         {
-            PipeNetwork.get(worldIn).addOrUpdatePipe(pos, state, this);
+            PipeNetwork.get(worldIn).addOrUpdatePipe(pos, state);
         }
     }
 
@@ -167,7 +167,7 @@ public class BlockPipeBase extends BlockMPBase implements IPipeBlock
     {
         if(!worldIn.isRemote)
         {
-            PipeNetwork.get(worldIn).removePipe(pos, state, this);
+            PipeNetwork.get(worldIn).removePipe(pos, state);
         }
 
         super.breakBlock(worldIn, pos, state);

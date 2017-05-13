@@ -1,6 +1,8 @@
 package com.latmod.modularpipes.data;
 
+import com.latmod.modularpipes.ModularPipesConfig;
 import com.latmod.modularpipes.net.MessageUpdateItems;
+import com.latmod.modularpipes.net.MessageVisualizeNetwork;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -159,7 +161,13 @@ public class ServerPipeNetwork extends PipeNetwork
         {
             Link link = new Link(this);
             link.deserializeNBT(list.getCompoundTagAt(i));
-            linkList.add(link);
+
+            if(!link.invalid())
+            {
+                link.start.linkedWith.add(link);
+                link.end.linkedWith.add(link);
+                linkList.add(link);
+            }
         }
 
         list = nbt.getTagList("Items", Constants.NBT.TAG_COMPOUND);
@@ -201,6 +209,12 @@ public class ServerPipeNetwork extends PipeNetwork
     public Collection<Node> getNodes()
     {
         return nodeMap.values();
+    }
+
+    @Override
+    public Collection<Link> getLinks()
+    {
+        return linkList;
     }
 
     @Override
@@ -246,44 +260,50 @@ public class ServerPipeNetwork extends PipeNetwork
     }
 
     @Override
-    public void addOrUpdatePipe(BlockPos pos, IBlockState state, IPipeBlock block)
+    public void addOrUpdatePipe(BlockPos pos, IBlockState state)
     {
-        if(!loaded)
+        if(!loaded || !(state.getBlock() instanceof IPipeBlock))
         {
             return;
         }
 
-        removePipe(pos, state, block);
+        removePipe(pos, state);
 
-        if(block.isNode(world, pos, state))
+        boolean isNode = ((IPipeBlock) state.getBlock()).isNode(world, pos, state);
+
+        if(isNode)
         {
             Node node = new Node(this, pos);
             nodeMap.put(node, node);
+        }
 
-            for(EnumFacing facing : EnumFacing.VALUES)
+        for(EnumFacing facing : EnumFacing.VALUES)
+        {
+            IBlockState state1 = world.getBlockState(pos.offset(facing));
+
+            if(state1.getBlock() instanceof IPipeBlock)
             {
-                IBlockState state1 = world.getBlockState(pos.offset(facing));
+                Link link = findNode(pos, facing, isNode);
 
-                if(state1.getBlock() instanceof IPipeBlock)
+                if(link != null)
                 {
-                    Link link = findNode(node, facing);
-
-                    if(link != null)
+                    if(isNode)
                     {
-                        //ModularPipes.LOGGER.info("Found link " + link);
                         linkList.add(link);
+                    }
+                    else if(link.end != null)
+                    {
+                        addOrUpdatePipe(link.end, world.getBlockState(link.end));
                     }
                 }
             }
         }
-        else
-        {
-            //ModularPipes.LOGGER.info("Placed pipe @ " + pos);
-        }
+
+        networkUpdated = true;
     }
 
     @Nullable
-    private Link findNode(BlockPos start, EnumFacing facing)
+    private Link findNode(BlockPos start, EnumFacing facing, boolean isNode)
     {
         List<BlockPos> list = new ArrayList<>();
         HashSet<BlockPos> set = new HashSet<>();
@@ -301,7 +321,6 @@ public class ServerPipeNetwork extends PipeNetwork
 
             if(!(state1.getBlock() instanceof IPipeBlock))
             {
-                //ModularPipes.LOGGER.warn("Block not a pipe @ " + pos);
                 return null;
             }
 
@@ -314,7 +333,14 @@ public class ServerPipeNetwork extends PipeNetwork
                 link.setPath(list, false);
                 link.actualLength = actualLength + 2;
                 link.length = length + 2D;
-                //path.simplify();
+                if(isNode)
+                {
+                    link.simplify();
+                }
+                else
+                {
+                    link.end = new Node(this, pos);
+                }
                 return link;
             }
             else
@@ -351,20 +377,24 @@ public class ServerPipeNetwork extends PipeNetwork
     }
 
     @Override
-    public void removePipe(BlockPos pos, IBlockState state, IPipeBlock block)
+    public void removePipe(BlockPos pos, IBlockState state)
     {
-        if(loaded)
+        if(!loaded || !(state.getBlock() instanceof IPipeBlock))
         {
-            if(block.isNode(world, pos, state))
-            {
-                nodeMap.remove(pos);
-                linkList.removeIf(new Link.PosPredicate(pos, true, true));
-            }
-            else
-            {
-                linkList.removeIf(new Link.PosPredicate(pos, true, false));
-            }
+            return;
         }
+
+        if(((IPipeBlock) state.getBlock()).isNode(world, pos, state))
+        {
+            nodeMap.remove(pos);
+            linkList.removeIf(new Link.PosPredicate(pos, true, true));
+        }
+        else
+        {
+            linkList.removeIf(new Link.PosPredicate(pos, true, false));
+        }
+
+        networkUpdated = true;
     }
 
     @Override
@@ -405,6 +435,36 @@ public class ServerPipeNetwork extends PipeNetwork
         {
             new MessageUpdateItems(updateCache).sendToDimension(world.provider.getDimension());
         }
+
+        if(networkUpdated)
+        {
+            networkUpdated = false;
+
+            if(ModularPipesConfig.DEV_MODE.getBoolean())
+            {
+                Collection<List<BlockPos>> l = new ArrayList<>();
+
+                for(Link link : linkList)
+                {
+                    l.add(link.path);
+                }
+
+                Collection<BlockPos> t = new ArrayList<>();
+
+                for(Node node : nodeMap.values())
+                {
+                    for(int facing = 0; facing < 6; facing++)
+                    {
+                        if(node.getTile(facing) != null)
+                        {
+                            t.add(node.offset(EnumFacing.VALUES[facing]));
+                        }
+                    }
+                }
+
+                new MessageVisualizeNetwork(new ArrayList<>(nodeMap.values()), l, t).sendTo(null);
+            }
+        }
     }
 
     @Override
@@ -416,5 +476,6 @@ public class ServerPipeNetwork extends PipeNetwork
     public void playerLoggedIn(EntityPlayer player)
     {
         new MessageUpdateItems(items).sendTo(player);
+        networkUpdated = true;
     }
 }

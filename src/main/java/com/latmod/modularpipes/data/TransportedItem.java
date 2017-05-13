@@ -218,7 +218,7 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
 
     public void addPath(BlockPos pos1)
     {
-        path.add(new PathPoint(MathUtils.getFacing(pos, pos1), (int) Math.sqrt(pos.distanceSq(pos1))));
+        path.add(new PathPoint(MathUtils.getFacing(pos, pos1), (int) MathUtils.sqrt(pos.distanceSq(pos1))));
         pos.setPos(pos1);
     }
 

@@ -3,10 +3,7 @@ package com.latmod.modularpipes.data;
 import com.feed_the_beast.ftbl.lib.math.MathUtils;
 import net.minecraft.block.BlockLog;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagIntArray;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.ArrayList;
@@ -56,14 +53,17 @@ public final class Link implements INBTSerializable<NBTTagCompound>
     public NBTTagCompound serializeNBT()
     {
         NBTTagCompound nbt = new NBTTagCompound();
-        NBTTagList list1 = new NBTTagList();
+        int[] ai = new int[path.size() * 3];
 
-        for(BlockPos pos : path)
+        for(int i = 0; i < path.size(); i++)
         {
-            list1.appendTag(new NBTTagIntArray(new int[] {pos.getX(), pos.getY(), pos.getZ()}));
+            BlockPos pos = path.get(i);
+            ai[i * 3] = pos.getX();
+            ai[i * 3 + 1] = pos.getY();
+            ai[i * 3 + 2] = pos.getZ();
         }
 
-        nbt.setTag("Link", list1);
+        nbt.setIntArray("Path", ai);
         nbt.setDouble("Length", length);
         nbt.setInteger("ActualLength", actualLength);
         return nbt;
@@ -73,16 +73,11 @@ public final class Link implements INBTSerializable<NBTTagCompound>
     public void deserializeNBT(NBTTagCompound nbt)
     {
         path = new ArrayList<>();
-        NBTTagList list = nbt.getTagList("Link", Constants.NBT.TAG_INT_ARRAY);
+        int[] ai = nbt.getIntArray("Path");
 
-        for(int i = 0; i < list.tagCount(); i++)
+        for(int i = 0; i < ai.length; i += 3)
         {
-            int[] pos = list.getIntArrayAt(i);
-
-            if(pos.length >= 3)
-            {
-                path.add(new BlockPos(pos[0], pos[1], pos[2]));
-            }
+            path.add(new BlockPos(ai[i], ai[i + 1], ai[i + 2]));
         }
 
         setPath(path, false);
@@ -194,6 +189,24 @@ public final class Link implements INBTSerializable<NBTTagCompound>
             }
         }
 
+        return false;
+    }
+
+    public int hashCode()
+    {
+        return path.hashCode();
+    }
+
+    public boolean equals(Object o)
+    {
+        if(o == this)
+        {
+            return true;
+        }
+        else if(o instanceof Link)
+        {
+            return path.equals(((Link) o).path);
+        }
         return false;
     }
 
