@@ -4,134 +4,23 @@ import com.feed_the_beast.ftbl.lib.math.MathUtils;
 import net.minecraft.block.BlockLog;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * @author LatvianModder
  */
-public final class Link implements INBTSerializable<NBTTagCompound>
+public final class Link
 {
     public static final Comparator<Link> COMPARATOR = Comparator.<Link>comparingDouble(link -> link.length).thenComparingInt(value -> value.actualLength);
 
-    public static class PosPredicate implements Predicate<Link>
+    public static List<BlockPos> simplify(List<BlockPos> path)
     {
-        private final BlockPos pos;
-        private final boolean contains;
-        private final boolean endpoint;
-
-        public PosPredicate(BlockPos p, boolean c, boolean e)
+        if(path.size() <= 2)
         {
-            pos = p;
-            contains = c;
-            endpoint = e;
-        }
-
-        @Override
-        public boolean test(Link link)
-        {
-            return link.invalid() || contains == (endpoint ? link.isEndpoint(pos) : link.contains(pos));
-        }
-    }
-
-    public final PipeNetwork network;
-    public Node start, end;
-    public List<BlockPos> path;
-    public double length;
-    public int actualLength;
-
-    public Link(PipeNetwork n)
-    {
-        network = n;
-    }
-
-    @Override
-    public NBTTagCompound serializeNBT()
-    {
-        NBTTagCompound nbt = new NBTTagCompound();
-        int[] ai = new int[path.size() * 3];
-
-        for(int i = 0; i < path.size(); i++)
-        {
-            BlockPos pos = path.get(i);
-            ai[i * 3] = pos.getX();
-            ai[i * 3 + 1] = pos.getY();
-            ai[i * 3 + 2] = pos.getZ();
-        }
-
-        nbt.setIntArray("Path", ai);
-        nbt.setDouble("Length", length);
-        nbt.setInteger("ActualLength", actualLength);
-        return nbt;
-    }
-
-    @Override
-    public void deserializeNBT(NBTTagCompound nbt)
-    {
-        path = new ArrayList<>();
-        int[] ai = nbt.getIntArray("Path");
-
-        for(int i = 0; i < ai.length; i += 3)
-        {
-            path.add(new BlockPos(ai[i], ai[i + 1], ai[i + 2]));
-        }
-
-        setPath(path, false);
-        length = nbt.getDouble("Length");
-        actualLength = nbt.getInteger("ActualLength");
-    }
-
-    public void setPath(List<BlockPos> p, boolean copy)
-    {
-        start = end = null;
-
-        if(copy)
-        {
-            if(path == null)
-            {
-                path = new ArrayList<>();
-            }
-
-            path.clear();
-        }
-
-        if(p.size() >= 2)
-        {
-            if(copy)
-            {
-                path.addAll(p);
-            }
-            else
-            {
-                path = p;
-            }
-
-            start = network.getNode(path.get(0));
-            end = network.getNode(path.get(path.size() - 1));
-
-            if(start == null || end == null || start.equals(end))
-            {
-                start = null;
-                end = null;
-                path.clear();
-            }
-        }
-    }
-
-    public boolean invalid()
-    {
-        return start == null || end == null;
-    }
-
-    public void simplify()
-    {
-        if(invalid())
-        {
-            return;
+            return path;
         }
 
         List<BlockPos> newPath = new ArrayList<>();
@@ -162,12 +51,87 @@ public final class Link implements INBTSerializable<NBTTagCompound>
             newPath.add(prevPos);
         }
 
-        setPath(newPath, false);
+        return newPath;
+    }
+
+    public final PipeNetwork network;
+    public final List<BlockPos> path;
+    public final Node start, end;
+    public final double length;
+    public final int actualLength;
+
+    public Link(PipeNetwork n, List<BlockPos> p, double l, int a)
+    {
+        network = n;
+        path = p;
+        start = path.size() >= 2 ? network.getNode(path.get(0)) : null;
+        end = start != null ? network.getNode(path.get(path.size() - 1)) : null;
+        length = l;
+        actualLength = a;
+    }
+
+    public Link(PipeNetwork n, NBTTagCompound nbt)
+    {
+        network = n;
+        path = new ArrayList<>();
+        int[] ai = nbt.getIntArray("Path");
+
+        for(int i = 0; i < ai.length; i += 3)
+        {
+            path.add(new BlockPos(ai[i], ai[i + 1], ai[i + 2]));
+        }
+
+        if(path.size() >= 2)
+        {
+            start = network.getNode(path.get(0));
+            end = network.getNode(path.get(path.size() - 1));
+
+            if(start != null && end != null && !start.equals(end))
+            {
+                start.linkedWith.add(this);
+                end.linkedWith.add(this);
+            }
+            else
+            {
+                path.clear();
+            }
+        }
+        else
+        {
+            start = end = null;
+        }
+
+        length = nbt.getDouble("Length");
+        actualLength = nbt.getInteger("ActualLength");
+    }
+
+    public NBTTagCompound serializeNBT()
+    {
+        NBTTagCompound nbt = new NBTTagCompound();
+        int[] ai = new int[path.size() * 3];
+
+        for(int i = 0; i < path.size(); i++)
+        {
+            BlockPos pos = path.get(i);
+            ai[i * 3] = pos.getX();
+            ai[i * 3 + 1] = pos.getY();
+            ai[i * 3 + 2] = pos.getZ();
+        }
+
+        nbt.setIntArray("Path", ai);
+        nbt.setDouble("Length", length);
+        nbt.setInteger("ActualLength", actualLength);
+        return nbt;
+    }
+
+    public boolean invalid()
+    {
+        return start == null || end == null || path.size() < 2;
     }
 
     public boolean isEndpoint(BlockPos pos)
     {
-        return !invalid() && (start.equals(pos) || end.equals(pos));
+        return !invalid() && (start == pos || end == pos || start.equals(pos) || end.equals(pos));
     }
 
     public boolean contains(BlockPos pos)
@@ -176,11 +140,6 @@ public final class Link implements INBTSerializable<NBTTagCompound>
         {
             return false;
         }
-        else if(isEndpoint(pos))
-        {
-            return true;
-        }
-
         for(int i = 0; i < path.size() - 1; i++)
         {
             if(MathUtils.isPosBetween(pos, path.get(i), path.get(i + 1)))
@@ -194,7 +153,7 @@ public final class Link implements INBTSerializable<NBTTagCompound>
 
     public int hashCode()
     {
-        return path.hashCode();
+        return start.hashCode() ^ end.hashCode();
     }
 
     public boolean equals(Object o)
@@ -205,32 +164,25 @@ public final class Link implements INBTSerializable<NBTTagCompound>
         }
         else if(o instanceof Link)
         {
-            return path.equals(((Link) o).path);
+            Link l = (Link) o;
+            if(isEndpoint(l.start) && isEndpoint(l.end))
+            {
+                for(BlockPos pos : l.path)
+                {
+                    if(!contains(pos))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
         }
         return false;
     }
 
     public String toString()
     {
-        StringBuilder builder = new StringBuilder("[");
-
-        for(int i = 0; i < path.size(); i++)
-        {
-            BlockPos pos = path.get(i);
-            builder.append('[');
-            builder.append(pos.getX());
-            builder.append(',');
-            builder.append(pos.getY());
-            builder.append(',');
-            builder.append(pos.getZ());
-            builder.append(']');
-            if(i != path.size() - 1)
-            {
-                builder.append(',');
-            }
-        }
-
-        builder.append(']');
-        return builder.toString();
+        return "[#" + Integer.toHexString(path.hashCode()) + ' ' + start + "->" + end + ']';
     }
 }

@@ -11,14 +11,19 @@ import net.minecraft.world.World;
  */
 public interface IPipeBlock
 {
-    default boolean isNode(IBlockAccess world, BlockPos pos, IBlockState state)
+    default NodeType getNodeType(IBlockAccess world, BlockPos pos, IBlockState state)
     {
-        return false;
+        return NodeType.NONE;
     }
 
     default double getSpeedModifier(IBlockAccess world, BlockPos pos, IBlockState state)
     {
         return 1D;
+    }
+
+    default boolean superBoost(IBlockAccess world, BlockPos pos, IBlockState state)
+    {
+        return false;
     }
 
     default boolean canPipeConnect(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing facing)

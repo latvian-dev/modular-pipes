@@ -12,7 +12,15 @@
 			"4": {"textures": {"overlay": "modularpipes:blocks/pipes/mk4"}},
 			"5": {"textures": {"overlay": "modularpipes:blocks/pipes/mk5"}},
 			"6": {"textures": {"overlay": "modularpipes:blocks/pipes/mk6"}},
-			"7": {"textures": {"overlay": "modularpipes:blocks/pipes/mk7"}}
+			"7": {"textures": {"overlay": "modularpipes:blocks/pipes/mk7"}},
+			"node_basic": {"model": "modularpipes:pipe"},
+			"node_speed": {
+				"model": "modularpipes:pipe",
+				"textures": {
+					"base": "modularpipes:blocks/pipes/base_speed",
+					"particle": "modularpipes:blocks/pipes/particle_speed"
+				}
+			}
 		},
 		"con_d": {"0": {}, "1": {"submodel": {"d": {"model": "modularpipes:pipe_con", "x": 0, "y": 0}}}, "2": {"submodel": {"d": {"model": "modularpipes:pipe_module", "x": 0, "y": 0}}}},
 		"con_u": {"0": {}, "1": {"submodel": {"u": {"model": "modularpipes:pipe_con", "x": 180, "y": 0}}}, "2": {"submodel": {"u": {"model": "modularpipes:pipe_module", "x": 180, "y": 0}}}},

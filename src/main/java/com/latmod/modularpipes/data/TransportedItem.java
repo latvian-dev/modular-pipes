@@ -1,7 +1,6 @@
 package com.latmod.modularpipes.data;
 
 import com.feed_the_beast.ftbl.lib.math.MathUtils;
-import com.feed_the_beast.ftbl.lib.util.InvUtils;
 import com.feed_the_beast.ftbl.lib.util.NetUtils;
 import com.latmod.modularpipes.ModularPipesConfig;
 import com.latmod.modularpipes.client.ClientTransportedItem;
@@ -12,14 +11,13 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 /**
  * @author LatvianModder
@@ -30,24 +28,19 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
     {
         NONE,
         REMOVE,
-        UPDATE,
-        HIDE;
+        DROP,
+        UPDATE;
 
         public static final Action[] VALUES = values();
 
         public boolean remove()
         {
-            return this == REMOVE;
+            return this == REMOVE || this == DROP;
         }
 
         public boolean update()
         {
-            return this == UPDATE || this == REMOVE;
-        }
-
-        public boolean invisible()
-        {
-            return this == HIDE || this == REMOVE;
+            return this == UPDATE || remove();
         }
     }
 
@@ -62,16 +55,28 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
             length = l;
         }
 
-        public PathPoint(ByteBuf buf)
+        public int hashCode()
         {
-            facing = EnumFacing.VALUES[buf.readUnsignedByte()];
-            length = buf.readUnsignedByte();
+            return facing.getIndex() * 31 + length;
         }
 
-        public void writeToByteBuf(ByteBuf buf)
+        public boolean equals(Object o)
         {
-            buf.writeByte(facing.getIndex());
-            buf.writeByte(length);
+            if(o == this)
+            {
+                return true;
+            }
+            else if(o instanceof PathPoint)
+            {
+                PathPoint p = (PathPoint) o;
+                return p.facing == facing && p.length == length;
+            }
+            return false;
+        }
+
+        public String toString()
+        {
+            return "[" + facing + ':' + length + ']';
         }
 
         public static void fromArray(List<PathPoint> path, byte[] arr)
@@ -96,9 +101,6 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
         }
     }
 
-    public static final Predicate<TransportedItem> REMOVE_PREDICATE = TransportedItem::remove;
-    public static final Consumer<TransportedItem> FOREACH_POST_UPDATE = TransportedItem::postUpdate;
-
     public final PipeNetwork network;
     public int id;
     public BlockPos start;
@@ -108,6 +110,7 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
     public int filters = 0;
     public double progress = 0D;
     public Action action = Action.NONE;
+    public boolean boost = false;
     public double prevX, prevY, prevZ;
     public double posX, posY, posZ;
 
@@ -136,6 +139,10 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
         nbt.setByteArray("Path", PathPoint.toArray(path));
         nbt.setInteger("Filters", filters);
         nbt.setDouble("Progress", progress);
+        if(boost)
+        {
+            nbt.setBoolean("Boost", true);
+        }
         return nbt;
     }
 
@@ -151,6 +158,7 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
         PathPoint.fromArray(path, nbt.getByteArray("Path"));
         filters = nbt.getInteger("Filters");
         progress = nbt.getDouble("Progress");
+        boost = nbt.getBoolean("Boost");
     }
 
     public void writeToByteBuf(ByteBuf buf)
@@ -168,6 +176,7 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
             buf.writeBytes(b);
             buf.writeShort(filters);
             buf.writeDouble(progress);
+            buf.writeBoolean(boost);
         }
     }
 
@@ -186,7 +195,13 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
             PathPoint.fromArray(path, b);
             filters = buf.readUnsignedShort();
             progress = buf.readDouble();
+            boost = buf.readBoolean();
         }
+    }
+
+    public ClientTransportedItem client()
+    {
+        throw new IllegalStateException();
     }
 
     public void addToNetwork()
@@ -194,36 +209,37 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
         network.addItem(this);
     }
 
-    public void resetPath(Vec3i v)
+    public void setPath(List<BlockPos> l)
     {
-        start = new BlockPos(v);
-        pos = new BlockPos.MutableBlockPos(start);
         path.clear();
-    }
 
-    public void addPath(Link link)
-    {
-        resetPath(link.start);
-
-        for(BlockPos pos : link.path)
+        if(l.isEmpty())
         {
-            if(!link.isEndpoint(pos))
+            return;
+        }
+
+        Collection<BlockPos> set = new HashSet<>();
+        start = new BlockPos(l.get(0));
+        pos = new BlockPos.MutableBlockPos(start);
+
+        for(BlockPos pos1 : l)
+        {
+            if(set.contains(pos1))
             {
-                addPath(pos);
+                continue;
+            }
+
+            EnumFacing facing = MathUtils.getFacing(pos, pos1);
+            int dist = (int) MathUtils.sqrt(pos.distanceSq(pos1));
+
+            if(facing != null && dist > 0)
+            {
+                path.add(new PathPoint(facing, dist));
+                pos.setPos(pos1);
+                set.add(pos1);
             }
         }
 
-        addPath(link.end);
-    }
-
-    public void addPath(BlockPos pos1)
-    {
-        path.add(new PathPoint(MathUtils.getFacing(pos, pos1), (int) MathUtils.sqrt(pos.distanceSq(pos1))));
-        pos.setPos(pos1);
-    }
-
-    public void setPath()
-    {
         pos.setPos(start);
     }
 
@@ -236,40 +252,38 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
             return;
         }
 
-        /*
-        if(prevX != posX || prevY != posY || prevZ != posZ)
+        if(path.isEmpty())
         {
-            BlockPos oldPos = new BlockPos(prevX, prevY, prevZ);
-            //check for block change
+            action = Action.DROP;
+            return;
         }
-        */
 
         BlockPos pos = new BlockPos(posX, posY, posZ);
+
         double s = ModularPipesConfig.ITEM_BASE_SPEED.getAsDouble();
         IBlockState state = network.world.getBlockState(pos);
 
         if(state.getBlock().isAir(state, network.world, pos))
         {
-            action = Action.REMOVE;
-
-            if(!network.world.isRemote)
-            {
-                InvUtils.dropItem(network.world, pos, stack, 12);
-            }
+            action = Action.DROP;
         }
         else if(state.getBlock() instanceof IPipeBlock)
         {
-            s *= ((IPipeBlock) state.getBlock()).getSpeedModifier(network.world, pos, state);
+            IPipeBlock pipe = (IPipeBlock) state.getBlock();
+            s *= pipe.getSpeedModifier(network.world, pos, state);
+
+            if(pipe.superBoost(network.world, pos, state))
+            {
+                boost = true;
+            }
+        }
+
+        if(boost)
+        {
+            s *= ModularPipesConfig.SUPER_BOOST.getAsDouble();
         }
 
         progress += s;
-
-        /*
-        if(!network.world.isRemote)
-        {
-            network.world.spawnEntity(new EntityFireworkRocket(network.world, posX, posY, posZ, new ItemStack(Items.FIREWORKS)));
-        }
-        */
     }
 
     public void updatePrevData()
@@ -287,9 +301,10 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
         }
 
         PathPoint p = path.get(0);
-        posX = pos.getX() + p.facing.getFrontOffsetX() * progress + 0.5D;
-        posY = pos.getY() + p.facing.getFrontOffsetY() * progress + 0.5D;
-        posZ = pos.getZ() + p.facing.getFrontOffsetZ() * progress + 0.5D;
+        double pr = Math.min(progress, p.length);
+        posX = pos.getX() + p.facing.getFrontOffsetX() * pr + 0.5D;
+        posY = pos.getY() + p.facing.getFrontOffsetY() * pr + 0.5D;
+        posZ = pos.getZ() + p.facing.getFrontOffsetZ() * pr + 0.5D;
 
         if(progress > p.length)
         {
@@ -316,6 +331,7 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
         stack = item.stack.copy();
         filters = item.filters;
         progress = item.progress;
+        boost = item.boost;
 
         updatePosition();
         updatePrevData();
@@ -331,8 +347,56 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
         return path.isEmpty() || start == null || pos == null || action.remove() || stack.isEmpty();
     }
 
-    public ClientTransportedItem client()
+    public void setRemoved()
     {
-        throw new IllegalStateException();
+        action = Action.REMOVE;
+    }
+
+    public boolean generatePath(ModuleContainer container)
+    {
+        Node node = network.getNode(container.tile.getPos());
+        if(node == null || node.linkedWith.isEmpty())
+        {
+            return false;
+        }
+
+        List<BlockPos> list = new ArrayList<>();
+
+        for(Link link : node.linkedWith)
+        {
+            if(link.invalid())
+            {
+                continue;
+            }
+            
+            /*for(BlockPos pos : link.path)
+            {
+                //PipeNetwork.test(container.getTile().getWorld(), pos);
+            }*/
+
+            list.add(node.offset(container.facing));
+
+            if(link.start.equals(node))
+            {
+                list.addAll(link.path);
+            }
+            else
+            {
+                for(int i = link.path.size() - 1; i >= 0; i--)
+                {
+                    list.add(link.path.get(i));
+                }
+            }
+
+            break;
+        }
+
+        if(list.size() >= 2)
+        {
+            setPath(list);
+            return true;
+        }
+
+        return false;
     }
 }

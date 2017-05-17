@@ -2,7 +2,8 @@ package com.latmod.modularpipes.net;
 
 import com.feed_the_beast.ftbl.lib.net.MessageToClient;
 import com.feed_the_beast.ftbl.lib.net.NetworkWrapper;
-import com.latmod.modularpipes.client.ClientPipeNetwork;
+import com.latmod.modularpipes.client.ClientTransportedItem;
+import com.latmod.modularpipes.data.PipeNetwork;
 import com.latmod.modularpipes.data.TransportedItem;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -58,6 +59,29 @@ public class MessageUpdateItems extends MessageToClient<MessageUpdateItems>
     @Override
     public void onMessage(MessageUpdateItems message, EntityPlayer player)
     {
-        message.updated.forEach(ClientPipeNetwork.get().foreachUpdateItems);
+        PipeNetwork n = PipeNetwork.get(player.world);
+
+        for(Map.Entry<Integer, TransportedItem> entry : message.updated.entrySet())
+        {
+            int id = entry.getKey();
+            TransportedItem item = entry.getValue();
+
+            if(item == null || item.remove())
+            {
+                n.items.remove(id);
+            }
+            else
+            {
+                TransportedItem citem = n.items.get(id);
+
+                if(citem == null)
+                {
+                    citem = new ClientTransportedItem(n, id);
+                    n.items.put(id, citem);
+                }
+
+                citem.copyFrom(item);
+            }
+        }
     }
 }

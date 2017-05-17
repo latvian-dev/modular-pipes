@@ -21,10 +21,13 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
+
+import javax.annotation.Nullable;
 
 /**
  * @author LatvianModder
@@ -50,6 +53,19 @@ public class TileModularPipe extends TileBase implements ITickable
         {
             modules[i] = new ModuleContainer(this, EnumFacing.VALUES[i], ItemStack.EMPTY);
         }
+    }
+
+    @Override
+    public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing)
+    {
+        return (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && facing != null) || super.hasCapability(capability, facing);
+    }
+
+    @Override
+    @Nullable
+    public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing)
+    {
+        return (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && facing != null) ? (T) modules[facing.getIndex()] : super.getCapability(capability, facing);
     }
 
     public int getTier()
@@ -96,7 +112,7 @@ public class TileModularPipe extends TileBase implements ITickable
         for(int i = 0; i < moduleList.tagCount(); i++)
         {
             ModuleContainer c = new ModuleContainer(this, moduleList.getCompoundTagAt(i));
-            modules[c.getFacing().getIndex()] = c;
+            modules[c.facing.getIndex()] = c;
         }
     }
 

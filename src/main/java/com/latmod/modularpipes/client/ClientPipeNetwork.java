@@ -1,8 +1,12 @@
 package com.latmod.modularpipes.client;
 
+import com.feed_the_beast.ftbl.lib.Color4I;
 import com.feed_the_beast.ftbl.lib.client.CachedVertexData;
 import com.feed_the_beast.ftbl.lib.client.FTBLibClient;
 import com.feed_the_beast.ftbl.lib.math.MathUtils;
+import com.feed_the_beast.ftbl.lib.util.UtilsCommon;
+import com.latmod.modularpipes.ModularPipesConfig;
+import com.latmod.modularpipes.data.NodeType;
 import com.latmod.modularpipes.data.PipeNetwork;
 import com.latmod.modularpipes.data.TransportedItem;
 import com.latmod.modularpipes.item.ItemDebug;
@@ -22,49 +26,20 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
+import java.util.Map;
 
 /**
  * @author LatvianModder
  */
 public class ClientPipeNetwork extends PipeNetwork
 {
-    private static ClientPipeNetwork INSTANCE;
+    public static ClientPipeNetwork INSTANCE;
     public static RenderItem RENDER_ITEM = Minecraft.getMinecraft().getRenderItem();
-
-    public static ClientPipeNetwork get()
-    {
-        World world = Minecraft.getMinecraft().world;
-
-        if(world == null)
-        {
-            throw new IllegalStateException();
-        }
-        else if(INSTANCE == null || world != INSTANCE.world)
-        {
-            INSTANCE = new ClientPipeNetwork(world);
-        }
-        return INSTANCE;
-    }
-
-    private static final Function<Integer, ClientTransportedItem> COMPUTE_ABSENT = ClientTransportedItem::new;
-
-    public final BiConsumer<? super Integer, ? super TransportedItem> foreachUpdateItems = (id, item) ->
-    {
-        if(item == null || item.remove())
-        {
-            items.remove(id);
-        }
-        else
-        {
-            items.computeIfAbsent(id, COMPUTE_ABSENT).copyFrom(item);
-        }
-    };
+    private static final Color4I BOOST_PARTICLE_COLOR = new Color4I(true, 0xFFFFFFFF);
 
     private CachedVertexData networkVis;
 
-    private ClientPipeNetwork(World w)
+    public ClientPipeNetwork(World w)
     {
         super(w);
     }
@@ -83,7 +58,9 @@ public class ClientPipeNetwork extends PipeNetwork
             return;
         }
 
-        double renderDistanceSq = 80 * 80;
+        double renderDistanceSq = ModularPipesConfig.ITEM_RENDER_DISTANCE.getAsDouble() * ModularPipesConfig.ITEM_RENDER_DISTANCE.getAsDouble();
+        boolean particles = ModularPipesConfig.ITEM_PARTICLES.getBoolean();
+
         double x, y, z, s2;
         double px = FTBLibClient.playerX;
         double py = FTBLibClient.playerY;
@@ -97,7 +74,7 @@ public class ClientPipeNetwork extends PipeNetwork
         {
             ClientTransportedItem i = item.client();
 
-            if(i.visible())
+            if(i.visible)
             {
                 x = i.prevX + (i.posX - i.prevX) * pt;
                 y = i.prevY + (i.posY - i.prevY) * pt;
@@ -106,7 +83,7 @@ public class ClientPipeNetwork extends PipeNetwork
                 if(MathUtils.distSq(x, y, z, px, py, pz) <= renderDistanceSq)
                 {
                     s2 = i.scale / 2D;
-                    if(FTBLibClient.FRUSTUM.isBoxInFrustum(x - s2, y - s2, z - s2, x + s2, y + s2, z + s2))
+                    if(!i.remove() && FTBLibClient.FRUSTUM.isBoxInFrustum(x - s2, y - s2, z - s2, x + s2, y + s2, z + s2))
                     {
                         GlStateManager.pushMatrix();
                         GlStateManager.translate(x, y, z);
@@ -114,6 +91,14 @@ public class ClientPipeNetwork extends PipeNetwork
                         GlStateManager.rotate(i.rotationY, 0F, 1F, 0F);
                         ClientPipeNetwork.RENDER_ITEM.renderItem(i.stack, ItemCameraTransforms.TransformType.FIXED);
                         GlStateManager.popMatrix();
+                    }
+
+                    if(i.boost && particles)
+                    {
+                        float prevHue = (i.renderTick - 1F) * 0.08F;
+                        float hue = i.renderTick * 0.08F;
+                        BOOST_PARTICLE_COLOR.setFromHSB(prevHue + (hue - prevHue) * pt, 1F, 1F);
+                        UtilsCommon.INSTANCE.spawnDust(world, x, y, z, BOOST_PARTICLE_COLOR);
                     }
                 }
             }
@@ -143,7 +128,8 @@ public class ClientPipeNetwork extends PipeNetwork
         GlStateManager.popMatrix();
     }
 
-    public void visualizeNetwork(Collection<BlockPos> nodes, Collection<List<BlockPos>> links, Collection<BlockPos> tiles)
+    @Override
+    public void visualizeNetwork(Map<BlockPos, NodeType> nodes, Collection<List<BlockPos>> links, Collection<BlockPos> tiles)
     {
         if(nodes.isEmpty() && links.isEmpty() && tiles.isEmpty())
         {
@@ -152,10 +138,20 @@ public class ClientPipeNetwork extends PipeNetwork
         }
 
         networkVis = new CachedVertexData(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
-        networkVis.color.set(0x66FF0000);
 
-        for(BlockPos pos : nodes)
+        for(Map.Entry<BlockPos, NodeType> entry : nodes.entrySet())
         {
+            BlockPos pos = entry.getKey();
+
+            if(entry.getValue().hasTiles())
+            {
+                networkVis.color.set(0x66FF0000);
+            }
+            else
+            {
+                networkVis.color.set(0x66FF6600);
+            }
+
             networkVis.centeredCube(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, 0.3D);
         }
 

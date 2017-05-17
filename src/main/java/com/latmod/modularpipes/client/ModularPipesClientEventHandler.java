@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.client;
 
+import com.latmod.modularpipes.data.PipeNetwork;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -14,21 +15,28 @@ public class ModularPipesClientEventHandler
     @SubscribeEvent
     public static void onDisconnected(FMLNetworkEvent.ClientDisconnectionFromServerEvent event)
     {
-        ClientPipeNetwork.get().clear();
+        if(ClientPipeNetwork.INSTANCE != null)
+        {
+            ClientPipeNetwork.INSTANCE.clear();
+            ClientPipeNetwork.INSTANCE = null;
+        }
     }
 
     @SubscribeEvent
     public static void onTickEvent(TickEvent.ClientTickEvent event)
     {
-        if(event.phase == TickEvent.Phase.END && Minecraft.getMinecraft().world != null)
+        if(event.phase == TickEvent.Phase.END && Minecraft.getMinecraft().world != null && !Minecraft.getMinecraft().isGamePaused())
         {
-            ClientPipeNetwork.get().update();
+            PipeNetwork.get(Minecraft.getMinecraft().world).update();
         }
     }
 
     @SubscribeEvent
     public static void onRenderTick(RenderWorldLastEvent event)
     {
-        ClientPipeNetwork.get().render(event.getPartialTicks());
+        if(ClientPipeNetwork.INSTANCE != null)
+        {
+            ClientPipeNetwork.INSTANCE.render(event.getPartialTicks());
+        }
     }
 }

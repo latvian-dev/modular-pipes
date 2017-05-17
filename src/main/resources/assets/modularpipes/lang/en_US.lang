@@ -2,10 +2,13 @@
 itemGroup.modularpipes=Modular Pipes
 
 # Blocks
-tile.modularpipes.pipe_basic.basic.name=Basic Pipe
-tile.modularpipes.pipe_basic.speed.name=Speed Pipe
+tile.modularpipes.pipe_basic.name=Basic Pipe
+tile.modularpipes.pipe_speed.name=Speed Pipe
 tile.modularpipes.pipe_modular.name=Modular Pipe
-tile.modularpipes.controller.name=Modular Pipe Controller
+tile.modularpipes.pipe_modular.tier=Tier %d
+tile.modularpipes.pipe_modular.tier_0=Not Very Modular
+tile.modularpipes.pipe_modular.slots=Available module slots: %d
+tile.modularpipes.pipe_modular.super_boost=Permanent speed boost: %s
 
 # Items
 item.modularpipes.module.name=Pipe Module
@@ -15,3 +18,14 @@ item.modularpipes.debug.name=Modular Pipes Debug Item
 item.modularpipes.module.extract.name=Extract
 item.modularpipes.module.rightclick_extract.name=Extract On Right-click (Dev item)
 item.modularpipes.module.block_items.name=Block Items From Passing Trough
+
+# Config
+config_group.modularpipes.name=Modular Pipes
+config.modularpipes.dev_mode.name=Dev Mode
+config.modularpipes.item_base_speed.name=Item Base Speed
+config.modularpipes.speed_pipe_boost.name=Speed Pipe Boost
+config.modularpipes.max_link_length.name=Max Link Length
+config.modularpipes.super_boost.name=Super Boost
+
+client_config.modularpipes.item_render_distance.name=Item Render Distance
+client_config.modularpipes.item_particles.name=Item Particles

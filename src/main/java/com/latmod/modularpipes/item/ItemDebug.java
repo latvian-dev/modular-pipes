@@ -1,22 +1,22 @@
 package com.latmod.modularpipes.item;
 
-import com.latmod.modularpipes.client.ClientPipeNetwork;
 import com.latmod.modularpipes.data.IPipeBlock;
+import com.latmod.modularpipes.data.Link;
+import com.latmod.modularpipes.data.Node;
 import com.latmod.modularpipes.data.PipeNetwork;
 import com.latmod.modularpipes.data.TransportedItem;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.ItemHandlerHelper;
 
 import java.util.List;
 
@@ -42,21 +42,27 @@ public class ItemDebug extends ItemMPBase
                 return EnumActionResult.SUCCESS;
             }
 
-            TransportedItem item = new TransportedItem(PipeNetwork.get(worldIn));
-            item.stack = ItemHandlerHelper.copyStackWithSize(player.getHeldItem(EnumHand.OFF_HAND), 1);
+            PipeNetwork network = PipeNetwork.get(worldIn);
 
-            if(item.stack.isEmpty())
+            Node node = network.getNode(pos);
+            if(node != null)
             {
-                item.stack = new ItemStack(Blocks.LOG);
+                player.sendMessage(new TextComponentString("- Debug data @ " + node + ":"));
+                player.sendMessage(new TextComponentString("Node with " + node.linkedWith.size() + " links"));
+            }
+            else
+            {
+                player.sendMessage(new TextComponentString("- Debug data @ [" + pos.getX() + ',' + pos.getY() + ',' + pos.getZ() + "]:"));
             }
 
-            item.resetPath(pos);
-            item.path.add(new TransportedItem.PathPoint(EnumFacing.EAST, 3));
-            item.path.add(new TransportedItem.PathPoint(EnumFacing.UP, 3));
-            item.path.add(new TransportedItem.PathPoint(EnumFacing.WEST, 1));
-            item.path.add(new TransportedItem.PathPoint(EnumFacing.NORTH, 2));
-            item.setPath();
-            item.addToNetwork();
+            for(Link link : network.getLinks())
+            {
+                if((node != null) ? link.isEndpoint(pos) : link.contains(pos))
+                {
+                    player.sendMessage(new TextComponentString("Link " + link));
+                }
+            }
+
             return EnumActionResult.SUCCESS;
         }
 
@@ -76,7 +82,9 @@ public class ItemDebug extends ItemMPBase
         PipeNetwork network = PipeNetwork.get(worldIn);
         if(playerIn.isSneaking())
         {
-            network.items.values().forEach(value -> value.action = TransportedItem.Action.REMOVE);
+            network.getNodes().forEach(Node::clearCache);
+            network.items.values().forEach(TransportedItem::setRemoved);
+            network.server().networkUpdated = true;
         }
 
         return new ActionResult<>(EnumActionResult.SUCCESS, stack);
@@ -87,6 +95,6 @@ public class ItemDebug extends ItemMPBase
     public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced)
     {
         tooltip.add("Network " + playerIn.world.provider.getDimension() + ":");
-        tooltip.add("Total Items: " + ClientPipeNetwork.get().items.size());
+        tooltip.add("Total Items: " + PipeNetwork.get(playerIn.world).items.size());
     }
 }

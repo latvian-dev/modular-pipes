@@ -23,9 +23,9 @@ public class ModuleExtract extends Module
 
         TileEntity tile = container.getFacingTile();
 
-        if(tile != null && tile.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, container.getFacing().getOpposite()))
+        if(tile != null && tile.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, container.facing.getOpposite()))
         {
-            IItemHandler handler = tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, container.getFacing().getOpposite());
+            IItemHandler handler = tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, container.facing.getOpposite());
 
             if(handler != null)
             {
@@ -49,7 +49,7 @@ public class ModuleExtract extends Module
                     item.stack = stack;
                     item.filters = container.getFilterConfig().get();
 
-                    if(container.getNetwork().generatePath(container, item))
+                    if(item.generatePath(container))
                     {
                         handler.extractItem(slot, 1, false);
                         item.addToNetwork();

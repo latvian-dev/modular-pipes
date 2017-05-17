@@ -7,16 +7,18 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraftforge.items.IItemHandler;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
  * @author LatvianModder
  */
-public final class ModuleContainer implements ITickable
+public final class ModuleContainer implements ITickable, IItemHandler
 {
-    private final TileModularPipe tile;
-    private final EnumFacing facing;
+    public final TileModularPipe tile;
+    public final EnumFacing facing;
     private Module module;
     private ItemStack stack;
     private ModuleData data;
@@ -89,16 +91,6 @@ public final class ModuleContainer implements ITickable
         return module;
     }
 
-    public TileEntity getTile()
-    {
-        return tile;
-    }
-
-    public EnumFacing getFacing()
-    {
-        return facing;
-    }
-
     public ItemStack getItemStack()
     {
         return stack;
@@ -132,18 +124,18 @@ public final class ModuleContainer implements ITickable
     @Nullable
     public TileEntity getFacingTile()
     {
-        return getTile().getWorld().getTileEntity(getTile().getPos().offset(getFacing()));
+        return tile.getWorld().getTileEntity(tile.getPos().offset(facing));
     }
 
     public boolean isRemote()
     {
-        return getTile().getWorld().isRemote;
+        return tile.getWorld().isRemote;
     }
 
     public static NBTTagCompound writeToNBT(ModuleContainer c)
     {
         NBTTagCompound nbt = new NBTTagCompound();
-        nbt.setByte("Facing", (byte) c.getFacing().getIndex());
+        nbt.setByte("Facing", (byte) c.facing.getIndex());
 
         if(c.getTick() > 0)
         {
@@ -164,5 +156,38 @@ public final class ModuleContainer implements ITickable
         }
 
         return nbt;
+    }
+
+    @Override
+    public int getSlots()
+    {
+        return 1;
+    }
+
+    @Nonnull
+    @Override
+    public ItemStack getStackInSlot(int slot)
+    {
+        return ItemStack.EMPTY;
+    }
+
+    @Nonnull
+    @Override
+    public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate)
+    {
+        return ItemStack.EMPTY;
+    }
+
+    @Nonnull
+    @Override
+    public ItemStack extractItem(int slot, int amount, boolean simulate)
+    {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public int getSlotLimit(int slot)
+    {
+        return 64;
     }
 }

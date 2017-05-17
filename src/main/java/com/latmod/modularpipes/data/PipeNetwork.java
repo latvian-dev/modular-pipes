@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.data;
 
+import com.feed_the_beast.ftbl.lib.util.InvUtils;
 import com.latmod.modularpipes.ModularPipes;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ITickable;
@@ -10,6 +11,7 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -23,7 +25,7 @@ public abstract class PipeNetwork implements ITickable
     {
         if(world.isRemote)
         {
-            return ModularPipes.PROXY.getClientNetwork();
+            return ModularPipes.PROXY.getClientNetwork(world);
         }
 
         int dim = world.provider.getDimension();
@@ -91,22 +93,12 @@ public abstract class PipeNetwork implements ITickable
         return Collections.emptyList();
     }
 
-    public List<Link> getPathList(BlockPos pos, boolean useTempList)
+    public boolean removePipe(BlockPos pos, boolean simulate)
     {
-        return Collections.emptyList();
+        return false;
     }
 
-    @Nullable
-    public Link getBestPath(Node from, Node to)
-    {
-        return null;
-    }
-
-    public void addOrUpdatePipe(BlockPos pos, IBlockState state)
-    {
-    }
-
-    public void removePipe(BlockPos pos, IBlockState state)
+    public void addPipe(BlockPos pos, IBlockState state)
     {
     }
 
@@ -114,11 +106,6 @@ public abstract class PipeNetwork implements ITickable
     {
         item.action = TransportedItem.Action.UPDATE;
         items.put(item.id, item);
-    }
-
-    public boolean generatePath(ModuleContainer container, TransportedItem item)
-    {
-        return false;
     }
 
     @Override
@@ -134,13 +121,34 @@ public abstract class PipeNetwork implements ITickable
 
         if(itemsRemoved)
         {
-            items.values().removeIf(TransportedItem.REMOVE_PREDICATE);
+            Iterator<TransportedItem> iterator = items.values().iterator();
+            while(iterator.hasNext())
+            {
+                TransportedItem item = iterator.next();
+
+                if(item.remove())
+                {
+                    if(!world.isRemote && item.action == TransportedItem.Action.DROP)
+                    {
+                        InvUtils.dropItem(world, item.pos, item.stack, 12);
+                    }
+
+                    iterator.remove();
+                }
+            }
         }
 
-        items.values().forEach(TransportedItem.FOREACH_POST_UPDATE);
+        for(TransportedItem item : items.values())
+        {
+            item.postUpdate();
+        }
     }
 
     public void itemUpdated(int id, TransportedItem item)
+    {
+    }
+
+    public void visualizeNetwork(Map<BlockPos, NodeType> nodes, Collection<List<BlockPos>> links, Collection<BlockPos> tiles)
     {
     }
 }

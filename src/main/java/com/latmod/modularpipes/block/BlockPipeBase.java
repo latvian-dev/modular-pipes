@@ -9,9 +9,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -108,7 +106,7 @@ public class BlockPipeBase extends BlockMPBase implements IPipeBlock
 
         for(EnumFacing facing : EnumFacing.VALUES)
         {
-            if(canConnectTo(worldIn, pos, facing))
+            if(canConnectTo(state, worldIn, pos, facing))
             {
                 addCollisionBoxToList(pos, entityBox, collidingBoxes, BlockPipeBase.BOXES[facing.ordinal()]);
             }
@@ -137,7 +135,7 @@ public class BlockPipeBase extends BlockMPBase implements IPipeBlock
         return super.getSelectedBoundingBox(state, worldIn, pos);
     }
 
-    public boolean canConnectTo(IBlockAccess worldIn, BlockPos pos, EnumFacing facing)
+    public boolean canConnectTo(IBlockState state, IBlockAccess worldIn, BlockPos pos, EnumFacing facing)
     {
         BlockPos pos1 = pos.offset(facing);
         IBlockState state1 = worldIn.getBlockState(pos1);
@@ -152,13 +150,11 @@ public class BlockPipeBase extends BlockMPBase implements IPipeBlock
     }
 
     @Override
-    public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
+    public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
     {
-        super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
-
         if(!worldIn.isRemote)
         {
-            PipeNetwork.get(worldIn).addOrUpdatePipe(pos, state);
+            PipeNetwork.get(worldIn).addPipe(pos, state);
         }
     }
 
@@ -167,7 +163,7 @@ public class BlockPipeBase extends BlockMPBase implements IPipeBlock
     {
         if(!worldIn.isRemote)
         {
-            PipeNetwork.get(worldIn).removePipe(pos, state);
+            PipeNetwork.get(worldIn).removePipe(pos, false);
         }
 
         super.breakBlock(worldIn, pos, state);

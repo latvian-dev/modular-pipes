@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.client;
 
+import com.latmod.modularpipes.data.PipeNetwork;
 import com.latmod.modularpipes.data.TransportedItem;
 import net.minecraft.item.ItemSkull;
 
@@ -9,10 +10,12 @@ import net.minecraft.item.ItemSkull;
 public class ClientTransportedItem extends TransportedItem
 {
     public float rotationY, scale;
+    public int renderTick;
+    public boolean visible = true;
 
-    public ClientTransportedItem(int _id)
+    public ClientTransportedItem(PipeNetwork n, int _id)
     {
-        super(ClientPipeNetwork.get());
+        super(n);
         id = _id;
     }
 
@@ -20,6 +23,13 @@ public class ClientTransportedItem extends TransportedItem
     public ClientTransportedItem client()
     {
         return this;
+    }
+
+    @Override
+    public void update()
+    {
+        super.update();
+        renderTick++;
     }
 
     @Override
@@ -40,10 +50,5 @@ public class ClientTransportedItem extends TransportedItem
         {
             scale = 0.749F;
         }
-    }
-
-    public boolean visible()
-    {
-        return !action.invisible();
     }
 }

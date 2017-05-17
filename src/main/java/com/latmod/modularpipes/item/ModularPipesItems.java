@@ -1,10 +1,14 @@
 package com.latmod.modularpipes.item;
 
-import com.latmod.modularpipes.block.BlockBasicPipe;
 import com.latmod.modularpipes.block.BlockModularPipe;
+import com.latmod.modularpipes.block.BlockPipeBasic;
+import com.latmod.modularpipes.block.BlockPipeSpeed;
 import com.latmod.modularpipes.item.module.ModuleBlockItems;
 import com.latmod.modularpipes.item.module.ModuleExtract;
 import com.latmod.modularpipes.item.module.ModuleRightClickExtract;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.MapColor;
+import net.minecraft.item.Item;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,12 +18,13 @@ import java.util.List;
  */
 public class ModularPipesItems
 {
-    public static final BlockBasicPipe PIPE_BASIC = new BlockBasicPipe("pipe_basic");
-    public static final BlockModularPipe PIPE_MODULAR = new BlockModularPipe("pipe_modular");
+    public static final Block PIPE_BASIC = new BlockPipeBasic("pipe_basic", MapColor.GRAY);
+    public static final Block PIPE_SPEED = new BlockPipeSpeed("pipe_speed");
+    public static final Block PIPE_MODULAR = new BlockModularPipe("pipe_modular");
 
-    public static final ItemMPBase MODULE = new ItemMPBase("module");
-    public static final List<ItemModule> MODULE_LIST = new ArrayList<>();
-    public static final ItemDebug DEBUG = new ItemDebug("debug");
+    public static final Item MODULE = new ItemMPBase("module");
+    public static final List<Item> MODULE_LIST = new ArrayList<>();
+    public static final Item DEBUG = new ItemDebug("debug");
 
     static
     {
