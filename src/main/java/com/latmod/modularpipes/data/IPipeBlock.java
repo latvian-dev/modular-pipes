@@ -16,14 +16,9 @@ public interface IPipeBlock
         return NodeType.NONE;
     }
 
-    default double getSpeedModifier(IBlockAccess world, BlockPos pos, IBlockState state)
+    default double getItemSpeedModifier(IBlockAccess world, BlockPos pos, IBlockState state, TransportedItem item)
     {
         return 1D;
-    }
-
-    default boolean superBoost(IBlockAccess world, BlockPos pos, IBlockState state)
-    {
-        return false;
     }
 
     default boolean canPipeConnect(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing facing)

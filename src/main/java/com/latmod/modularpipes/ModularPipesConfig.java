@@ -16,7 +16,6 @@ public class ModularPipesConfig
 {
     public static final PropertyBool DEV_MODE = new PropertyBool(false);
     public static final PropertyDouble ITEM_BASE_SPEED = new PropertyDouble(0.01D).setMin(0D);
-    public static final PropertyDouble SPEED_PIPE_BOOST = new PropertyDouble(5D, 1D, 100D);
     public static final PropertyByte MAX_LINK_LENGTH = new PropertyByte(250, 1, 255).setUnsigned();
     public static final PropertyDouble SUPER_BOOST = new PropertyDouble(10D, 1D, 1000D);
 
@@ -31,7 +30,6 @@ public class ModularPipesConfig
         String group = ModularPipes.MOD_ID;
         reg.addConfig(group, "dev_mode", DEV_MODE);
         reg.addConfig(group, "item_base_speed", ITEM_BASE_SPEED);
-        reg.addConfig(group, "speed_pipe_boost", SPEED_PIPE_BOOST);
         reg.addConfig(group, "max_link_length", MAX_LINK_LENGTH);
         reg.addConfig(group, "super_boost", SUPER_BOOST);
     }

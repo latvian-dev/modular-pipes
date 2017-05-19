@@ -1,15 +1,17 @@
 package com.latmod.modularpipes.client;
 
+import com.latmod.modularpipes.ModularPipes;
 import com.latmod.modularpipes.ModularPipesCommon;
-import com.latmod.modularpipes.block.BlockModularPipe;
 import com.latmod.modularpipes.data.PipeNetwork;
 import com.latmod.modularpipes.item.ModularPipesItems;
+import com.latmod.modularpipes.tile.TileModularPipe;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 
 /**
  * @author LatvianModder
@@ -22,21 +24,23 @@ public class ModularPipesClient extends ModularPipesCommon
         super.onPreInit();
 
         registerModel(ModularPipesItems.PIPE_BASIC, 0, "model=none");
-        registerModel(ModularPipesItems.PIPE_SPEED, 0, "model=none");
 
-        for(BlockModularPipe.Tier tier : BlockModularPipe.Tier.VALUES)
+        for(int m = 0; m < 8; m++)
         {
-            registerModel(ModularPipesItems.PIPE_MODULAR, tier.ordinal(), "con_d=0,con_e=0,con_n=0,con_s=0,con_u=0,con_w=0,tier=" + tier.getName());
+            registerModel(ModularPipesItems.PIPE_MODULAR, m, ModularPipes.MOD_ID + ":pipe_modular_item#tier=" + (m & 7));
         }
 
-        //registerModel(ModularPipesItems.CONTROLLER, 0, "error=false");
+        registerModel(ModularPipesItems.PIPE_NODE, 0, ModularPipesItems.PIPE_BASIC.getRegistryName() + "#model=none");
+
         registerModel(ModularPipesItems.MODULE, 0, "inventory");
         registerModel(ModularPipesItems.DEBUG, 0, "inventory");
 
         for(Item m : ModularPipesItems.MODULE_LIST)
         {
-            ModelLoader.setCustomModelResourceLocation(m, 0, new ModelResourceLocation(m.getRegistryName().toString().replace("module_", "module/"), "inventory"));
+            registerModel(m, 0, m.getRegistryName().toString().replace("module_", "module/") + "#inventory");
         }
+
+        ClientRegistry.bindTileEntitySpecialRenderer(TileModularPipe.class, new RenderModularPipe());
     }
 
     private void registerModel(Block block, int meta, String variant)
@@ -46,7 +50,7 @@ public class ModularPipesClient extends ModularPipesCommon
 
     private void registerModel(Item item, int meta, String variant)
     {
-        ModelLoader.setCustomModelResourceLocation(item, meta, new ModelResourceLocation(item.getRegistryName(), variant));
+        ModelLoader.setCustomModelResourceLocation(item, meta, variant.indexOf('#') != -1 ? new ModelResourceLocation(variant) : new ModelResourceLocation(item.getRegistryName(), variant));
     }
 
     @Override

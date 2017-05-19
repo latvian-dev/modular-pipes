@@ -110,7 +110,7 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
     public int filters = 0;
     public double progress = 0D;
     public Action action = Action.NONE;
-    public boolean boost = false;
+    public double speedModifier = 1D;
     public double prevX, prevY, prevZ;
     public double posX, posY, posZ;
 
@@ -139,10 +139,7 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
         nbt.setByteArray("Path", PathPoint.toArray(path));
         nbt.setInteger("Filters", filters);
         nbt.setDouble("Progress", progress);
-        if(boost)
-        {
-            nbt.setBoolean("Boost", true);
-        }
+        nbt.setDouble("Speed", speedModifier);
         return nbt;
     }
 
@@ -158,7 +155,7 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
         PathPoint.fromArray(path, nbt.getByteArray("Path"));
         filters = nbt.getInteger("Filters");
         progress = nbt.getDouble("Progress");
-        boost = nbt.getBoolean("Boost");
+        speedModifier = nbt.hasKey("Speed") ? nbt.getDouble("Speed") : 1D;
     }
 
     public void writeToByteBuf(ByteBuf buf)
@@ -176,7 +173,7 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
             buf.writeBytes(b);
             buf.writeShort(filters);
             buf.writeDouble(progress);
-            buf.writeBoolean(boost);
+            buf.writeDouble(speedModifier);
         }
     }
 
@@ -195,7 +192,7 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
             PathPoint.fromArray(path, b);
             filters = buf.readUnsignedShort();
             progress = buf.readDouble();
-            boost = buf.readBoolean();
+            speedModifier = buf.readDouble();
         }
     }
 
@@ -260,17 +257,17 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
 
         BlockPos pos = new BlockPos(posX, posY, posZ);
 
-        double s = ModularPipesConfig.ITEM_BASE_SPEED.getAsDouble();
         IBlockState state = network.world.getBlockState(pos);
 
         if(state.getBlock().isAir(state, network.world, pos))
         {
             action = Action.DROP;
         }
+        /*
         else if(state.getBlock() instanceof IPipeBlock)
         {
             IPipeBlock pipe = (IPipeBlock) state.getBlock();
-            s *= pipe.getSpeedModifier(network.world, pos, state);
+            s *= pipe.getItemSpeedModifier(network.world, pos, state, this);
 
             if(pipe.superBoost(network.world, pos, state))
             {
@@ -282,8 +279,9 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
         {
             s *= ModularPipesConfig.SUPER_BOOST.getAsDouble();
         }
+        */
 
-        progress += s;
+        progress += speedModifier * ModularPipesConfig.ITEM_BASE_SPEED.getAsDouble();
     }
 
     public void updatePrevData()
@@ -331,7 +329,7 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
         stack = item.stack.copy();
         filters = item.filters;
         progress = item.progress;
-        boost = item.boost;
+        speedModifier = item.speedModifier;
 
         updatePosition();
         updatePrevData();
@@ -360,35 +358,66 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
             return false;
         }
 
+        HashSet<Node> nodes = new HashSet<>();
+        nodes.add(node);
         List<BlockPos> list = new ArrayList<>();
+        list.add(node.offset(container.facing));
 
-        for(Link link : node.linkedWith)
+        Link link;
+
+        while(true)
         {
-            if(link.invalid())
-            {
-                continue;
-            }
-            
-            /*for(BlockPos pos : link.path)
-            {
-                //PipeNetwork.test(container.getTile().getWorld(), pos);
-            }*/
+            List<Link> links = new ArrayList<>(node.linkedWith);
 
-            list.add(node.offset(container.facing));
+            do
+            {
+                link = links.get(MathUtils.RAND.nextInt(node.linkedWith.size()));
 
-            if(link.start.equals(node))
-            {
-                list.addAll(link.path);
-            }
-            else
-            {
-                for(int i = link.path.size() - 1; i >= 0; i--)
+                if(link != null && !link.invalid())
                 {
-                    list.add(link.path.get(i));
+                    Node end;
+                    boolean b;
+
+                    if(link.start.equals(node))
+                    {
+                        end = link.end;
+                        b = true;
+                    }
+                    else
+                    {
+                        end = link.start;
+                        b = false;
+                    }
+
+                    if(!nodes.contains(end))
+                    {
+                        nodes.add(end);
+
+                        if(b)
+                        {
+                            list.addAll(link.path);
+                            node = link.end;
+                        }
+                        else
+                        {
+                            for(int i = link.path.size() - 1; i >= 0; i--)
+                            {
+                                list.add(link.path.get(i));
+                            }
+
+                            node = link.start;
+                        }
+
+                        break;
+                    }
                 }
             }
+            while(true);
 
-            break;
+            if(node == null || node.linkedWith.isEmpty())
+            {
+                break;
+            }
         }
 
         if(list.size() >= 2)

@@ -14,7 +14,7 @@ import java.util.List;
  */
 public final class Link
 {
-    public static final Comparator<Link> COMPARATOR = Comparator.<Link>comparingDouble(link -> link.length).thenComparingInt(value -> value.actualLength);
+    public static final Comparator<Link> COMPARATOR = Comparator.comparingInt(link -> link.actualLength);
 
     public static List<BlockPos> simplify(List<BlockPos> path)
     {
@@ -57,16 +57,14 @@ public final class Link
     public final PipeNetwork network;
     public final List<BlockPos> path;
     public final Node start, end;
-    public final double length;
     public final int actualLength;
 
-    public Link(PipeNetwork n, List<BlockPos> p, double l, int a)
+    public Link(PipeNetwork n, List<BlockPos> p, int a)
     {
         network = n;
         path = p;
         start = path.size() >= 2 ? network.getNode(path.get(0)) : null;
         end = start != null ? network.getNode(path.get(path.size() - 1)) : null;
-        length = l;
         actualLength = a;
     }
 
@@ -101,8 +99,7 @@ public final class Link
             start = end = null;
         }
 
-        length = nbt.getDouble("Length");
-        actualLength = nbt.getInteger("ActualLength");
+        actualLength = nbt.hasKey("ActualLength") ? nbt.getInteger("ActualLength") : nbt.getInteger("Length");
     }
 
     public NBTTagCompound serializeNBT()
@@ -119,8 +116,7 @@ public final class Link
         }
 
         nbt.setIntArray("Path", ai);
-        nbt.setDouble("Length", length);
-        nbt.setInteger("ActualLength", actualLength);
+        nbt.setInteger("Length", actualLength);
         return nbt;
     }
 

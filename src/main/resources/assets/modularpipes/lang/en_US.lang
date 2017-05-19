@@ -3,12 +3,17 @@ itemGroup.modularpipes=Modular Pipes
 
 # Blocks
 tile.modularpipes.pipe_basic.name=Basic Pipe
-tile.modularpipes.pipe_speed.name=Speed Pipe
-tile.modularpipes.pipe_modular.name=Modular Pipe
-tile.modularpipes.pipe_modular.tier=Tier %d
+tile.modularpipes.pipe.speed_boost=Speed Boost: %s
+tile.modularpipes.pipe_modular.0.name=Modular Pipe [Tier 0]
+tile.modularpipes.pipe_modular.1.name=Modular Pipe [Tier 1]
+tile.modularpipes.pipe_modular.2.name=Modular Pipe [Tier 2]
+tile.modularpipes.pipe_modular.3.name=Modular Pipe [Tier 3]
+tile.modularpipes.pipe_modular.4.name=Modular Pipe [Tier 4]
+tile.modularpipes.pipe_modular.5.name=Modular Pipe [Tier 5]
+tile.modularpipes.pipe_modular.6.name=Modular Pipe [Tier 6]
+tile.modularpipes.pipe_modular.7.name=Modular Pipe [Tier 7]
 tile.modularpipes.pipe_modular.tier_0=Not Very Modular
-tile.modularpipes.pipe_modular.slots=Available module slots: %d
-tile.modularpipes.pipe_modular.super_boost=Permanent speed boost: %s
+tile.modularpipes.pipe_modular.slots=Available Module Slots: %d
 
 # Items
 item.modularpipes.module.name=Pipe Module
@@ -23,7 +28,6 @@ item.modularpipes.module.block_items.name=Block Items From Passing Trough
 config_group.modularpipes.name=Modular Pipes
 config.modularpipes.dev_mode.name=Dev Mode
 config.modularpipes.item_base_speed.name=Item Base Speed
-config.modularpipes.speed_pipe_boost.name=Speed Pipe Boost
 config.modularpipes.max_link_length.name=Max Link Length
 config.modularpipes.super_boost.name=Super Boost
 

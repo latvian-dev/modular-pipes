@@ -93,7 +93,7 @@ public class ClientPipeNetwork extends PipeNetwork
                         GlStateManager.popMatrix();
                     }
 
-                    if(i.boost && particles)
+                    if(particles && i.speedModifier >= ModularPipesConfig.SUPER_BOOST.getDouble())
                     {
                         float prevHue = (i.renderTick - 1F) * 0.08F;
                         float hue = i.renderTick * 0.08F;

@@ -179,6 +179,6 @@ public class BlockPipeBasic extends BlockPipeBase
 
     public IBlockState getNodeState()
     {
-        return ModularPipesItems.PIPE_MODULAR.getDefaultState().withProperty(BlockModularPipe.TIER, BlockModularPipe.Tier.NODE_BASIC);
+        return ModularPipesItems.PIPE_NODE.getDefaultState();
     }
 }

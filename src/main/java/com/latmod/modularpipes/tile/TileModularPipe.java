@@ -5,6 +5,7 @@ import com.feed_the_beast.ftbl.lib.tile.TileBase;
 import com.latmod.modularpipes.ModularPipesCaps;
 import com.latmod.modularpipes.data.IPipeBlock;
 import com.latmod.modularpipes.data.ModuleContainer;
+import com.latmod.modularpipes.data.Node;
 import com.latmod.modularpipes.data.PipeNetwork;
 import com.latmod.modularpipes.data.TransportedItem;
 import net.minecraft.block.Block;
@@ -18,12 +19,15 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 
@@ -34,7 +38,7 @@ import javax.annotation.Nullable;
  */
 public class TileModularPipe extends TileBase implements ITickable
 {
-    private int tier;
+    public int tier;
     private int connections = -1;
     public final ModuleContainer[] modules;
     private PipeNetwork network;
@@ -68,11 +72,6 @@ public class TileModularPipe extends TileBase implements ITickable
         return (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && facing != null) ? (T) modules[facing.getIndex()] : super.getCapability(capability, facing);
     }
 
-    public int getTier()
-    {
-        return tier;
-    }
-
     public void clearModules()
     {
         for(int i = 0; i < 6; i++)
@@ -102,7 +101,7 @@ public class TileModularPipe extends TileBase implements ITickable
     public void readFromNBT(NBTTagCompound nbt)
     {
         super.readFromNBT(nbt);
-        tier = nbt.getByte("Tier");
+        tier = nbt.getByte("Tier") & 0xFF;
         connections = nbt.getByte("Connections") & 0xFF;
 
         clearModules();
@@ -338,6 +337,24 @@ public class TileModularPipe extends TileBase implements ITickable
         {
             IBlockState state = world.getBlockState(pos);
             world.notifyBlockUpdate(pos, state, state, 255);
+
+            if(!world.isRemote)
+            {
+                Node node = getNetwork().getNode(pos);
+
+                if(node != null)
+                {
+                    node.clearCache();
+                    node.network.networkUpdated = true;
+                }
+            }
         }
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public AxisAlignedBB getRenderBoundingBox()
+    {
+        return new AxisAlignedBB(pos, pos.add(1, 1, 1));
     }
 }

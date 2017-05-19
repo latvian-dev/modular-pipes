@@ -353,7 +353,6 @@ public class ServerPipeNetwork extends PipeNetwork
     {
         List<BlockPos> list = new ArrayList<>();
         HashSet<BlockPos> set = new HashSet<>();
-        double length = 0D;
         list.add(start);
         set.add(start);
         BlockPos pos = start.offset(facing);
@@ -361,7 +360,7 @@ public class ServerPipeNetwork extends PipeNetwork
         IBlockState state1;
         int maxLength = ModularPipesConfig.MAX_LINK_LENGTH.getInt();
 
-        for(int actualLength = 0; actualLength < maxLength; actualLength++)
+        for(int length = 0; length < maxLength; length++)
         {
             state1 = world.getBlockState(pos);
 
@@ -377,7 +376,7 @@ public class ServerPipeNetwork extends PipeNetwork
                 if(isNode)
                 {
                     list.add(pos);
-                    return new CachedBlock.LinkData(new Link(this, Link.simplify(list), length + 2D, actualLength + 2));
+                    return new CachedBlock.LinkData(new Link(this, Link.simplify(list), length));
                 }
                 else
                 {
@@ -395,7 +394,6 @@ public class ServerPipeNetwork extends PipeNetwork
                 }
                 else
                 {
-                    length += 1D / pipe.getSpeedModifier(world, pos, state1);
                     source = facing1.getOpposite();
                     pos = pos.offset(facing1);
 
