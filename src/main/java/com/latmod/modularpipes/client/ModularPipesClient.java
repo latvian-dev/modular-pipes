@@ -23,11 +23,11 @@ public class ModularPipesClient extends ModularPipesCommon
     {
         super.onPreInit();
 
-        registerModel(ModularPipesItems.PIPE_BASIC, 0, "model=none");
+        registerModel(ModularPipesItems.PIPE_BASIC, 0, ModularPipes.MOD_ID + ":pipe_item#variant=basic");
 
         for(int m = 0; m < 8; m++)
         {
-            registerModel(ModularPipesItems.PIPE_MODULAR, m, ModularPipes.MOD_ID + ":pipe_modular_item#tier=" + (m & 7));
+            registerModel(ModularPipesItems.PIPE_MODULAR, m, ModularPipes.MOD_ID + ":pipe_item#variant=tier_" + (m & 7));
         }
 
         registerModel(ModularPipesItems.PIPE_NODE, 0, ModularPipesItems.PIPE_BASIC.getRegistryName() + "#model=none");

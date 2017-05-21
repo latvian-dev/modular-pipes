@@ -1,0 +1,19 @@
+{
+	"forge_marker": 1,
+	"defaults": {
+		"model": "modularpipes:pipe_with_overlay"
+	},
+	"variants": {
+		"variant": {
+			"basic": {"model": "modularpipes:pipe"},
+			"tier_0": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_0"}},
+			"tier_1": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_1"}},
+			"tier_2": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_2"}},
+			"tier_3": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_3"}},
+			"tier_4": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_4"}},
+			"tier_5": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_5"}},
+			"tier_6": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_6"}},
+			"tier_7": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_7_item"}}
+		}
+	}
+}

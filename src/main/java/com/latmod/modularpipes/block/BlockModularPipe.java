@@ -118,7 +118,6 @@ public class BlockModularPipe extends BlockPipeBase
     public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced)
     {
         int tier = stack.getMetadata() & 7;
-        tooltip.add(StringUtils.translate("tile.modularpipes.pipe_modular.tier", tier));
 
         if(tier == 0)
         {

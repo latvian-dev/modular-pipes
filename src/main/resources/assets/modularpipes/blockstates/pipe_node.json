@@ -1,14 +1,11 @@
 {
-	"forge_marker": 1,
-	"defaults": {
-		"model": "modularpipes:pipe"
-	},
-	"variants": {
-		"con_d": {"0": {}, "1": {"submodel": {"d": {"model": "modularpipes:pipe_con", "x": 0, "y": 0}}}},
-		"con_u": {"0": {}, "1": {"submodel": {"u": {"model": "modularpipes:pipe_con", "x": 180, "y": 0}}}},
-		"con_n": {"0": {}, "1": {"submodel": {"n": {"model": "modularpipes:pipe_con", "x": 90, "y": 180}}}},
-		"con_s": {"0": {}, "1": {"submodel": {"s": {"model": "modularpipes:pipe_con", "x": 90, "y": 0}}}},
-		"con_w": {"0": {}, "1": {"submodel": {"w": {"model": "modularpipes:pipe_con", "x": 90, "y": 90}}}},
-		"con_e": {"0": {}, "1": {"submodel": {"e": {"model": "modularpipes:pipe_con", "x": 90, "y": 270}}}}
-	}
+	"multipart": [
+		{"apply": {"model": "modularpipes:pipe"}},
+		{"when": {"con_d": "1"}, "apply": {"model": "modularpipes:pipe_con", "x": 0, "y": 0}},
+		{"when": {"con_u": "1"}, "apply": {"model": "modularpipes:pipe_con", "x": 180, "y": 0}},
+		{"when": {"con_n": "1"}, "apply": {"model": "modularpipes:pipe_con", "x": 90, "y": 180}},
+		{"when": {"con_s": "1"}, "apply": {"model": "modularpipes:pipe_con", "x": 90, "y": 0}},
+		{"when": {"con_w": "1"}, "apply": {"model": "modularpipes:pipe_con", "x": 90, "y": 90}},
+		{"when": {"con_e": "1"}, "apply": {"model": "modularpipes:pipe_con", "x": 90, "y": 270}}
+	]
 }

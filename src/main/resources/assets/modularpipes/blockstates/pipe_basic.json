@@ -1,26 +1,14 @@
 {
-	"forge_marker": 1,
-	"defaults": {
-		"model": "modularpipes:pipe"
-	},
-	"variants": {
-		"model": {
-			"none": {},
-			"x": {"model": "modularpipes:pipe_vertical", "x": 90, "y": 90},
-			"y": {"model": "modularpipes:pipe_vertical"},
-			"z": {"model": "modularpipes:pipe_vertical", "x": 90, "y": 0},
-			"d_n": {"submodel": {"d": {"model": "modularpipes:pipe_con", "x": 0, "y": 0}, "n": {"model": "modularpipes:pipe_con", "x": 90, "y": 180}}},
-			"d_s": {"submodel": {"d": {"model": "modularpipes:pipe_con", "x": 0, "y": 0}, "s": {"model": "modularpipes:pipe_con", "x": 90, "y": 0}}},
-			"d_w": {"submodel": {"d": {"model": "modularpipes:pipe_con", "x": 0, "y": 0}, "w": {"model": "modularpipes:pipe_con", "x": 90, "y": 90}}},
-			"d_e": {"submodel": {"d": {"model": "modularpipes:pipe_con", "x": 0, "y": 0}, "e": {"model": "modularpipes:pipe_con", "x": 90, "y": 270}}},
-			"u_n": {"submodel": {"u": {"model": "modularpipes:pipe_con", "x": 180, "y": 0}, "n": {"model": "modularpipes:pipe_con", "x": 90, "y": 180}}},
-			"u_s": {"submodel": {"u": {"model": "modularpipes:pipe_con", "x": 180, "y": 0}, "s": {"model": "modularpipes:pipe_con", "x": 90, "y": 0}}},
-			"u_w": {"submodel": {"u": {"model": "modularpipes:pipe_con", "x": 180, "y": 0}, "w": {"model": "modularpipes:pipe_con", "x": 90, "y": 90}}},
-			"u_e": {"submodel": {"u": {"model": "modularpipes:pipe_con", "x": 180, "y": 0}, "e": {"model": "modularpipes:pipe_con", "x": 90, "y": 270}}},
-			"n_w": {"submodel": {"n": {"model": "modularpipes:pipe_con", "x": 90, "y": 180}, "w": {"model": "modularpipes:pipe_con", "x": 90, "y": 90}}},
-			"n_e": {"submodel": {"n": {"model": "modularpipes:pipe_con", "x": 90, "y": 180}, "e": {"model": "modularpipes:pipe_con", "x": 90, "y": 270}}},
-			"s_w": {"submodel": {"s": {"model": "modularpipes:pipe_con", "x": 90, "y": 0}, "w": {"model": "modularpipes:pipe_con", "x": 90, "y": 90}}},
-			"s_e": {"submodel": {"s": {"model": "modularpipes:pipe_con", "x": 90, "y": 0}, "e": {"model": "modularpipes:pipe_con", "x": 90, "y": 270}}}
-		}
-	}
+	"multipart": [
+		{"when": {"model": "none|d_n|d_s|d_w|d_e|u_n|u_s|u_w|u_e|n_w|n_e|s_w|s_e"}, "apply": {"model": "modularpipes:pipe"}},
+		{"when": {"model": "x"}, "apply": {"model": "modularpipes:pipe_vertical", "x": 90, "y": 90}},
+		{"when": {"model": "y"}, "apply": {"model": "modularpipes:pipe_vertical", "x": 0, "y": 0}},
+		{"when": {"model": "z"}, "apply": {"model": "modularpipes:pipe_vertical", "x": 90, "y": 0}},
+		{"when": {"model": "d_n|d_s|d_w|d_e"}, "apply": {"model": "modularpipes:pipe_con", "x": 0, "y": 0}},
+		{"when": {"model": "u_n|u_s|u_w|u_e"}, "apply": {"model": "modularpipes:pipe_con", "x": 180, "y": 0}},
+		{"when": {"model": "d_n|u_n|n_w|n_e"}, "apply": {"model": "modularpipes:pipe_con", "x": 90, "y": 180}},
+		{"when": {"model": "d_s|u_s|s_w|s_e"}, "apply": {"model": "modularpipes:pipe_con", "x": 90, "y": 0}},
+		{"when": {"model": "d_w|u_w|n_w|s_w"}, "apply": {"model": "modularpipes:pipe_con", "x": 90, "y": 90}},
+		{"when": {"model": "d_e|u_e|n_e|s_e"}, "apply": {"model": "modularpipes:pipe_con", "x": 90, "y": 270}}
+	]
 }
