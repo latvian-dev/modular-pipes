@@ -1,10 +1,7 @@
 package com.latmod.modularpipes.data;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-
-import javax.annotation.Nullable;
 
 /**
  * @author LatvianModder
@@ -59,11 +56,5 @@ public class Module
     public boolean onRightClick(ModuleContainer container, EntityPlayer player, EnumHand hand)
     {
         return false;
-    }
-
-    @Nullable
-    public EnumFacing changeItemDirection(EnumFacing source, TransportedItem item)
-    {
-        return null;
     }
 }

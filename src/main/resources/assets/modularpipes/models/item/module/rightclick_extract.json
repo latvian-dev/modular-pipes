@@ -1,1 +1,1 @@
-{"parent": "modularpipes:item/module_base", "textures": {"tex": "modularpipes:items/modules/extract"}}
+{"parent": "modularpipes:item/module/extract", "textures": {"tex": "modularpipes:items/modules/extract_base_dev"}}

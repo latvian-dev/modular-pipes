@@ -3,6 +3,7 @@ package com.latmod.modularpipes.tile;
 import com.feed_the_beast.ftbl.lib.math.MathUtils;
 import com.feed_the_beast.ftbl.lib.tile.TileBase;
 import com.latmod.modularpipes.ModularPipesCaps;
+import com.latmod.modularpipes.block.EnumTier;
 import com.latmod.modularpipes.data.IPipeBlock;
 import com.latmod.modularpipes.data.ModuleContainer;
 import com.latmod.modularpipes.data.Node;
@@ -38,17 +39,17 @@ import javax.annotation.Nullable;
  */
 public class TileModularPipe extends TileBase implements ITickable
 {
-    public int tier;
+    public EnumTier tier;
     private int connections = -1;
     public final ModuleContainer[] modules;
     private PipeNetwork network;
 
     public TileModularPipe()
     {
-        this(0);
+        this(EnumTier.BASIC);
     }
 
-    public TileModularPipe(int t)
+    public TileModularPipe(EnumTier t)
     {
         tier = t;
         modules = new ModuleContainer[6];
@@ -84,7 +85,7 @@ public class TileModularPipe extends TileBase implements ITickable
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         super.writeToNBT(nbt);
-        nbt.setByte("Tier", (byte) tier);
+        nbt.setByte("Tier", (byte) tier.ordinal());
         nbt.setByte("Connections", (byte) connections);
         NBTTagList moduleList = new NBTTagList();
 
@@ -101,7 +102,7 @@ public class TileModularPipe extends TileBase implements ITickable
     public void readFromNBT(NBTTagCompound nbt)
     {
         super.readFromNBT(nbt);
-        tier = nbt.getByte("Tier") & 0xFF;
+        tier = EnumTier.getFromMeta(nbt.getByte("Tier"));
         connections = nbt.getByte("Connections") & 0xFF;
 
         clearModules();
@@ -196,7 +197,7 @@ public class TileModularPipe extends TileBase implements ITickable
                 }
             }
 
-            if(tier <= modulesSize)
+            if(tier.modules <= modulesSize)
             {
                 playerIn.sendMessage(new TextComponentString("Can't insert any more modules!"));//TODO: Lang
                 return;

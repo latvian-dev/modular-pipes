@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -90,8 +91,25 @@ public class ServerPipeNetwork extends PipeNetwork
 
             for(Link link : links)
             {
-                //link.simplify();
-                list.appendTag(link.serializeNBT());
+                if(link.invalid())
+                {
+                    continue;
+                }
+
+                NBTTagCompound nbt1 = new NBTTagCompound();
+                int[] ai = new int[link.path.size() * 3];
+
+                for(int i = 0; i < link.path.size(); i++)
+                {
+                    BlockPos pos = link.path.get(i);
+                    ai[i * 3] = pos.getX();
+                    ai[i * 3 + 1] = pos.getY();
+                    ai[i * 3 + 2] = pos.getZ();
+                }
+
+                nbt1.setIntArray("Path", ai);
+                nbt1.setInteger("Length", link.length);
+                list.appendTag(nbt1);
             }
             nbt.setTag("Links", list);
             list = new NBTTagList();
@@ -142,11 +160,29 @@ public class ServerPipeNetwork extends PipeNetwork
 
         for(int i = 0; i < list.tagCount(); i++)
         {
-            Link link = new Link(this, list.getCompoundTagAt(i));
+            NBTTagCompound nbt1 = list.getCompoundTagAt(i);
 
-            if(!link.invalid())
+            List<BlockPos> path = new ArrayList<>();
+            int[] ai = nbt1.getIntArray("Path");
+            Node start, end;
+
+            for(int j = 0; j < ai.length; j += 3)
             {
-                links.add(link);
+                path.add(new BlockPos(ai[j], ai[j + 1], ai[j + 2]));
+            }
+
+            if(path.size() >= 2)
+            {
+                start = getNode(path.get(0));
+                end = getNode(path.get(path.size() - 1));
+
+                if(start != null && end != null && !start.equals(end))
+                {
+                    Link link = new Link(this, path, start, end, nbt1.hasKey("ActualLength") ? nbt1.getInteger("ActualLength") : nbt1.getInteger("Length"));
+                    links.add(link);
+                    start.linkedWith.add(link);
+                    end.linkedWith.add(link);
+                }
             }
         }
 
@@ -216,7 +252,7 @@ public class ServerPipeNetwork extends PipeNetwork
 
             for(Link link : links)
             {
-                if(!link.invalid() && link.contains(pos))
+                if(link.contains(pos, false))
                 {
                     return true;
                 }
@@ -235,7 +271,7 @@ public class ServerPipeNetwork extends PipeNetwork
             {
                 for(Link link : node.linkedWith)
                 {
-                    link.path.clear();
+                    link.setInvalid();
                 }
 
                 removedLink = true;
@@ -247,29 +283,15 @@ public class ServerPipeNetwork extends PipeNetwork
 
         if(removedLink || node == null)
         {
-            Iterator<Link> iterator = links.iterator();
-
-            while(iterator.hasNext())
+            for(Link link : links)
             {
-                Link link = iterator.next();
-
-                if(link.invalid() || (node != null ? link.isEndpoint(pos) : link.contains(pos)))
+                if(link.contains(pos, node != null))
                 {
-                    if(link.start != null)
-                    {
-                        link.start.linkedWith.remove(link);
-                    }
-                    if(link.end != null)
-                    {
-                        link.end.linkedWith.remove(link);
-                    }
-
-                    iterator.remove();
+                    link.setInvalid();
                     removedLink = true;
                     networkUpdated = true;
                 }
             }
-
         }
 
         return removedLink || removedNode;
@@ -351,32 +373,40 @@ public class ServerPipeNetwork extends PipeNetwork
     @Nullable
     private CachedBlock findNode(BlockPos start, EnumFacing facing, boolean isNode)
     {
-        List<BlockPos> list = new ArrayList<>();
-        HashSet<BlockPos> set = new HashSet<>();
-        list.add(start);
-        set.add(start);
+        LinkedHashSet<BlockPos> path = new LinkedHashSet<>();
+        path.add(start);
         BlockPos pos = start.offset(facing);
         EnumFacing source = facing.getOpposite();
-        IBlockState state1;
+        IBlockState state;
         int maxLength = ModularPipesConfig.MAX_LINK_LENGTH.getInt();
 
-        for(int length = 0; length < maxLength; length++)
+        for(int length = 1; length < maxLength; length++)
         {
-            state1 = world.getBlockState(pos);
+            state = world.getBlockState(pos);
 
-            if(!(state1.getBlock() instanceof IPipeBlock))
+            if(!(state.getBlock() instanceof IPipeBlock))
             {
                 return null;
             }
 
-            IPipeBlock pipe = (IPipeBlock) state1.getBlock();
+            if(path.contains(pos))
+            {
+                //ModularPipes.LOGGER.warn("Loop @ " + pos);
+                return null;
+            }
 
-            if(pipe.getNodeType(world, pos, state1).isNode())
+            path.add(pos);
+
+            IPipeBlock pipe = (IPipeBlock) state.getBlock();
+
+            if(pipe.getNodeType(world, pos, state).isNode())
             {
                 if(isNode)
                 {
-                    list.add(pos);
-                    return new CachedBlock.LinkData(new Link(this, Link.simplify(list), length));
+                    List<BlockPos> list = Link.simplify(path);
+                    Node startNode = list.size() >= 2 ? getNode(list.get(0)) : null;
+                    Node endNode = startNode == null ? null : getNode(list.get(list.size() - 1));
+                    return endNode == null ? null : new CachedBlock.LinkData(new Link(this, list, startNode, endNode, length));
                 }
                 else
                 {
@@ -385,26 +415,17 @@ public class ServerPipeNetwork extends PipeNetwork
             }
             else
             {
-                EnumFacing facing1 = pipe.getPipeFacing(world, pos, state1, source);
+                facing = pipe.getPipeFacing(world, pos, state, source);
 
-                if(facing1 == source)
+                if(facing != source)
                 {
-                    //ModularPipes.LOGGER.warn("Dead end @ " + pos);
-                    return null;
+                    source = facing.getOpposite();
+                    pos = pos.offset(facing);
                 }
                 else
                 {
-                    source = facing1.getOpposite();
-                    pos = pos.offset(facing1);
-
-                    if(set.contains(pos))
-                    {
-                        //ModularPipes.LOGGER.warn("Loop @ " + pos);
-                        return null;
-                    }
-
-                    set.add(pos);
-                    list.add(pos);
+                    //ModularPipes.LOGGER.warn("Dead end @ " + pos);
+                    return null;
                 }
             }
         }
@@ -441,6 +462,20 @@ public class ServerPipeNetwork extends PipeNetwork
         if(networkUpdated)
         {
             networkUpdated = false;
+
+            Iterator<Link> iterator = links.iterator();
+
+            while(iterator.hasNext())
+            {
+                Link link = iterator.next();
+
+                if(link.invalid())
+                {
+                    link.start.linkedWith.remove(link);
+                    link.end.linkedWith.remove(link);
+                    iterator.remove();
+                }
+            }
 
             if(ModularPipesConfig.DEV_MODE.getBoolean())
             {

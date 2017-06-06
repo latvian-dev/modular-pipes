@@ -6,14 +6,14 @@
 	"variants": {
 		"variant": {
 			"basic": {"model": "modularpipes:pipe"},
-			"tier_0": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_0"}},
-			"tier_1": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_1"}},
-			"tier_2": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_2"}},
-			"tier_3": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_3"}},
-			"tier_4": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_4"}},
-			"tier_5": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_5"}},
-			"tier_6": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_6"}},
-			"tier_7": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_7_item"}}
+			"tier_0": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_basic"}},
+			"tier_1": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_iron"}},
+			"tier_2": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_gold"}},
+			"tier_3": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_quartz"}},
+			"tier_4": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_lapis"}},
+			"tier_5": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_ender"}},
+			"tier_6": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_emerald"}},
+			"tier_7": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_star_item"}}
 		}
 	}
 }

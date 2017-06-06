@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public class BlockPipeBase extends BlockMPBase implements IPipeBlock
+public abstract class BlockPipeBase extends BlockMPBase implements IPipeBlock
 {
     public static final float SIZE = 4F;
     public static final AxisAlignedBB[] BOXES = new AxisAlignedBB[7];

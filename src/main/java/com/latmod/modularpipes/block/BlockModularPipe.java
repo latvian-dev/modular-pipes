@@ -2,13 +2,13 @@ package com.latmod.modularpipes.block;
 
 import com.feed_the_beast.ftbl.lib.block.ItemBlockBase;
 import com.feed_the_beast.ftbl.lib.util.StringUtils;
-import com.latmod.modularpipes.ModularPipesConfig;
 import com.latmod.modularpipes.data.NodeType;
 import com.latmod.modularpipes.data.TransportedItem;
 import com.latmod.modularpipes.item.ItemModule;
 import com.latmod.modularpipes.tile.TileModularPipe;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
+import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -37,7 +37,7 @@ import java.util.List;
  */
 public class BlockModularPipe extends BlockPipeBase
 {
-    public static final PropertyInteger TIER = PropertyInteger.create("tier", 0, 7);
+    public static final PropertyEnum<EnumTier> TIER = PropertyEnum.create("tier", EnumTier.class);
     public static final PropertyInteger CON_D = PropertyInteger.create("con_d", 0, 1);
     public static final PropertyInteger CON_U = PropertyInteger.create("con_u", 0, 1);
     public static final PropertyInteger CON_N = PropertyInteger.create("con_n", 0, 1);
@@ -50,7 +50,7 @@ public class BlockModularPipe extends BlockPipeBase
     {
         super(id, MapColor.GRAY);
         setDefaultState(blockState.getBaseState()
-                .withProperty(TIER, 0)
+                .withProperty(TIER, EnumTier.BASIC)
                 .withProperty(CON_D, 0)
                 .withProperty(CON_U, 0)
                 .withProperty(CON_N, 0)
@@ -69,13 +69,19 @@ public class BlockModularPipe extends BlockPipeBase
     @Override
     public IBlockState getStateFromMeta(int meta)
     {
-        return getDefaultState().withProperty(TIER, meta & 7);
+        return getDefaultState().withProperty(TIER, EnumTier.getFromMeta(meta));
     }
 
     @Override
     public int getMetaFromState(IBlockState state)
     {
-        return state.getValue(TIER);
+        return state.getValue(TIER).ordinal();
+    }
+
+    @Override
+    public int damageDropped(IBlockState state)
+    {
+        return getMetaFromState(state);
     }
 
     @Override
@@ -86,7 +92,7 @@ public class BlockModularPipe extends BlockPipeBase
             @Override
             public String getUnlocalizedName(ItemStack stack)
             {
-                return super.getUnlocalizedName(stack) + '.' + stack.getMetadata();
+                return super.getUnlocalizedName(stack) + '.' + EnumTier.getFromMeta(stack.getMetadata()).getName();
             }
         };
     }
@@ -117,18 +123,18 @@ public class BlockModularPipe extends BlockPipeBase
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced)
     {
-        int tier = stack.getMetadata() & 7;
+        EnumTier tier = EnumTier.getFromMeta(stack.getMetadata());
 
-        if(tier == 0)
+        if(tier == EnumTier.BASIC)
         {
-            tooltip.add(StringUtils.translate("tile.modularpipes.pipe_modular.tier_0"));
+            tooltip.add(StringUtils.translate("tile.modularpipes.pipe_modular.tier_basic"));
         }
         else
         {
-            tooltip.add(StringUtils.translate("tile.modularpipes.pipe_modular.slots", Math.min(6, tier)));
+            tooltip.add(StringUtils.translate("tile.modularpipes.pipe_modular.slots", tier.modules));
         }
 
-        tooltip.add(StringUtils.translate("tile.modularpipes.pipe.speed_boost", StringUtils.formatDouble(getSpeedModifier(tier)) + "x"));
+        tooltip.add(StringUtils.translate("tile.modularpipes.pipe.speed_boost", StringUtils.formatDouble(tier.speed.getDouble()) + "x"));
     }
 
     @Override
@@ -250,22 +256,10 @@ public class BlockModularPipe extends BlockPipeBase
         return NodeType.TILES;
     }
 
-    private static double getSpeedModifier(int tier)
-    {
-        if(tier >= 7)
-        {
-            return ModularPipesConfig.SUPER_BOOST.getDouble();
-        }
-        else
-        {
-            return 1D + tier * 0.5D;
-        }
-    }
-
     @Override
     public double getItemSpeedModifier(IBlockAccess world, BlockPos pos, IBlockState state, TransportedItem item)
     {
-        return getSpeedModifier(state.getValue(TIER));
+        return state.getValue(TIER).speed.getDouble();
     }
 
     @Override

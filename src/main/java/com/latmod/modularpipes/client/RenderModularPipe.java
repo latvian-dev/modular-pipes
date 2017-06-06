@@ -3,8 +3,8 @@ package com.latmod.modularpipes.client;
 import com.feed_the_beast.ftbl.lib.Color4I;
 import com.feed_the_beast.ftbl.lib.client.CachedVertexData;
 import com.feed_the_beast.ftbl.lib.math.MathUtils;
-import com.latmod.modularpipes.ModularPipes;
 import com.latmod.modularpipes.block.BlockPipeBase;
+import com.latmod.modularpipes.block.EnumTier;
 import com.latmod.modularpipes.tile.TileModularPipe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -13,7 +13,6 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 /**
@@ -21,8 +20,6 @@ import org.lwjgl.opengl.GL11;
  */
 public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe>
 {
-    private static final ResourceLocation[] TEXTURES = new ResourceLocation[8];
-
     private static final CachedVertexData TIER_MODEL = new CachedVertexData(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
     private static final CachedVertexData TIER_7_MODEL = new CachedVertexData(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
     private static final double TEX = BlockPipeBase.SIZE / 16D;
@@ -32,12 +29,6 @@ public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe
     {
         TIER_MODEL.minU = TIER_MODEL.minV = TIER_7_MODEL.minU = TIER_7_MODEL.minV = TEX;
         TIER_MODEL.maxU = TIER_MODEL.maxV = TIER_7_MODEL.maxU = TIER_7_MODEL.maxV = 1D - TEX;
-
-        for(int i = 0; i < TEXTURES.length; i++)
-        {
-            TEXTURES[i] = new ResourceLocation(ModularPipes.MOD_ID, "textures/blocks/pipes/tier_" + i + ".png");
-        }
-
         TIER_MODEL.cube(SIZE, SIZE, SIZE, 1D - SIZE, 1D - SIZE, 1D - SIZE);
         TIER_7_MODEL.color.set(Color4I.WHITE);
     }
@@ -65,10 +56,10 @@ public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe
         GlStateManager.enableAlpha();
         GlStateManager.enableCull();
 
-        mc.getTextureManager().bindTexture(TEXTURES[te.tier & 7]);
+        mc.getTextureManager().bindTexture(te.tier.texture);
         Tessellator tessellator = Tessellator.getInstance();
 
-        if(te.tier >= 7)
+        if(te.tier == EnumTier.STAR)
         {
             TIER_7_MODEL.reset();
             TIER_7_MODEL.color.setFromHSB((float) ((Minecraft.getSystemTime() * 0.0003D) % 1D), 1F, 1F);

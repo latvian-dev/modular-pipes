@@ -57,7 +57,7 @@ public class ModularPipesCommon
 
         RecipeUtils.addCircularRecipe(new ItemStack(ModularPipesItems.PIPE_MODULAR, 8, 0), ODItems.REDSTONE, basicPipe);
 
-        Object[] items = {ODItems.IRON, ODItems.GOLD, ODItems.QUARTZ, ODItems.LAPIS, ODItems.EMERALD, ODItems.ENDERPEARL, ODItems.NETHERSTAR};
+        Object[] items = {ODItems.IRON, ODItems.GOLD, ODItems.QUARTZ, ODItems.LAPIS, ODItems.ENDERPEARL, ODItems.EMERALD, ODItems.NETHERSTAR};
 
         for(int meta = 0; meta < 7; meta++)
         {

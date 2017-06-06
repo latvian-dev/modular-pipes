@@ -29,7 +29,6 @@ public class CachedBlock
         }
 
         @Override
-        @Nullable
         public Node getNode()
         {
             return node;
@@ -46,14 +45,12 @@ public class CachedBlock
         }
 
         @Override
-        @Nullable
         public Node getNode()
         {
             return link.start;
         }
 
         @Override
-        @Nullable
         public Link getLink()
         {
             return link;

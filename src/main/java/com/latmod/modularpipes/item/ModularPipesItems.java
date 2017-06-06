@@ -3,7 +3,7 @@ package com.latmod.modularpipes.item;
 import com.latmod.modularpipes.block.BlockModularPipe;
 import com.latmod.modularpipes.block.BlockPipeBasic;
 import com.latmod.modularpipes.block.BlockPipeBasicNode;
-import com.latmod.modularpipes.item.module.ModuleBlockItems;
+import com.latmod.modularpipes.item.module.ModuleCrafting;
 import com.latmod.modularpipes.item.module.ModuleExtract;
 import com.latmod.modularpipes.item.module.ModuleRightClickExtract;
 import net.minecraft.block.Block;
@@ -30,6 +30,6 @@ public class ModularPipesItems
     {
         MODULE_LIST.add(new ItemModule("extract", new ModuleExtract()));
         MODULE_LIST.add(new ItemModule("rightclick_extract", new ModuleRightClickExtract()));
-        MODULE_LIST.add(new ItemModule("block_items", new ModuleBlockItems()));
+        MODULE_LIST.add(new ItemModule("crafting", new ModuleCrafting()));
     }
 }

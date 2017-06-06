@@ -57,7 +57,7 @@ public class ItemDebug extends ItemMPBase
 
             for(Link link : network.getLinks())
             {
-                if((node != null) ? link.isEndpoint(pos) : link.contains(pos))
+                if(link.contains(pos, node != null))
                 {
                     player.sendMessage(new TextComponentString("Link " + link));
                 }

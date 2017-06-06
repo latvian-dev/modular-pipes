@@ -4,15 +4,15 @@ itemGroup.modularpipes=Modular Pipes
 # Blocks
 tile.modularpipes.pipe_basic.name=Basic Pipe
 tile.modularpipes.pipe.speed_boost=Speed Boost: %s
-tile.modularpipes.pipe_modular.0.name=Modular Pipe [Tier 0]
-tile.modularpipes.pipe_modular.1.name=Modular Pipe [Tier 1]
-tile.modularpipes.pipe_modular.2.name=Modular Pipe [Tier 2]
-tile.modularpipes.pipe_modular.3.name=Modular Pipe [Tier 3]
-tile.modularpipes.pipe_modular.4.name=Modular Pipe [Tier 4]
-tile.modularpipes.pipe_modular.5.name=Modular Pipe [Tier 5]
-tile.modularpipes.pipe_modular.6.name=Modular Pipe [Tier 6]
-tile.modularpipes.pipe_modular.7.name=Modular Pipe [Tier 7]
-tile.modularpipes.pipe_modular.tier_0=Not Very Modular
+tile.modularpipes.pipe_modular.basic.name=Modular Pipe [Tier 0: Basic]
+tile.modularpipes.pipe_modular.iron.name=Modular Pipe [Tier 1: Iron]
+tile.modularpipes.pipe_modular.gold.name=Modular Pipe [Tier 2: Gold]
+tile.modularpipes.pipe_modular.quartz.name=Modular Pipe [Tier 3: Quartz]
+tile.modularpipes.pipe_modular.lapis.name=Modular Pipe [Tier 4: Lapis Lazuli]
+tile.modularpipes.pipe_modular.ender.name=Modular Pipe [Tier 5: Ender]
+tile.modularpipes.pipe_modular.emerald.name=Modular Pipe [Tier 6: Emerald]
+tile.modularpipes.pipe_modular.star.name=Modular Pipe [Tier 7: Nether Star]
+tile.modularpipes.pipe_modular.tier_basic=Not Very Modular
 tile.modularpipes.pipe_modular.slots=Available Module Slots: %d
 
 # Items
@@ -22,7 +22,7 @@ item.modularpipes.debug.name=Modular Pipes Debug Item
 ## Modules
 item.modularpipes.module.extract.name=Extract
 item.modularpipes.module.rightclick_extract.name=Extract On Right-click (Dev item)
-item.modularpipes.module.block_items.name=Block Items From Passing Trough
+item.modularpipes.module.crafting.name=Crafting
 
 # Config
 config_group.modularpipes.name=Modular Pipes

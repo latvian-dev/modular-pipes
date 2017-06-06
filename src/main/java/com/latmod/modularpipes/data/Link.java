@@ -2,11 +2,13 @@ package com.latmod.modularpipes.data;
 
 import com.feed_the_beast.ftbl.lib.math.MathUtils;
 import net.minecraft.block.BlockLog;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -14,125 +16,81 @@ import java.util.List;
  */
 public final class Link
 {
-    public static final Comparator<Link> COMPARATOR = Comparator.comparingInt(link -> link.actualLength);
+    public static final Comparator<Link> COMPARATOR = Comparator.comparingInt(link -> link.length);
 
-    public static List<BlockPos> simplify(List<BlockPos> path)
+    public static List<BlockPos> simplify(Collection<BlockPos> path)
     {
-        if(path.size() <= 2)
+        if(path.size() < 2)
         {
-            return path;
+            return Collections.emptyList();
+        }
+        else if(path.size() == 2)
+        {
+            return new ArrayList<>(path);
         }
 
-        List<BlockPos> newPath = new ArrayList<>();
-        BlockPos prevPos = path.get(0);
-        BlockLog.EnumAxis axis = MathUtils.getAxis(prevPos, path.get(1));
+        Collection<BlockPos> newPath = new LinkedHashSet<>();
+        BlockPos prevPos = null;
+        BlockLog.EnumAxis axis = null;
 
         for(BlockPos pos : path)
         {
+            if(prevPos == null)
+            {
+                prevPos = pos;
+            }
+
             BlockLog.EnumAxis a = MathUtils.getAxis(prevPos, pos);
 
             if(axis != a)
             {
                 axis = a;
-
-                if(!newPath.contains(prevPos))
-                {
-                    newPath.add(prevPos);
-                }
+                newPath.add(prevPos);
             }
 
             prevPos = pos;
         }
 
-        prevPos = path.get(path.size() - 1);
-
-        if(!newPath.contains(prevPos))
-        {
-            newPath.add(prevPos);
-        }
-
-        return newPath;
+        newPath.add(prevPos);
+        return new ArrayList<>(newPath);
     }
 
     public final PipeNetwork network;
     public final List<BlockPos> path;
     public final Node start, end;
-    public final int actualLength;
+    public final int length;
+    private boolean invalid = false;
 
-    public Link(PipeNetwork n, List<BlockPos> p, int a)
+    public Link(PipeNetwork n, List<BlockPos> p, Node s, Node e, int l)
     {
         network = n;
         path = p;
-        start = path.size() >= 2 ? network.getNode(path.get(0)) : null;
-        end = start != null ? network.getNode(path.get(path.size() - 1)) : null;
-        actualLength = a;
-    }
-
-    public Link(PipeNetwork n, NBTTagCompound nbt)
-    {
-        network = n;
-        path = new ArrayList<>();
-        int[] ai = nbt.getIntArray("Path");
-
-        for(int i = 0; i < ai.length; i += 3)
-        {
-            path.add(new BlockPos(ai[i], ai[i + 1], ai[i + 2]));
-        }
-
-        if(path.size() >= 2)
-        {
-            start = network.getNode(path.get(0));
-            end = network.getNode(path.get(path.size() - 1));
-
-            if(start != null && end != null && !start.equals(end))
-            {
-                start.linkedWith.add(this);
-                end.linkedWith.add(this);
-            }
-            else
-            {
-                path.clear();
-            }
-        }
-        else
-        {
-            start = end = null;
-        }
-
-        actualLength = nbt.hasKey("ActualLength") ? nbt.getInteger("ActualLength") : nbt.getInteger("Length");
-    }
-
-    public NBTTagCompound serializeNBT()
-    {
-        NBTTagCompound nbt = new NBTTagCompound();
-        int[] ai = new int[path.size() * 3];
-
-        for(int i = 0; i < path.size(); i++)
-        {
-            BlockPos pos = path.get(i);
-            ai[i * 3] = pos.getX();
-            ai[i * 3 + 1] = pos.getY();
-            ai[i * 3 + 2] = pos.getZ();
-        }
-
-        nbt.setIntArray("Path", ai);
-        nbt.setInteger("Length", actualLength);
-        return nbt;
+        start = s;
+        end = e;
+        length = l;
     }
 
     public boolean invalid()
     {
-        return start == null || end == null || path.size() < 2;
+        return invalid;
     }
 
-    public boolean isEndpoint(BlockPos pos)
+    public void setInvalid()
     {
-        return !invalid() && (start == pos || end == pos || start.equals(pos) || end.equals(pos));
+        invalid = true;
     }
 
-    public boolean contains(BlockPos pos)
+    public boolean contains(BlockPos pos, boolean endpointOnly)
     {
         if(invalid())
+        {
+            return false;
+        }
+        else if(start == pos || end == pos || start.equals(pos) || end.equals(pos))
+        {
+            return true;
+        }
+        else if(endpointOnly)
         {
             return false;
         }
@@ -161,11 +119,11 @@ public final class Link
         else if(o instanceof Link)
         {
             Link l = (Link) o;
-            if(isEndpoint(l.start) && isEndpoint(l.end))
+            if(contains(l.start, true) && contains(l.end, true))
             {
                 for(BlockPos pos : l.path)
                 {
-                    if(!contains(pos))
+                    if(!contains(pos, false))
                     {
                         return false;
                     }
@@ -179,6 +137,6 @@ public final class Link
 
     public String toString()
     {
-        return "[#" + Integer.toHexString(path.hashCode()) + ' ' + start + "->" + end + ']';
+        return "[#" + Integer.toHexString(path.hashCode()) + ' ' + length + 'x' + start + "->" + end + ']';
     }
 }

@@ -93,7 +93,7 @@ public class Node extends BlockPos
         List<Link> list = new ArrayList<>();
         for(Link link : linkedWith)
         {
-            if(link.isEndpoint(to))
+            if(link.contains(to, true))
             {
                 list.add(link);
             }
