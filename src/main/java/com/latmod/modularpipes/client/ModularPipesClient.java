@@ -39,7 +39,7 @@ public class ModularPipesClient extends ModularPipesCommon
         registerModel(ModularPipesItems.MODULE, 0, "inventory");
         registerModel(ModularPipesItems.DEBUG, 0, "inventory");
 
-        for(Item m : ModularPipesItems.MODULE_LIST)
+        for(Item m : ModularPipesItems.Modules.LIST)
         {
             registerModel(m, 0, m.getRegistryName().toString().replace("module_", "module/") + "#inventory");
         }

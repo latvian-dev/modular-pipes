@@ -1,7 +1,5 @@
 package com.latmod.modularpipes.client;
 
-import com.feed_the_beast.ftbl.lib.Color4I;
-import com.feed_the_beast.ftbl.lib.client.CachedVertexData;
 import com.feed_the_beast.ftbl.lib.math.MathUtils;
 import com.latmod.modularpipes.block.BlockPipeBase;
 import com.latmod.modularpipes.block.EnumTier;
@@ -9,7 +7,10 @@ import com.latmod.modularpipes.tile.TileModularPipe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.EnumFacing;
@@ -20,18 +21,7 @@ import org.lwjgl.opengl.GL11;
  */
 public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe>
 {
-    private static final CachedVertexData TIER_MODEL = new CachedVertexData(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-    private static final CachedVertexData TIER_7_MODEL = new CachedVertexData(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-    private static final double TEX = BlockPipeBase.SIZE / 16D;
-    private static final double SIZE = TEX - 0.03D / 16D;
-
-    static
-    {
-        TIER_MODEL.minU = TIER_MODEL.minV = TIER_7_MODEL.minU = TIER_7_MODEL.minV = TEX;
-        TIER_MODEL.maxU = TIER_MODEL.maxV = TIER_7_MODEL.maxU = TIER_7_MODEL.maxV = 1D - TEX;
-        TIER_MODEL.cube(SIZE, SIZE, SIZE, 1D - SIZE, 1D - SIZE, 1D - SIZE);
-        TIER_7_MODEL.color.set(Color4I.WHITE);
-    }
+    public static final TextureAtlasSprite[] SPRITES = new TextureAtlasSprite[EnumTier.VALUES.length];
 
     @Override
     public void renderTileEntityAt(TileModularPipe te, double x, double y, double z, float partialTicks, int destroyStage)
@@ -56,20 +46,45 @@ public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe
         GlStateManager.enableAlpha();
         GlStateManager.enableCull();
 
-        mc.getTextureManager().bindTexture(te.tier.texture);
+        mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+        TextureAtlasSprite sprite = SPRITES[te.tier.ordinal()];
         Tessellator tessellator = Tessellator.getInstance();
+        VertexBuffer buffer = tessellator.getBuffer();
 
-        if(te.tier == EnumTier.STAR)
-        {
-            TIER_7_MODEL.reset();
-            TIER_7_MODEL.color.setFromHSB((float) ((Minecraft.getSystemTime() * 0.0003D) % 1D), 1F, 1F);
-            TIER_7_MODEL.cube(SIZE, SIZE, SIZE, 1D - SIZE, 1D - SIZE, 1D - SIZE);
-            TIER_7_MODEL.draw(tessellator, tessellator.getBuffer());
-        }
-        else
-        {
-            TIER_MODEL.draw(tessellator, tessellator.getBuffer());
-        }
+        double s0 = (BlockPipeBase.SIZE - 0.03D) / 16D;
+        double s1 = 1D - s0;
+
+        double minU = sprite.getInterpolatedU(BlockPipeBase.SIZE);
+        double minV = sprite.getInterpolatedV(BlockPipeBase.SIZE);
+        double maxU = sprite.getInterpolatedU(16D - BlockPipeBase.SIZE);
+        double maxV = sprite.getInterpolatedV(16D - BlockPipeBase.SIZE);
+
+        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        buffer.pos(s0, s0, s0).tex(minU, minV).endVertex();
+        buffer.pos(s1, s0, s0).tex(maxU, minV).endVertex();
+        buffer.pos(s1, s0, s1).tex(maxU, maxV).endVertex();
+        buffer.pos(s0, s0, s1).tex(minU, maxV).endVertex();
+        buffer.pos(s0, s1, s0).tex(minU, minV).endVertex();
+        buffer.pos(s0, s1, s1).tex(minU, maxV).endVertex();
+        buffer.pos(s1, s1, s1).tex(maxU, maxV).endVertex();
+        buffer.pos(s1, s1, s0).tex(maxU, minV).endVertex();
+        buffer.pos(s0, s0, s0).tex(maxU, maxV).endVertex();
+        buffer.pos(s0, s1, s0).tex(maxU, minV).endVertex();
+        buffer.pos(s1, s1, s0).tex(minU, minV).endVertex();
+        buffer.pos(s1, s0, s0).tex(minU, maxV).endVertex();
+        buffer.pos(s0, s0, s1).tex(minU, maxV).endVertex();
+        buffer.pos(s1, s0, s1).tex(maxU, maxV).endVertex();
+        buffer.pos(s1, s1, s1).tex(maxU, minV).endVertex();
+        buffer.pos(s0, s1, s1).tex(minU, minV).endVertex();
+        buffer.pos(s0, s0, s0).tex(minU, maxV).endVertex();
+        buffer.pos(s0, s0, s1).tex(maxU, maxV).endVertex();
+        buffer.pos(s0, s1, s1).tex(maxU, minV).endVertex();
+        buffer.pos(s0, s1, s0).tex(minU, minV).endVertex();
+        buffer.pos(s1, s0, s0).tex(maxU, maxV).endVertex();
+        buffer.pos(s1, s1, s0).tex(maxU, minV).endVertex();
+        buffer.pos(s1, s1, s1).tex(minU, minV).endVertex();
+        buffer.pos(s1, s0, s1).tex(minU, maxV).endVertex();
+        tessellator.draw();
 
         GlStateManager.enableLighting();
         setLightmapDisabled(false);

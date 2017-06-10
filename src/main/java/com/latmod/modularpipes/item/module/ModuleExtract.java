@@ -16,11 +16,14 @@ public class ModuleExtract extends Module
     @Override
     public void update(ModuleContainer container)
     {
-        if(container.isRemote() || container.getTick() % 20 != 19)
+        if(!container.isRemote() && container.getTick() % 20 == 19)
         {
-            return;
+            extractItem(container);
         }
+    }
 
+    public void extractItem(ModuleContainer container)
+    {
         TileEntity tile = container.getFacingTile();
 
         if(tile != null && tile.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, container.facing.getOpposite()))

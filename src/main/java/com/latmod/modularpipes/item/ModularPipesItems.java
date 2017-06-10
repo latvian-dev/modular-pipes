@@ -3,6 +3,7 @@ package com.latmod.modularpipes.item;
 import com.latmod.modularpipes.block.BlockModularPipe;
 import com.latmod.modularpipes.block.BlockPipeBasic;
 import com.latmod.modularpipes.block.BlockPipeBasicNode;
+import com.latmod.modularpipes.data.Module;
 import com.latmod.modularpipes.item.module.ModuleCrafting;
 import com.latmod.modularpipes.item.module.ModuleExtract;
 import com.latmod.modularpipes.item.module.ModuleRightClickExtract;
@@ -23,13 +24,21 @@ public class ModularPipesItems
     public static final Block PIPE_NODE = new BlockPipeBasicNode("pipe_node");
 
     public static final Item MODULE = new ItemMPBase("module");
-    public static final List<Item> MODULE_LIST = new ArrayList<>();
     public static final Item DEBUG = new ItemDebug("debug");
 
-    static
+    public static class Modules
     {
-        MODULE_LIST.add(new ItemModule("extract", new ModuleExtract()));
-        MODULE_LIST.add(new ItemModule("rightclick_extract", new ModuleRightClickExtract()));
-        MODULE_LIST.add(new ItemModule("crafting", new ModuleCrafting()));
+        public static final List<Item> LIST = new ArrayList<>();
+
+        public static final ItemModule EXTRACT = add("extract", new ModuleExtract());
+        public static final ItemModule RIGHTCLICK_EXTRACT = add("rightclick_extract", new ModuleRightClickExtract());
+        public static final ItemModule CRAFTING = add("crafting", new ModuleCrafting());
+
+        private static ItemModule add(String id, Module module)
+        {
+            ItemModule m = new ItemModule(id, module);
+            LIST.add(m);
+            return m;
+        }
     }
 }

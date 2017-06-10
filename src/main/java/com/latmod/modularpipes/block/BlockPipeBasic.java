@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.block;
 
+import com.latmod.modularpipes.data.IPipeBlock;
 import com.latmod.modularpipes.item.ModularPipesItems;
 import gnu.trove.map.hash.TIntIntHashMap;
 import net.minecraft.block.Block;
@@ -9,6 +10,7 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -65,6 +67,7 @@ public class BlockPipeBasic extends BlockPipeBase
         private final String name;
         public final EnumFacing facing1, facing2;
         public final int connectionId;
+        public final AxisAlignedBB aabb;
 
         Model(String n, @Nullable EnumFacing f1, @Nullable EnumFacing f2)
         {
@@ -72,6 +75,7 @@ public class BlockPipeBasic extends BlockPipeBase
             facing1 = f1;
             facing2 = f2;
             connectionId = getConnectionId(facing1, facing2);
+            aabb = BlockPipeBase.BOXES_64[connectionId];
         }
 
         @Override
@@ -143,14 +147,29 @@ public class BlockPipeBasic extends BlockPipeBase
         }
     }
 
+    @Override
+    public boolean canConnectTo(IBlockState state, IBlockAccess worldIn, BlockPos pos, EnumFacing facing)
+    {
+        Model model = state.getValue(MODEL);
+        return model.facing1 == facing || model.facing2 == facing;
+    }
+
+    private int canConnectTo0(IBlockAccess worldIn, BlockPos pos, EnumFacing facing)
+    {
+        BlockPos pos1 = pos.offset(facing);
+        IBlockState state1 = worldIn.getBlockState(pos1);
+        Block block1 = state1.getBlock();
+        return (block1 instanceof IPipeBlock && ((IPipeBlock) block1).canPipeConnect(worldIn, pos1, state1, facing.getOpposite())) ? 1 : 0;
+    }
+
     public boolean checkState(IBlockState state, World worldIn, BlockPos pos)
     {
-        int d = canConnectTo(state, worldIn, pos, EnumFacing.DOWN) ? 1 : 0;
-        int u = canConnectTo(state, worldIn, pos, EnumFacing.UP) ? 1 : 0;
-        int n = canConnectTo(state, worldIn, pos, EnumFacing.NORTH) ? 1 : 0;
-        int s = canConnectTo(state, worldIn, pos, EnumFacing.SOUTH) ? 1 : 0;
-        int w = canConnectTo(state, worldIn, pos, EnumFacing.WEST) ? 1 : 0;
-        int e = canConnectTo(state, worldIn, pos, EnumFacing.EAST) ? 1 : 0;
+        int d = canConnectTo0(worldIn, pos, EnumFacing.DOWN);
+        int u = canConnectTo0(worldIn, pos, EnumFacing.UP);
+        int n = canConnectTo0(worldIn, pos, EnumFacing.NORTH);
+        int s = canConnectTo0(worldIn, pos, EnumFacing.SOUTH);
+        int w = canConnectTo0(worldIn, pos, EnumFacing.WEST);
+        int e = canConnectTo0(worldIn, pos, EnumFacing.EAST);
         int sum = d + u + n + s + w + e;
 
         if(sum == 0 || sum == 2)
@@ -163,6 +182,13 @@ public class BlockPipeBasic extends BlockPipeBase
             worldIn.setBlockState(pos, getNodeState());
             return false;
         }
+    }
+
+    @Override
+    @Deprecated
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
+    {
+        return state.getValue(MODEL).aabb;
     }
 
     @Override

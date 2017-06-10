@@ -21,7 +21,7 @@ item.modularpipes.debug.name=Modular Pipes Debug Item
 
 ## Modules
 item.modularpipes.module.extract.name=Extract
-item.modularpipes.module.rightclick_extract.name=Extract On Right-click (Dev item)
+item.modularpipes.module.rightclick_extract.name=Extract On Right-click
 item.modularpipes.module.crafting.name=Crafting
 
 # Config

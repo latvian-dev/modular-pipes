@@ -119,7 +119,7 @@ public final class Link
         else if(o instanceof Link)
         {
             Link l = (Link) o;
-            if(contains(l.start, true) && contains(l.end, true))
+            if(l.path.size() == path.size() && contains(l.start, true) && contains(l.end, true))
             {
                 for(BlockPos pos : l.path)
                 {

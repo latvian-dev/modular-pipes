@@ -13,7 +13,7 @@
 			"tier_4": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_lapis"}},
 			"tier_5": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_ender"}},
 			"tier_6": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_emerald"}},
-			"tier_7": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_star_item"}}
+			"tier_7": {"textures": {"overlay": "modularpipes:blocks/pipes/tier_star"}}
 		}
 	}
 }

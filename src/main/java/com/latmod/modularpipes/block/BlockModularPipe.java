@@ -186,6 +186,14 @@ public class BlockModularPipe extends BlockPipeBase
     @Deprecated
     public RayTraceResult collisionRayTrace(IBlockState blockState, World worldIn, BlockPos pos, Vec3d start, Vec3d end)
     {
+        TileEntity tileEntity = worldIn.getTileEntity(pos);
+        TileModularPipe tile = (tileEntity instanceof TileModularPipe) ? (TileModularPipe) tileEntity : null;
+
+        if(tile == null)
+        {
+            return super.collisionRayTrace(blockState, worldIn, pos, start, end);
+        }
+
         Vec3d start1 = start.subtract(pos.getX(), pos.getY(), pos.getZ());
         Vec3d end1 = end.subtract(pos.getX(), pos.getY(), pos.getZ());
         RayTraceResult ray1 = null;
@@ -195,7 +203,7 @@ public class BlockModularPipe extends BlockPipeBase
 
         for(int i = 0; i < BlockPipeBase.BOXES.length; i++)
         {
-            if(i < 6 && !(holdingModule || canConnectTo(blockState, worldIn, pos, EnumFacing.VALUES[i])))
+            if(i < 6 && !(holdingModule || tile.modules[i].hasModule() || tile.canConnectTo(EnumFacing.VALUES[i])))
             {
                 continue;
             }

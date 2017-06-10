@@ -8,6 +8,8 @@ import com.latmod.modularpipes.item.ModularPipesItems;
 import com.latmod.modularpipes.net.ModularPipesNet;
 import com.latmod.modularpipes.tile.TileModularPipe;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
@@ -37,7 +39,7 @@ public class ModularPipesCommon
         LMUtils.register(ModularPipesItems.MODULE);
         LMUtils.register(ModularPipesItems.DEBUG);
 
-        for(Item m : ModularPipesItems.MODULE_LIST)
+        for(Item m : ModularPipesItems.Modules.LIST)
         {
             LMUtils.register(m);
         }
@@ -52,8 +54,9 @@ public class ModularPipesCommon
     {
         MinecraftForge.EVENT_BUS.register(ModularPipesEventHandler.class);
         Object basicPipe = ModularPipesItems.PIPE_BASIC;
+        Object blankModule = ModularPipesItems.MODULE;
 
-        RecipeUtils.addRecipe(new ItemStack(ModularPipesItems.PIPE_BASIC, 8), " R ", "SGS", " R ", 'S', ODItems.COBBLE, 'G', ODItems.GLASS_PANE_ANY, 'R', ODItems.REDSTONE);
+        RecipeUtils.addRecipe(new ItemStack(ModularPipesItems.PIPE_BASIC, 8), " G ", "SRS", " G ", 'S', ODItems.COBBLE, 'G', ODItems.GLASS_PANE_ANY, 'R', ODItems.REDSTONE);
 
         RecipeUtils.addCircularRecipe(new ItemStack(ModularPipesItems.PIPE_MODULAR, 8, 0), ODItems.REDSTONE, basicPipe);
 
@@ -65,6 +68,10 @@ public class ModularPipesCommon
         }
 
         RecipeUtils.addCircularRecipe(new ItemStack(ModularPipesItems.MODULE, 8), basicPipe, ODItems.IRON);
+
+        RecipeUtils.addRecipe(new ItemStack(ModularPipesItems.Modules.CRAFTING), "D", "M", "C", 'M', blankModule, 'D', ODItems.DIAMOND, 'C', ODItems.CRAFTING_TABLE);
+        RecipeUtils.addRecipe(new ItemStack(ModularPipesItems.Modules.EXTRACT), "R", "M", "H", 'M', blankModule, 'H', Blocks.HOPPER, 'R', Items.REPEATER);
+        RecipeUtils.addRecipe(new ItemStack(ModularPipesItems.Modules.RIGHTCLICK_EXTRACT), "C", "M", 'M', blankModule, 'C', Items.CLOCK);
     }
 
     public PipeNetwork getClientNetwork(World world)
