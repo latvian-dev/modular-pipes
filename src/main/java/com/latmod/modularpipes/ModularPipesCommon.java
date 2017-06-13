@@ -69,7 +69,7 @@ public class ModularPipesCommon
 
 		for (int meta = 0; meta < 7; meta++)
 		{
-			RecipeUtils.addCircularRecipe(id + "pipe_modular_" + meta + 1, new ItemStack(ModularPipesItems.PIPE_MODULAR, 8, meta + 1), items[meta], new ItemStack(ModularPipesItems.PIPE_MODULAR, 1, meta));
+			RecipeUtils.addCircularRecipe(id + "pipe_modular_" + (meta + 1), new ItemStack(ModularPipesItems.PIPE_MODULAR, 8, meta + 1), items[meta], new ItemStack(ModularPipesItems.PIPE_MODULAR, 1, meta));
 		}
 
 		RecipeUtils.addCircularRecipe(id + "module", new ItemStack(ModularPipesItems.MODULE, 8), basicPipe, ODItems.IRON);

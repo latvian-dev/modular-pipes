@@ -4,7 +4,7 @@
 		"base": "modularpipes:blocks/pipes/base",
 		"glass": "modularpipes:blocks/pipes/glass",
 		"particle": "modularpipes:blocks/pipes/particle",
-		"overlay": "modularpipes:blocks/pipes/tier_0"
+		"overlay": "modularpipes:blocks/pipes/tier_basic"
 	},
 	"elements": [
 		{
