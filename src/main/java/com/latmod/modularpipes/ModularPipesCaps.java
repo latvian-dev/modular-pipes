@@ -11,11 +11,11 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
  */
 public class ModularPipesCaps
 {
-    @CapabilityInject(Module.class)
-    public static Capability<Module> MODULE;
+	@CapabilityInject(Module.class)
+	public static Capability<Module> MODULE;
 
-    public static void init()
-    {
-        CapabilityManager.INSTANCE.register(Module.class, new EmptyCapStorage<>(), () -> null);
-    }
+	public static void init()
+	{
+		CapabilityManager.INSTANCE.register(Module.class, new EmptyCapStorage<>(), () -> null);
+	}
 }

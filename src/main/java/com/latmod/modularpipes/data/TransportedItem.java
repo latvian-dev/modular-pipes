@@ -24,247 +24,247 @@ import java.util.List;
  */
 public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompound>
 {
-    public enum Action
-    {
-        NONE,
-        REMOVE,
-        DROP,
-        UPDATE;
+	public enum Action
+	{
+		NONE,
+		REMOVE,
+		DROP,
+		UPDATE;
 
-        public static final Action[] VALUES = values();
+		public static final Action[] VALUES = values();
 
-        public boolean remove()
-        {
-            return this == REMOVE || this == DROP;
-        }
+		public boolean remove()
+		{
+			return this == REMOVE || this == DROP;
+		}
 
-        public boolean update()
-        {
-            return this == UPDATE || remove();
-        }
-    }
+		public boolean update()
+		{
+			return this == UPDATE || remove();
+		}
+	}
 
-    public static class PathPoint
-    {
-        public final EnumFacing facing;
-        public final int length;
+	public static class PathPoint
+	{
+		public final EnumFacing facing;
+		public final int length;
 
-        public PathPoint(EnumFacing f, int l)
-        {
-            facing = f;
-            length = l;
-        }
+		public PathPoint(EnumFacing f, int l)
+		{
+			facing = f;
+			length = l;
+		}
 
-        public int hashCode()
-        {
-            return facing.getIndex() * 31 + length;
-        }
+		public int hashCode()
+		{
+			return facing.getIndex() * 31 + length;
+		}
 
-        public boolean equals(Object o)
-        {
-            if(o == this)
-            {
-                return true;
-            }
-            else if(o instanceof PathPoint)
-            {
-                PathPoint p = (PathPoint) o;
-                return p.facing == facing && p.length == length;
-            }
-            return false;
-        }
+		public boolean equals(Object o)
+		{
+			if (o == this)
+			{
+				return true;
+			}
+			else if (o instanceof PathPoint)
+			{
+				PathPoint p = (PathPoint) o;
+				return p.facing == facing && p.length == length;
+			}
+			return false;
+		}
 
-        public String toString()
-        {
-            return "[" + facing + ':' + length + ']';
-        }
+		public String toString()
+		{
+			return "[" + facing + ':' + length + ']';
+		}
 
-        public static void fromArray(List<PathPoint> path, byte[] arr)
-        {
-            path.clear();
-            for(int i = 0; i < arr.length; i += 2)
-            {
-                path.add(new PathPoint(EnumFacing.VALUES[arr[i]], arr[i + 1] & 0xFF));
-            }
-        }
+		public static void fromArray(List<PathPoint> path, byte[] arr)
+		{
+			path.clear();
+			for (int i = 0; i < arr.length; i += 2)
+			{
+				path.add(new PathPoint(EnumFacing.VALUES[arr[i]], arr[i + 1] & 0xFF));
+			}
+		}
 
-        public static byte[] toArray(List<PathPoint> path)
-        {
-            byte[] b = new byte[path.size() * 2];
-            for(int i = 0; i < path.size(); i++)
-            {
-                PathPoint p = path.get(i);
-                b[i * 2] = (byte) p.facing.getIndex();
-                b[i * 2 + 1] = (byte) p.length;
-            }
-            return b;
-        }
-    }
+		public static byte[] toArray(List<PathPoint> path)
+		{
+			byte[] b = new byte[path.size() * 2];
+			for (int i = 0; i < path.size(); i++)
+			{
+				PathPoint p = path.get(i);
+				b[i * 2] = (byte) p.facing.getIndex();
+				b[i * 2 + 1] = (byte) p.length;
+			}
+			return b;
+		}
+	}
 
-    public final PipeNetwork network;
-    public int id;
-    public BlockPos start;
-    public BlockPos.MutableBlockPos pos;
-    public List<PathPoint> path;
-    public ItemStack stack = ItemStack.EMPTY;
-    public int filters = 0;
-    public double progress = 0D;
-    public Action action = Action.NONE;
-    public double speedModifier = 1D;
-    public double prevX, prevY, prevZ;
-    public double posX, posY, posZ;
+	public final PipeNetwork network;
+	public int id;
+	public BlockPos start;
+	public BlockPos.MutableBlockPos pos;
+	public List<PathPoint> path;
+	public ItemStack stack = ItemStack.EMPTY;
+	public int filters = 0;
+	public double progress = 0D;
+	public Action action = Action.NONE;
+	public double speedModifier = 1D;
+	public double prevX, prevY, prevZ;
+	public double posX, posY, posZ;
 
-    public TransportedItem(PipeNetwork n)
-    {
-        network = n;
-        path = new ArrayList<>();
-    }
+	public TransportedItem(PipeNetwork n)
+	{
+		network = n;
+		path = new ArrayList<>();
+	}
 
-    @Override
-    public NBTTagCompound serializeNBT()
-    {
-        NBTTagCompound nbt = new NBTTagCompound();
-        nbt.setTag("Item", stack.serializeNBT());
+	@Override
+	public NBTTagCompound serializeNBT()
+	{
+		NBTTagCompound nbt = new NBTTagCompound();
+		nbt.setTag("Item", stack.serializeNBT());
 
-        if(start != null)
-        {
-            nbt.setIntArray("Start", new int[] {start.getX(), start.getY(), start.getZ()});
-        }
+		if (start != null)
+		{
+			nbt.setIntArray("Start", new int[] {start.getX(), start.getY(), start.getZ()});
+		}
 
-        if(pos != null)
-        {
-            nbt.setIntArray("Pos", new int[] {pos.getX(), pos.getY(), pos.getZ()});
-        }
+		if (pos != null)
+		{
+			nbt.setIntArray("Pos", new int[] {pos.getX(), pos.getY(), pos.getZ()});
+		}
 
-        nbt.setByteArray("Path", PathPoint.toArray(path));
-        nbt.setInteger("Filters", filters);
-        nbt.setDouble("Progress", progress);
-        nbt.setDouble("Speed", speedModifier);
-        return nbt;
-    }
+		nbt.setByteArray("Path", PathPoint.toArray(path));
+		nbt.setInteger("Filters", filters);
+		nbt.setDouble("Progress", progress);
+		nbt.setDouble("Speed", speedModifier);
+		return nbt;
+	}
 
-    @Override
-    public void deserializeNBT(NBTTagCompound nbt)
-    {
-        action = TransportedItem.Action.NONE;
-        stack = new ItemStack(nbt.getCompoundTag("Item"));
-        int[] ai = nbt.getIntArray("Start");
-        start = (ai.length >= 3) ? new BlockPos(ai[0], ai[1], ai[2]) : null;
-        ai = nbt.getIntArray("Pos");
-        pos = (ai.length >= 3) ? new BlockPos.MutableBlockPos(ai[0], ai[1], ai[2]) : null;
-        PathPoint.fromArray(path, nbt.getByteArray("Path"));
-        filters = nbt.getInteger("Filters");
-        progress = nbt.getDouble("Progress");
-        speedModifier = nbt.hasKey("Speed") ? nbt.getDouble("Speed") : 1D;
-    }
+	@Override
+	public void deserializeNBT(NBTTagCompound nbt)
+	{
+		action = TransportedItem.Action.NONE;
+		stack = new ItemStack(nbt.getCompoundTag("Item"));
+		int[] ai = nbt.getIntArray("Start");
+		start = (ai.length >= 3) ? new BlockPos(ai[0], ai[1], ai[2]) : null;
+		ai = nbt.getIntArray("Pos");
+		pos = (ai.length >= 3) ? new BlockPos.MutableBlockPos(ai[0], ai[1], ai[2]) : null;
+		PathPoint.fromArray(path, nbt.getByteArray("Path"));
+		filters = nbt.getInteger("Filters");
+		progress = nbt.getDouble("Progress");
+		speedModifier = nbt.hasKey("Speed") ? nbt.getDouble("Speed") : 1D;
+	}
 
-    public void writeToByteBuf(ByteBuf buf)
-    {
-        buf.writeInt(id);
-        buf.writeByte(action.ordinal());
+	public void writeToByteBuf(ByteBuf buf)
+	{
+		buf.writeInt(id);
+		buf.writeByte(action.ordinal());
 
-        if(!action.remove())
-        {
-            ByteBufUtils.writeItemStack(buf, stack);
-            NetUtils.writePos(buf, start);
-            NetUtils.writePos(buf, pos);
-            byte[] b = PathPoint.toArray(path);
-            buf.writeByte(b.length / 2);
-            buf.writeBytes(b);
-            buf.writeShort(filters);
-            buf.writeDouble(progress);
-            buf.writeDouble(speedModifier);
-        }
-    }
+		if (!action.remove())
+		{
+			ByteBufUtils.writeItemStack(buf, stack);
+			NetUtils.writePos(buf, start);
+			NetUtils.writePos(buf, pos);
+			byte[] b = PathPoint.toArray(path);
+			buf.writeByte(b.length / 2);
+			buf.writeBytes(b);
+			buf.writeShort(filters);
+			buf.writeDouble(progress);
+			buf.writeDouble(speedModifier);
+		}
+	}
 
-    public void readFromByteBuf(ByteBuf buf)
-    {
-        id = buf.readInt();
-        action = TransportedItem.Action.VALUES[buf.readUnsignedByte()];
+	public void readFromByteBuf(ByteBuf buf)
+	{
+		id = buf.readInt();
+		action = TransportedItem.Action.VALUES[buf.readUnsignedByte()];
 
-        if(!action.remove())
-        {
-            stack = ByteBufUtils.readItemStack(buf);
-            start = NetUtils.readPos(buf);
-            pos = NetUtils.readMutablePos(buf);
-            byte[] b = new byte[buf.readUnsignedByte() * 2];
-            buf.readBytes(b);
-            PathPoint.fromArray(path, b);
-            filters = buf.readUnsignedShort();
-            progress = buf.readDouble();
-            speedModifier = buf.readDouble();
-        }
-    }
+		if (!action.remove())
+		{
+			stack = ByteBufUtils.readItemStack(buf);
+			start = NetUtils.readPos(buf);
+			pos = NetUtils.readMutablePos(buf);
+			byte[] b = new byte[buf.readUnsignedByte() * 2];
+			buf.readBytes(b);
+			PathPoint.fromArray(path, b);
+			filters = buf.readUnsignedShort();
+			progress = buf.readDouble();
+			speedModifier = buf.readDouble();
+		}
+	}
 
-    public ClientTransportedItem client()
-    {
-        throw new IllegalStateException();
-    }
+	public ClientTransportedItem client()
+	{
+		throw new IllegalStateException();
+	}
 
-    public void addToNetwork()
-    {
-        network.addItem(this);
-    }
+	public void addToNetwork()
+	{
+		network.addItem(this);
+	}
 
-    public void setPath(List<BlockPos> l)
-    {
-        path.clear();
+	public void setPath(List<BlockPos> l)
+	{
+		path.clear();
 
-        if(l.isEmpty())
-        {
-            return;
-        }
+		if (l.isEmpty())
+		{
+			return;
+		}
 
-        Collection<BlockPos> set = new HashSet<>();
-        start = new BlockPos(l.get(0));
-        pos = new BlockPos.MutableBlockPos(start);
+		Collection<BlockPos> set = new HashSet<>();
+		start = new BlockPos(l.get(0));
+		pos = new BlockPos.MutableBlockPos(start);
 
-        for(BlockPos pos1 : l)
-        {
-            if(set.contains(pos1))
-            {
-                continue;
-            }
+		for (BlockPos pos1 : l)
+		{
+			if (set.contains(pos1))
+			{
+				continue;
+			}
 
-            EnumFacing facing = MathUtils.getFacing(pos, pos1);
-            int dist = (int) MathUtils.sqrt(pos.distanceSq(pos1));
+			EnumFacing facing = MathUtils.getFacing(pos, pos1);
+			int dist = (int) MathUtils.sqrt(pos.distanceSq(pos1));
 
-            if(facing != null && dist > 0)
-            {
-                path.add(new PathPoint(facing, dist));
-                pos.setPos(pos1);
-                set.add(pos1);
-            }
-        }
+			if (facing != null && dist > 0)
+			{
+				path.add(new PathPoint(facing, dist));
+				pos.setPos(pos1);
+				set.add(pos1);
+			}
+		}
 
-        pos.setPos(start);
-    }
+		pos.setPos(start);
+	}
 
-    @Override
-    public void update()
-    {
-        updatePrevData();
-        if(!updatePosition())
-        {
-            return;
-        }
+	@Override
+	public void update()
+	{
+		updatePrevData();
+		if (!updatePosition())
+		{
+			return;
+		}
 
-        if(path.isEmpty())
-        {
-            action = Action.DROP;
-            return;
-        }
+		if (path.isEmpty())
+		{
+			action = Action.DROP;
+			return;
+		}
 
-        BlockPos pos = new BlockPos(posX, posY, posZ);
+		BlockPos pos = new BlockPos(posX, posY, posZ);
 
-        IBlockState state = network.world.getBlockState(pos);
+		IBlockState state = network.world.getBlockState(pos);
 
-        if(state.getBlock().isAir(state, network.world, pos))
-        {
-            action = Action.DROP;
-        }
-        /*
-        else if(state.getBlock() instanceof IPipeBlock)
+		if (state.getBlock().isAir(state, network.world, pos))
+		{
+			action = Action.DROP;
+		}
+		/*
+		else if(state.getBlock() instanceof IPipeBlock)
         {
             IPipeBlock pipe = (IPipeBlock) state.getBlock();
             s *= pipe.getItemSpeedModifier(network.world, pos, state, this);
@@ -281,151 +281,151 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
         }
         */
 
-        progress += speedModifier * ModularPipesConfig.ITEM_BASE_SPEED.getAsDouble();
-    }
+		progress += speedModifier * ModularPipesConfig.ITEM_BASE_SPEED.getAsDouble();
+	}
 
-    public void updatePrevData()
-    {
-        prevX = posX;
-        prevY = posY;
-        prevZ = posZ;
-    }
+	public void updatePrevData()
+	{
+		prevX = posX;
+		prevY = posY;
+		prevZ = posZ;
+	}
 
-    public boolean updatePosition()
-    {
-        if(remove())
-        {
-            return false;
-        }
+	public boolean updatePosition()
+	{
+		if (remove())
+		{
+			return false;
+		}
 
-        PathPoint p = path.get(0);
-        double pr = Math.min(progress, p.length);
-        posX = pos.getX() + p.facing.getFrontOffsetX() * pr + 0.5D;
-        posY = pos.getY() + p.facing.getFrontOffsetY() * pr + 0.5D;
-        posZ = pos.getZ() + p.facing.getFrontOffsetZ() * pr + 0.5D;
+		PathPoint p = path.get(0);
+		double pr = Math.min(progress, p.length);
+		posX = pos.getX() + p.facing.getFrontOffsetX() * pr + 0.5D;
+		posY = pos.getY() + p.facing.getFrontOffsetY() * pr + 0.5D;
+		posZ = pos.getZ() + p.facing.getFrontOffsetZ() * pr + 0.5D;
 
-        if(progress > p.length)
-        {
-            progress -= p.length;
-            pos.move(p.facing, p.length);
-            path.remove(0);
-        }
+		if (progress > p.length)
+		{
+			progress -= p.length;
+			pos.move(p.facing, p.length);
+			path.remove(0);
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    public void copyFrom(TransportedItem item)
-    {
-        action = item.action;
+	public void copyFrom(TransportedItem item)
+	{
+		action = item.action;
 
-        if(action.remove())
-        {
-            return;
-        }
+		if (action.remove())
+		{
+			return;
+		}
 
-        start = new BlockPos(item.start);
-        pos = new BlockPos.MutableBlockPos(item.pos);
-        path = new ArrayList<>(item.path);
-        stack = item.stack.copy();
-        filters = item.filters;
-        progress = item.progress;
-        speedModifier = item.speedModifier;
+		start = new BlockPos(item.start);
+		pos = new BlockPos.MutableBlockPos(item.pos);
+		path = new ArrayList<>(item.path);
+		stack = item.stack.copy();
+		filters = item.filters;
+		progress = item.progress;
+		speedModifier = item.speedModifier;
 
-        updatePosition();
-        updatePrevData();
-    }
+		updatePosition();
+		updatePrevData();
+	}
 
-    public void postUpdate()
-    {
-        action = Action.NONE;
-    }
+	public void postUpdate()
+	{
+		action = Action.NONE;
+	}
 
-    public boolean remove()
-    {
-        return path.isEmpty() || start == null || pos == null || action.remove() || stack.isEmpty();
-    }
+	public boolean remove()
+	{
+		return path.isEmpty() || start == null || pos == null || action.remove() || stack.isEmpty();
+	}
 
-    public void setRemoved()
-    {
-        action = Action.REMOVE;
-    }
+	public void setRemoved()
+	{
+		action = Action.REMOVE;
+	}
 
-    public boolean generatePath(ModuleContainer container)
-    {
-        Node node = network.getNode(container.tile.getPos());
-        if(node == null || node.linkedWith.isEmpty())
-        {
-            return false;
-        }
+	public boolean generatePath(ModuleContainer container)
+	{
+		Node node = network.getNode(container.tile.getPos());
+		if (node == null || node.linkedWith.isEmpty())
+		{
+			return false;
+		}
 
-        HashSet<Node> nodes = new HashSet<>();
-        nodes.add(node);
-        List<BlockPos> list = new ArrayList<>();
-        list.add(node.offset(container.facing));
+		HashSet<Node> nodes = new HashSet<>();
+		nodes.add(node);
+		List<BlockPos> list = new ArrayList<>();
+		list.add(node.offset(container.facing));
 
-        Link link;
+		Link link;
 
-        while(true)
-        {
-            List<Link> links = new ArrayList<>(node.linkedWith);
+		while (true)
+		{
+			List<Link> links = new ArrayList<>(node.linkedWith);
 
-            do
-            {
-                link = links.get(MathUtils.RAND.nextInt(node.linkedWith.size()));
+			do
+			{
+				link = links.get(MathUtils.RAND.nextInt(node.linkedWith.size()));
 
-                if(link != null && !link.invalid())
-                {
-                    Node end;
-                    boolean b;
+				if (link != null && !link.invalid())
+				{
+					Node end;
+					boolean b;
 
-                    if(link.start.equals(node))
-                    {
-                        end = link.end;
-                        b = true;
-                    }
-                    else
-                    {
-                        end = link.start;
-                        b = false;
-                    }
+					if (link.start.equals(node))
+					{
+						end = link.end;
+						b = true;
+					}
+					else
+					{
+						end = link.start;
+						b = false;
+					}
 
-                    if(!nodes.contains(end))
-                    {
-                        nodes.add(end);
+					if (!nodes.contains(end))
+					{
+						nodes.add(end);
 
-                        if(b)
-                        {
-                            list.addAll(link.path);
-                            node = link.end;
-                        }
-                        else
-                        {
-                            for(int i = link.path.size() - 1; i >= 0; i--)
-                            {
-                                list.add(link.path.get(i));
-                            }
+						if (b)
+						{
+							list.addAll(link.path);
+							node = link.end;
+						}
+						else
+						{
+							for (int i = link.path.size() - 1; i >= 0; i--)
+							{
+								list.add(link.path.get(i));
+							}
 
-                            node = link.start;
-                        }
+							node = link.start;
+						}
 
-                        break;
-                    }
-                }
-            }
-            while(true);
+						break;
+					}
+				}
+			}
+			while (true);
 
-            if(node == null || node.linkedWith.isEmpty())
-            {
-                break;
-            }
-        }
+			if (node == null || node.linkedWith.isEmpty())
+			{
+				break;
+			}
+		}
 
-        if(list.size() >= 2)
-        {
-            setPath(list);
-            return true;
-        }
+		if (list.size() >= 2)
+		{
+			setPath(list);
+			return true;
+		}
 
-        return false;
-    }
+		return false;
+	}
 }

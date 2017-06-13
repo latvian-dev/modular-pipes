@@ -5,19 +5,19 @@ package com.latmod.modularpipes.data;
  */
 public enum NodeType
 {
-    NONE,
-    SIMPLE,
-    TILES;
+	NONE,
+	SIMPLE,
+	TILES;
 
-    public static final NodeType[] VALUES = values();
+	public static final NodeType[] VALUES = values();
 
-    public boolean isNode()
-    {
-        return this != NONE;
-    }
+	public boolean isNode()
+	{
+		return this != NONE;
+	}
 
-    public boolean hasTiles()
-    {
-        return this == TILES;
-    }
+	public boolean hasTiles()
+	{
+		return this == TILES;
+	}
 }

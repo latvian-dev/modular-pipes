@@ -6,6 +6,7 @@ import com.latmod.modularpipes.data.Node;
 import com.latmod.modularpipes.data.PipeNetwork;
 import com.latmod.modularpipes.data.TransportedItem;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
@@ -18,6 +19,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -25,76 +27,81 @@ import java.util.List;
  */
 public class ItemDebug extends ItemMPBase
 {
-    public ItemDebug(String id)
-    {
-        super(id);
-    }
+	public ItemDebug(String id)
+	{
+		super(id);
+	}
 
-    @Override
-    public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
-    {
-        IBlockState state = worldIn.getBlockState(pos);
+	@Override
+	public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+	{
+		IBlockState state = worldIn.getBlockState(pos);
 
-        if(state.getBlock() instanceof IPipeBlock)
-        {
-            if(worldIn.isRemote)
-            {
-                return EnumActionResult.SUCCESS;
-            }
+		if (state.getBlock() instanceof IPipeBlock)
+		{
+			if (worldIn.isRemote)
+			{
+				return EnumActionResult.SUCCESS;
+			}
 
-            PipeNetwork network = PipeNetwork.get(worldIn);
+			PipeNetwork network = PipeNetwork.get(worldIn);
 
-            Node node = network.getNode(pos);
-            if(node != null)
-            {
-                player.sendMessage(new TextComponentString("- Debug data @ " + node + ":"));
-                player.sendMessage(new TextComponentString("Node with " + node.linkedWith.size() + " links"));
-            }
-            else
-            {
-                player.sendMessage(new TextComponentString("- Debug data @ [" + pos.getX() + ',' + pos.getY() + ',' + pos.getZ() + "]:"));
-            }
+			Node node = network.getNode(pos);
+			if (node != null)
+			{
+				player.sendMessage(new TextComponentString("- Debug data @ " + node + ":"));
+				player.sendMessage(new TextComponentString("Node with " + node.linkedWith.size() + " links"));
+			}
+			else
+			{
+				player.sendMessage(new TextComponentString("- Debug data @ [" + pos.getX() + ',' + pos.getY() + ',' + pos.getZ() + "]:"));
+			}
 
-            for(Link link : network.getLinks())
-            {
-                if(link.contains(pos, node != null))
-                {
-                    player.sendMessage(new TextComponentString("Link " + link));
-                }
-            }
+			for (Link link : network.getLinks())
+			{
+				if (link.contains(pos, node != null))
+				{
+					player.sendMessage(new TextComponentString("Link " + link));
+				}
+			}
 
-            return EnumActionResult.SUCCESS;
-        }
+			return EnumActionResult.SUCCESS;
+		}
 
-        return EnumActionResult.PASS;
-    }
+		return EnumActionResult.PASS;
+	}
 
-    @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn)
-    {
-        ItemStack stack = playerIn.getHeldItem(handIn);
+	@Override
+	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn)
+	{
+		ItemStack stack = playerIn.getHeldItem(handIn);
 
-        if(worldIn.isRemote)
-        {
-            return new ActionResult<>(EnumActionResult.SUCCESS, stack);
-        }
+		if (worldIn.isRemote)
+		{
+			return new ActionResult<>(EnumActionResult.SUCCESS, stack);
+		}
 
-        PipeNetwork network = PipeNetwork.get(worldIn);
-        if(playerIn.isSneaking())
-        {
-            network.getNodes().forEach(Node::clearCache);
-            network.items.values().forEach(TransportedItem::setRemoved);
-            network.server().networkUpdated = true;
-        }
+		PipeNetwork network = PipeNetwork.get(worldIn);
+		if (playerIn.isSneaking())
+		{
+			network.getNodes().forEach(Node::clearCache);
+			network.items.values().forEach(TransportedItem::setRemoved);
+			network.server().networkUpdated = true;
+		}
 
-        return new ActionResult<>(EnumActionResult.SUCCESS, stack);
-    }
+		return new ActionResult<>(EnumActionResult.SUCCESS, stack);
+	}
 
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced)
-    {
-        tooltip.add("Network " + playerIn.world.provider.getDimension() + ":");
-        tooltip.add("Total Items: " + PipeNetwork.get(playerIn.world).items.size());
-    }
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flag)
+	{
+		if (worldIn == null)
+		{
+			return;
+		}
+
+		tooltip.add("Network " + worldIn.provider.getDimension() + ":");
+		tooltip.add("Total Items: " + PipeNetwork.get(worldIn).items.size());
+	}
 }

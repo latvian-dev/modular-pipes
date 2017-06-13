@@ -21,134 +21,134 @@ import java.util.function.Consumer;
  */
 public abstract class PipeNetwork implements ITickable
 {
-    public static PipeNetwork get(World world)
-    {
-        if(world.isRemote)
-        {
-            return ModularPipes.PROXY.getClientNetwork(world);
-        }
+	public static PipeNetwork get(World world)
+	{
+		if (world.isRemote)
+		{
+			return ModularPipes.PROXY.getClientNetwork(world);
+		}
 
-        int dim = world.provider.getDimension();
-        PipeNetwork net = ServerPipeNetwork.NETWORK_MAP.get(dim);
+		int dim = world.provider.getDimension();
+		PipeNetwork net = ServerPipeNetwork.NETWORK_MAP.get(dim);
 
-        if(net == null)
-        {
-            net = new ServerPipeNetwork(world);
-            ServerPipeNetwork.NETWORK_MAP.put(dim, net);
-        }
+		if (net == null)
+		{
+			net = new ServerPipeNetwork(world);
+			ServerPipeNetwork.NETWORK_MAP.put(dim, net);
+		}
 
-        return net;
-    }
+		return net;
+	}
 
-    // End of static //
+	// End of static //
 
-    public final World world;
-    public final Map<Integer, TransportedItem> items = new HashMap<>();
-    private boolean itemsRemoved = false;
-    public boolean networkUpdated;
+	public final World world;
+	public final Map<Integer, TransportedItem> items = new HashMap<>();
+	private boolean itemsRemoved = false;
+	public boolean networkUpdated;
 
-    private final Consumer<TransportedItem> foreachUpdate = item ->
-    {
-        item.update();
+	private final Consumer<TransportedItem> foreachUpdate = item ->
+	{
+		item.update();
 
-        if(item.remove())
-        {
-            itemsRemoved = true;
-        }
+		if (item.remove())
+		{
+			itemsRemoved = true;
+		}
 
-        if(item.action.update())
-        {
-            itemUpdated(item.id, item);
-        }
-    };
+		if (item.action.update())
+		{
+			itemUpdated(item.id, item);
+		}
+	};
 
-    public PipeNetwork(World w)
-    {
-        world = w;
-    }
+	public PipeNetwork(World w)
+	{
+		world = w;
+	}
 
-    public ServerPipeNetwork server()
-    {
-        throw new IllegalStateException();
-    }
+	public ServerPipeNetwork server()
+	{
+		throw new IllegalStateException();
+	}
 
-    public void clear()
-    {
-        items.clear();
-    }
+	public void clear()
+	{
+		items.clear();
+	}
 
-    @Nullable
-    public Node getNode(BlockPos pos)
-    {
-        return null;
-    }
+	@Nullable
+	public Node getNode(BlockPos pos)
+	{
+		return null;
+	}
 
-    public Collection<Node> getNodes()
-    {
-        return Collections.emptyList();
-    }
+	public Collection<Node> getNodes()
+	{
+		return Collections.emptyList();
+	}
 
-    public Collection<Link> getLinks()
-    {
-        return Collections.emptyList();
-    }
+	public Collection<Link> getLinks()
+	{
+		return Collections.emptyList();
+	}
 
-    public boolean removePipe(BlockPos pos, boolean simulate)
-    {
-        return false;
-    }
+	public boolean removePipe(BlockPos pos, boolean simulate)
+	{
+		return false;
+	}
 
-    public void addPipe(BlockPos pos, IBlockState state)
-    {
-    }
+	public void addPipe(BlockPos pos, IBlockState state)
+	{
+	}
 
-    public void addItem(TransportedItem item)
-    {
-        item.action = TransportedItem.Action.UPDATE;
-        items.put(item.id, item);
-    }
+	public void addItem(TransportedItem item)
+	{
+		item.action = TransportedItem.Action.UPDATE;
+		items.put(item.id, item);
+	}
 
-    @Override
-    public void update()
-    {
-        if(items.isEmpty())
-        {
-            return;
-        }
+	@Override
+	public void update()
+	{
+		if (items.isEmpty())
+		{
+			return;
+		}
 
-        itemsRemoved = false;
-        items.values().forEach(foreachUpdate);
+		itemsRemoved = false;
+		items.values().forEach(foreachUpdate);
 
-        if(itemsRemoved)
-        {
-            Iterator<TransportedItem> iterator = items.values().iterator();
-            while(iterator.hasNext())
-            {
-                TransportedItem item = iterator.next();
+		if (itemsRemoved)
+		{
+			Iterator<TransportedItem> iterator = items.values().iterator();
+			while (iterator.hasNext())
+			{
+				TransportedItem item = iterator.next();
 
-                if(item.remove())
-                {
-                    if(!world.isRemote && item.action == TransportedItem.Action.DROP)
-                    {
-                        InvUtils.dropItem(world, item.pos, item.stack, 12);
-                    }
+				if (item.remove())
+				{
+					if (!world.isRemote && item.action == TransportedItem.Action.DROP)
+					{
+						InvUtils.dropItem(world, item.pos, item.stack, 12);
+					}
 
-                    iterator.remove();
-                }
-            }
-        }
+					iterator.remove();
+				}
+			}
+		}
 
-        for(TransportedItem item : items.values())
-        {
-            item.postUpdate();
-        }
-    }
+		for (TransportedItem item : items.values())
+		{
+			item.postUpdate();
+		}
+	}
 
-    public void itemUpdated(int id, TransportedItem item)
-    {
-    }
+	public void itemUpdated(int id, TransportedItem item)
+	{
+	}
 
-    public void visualizeNetwork(Map<BlockPos, NodeType> nodes, Collection<List<BlockPos>> links, Collection<BlockPos> tiles)
-    {
-    }
+	public void visualizeNetwork(Map<BlockPos, NodeType> nodes, Collection<List<BlockPos>> links, Collection<BlockPos> tiles)
+	{
+	}
 }

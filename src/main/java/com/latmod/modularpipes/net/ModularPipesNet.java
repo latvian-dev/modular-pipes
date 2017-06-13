@@ -8,11 +8,11 @@ import com.latmod.modularpipes.ModularPipes;
  */
 public class ModularPipesNet
 {
-    static final NetworkWrapper NET = NetworkWrapper.newWrapper(ModularPipes.MOD_ID);
+	static final NetworkWrapper NET = NetworkWrapper.newWrapper(ModularPipes.MOD_ID);
 
-    public static void init()
-    {
-        NET.register(0, new MessageUpdateItems());
-        NET.register(1, new MessageVisualizeNetwork());
-    }
+	public static void init()
+	{
+		NET.register(0, new MessageUpdateItems());
+		NET.register(1, new MessageVisualizeNetwork());
+	}
 }

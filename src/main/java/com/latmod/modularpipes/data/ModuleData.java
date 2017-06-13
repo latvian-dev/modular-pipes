@@ -8,8 +8,8 @@ import net.minecraftforge.common.util.INBTSerializable;
  */
 public interface ModuleData extends INBTSerializable<NBTTagCompound>
 {
-    default boolean shouldSave()
-    {
-        return true;
-    }
+	default boolean shouldSave()
+	{
+		return true;
+	}
 }

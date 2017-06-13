@@ -9,10 +9,10 @@ import net.minecraft.item.Item;
  */
 public class ItemMPBase extends Item
 {
-    public ItemMPBase(String id)
-    {
-        setRegistryName(ModularPipes.MOD_ID + ':' + id);
-        setUnlocalizedName(ModularPipes.MOD_ID + '.' + id);
-        setCreativeTab(ModularPipesCommon.TAB);
-    }
+	public ItemMPBase(String id)
+	{
+		setRegistryName(ModularPipes.MOD_ID + ':' + id);
+		setUnlocalizedName(ModularPipes.MOD_ID + '.' + id);
+		setCreativeTab(ModularPipesCommon.TAB);
+	}
 }

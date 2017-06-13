@@ -13,45 +13,45 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
  */
 public class ModularPipesEventHandler
 {
-    @SubscribeEvent
-    public static void onTickEvent(TickEvent.WorldTickEvent event)
-    {
-        if(event.phase == TickEvent.Phase.END && !event.world.isRemote)
-        {
-            PipeNetwork.get(event.world).update();
-        }
-    }
+	@SubscribeEvent
+	public static void onTickEvent(TickEvent.WorldTickEvent event)
+	{
+		if (event.phase == TickEvent.Phase.END && !event.world.isRemote)
+		{
+			PipeNetwork.get(event.world).update();
+		}
+	}
 
-    @SubscribeEvent
-    public static void onWorldLoaded(WorldEvent.Load event)
-    {
-        if(event.getWorld() instanceof WorldServer)
-        {
-            PipeNetwork.get(event.getWorld()).server().load();
-        }
-    }
+	@SubscribeEvent
+	public static void onWorldLoaded(WorldEvent.Load event)
+	{
+		if (event.getWorld() instanceof WorldServer)
+		{
+			PipeNetwork.get(event.getWorld()).server().load();
+		}
+	}
 
-    @SubscribeEvent
-    public static void onWorldUnloaded(WorldEvent.Unload event)
-    {
-        if(event.getWorld() instanceof WorldServer)
-        {
-            PipeNetwork.get(event.getWorld()).server().unload();
-        }
-    }
+	@SubscribeEvent
+	public static void onWorldUnloaded(WorldEvent.Unload event)
+	{
+		if (event.getWorld() instanceof WorldServer)
+		{
+			PipeNetwork.get(event.getWorld()).server().unload();
+		}
+	}
 
-    @SubscribeEvent
-    public static void onWorldSaved(WorldEvent.Save event)
-    {
-        PipeNetwork.get(event.getWorld()).server().save();
-    }
+	@SubscribeEvent
+	public static void onWorldSaved(WorldEvent.Save event)
+	{
+		PipeNetwork.get(event.getWorld()).server().save();
+	}
 
-    @SubscribeEvent
-    public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event)
-    {
-        if(event.player instanceof EntityPlayerMP)
-        {
-            PipeNetwork.get(event.player.world).server().playerLoggedIn(event.player);
-        }
-    }
+	@SubscribeEvent
+	public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event)
+	{
+		if (event.player instanceof EntityPlayerMP)
+		{
+			PipeNetwork.get(event.player.world).server().playerLoggedIn(event.player);
+		}
+	}
 }

@@ -20,58 +20,58 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
  */
 public class ModularPipesClient extends ModularPipesCommon
 {
-    @Override
-    public void onPreInit()
-    {
-        super.onPreInit();
+	@Override
+	public void onPreInit()
+	{
+		super.onPreInit();
 
-        ModelLoader.setCustomStateMapper(ModularPipesItems.PIPE_MODULAR, new StateMap.Builder().ignore(BlockModularPipe.TIER).build());
+		ModelLoader.setCustomStateMapper(ModularPipesItems.PIPE_MODULAR, new StateMap.Builder().ignore(BlockModularPipe.TIER).build());
 
-        registerModel(ModularPipesItems.PIPE_BASIC, 0, ModularPipes.MOD_ID + ":pipe_item#variant=basic");
+		registerModel(ModularPipesItems.PIPE_BASIC, 0, ModularPipes.MOD_ID + ":pipe_item#variant=basic");
 
-        for(int m = 0; m < 8; m++)
-        {
-            registerModel(ModularPipesItems.PIPE_MODULAR, m, ModularPipes.MOD_ID + ":pipe_item#variant=tier_" + (m & 7));
-        }
+		for (int m = 0; m < 8; m++)
+		{
+			registerModel(ModularPipesItems.PIPE_MODULAR, m, ModularPipes.MOD_ID + ":pipe_item#variant=tier_" + (m & 7));
+		}
 
-        registerModel(ModularPipesItems.PIPE_NODE, 0, ModularPipesItems.PIPE_BASIC.getRegistryName() + "#model=none");
+		registerModel(ModularPipesItems.PIPE_NODE, 0, ModularPipesItems.PIPE_BASIC.getRegistryName() + "#model=none");
 
-        registerModel(ModularPipesItems.MODULE, 0, "inventory");
-        registerModel(ModularPipesItems.DEBUG, 0, "inventory");
+		registerModel(ModularPipesItems.MODULE, 0, "inventory");
+		registerModel(ModularPipesItems.DEBUG, 0, "inventory");
 
-        for(Item m : ModularPipesItems.Modules.LIST)
-        {
-            registerModel(m, 0, m.getRegistryName().toString().replace("module_", "module/") + "#inventory");
-        }
+		for (Item m : ModularPipesItems.Modules.LIST)
+		{
+			registerModel(m, 0, m.getRegistryName().toString().replace("module_", "module/") + "#inventory");
+		}
 
-        ClientRegistry.bindTileEntitySpecialRenderer(TileModularPipe.class, new RenderModularPipe());
-    }
+		ClientRegistry.bindTileEntitySpecialRenderer(TileModularPipe.class, new RenderModularPipe());
+	}
 
-    private void registerModel(Block block, int meta, String variant)
-    {
-        registerModel(Item.getItemFromBlock(block), meta, variant);
-    }
+	private void registerModel(Block block, int meta, String variant)
+	{
+		registerModel(Item.getItemFromBlock(block), meta, variant);
+	}
 
-    private void registerModel(Item item, int meta, String variant)
-    {
-        ModelLoader.setCustomModelResourceLocation(item, meta, variant.indexOf('#') != -1 ? new ModelResourceLocation(variant) : new ModelResourceLocation(item.getRegistryName(), variant));
-    }
+	private void registerModel(Item item, int meta, String variant)
+	{
+		ModelLoader.setCustomModelResourceLocation(item, meta, variant.indexOf('#') != -1 ? new ModelResourceLocation(variant) : new ModelResourceLocation(item.getRegistryName(), variant));
+	}
 
-    @Override
-    public void onInit()
-    {
-        super.onInit();
+	@Override
+	public void onInit()
+	{
+		super.onInit();
 
-        MinecraftForge.EVENT_BUS.register(ModularPipesClientEventHandler.class);
-    }
+		MinecraftForge.EVENT_BUS.register(ModularPipesClientEventHandler.class);
+	}
 
-    @Override
-    public PipeNetwork getClientNetwork(World world)
-    {
-        if(ClientPipeNetwork.INSTANCE == null || world != ClientPipeNetwork.INSTANCE.world)
-        {
-            ClientPipeNetwork.INSTANCE = new ClientPipeNetwork(world);
-        }
-        return ClientPipeNetwork.INSTANCE;
-    }
+	@Override
+	public PipeNetwork getClientNetwork(World world)
+	{
+		if (ClientPipeNetwork.INSTANCE == null || world != ClientPipeNetwork.INSTANCE.world)
+		{
+			ClientPipeNetwork.INSTANCE = new ClientPipeNetwork(world);
+		}
+		return ClientPipeNetwork.INSTANCE;
+	}
 }

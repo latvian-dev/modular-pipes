@@ -13,52 +13,52 @@ import net.minecraftforge.items.IItemHandler;
  */
 public class ModuleExtract extends Module
 {
-    @Override
-    public void update(ModuleContainer container)
-    {
-        if(!container.isRemote() && container.getTick() % 20 == 19)
-        {
-            extractItem(container);
-        }
-    }
+	@Override
+	public void update(ModuleContainer container)
+	{
+		if (!container.isRemote() && container.getTick() % 20 == 19)
+		{
+			extractItem(container);
+		}
+	}
 
-    public void extractItem(ModuleContainer container)
-    {
-        TileEntity tile = container.getFacingTile();
+	public void extractItem(ModuleContainer container)
+	{
+		TileEntity tile = container.getFacingTile();
 
-        if(tile != null && tile.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, container.facing.getOpposite()))
-        {
-            IItemHandler handler = tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, container.facing.getOpposite());
+		if (tile != null && tile.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, container.facing.getOpposite()))
+		{
+			IItemHandler handler = tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, container.facing.getOpposite());
 
-            if(handler != null)
-            {
-                int slot = -1;
-                ItemStack stack = ItemStack.EMPTY;
+			if (handler != null)
+			{
+				int slot = -1;
+				ItemStack stack = ItemStack.EMPTY;
 
-                for(int i = 0; i < handler.getSlots(); i++)
-                {
-                    stack = handler.extractItem(i, 1, true);
+				for (int i = 0; i < handler.getSlots(); i++)
+				{
+					stack = handler.extractItem(i, 1, true);
 
-                    if(!stack.isEmpty())
-                    {
-                        slot = i;
-                        break;
-                    }
-                }
+					if (!stack.isEmpty())
+					{
+						slot = i;
+						break;
+					}
+				}
 
-                if(slot != -1)
-                {
-                    TransportedItem item = new TransportedItem(container.getNetwork());
-                    item.stack = stack;
-                    item.filters = container.getFilterConfig().get();
+				if (slot != -1)
+				{
+					TransportedItem item = new TransportedItem(container.getNetwork());
+					item.stack = stack;
+					item.filters = container.getFilterConfig().get();
 
-                    if(item.generatePath(container))
-                    {
-                        handler.extractItem(slot, 1, false);
-                        item.addToNetwork();
-                    }
-                }
-            }
-        }
-    }
+					if (item.generatePath(container))
+					{
+						handler.extractItem(slot, 1, false);
+						item.addToNetwork();
+					}
+				}
+			}
+		}
+	}
 }

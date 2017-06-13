@@ -19,26 +19,26 @@ import java.util.List;
  */
 public class ModularPipesItems
 {
-    public static final Block PIPE_BASIC = new BlockPipeBasic("pipe_basic", MapColor.GRAY);
-    public static final Block PIPE_MODULAR = new BlockModularPipe("pipe_modular");
-    public static final Block PIPE_NODE = new BlockPipeBasicNode("pipe_node");
+	public static final Block PIPE_BASIC = new BlockPipeBasic("pipe_basic", MapColor.GRAY);
+	public static final Block PIPE_MODULAR = new BlockModularPipe("pipe_modular");
+	public static final Block PIPE_NODE = new BlockPipeBasicNode("pipe_node");
 
-    public static final Item MODULE = new ItemMPBase("module");
-    public static final Item DEBUG = new ItemDebug("debug");
+	public static final Item MODULE = new ItemMPBase("module");
+	public static final Item DEBUG = new ItemDebug("debug");
 
-    public static class Modules
-    {
-        public static final List<Item> LIST = new ArrayList<>();
+	public static class Modules
+	{
+		public static final List<Item> LIST = new ArrayList<>();
 
-        public static final ItemModule EXTRACT = add("extract", new ModuleExtract());
-        public static final ItemModule RIGHTCLICK_EXTRACT = add("rightclick_extract", new ModuleRightClickExtract());
-        public static final ItemModule CRAFTING = add("crafting", new ModuleCrafting());
+		public static final ItemModule EXTRACT = add("extract", new ModuleExtract());
+		public static final ItemModule RIGHTCLICK_EXTRACT = add("rightclick_extract", new ModuleRightClickExtract());
+		public static final ItemModule CRAFTING = add("crafting", new ModuleCrafting());
 
-        private static ItemModule add(String id, Module module)
-        {
-            ItemModule m = new ItemModule(id, module);
-            LIST.add(m);
-            return m;
-        }
-    }
+		private static ItemModule add(String id, Module module)
+		{
+			ItemModule m = new ItemModule(id, module);
+			LIST.add(m);
+			return m;
+		}
+	}
 }

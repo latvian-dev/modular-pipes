@@ -11,36 +11,36 @@ import net.minecraft.world.World;
  */
 public interface IPipeBlock
 {
-    default NodeType getNodeType(IBlockAccess world, BlockPos pos, IBlockState state)
-    {
-        return NodeType.NONE;
-    }
+	default NodeType getNodeType(IBlockAccess world, BlockPos pos, IBlockState state)
+	{
+		return NodeType.NONE;
+	}
 
-    default double getItemSpeedModifier(IBlockAccess world, BlockPos pos, IBlockState state, TransportedItem item)
-    {
-        return 1D;
-    }
+	default double getItemSpeedModifier(IBlockAccess world, BlockPos pos, IBlockState state, TransportedItem item)
+	{
+		return 1D;
+	}
 
-    default boolean canPipeConnect(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing facing)
-    {
-        return true;
-    }
+	default boolean canPipeConnect(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing facing)
+	{
+		return true;
+	}
 
-    default EnumFacing getPipeFacing(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing source)
-    {
-        return source;
-    }
+	default EnumFacing getPipeFacing(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing source)
+	{
+		return source;
+	}
 
-    default EnumFacing getItemDirection(IBlockAccess world, BlockPos pos, IBlockState state, TransportedItem item, EnumFacing source)
-    {
-        return getPipeFacing(world, pos, state, source);
-    }
+	default EnumFacing getItemDirection(IBlockAccess world, BlockPos pos, IBlockState state, TransportedItem item, EnumFacing source)
+	{
+		return getPipeFacing(world, pos, state, source);
+	}
 
-    default void onItemEntered(World world, BlockPos pos, IBlockState state, TransportedItem item, EnumFacing facing)
-    {
-    }
+	default void onItemEntered(World world, BlockPos pos, IBlockState state, TransportedItem item, EnumFacing facing)
+	{
+	}
 
-    default void onItemExited(World world, BlockPos pos, IBlockState state, TransportedItem item, EnumFacing facing)
-    {
-    }
+	default void onItemExited(World world, BlockPos pos, IBlockState state, TransportedItem item, EnumFacing facing)
+	{
+	}
 }

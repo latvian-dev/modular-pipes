@@ -9,15 +9,15 @@ import net.minecraft.util.EnumHand;
  */
 public class ModuleRightClickExtract extends ModuleExtract
 {
-    @Override
-    public void update(ModuleContainer container)
-    {
-    }
+	@Override
+	public void update(ModuleContainer container)
+	{
+	}
 
-    @Override
-    public boolean onRightClick(ModuleContainer container, EntityPlayer player, EnumHand hand)
-    {
-        extractItem(container);
-        return true;
-    }
+	@Override
+	public boolean onRightClick(ModuleContainer container, EntityPlayer player, EnumHand hand)
+	{
+		extractItem(container);
+		return true;
+	}
 }

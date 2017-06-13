@@ -16,72 +16,72 @@ import java.util.Map;
  */
 public class MessageUpdateItems extends MessageToClient<MessageUpdateItems>
 {
-    private Map<Integer, TransportedItem> updated;
+	private Map<Integer, TransportedItem> updated;
 
-    public MessageUpdateItems()
-    {
-    }
+	public MessageUpdateItems()
+	{
+	}
 
-    public MessageUpdateItems(Map<Integer, TransportedItem> u)
-    {
-        updated = u;
-    }
+	public MessageUpdateItems(Map<Integer, TransportedItem> u)
+	{
+		updated = u;
+	}
 
-    @Override
-    public NetworkWrapper getWrapper()
-    {
-        return ModularPipesNet.NET;
-    }
+	@Override
+	public NetworkWrapper getWrapper()
+	{
+		return ModularPipesNet.NET;
+	}
 
-    @Override
-    public void fromBytes(ByteBuf buf)
-    {
-        int s = buf.readInt();
-        updated = new HashMap<>(s);
-        while(--s >= 0)
-        {
-            TransportedItem item = new TransportedItem(null);
-            item.readFromByteBuf(buf);
-            updated.put(item.id, item);
-        }
-    }
+	@Override
+	public void fromBytes(ByteBuf buf)
+	{
+		int s = buf.readInt();
+		updated = new HashMap<>(s);
+		while (--s >= 0)
+		{
+			TransportedItem item = new TransportedItem(null);
+			item.readFromByteBuf(buf);
+			updated.put(item.id, item);
+		}
+	}
 
-    @Override
-    public void toBytes(ByteBuf buf)
-    {
-        buf.writeInt(updated.size());
-        for(TransportedItem item : updated.values())
-        {
-            item.writeToByteBuf(buf);
-        }
-    }
+	@Override
+	public void toBytes(ByteBuf buf)
+	{
+		buf.writeInt(updated.size());
+		for (TransportedItem item : updated.values())
+		{
+			item.writeToByteBuf(buf);
+		}
+	}
 
-    @Override
-    public void onMessage(MessageUpdateItems message, EntityPlayer player)
-    {
-        PipeNetwork n = PipeNetwork.get(player.world);
+	@Override
+	public void onMessage(MessageUpdateItems message, EntityPlayer player)
+	{
+		PipeNetwork n = PipeNetwork.get(player.world);
 
-        for(Map.Entry<Integer, TransportedItem> entry : message.updated.entrySet())
-        {
-            int id = entry.getKey();
-            TransportedItem item = entry.getValue();
+		for (Map.Entry<Integer, TransportedItem> entry : message.updated.entrySet())
+		{
+			int id = entry.getKey();
+			TransportedItem item = entry.getValue();
 
-            if(item == null || item.remove())
-            {
-                n.items.remove(id);
-            }
-            else
-            {
-                TransportedItem citem = n.items.get(id);
+			if (item == null || item.remove())
+			{
+				n.items.remove(id);
+			}
+			else
+			{
+				TransportedItem citem = n.items.get(id);
 
-                if(citem == null)
-                {
-                    citem = new ClientTransportedItem(n, id);
-                    n.items.put(id, citem);
-                }
+				if (citem == null)
+				{
+					citem = new ClientTransportedItem(n, id);
+					n.items.put(id, citem);
+				}
 
-                citem.copyFrom(item);
-            }
-        }
-    }
+				citem.copyFrom(item);
+			}
+		}
+	}
 }

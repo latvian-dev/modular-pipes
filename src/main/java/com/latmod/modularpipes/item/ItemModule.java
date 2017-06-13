@@ -3,6 +3,7 @@ package com.latmod.modularpipes.item;
 import com.latmod.modularpipes.ModularPipesCaps;
 import com.latmod.modularpipes.data.Module;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -26,71 +27,71 @@ import java.util.List;
  */
 public class ItemModule extends ItemMPBase
 {
-    private static class ModuleCapabilityProvider implements ICapabilityProvider
-    {
-        private final Module module;
+	private static class ModuleCapabilityProvider implements ICapabilityProvider
+	{
+		private final Module module;
 
-        public ModuleCapabilityProvider(Module m)
-        {
-            module = m;
-        }
+		public ModuleCapabilityProvider(Module m)
+		{
+			module = m;
+		}
 
-        @Override
-        public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing)
-        {
-            return capability == ModularPipesCaps.MODULE;
-        }
+		@Override
+		public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing)
+		{
+			return capability == ModularPipesCaps.MODULE;
+		}
 
-        @Nullable
-        @Override
-        public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing)
-        {
-            return capability == ModularPipesCaps.MODULE ? (T) module : null;
-        }
-    }
+		@Nullable
+		@Override
+		public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing)
+		{
+			return capability == ModularPipesCaps.MODULE ? (T) module : null;
+		}
+	}
 
-    private final ModuleCapabilityProvider capabilityProvider;
-    private String moduleName;
+	private final ModuleCapabilityProvider capabilityProvider;
+	private String moduleName;
 
-    public ItemModule(String id, Module m)
-    {
-        super("module_" + id);
-        capabilityProvider = new ModuleCapabilityProvider(m);
-        setUnlocalizedName("modularpipes.module");
-        moduleName = "item." + getRegistryName().getResourceDomain() + ".module." + id + ".name";
-    }
+	public ItemModule(String id, Module m)
+	{
+		super("module_" + id);
+		capabilityProvider = new ModuleCapabilityProvider(m);
+		setUnlocalizedName("modularpipes.module");
+		moduleName = "item." + getRegistryName().getResourceDomain() + ".module." + id + ".name";
+	}
 
-    @Override
-    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable NBTTagCompound nbt)
-    {
-        return capabilityProvider;
-    }
+	@Override
+	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable NBTTagCompound nbt)
+	{
+		return capabilityProvider;
+	}
 
-    @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn)
-    {
-        ItemStack stack = playerIn.getHeldItem(handIn);
+	@Override
+	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn)
+	{
+		ItemStack stack = playerIn.getHeldItem(handIn);
 
-        if(playerIn.isSneaking() && (stack.hasTagCompound() && stack.getTagCompound().hasKey("Module")))
-        {
-            stack.getTagCompound().removeTag("Module");
+		if (playerIn.isSneaking() && (stack.hasTagCompound() && stack.getTagCompound().hasKey("Module")))
+		{
+			stack.getTagCompound().removeTag("Module");
 
-            if(stack.getTagCompound().hasNoTags())
-            {
-                stack.setTagCompound(null);
-            }
+			if (stack.getTagCompound().hasNoTags())
+			{
+				stack.setTagCompound(null);
+			}
 
-            playerIn.sendMessage(new TextComponentString("Cleared Module Data")); //TODO: Lang
-            return new ActionResult<>(EnumActionResult.SUCCESS, stack);
-        }
+			playerIn.sendMessage(new TextComponentString("Cleared Module Data")); //TODO: Lang
+			return new ActionResult<>(EnumActionResult.SUCCESS, stack);
+		}
 
-        return new ActionResult<>(EnumActionResult.PASS, stack);
-    }
+		return new ActionResult<>(EnumActionResult.PASS, stack);
+	}
 
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced)
-    {
-        tooltip.add(I18n.format(moduleName));
-    }
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flag)
+	{
+		tooltip.add(I18n.format(moduleName));
+	}
 }

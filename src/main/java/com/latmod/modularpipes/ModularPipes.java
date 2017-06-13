@@ -10,30 +10,30 @@ import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = ModularPipes.MOD_ID, name = "Modular Pipes", version = "0.0.0", useMetadata = true)
+@Mod(modid = ModularPipes.MOD_ID, name = "Modular Pipes", useMetadata = true, acceptedMinecraftVersions = "[1.12,)", dependencies = "required-after:ftbl")
 public class ModularPipes
 {
-    public static final String MOD_ID = "modularpipes";
-    public static final Logger LOGGER = LogManager.getLogger("ModularPipes");
+	public static final String MOD_ID = "modularpipes";
+	public static final Logger LOGGER = LogManager.getLogger("ModularPipes");
 
-    @SidedProxy(serverSide = "com.latmod.modularpipes.ModularPipesCommon", clientSide = "com.latmod.modularpipes.client.ModularPipesClient")
-    public static ModularPipesCommon PROXY;
+	@SidedProxy(serverSide = "com.latmod.modularpipes.ModularPipesCommon", clientSide = "com.latmod.modularpipes.client.ModularPipesClient")
+	public static ModularPipesCommon PROXY;
 
-    @EventHandler
-    public void onPreInit(FMLPreInitializationEvent event)
-    {
-        PROXY.onPreInit();
-    }
+	@EventHandler
+	public void onPreInit(FMLPreInitializationEvent event)
+	{
+		PROXY.onPreInit();
+	}
 
-    @EventHandler
-    public void onInit(FMLInitializationEvent event)
-    {
-        PROXY.onInit();
-    }
+	@EventHandler
+	public void onInit(FMLInitializationEvent event)
+	{
+		PROXY.onInit();
+	}
 
-    @EventHandler
-    public void onServerAboutToStart(FMLServerAboutToStartEvent event)
-    {
-        ServerPipeNetwork.clearAll();
-    }
+	@EventHandler
+	public void onServerAboutToStart(FMLServerAboutToStartEvent event)
+	{
+		ServerPipeNetwork.clearAll();
+	}
 }

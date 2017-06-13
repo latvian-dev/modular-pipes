@@ -1,14 +1,17 @@
-[{
-"modid": "modularpipes",
-"name": "Modular Pipes",
-"description": "",
-"version": "${version}",
-"mcversion": "${mcversion}",
-"url": "https://minecraft.curseforge.com/projects/modular-pipes",
-"updateUrl": "",
-"authorList": ["LatvianModder"],
-"credits": "Artist - Tatazaki",
-	"logoFile": "assets/modularpipes/textures/logo.png",
-"screenshots": [],
-"dependencies": []
-}]
+[
+	{
+		"modid": "modularpipes",
+		"name": "Modular Pipes",
+		"description": "",
+		"version": "${version}",
+		"mcversion": "1.12",
+		"url": "https://minecraft.curseforge.com/projects/modular-pipes",
+		"updateUrl": "",
+		"authorList": ["LatvianModder"],
+		"credits": "Artist - Tatazaki",
+		"logoFile": "assets/modularpipes/textures/logo.png",
+		"screenshots": [],
+		"parent": "",
+		"dependencies": []
+	}
+]

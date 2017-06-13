@@ -7,27 +7,27 @@ import net.minecraft.nbt.NBTTagCompound;
  */
 public class NoData implements ModuleData
 {
-    public static final NoData INSTANCE = new NoData()
-    {
-        @Override
-        public boolean shouldSave()
-        {
-            return false;
-        }
-    };
+	public static final NoData INSTANCE = new NoData()
+	{
+		@Override
+		public boolean shouldSave()
+		{
+			return false;
+		}
+	};
 
-    private NoData()
-    {
-    }
+	private NoData()
+	{
+	}
 
-    @Override
-    public NBTTagCompound serializeNBT()
-    {
-        return new NBTTagCompound();
-    }
+	@Override
+	public NBTTagCompound serializeNBT()
+	{
+		return new NBTTagCompound();
+	}
 
-    @Override
-    public void deserializeNBT(NBTTagCompound nbt)
-    {
-    }
+	@Override
+	public void deserializeNBT(NBTTagCompound nbt)
+	{
+	}
 }
