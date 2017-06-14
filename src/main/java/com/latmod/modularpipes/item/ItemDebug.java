@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.item;
 
+import com.feed_the_beast.ftbl.lib.util.StringUtils;
 import com.latmod.modularpipes.data.IPipeBlock;
 import com.latmod.modularpipes.data.Link;
 import com.latmod.modularpipes.data.Node;
@@ -14,7 +15,6 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -49,19 +49,19 @@ public class ItemDebug extends ItemMPBase
 			Node node = network.getNode(pos);
 			if (node != null)
 			{
-				player.sendMessage(new TextComponentString("- Debug data @ " + node + ":"));
-				player.sendMessage(new TextComponentString("Node with " + node.linkedWith.size() + " links"));
+				player.sendMessage(StringUtils.text("- Debug data @ " + node + ":"));
+				player.sendMessage(StringUtils.text("Node with " + node.linkedWith.size() + " links"));
 			}
 			else
 			{
-				player.sendMessage(new TextComponentString("- Debug data @ [" + pos.getX() + ',' + pos.getY() + ',' + pos.getZ() + "]:"));
+				player.sendMessage(StringUtils.text("- Debug data @ [" + pos.getX() + ',' + pos.getY() + ',' + pos.getZ() + "]:"));
 			}
 
 			for (Link link : network.getLinks())
 			{
 				if (link.contains(pos, node != null))
 				{
-					player.sendMessage(new TextComponentString("Link " + link));
+					player.sendMessage(StringUtils.text("Link " + link));
 				}
 			}
 

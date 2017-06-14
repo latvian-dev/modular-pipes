@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.item;
 
+import com.feed_the_beast.ftbl.lib.util.StringUtils;
 import com.latmod.modularpipes.ModularPipesCaps;
 import com.latmod.modularpipes.data.Module;
 import net.minecraft.client.resources.I18n;
@@ -11,7 +12,6 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -81,7 +81,7 @@ public class ItemModule extends ItemMPBase
 				stack.setTagCompound(null);
 			}
 
-			playerIn.sendMessage(new TextComponentString("Cleared Module Data")); //TODO: Lang
+			playerIn.sendMessage(StringUtils.text("Cleared Module Data")); //TODO: Lang
 			return new ActionResult<>(EnumActionResult.SUCCESS, stack);
 		}
 

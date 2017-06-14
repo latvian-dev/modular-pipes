@@ -2,6 +2,7 @@ package com.latmod.modularpipes.tile;
 
 import com.feed_the_beast.ftbl.lib.math.MathUtils;
 import com.feed_the_beast.ftbl.lib.tile.TileBase;
+import com.feed_the_beast.ftbl.lib.util.StringUtils;
 import com.latmod.modularpipes.ModularPipesCaps;
 import com.latmod.modularpipes.block.EnumTier;
 import com.latmod.modularpipes.data.IPipeBlock;
@@ -23,7 +24,6 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
@@ -199,7 +199,7 @@ public class TileModularPipe extends TileBase implements ITickable
 
 			if (tier.modules <= modulesSize)
 			{
-				playerIn.sendMessage(new TextComponentString("Can't insert any more modules!"));//TODO: Lang
+				playerIn.sendMessage(StringUtils.text("Can't insert any more modules!"));//TODO: Lang
 				return;
 			}
 
@@ -220,12 +220,12 @@ public class TileModularPipe extends TileBase implements ITickable
 		if (!c.getModule().onRightClick(c, playerIn, hand))
 		{
 			//TODO: Open GUI
-			playerIn.sendMessage(new TextComponentString("GUI Not Implemented!"));
+			playerIn.sendMessage(StringUtils.text("GUI Not Implemented!"));
 		}
 			
 
         /*
-        List<TileModularPipe> list = PipeNetwork.findPipes(this, false);
+		List<TileModularPipe> list = PipeNetwork.findPipes(this, false);
         List<String> list1 = new ArrayList<>();
 
         for(TileModularPipe t : list)
