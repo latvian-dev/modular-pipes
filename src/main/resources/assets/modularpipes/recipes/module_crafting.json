@@ -1,0 +1,16 @@
+{
+	"type": "forge:ore_shaped",
+	"result": {
+		"item": "module_crafting"
+	},
+	"pattern": [
+		"D",
+		"M",
+		"C"
+	],
+	"key": {
+		"D": {"type": "forge:ore_dict", "ore": "gemDiamond"},
+		"M": {"item": "#blank_module"},
+		"C": {"type": "forge:ore_dict", "ore": "workbench"}
+	}
+}

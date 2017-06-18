@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.block;
 
+import com.feed_the_beast.ftbl.lib.EnumNameMap;
 import com.feed_the_beast.ftbl.lib.config.PropertyDouble;
 import net.minecraft.util.IStringSerializable;
 
@@ -18,6 +19,7 @@ public enum EnumTier implements IStringSerializable
 	STAR("star", 10D);
 
 	public static final EnumTier[] VALUES = EnumTier.values();
+	public static final EnumNameMap<EnumTier> NAME_MAP = new EnumNameMap<>(VALUES, false, BASIC);
 
 	public static EnumTier getFromMeta(int m)
 	{

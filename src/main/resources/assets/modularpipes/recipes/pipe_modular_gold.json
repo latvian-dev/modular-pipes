@@ -1,0 +1,17 @@
+{
+	"type": "forge:ore_shaped",
+	"result": {
+		"item": "pipe_modular",
+		"data": 2,
+		"count": 8
+	},
+	"pattern": [
+		"PPP",
+		"PIP",
+		"PPP"
+	],
+	"key": {
+		"P": {"item": "pipe_modular", "data": 1},
+		"I": {"type": "forge:ore_dict", "ore": "ingotGold"}
+	}
+}

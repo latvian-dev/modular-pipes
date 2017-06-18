@@ -1,0 +1,16 @@
+{
+	"type": "forge:ore_shaped",
+	"result": {
+		"item": "module_extract"
+	},
+	"pattern": [
+		"R",
+		"M",
+		"H"
+	],
+	"key": {
+		"R": {"item": "minecraft:repeater"},
+		"M": {"item": "#blank_module"},
+		"H": {"item": "minecraft:hopper"}
+	}
+}

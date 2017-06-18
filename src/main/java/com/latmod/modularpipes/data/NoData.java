@@ -21,13 +21,12 @@ public class NoData implements ModuleData
 	}
 
 	@Override
-	public NBTTagCompound serializeNBT()
+	public void serializeNBT(NBTTagCompound nbt, boolean net)
 	{
-		return new NBTTagCompound();
 	}
 
 	@Override
-	public void deserializeNBT(NBTTagCompound nbt)
+	public void deserializeNBT(NBTTagCompound nbt, boolean net)
 	{
 	}
 }

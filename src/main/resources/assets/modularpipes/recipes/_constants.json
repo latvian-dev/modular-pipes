@@ -1,0 +1,14 @@
+[
+	{
+		"name": "blank_module",
+		"ingredient": {"item": "module"}
+	},
+	{
+		"name": "pipe_basic",
+		"ingredient": {"item": "pipe_basic"}
+	},
+	{
+		"name": "iron",
+		"ingredient": {"type": "forge:ore_dict", "ore": "ingotIron"}
+	}
+]

@@ -1,0 +1,17 @@
+{
+	"type": "forge:ore_shaped",
+	"result": {
+		"item": "pipe_modular",
+		"data": 6,
+		"count": 8
+	},
+	"pattern": [
+		"PPP",
+		"PIP",
+		"PPP"
+	],
+	"key": {
+		"P": {"item": "pipe_modular", "data": 5},
+		"I": {"type": "forge:ore_dict", "ore": "gemEmerald"}
+	}
+}

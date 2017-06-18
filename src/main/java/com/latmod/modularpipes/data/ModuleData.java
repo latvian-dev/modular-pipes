@@ -1,13 +1,16 @@
 package com.latmod.modularpipes.data;
 
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.util.INBTSerializable;
 
 /**
  * @author LatvianModder
  */
-public interface ModuleData extends INBTSerializable<NBTTagCompound>
+public interface ModuleData
 {
+	void serializeNBT(NBTTagCompound nbt, boolean net);
+
+	void deserializeNBT(NBTTagCompound nbt, boolean net);
+
 	default boolean shouldSave()
 	{
 		return true;

@@ -1,0 +1,17 @@
+{
+	"type": "forge:ore_shaped",
+	"result": {
+		"item": "pipe_basic",
+		"count": 8
+	},
+	"pattern": [
+		" G ",
+		"SRS",
+		" G "
+	],
+	"key": {
+		"G": {"type": "forge:ore_dict", "ore": "paneGlass"},
+		"R": {"type": "forge:ore_dict", "ore": "dustRedstone"},
+		"S": {"type": "forge:ore_dict", "ore": "cobblestone"}
+	}
+}

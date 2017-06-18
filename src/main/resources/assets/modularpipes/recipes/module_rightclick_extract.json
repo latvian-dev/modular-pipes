@@ -1,0 +1,14 @@
+{
+	"type": "forge:ore_shaped",
+	"result": {
+		"item": "module_rightclick_extract"
+	},
+	"pattern": [
+		"C",
+		"M"
+	],
+	"key": {
+		"C": {"item": "minecraft:clock"},
+		"M": {"item": "#blank_module"}
+	}
+}
