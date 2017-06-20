@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.data;
 
+import com.feed_the_beast.ftbl.lib.tile.EnumSaveType;
 import net.minecraft.nbt.NBTTagCompound;
 
 /**
@@ -7,9 +8,9 @@ import net.minecraft.nbt.NBTTagCompound;
  */
 public interface ModuleData
 {
-	void serializeNBT(NBTTagCompound nbt, boolean net);
+	void serializeNBT(NBTTagCompound nbt, EnumSaveType type);
 
-	void deserializeNBT(NBTTagCompound nbt, boolean net);
+	void deserializeNBT(NBTTagCompound nbt, EnumSaveType type);
 
 	default boolean shouldSave()
 	{

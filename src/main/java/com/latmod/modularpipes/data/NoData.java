@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.data;
 
+import com.feed_the_beast.ftbl.lib.tile.EnumSaveType;
 import net.minecraft.nbt.NBTTagCompound;
 
 /**
@@ -21,12 +22,12 @@ public class NoData implements ModuleData
 	}
 
 	@Override
-	public void serializeNBT(NBTTagCompound nbt, boolean net)
+	public void serializeNBT(NBTTagCompound nbt, EnumSaveType type)
 	{
 	}
 
 	@Override
-	public void deserializeNBT(NBTTagCompound nbt, boolean net)
+	public void deserializeNBT(NBTTagCompound nbt, EnumSaveType type)
 	{
 	}
 }

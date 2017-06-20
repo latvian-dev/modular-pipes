@@ -1,8 +1,7 @@
 {
 	"type": "forge:ore_shaped",
-	"result": {
-		"item": "module_crafting"
-	},
+	"group": "modular_pipes:module",
+	"result": {"item": "module_crafting"},
 	"pattern": [
 		"D",
 		"M",

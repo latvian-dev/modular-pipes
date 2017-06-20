@@ -24,7 +24,7 @@ public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe
 	public static final TextureAtlasSprite[] SPRITES = new TextureAtlasSprite[EnumTier.VALUES.length];
 
 	@Override
-	public void func_192841_a(TileModularPipe te, double x, double y, double z, float partialTicks, int destroyStage, float p_192841_10_)
+	public void render(TileModularPipe te, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
 	{
 		if (te.isInvalid())
 		{

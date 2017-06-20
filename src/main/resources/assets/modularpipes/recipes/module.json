@@ -1,10 +1,7 @@
 {
 	"type": "forge:ore_shaped",
-	"result": {
-		"item": "module",
-		"data": 0,
-		"count": 8
-	},
+	"group": "modular_pipes:module",
+	"result": {"item": "module", "data": 0, "count": 8},
 	"pattern": [
 		"III",
 		"IPI",

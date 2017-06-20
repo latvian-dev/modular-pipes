@@ -22,9 +22,9 @@ compileJava {
 }
 
 minecraft {
-	version = "1.12-14.21.0.2322"
+	version = "1.12-14.21.0.2339"
 	runDir = "run"
-	mappings = "snapshot_20161220"
+	mappings = "snapshot_20170617"
 }
 
 repositories {
@@ -35,7 +35,7 @@ repositories {
 }
 
 dependencies {
-	compile 'LatMod:FTBLib:4.0.1:api'
+	compile 'LatMod:FTBLib:4.0.2:api'
 }
 
 processResources {

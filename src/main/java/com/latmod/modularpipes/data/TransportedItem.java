@@ -358,74 +358,7 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
 			return false;
 		}
 
-		HashSet<Node> nodes = new HashSet<>();
-		nodes.add(node);
-		List<BlockPos> list = new ArrayList<>();
-		list.add(node.offset(container.facing));
-
-		Link link;
-
-		while (true)
-		{
-			List<Link> links = new ArrayList<>(node.linkedWith);
-
-			do
-			{
-				link = links.get(MathUtils.RAND.nextInt(node.linkedWith.size()));
-
-				if (link != null && !link.invalid())
-				{
-					Node end;
-					boolean b;
-
-					if (link.start.equals(node))
-					{
-						end = link.end;
-						b = true;
-					}
-					else
-					{
-						end = link.start;
-						b = false;
-					}
-
-					if (!nodes.contains(end))
-					{
-						nodes.add(end);
-
-						if (b)
-						{
-							list.addAll(link.path);
-							node = link.end;
-						}
-						else
-						{
-							for (int i = link.path.size() - 1; i >= 0; i--)
-							{
-								list.add(link.path.get(i));
-							}
-
-							node = link.start;
-						}
-
-						break;
-					}
-				}
-			}
-			while (true);
-
-			if (node == null || node.linkedWith.isEmpty())
-			{
-				break;
-			}
-		}
-
-		if (list.size() >= 2)
-		{
-			setPath(list);
-			return true;
-		}
-
+		//TODO: Fix the path finding
 		return false;
 	}
 }

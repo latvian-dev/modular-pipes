@@ -1,6 +1,7 @@
 package com.latmod.modularpipes.tile;
 
 import com.feed_the_beast.ftbl.lib.math.MathUtils;
+import com.feed_the_beast.ftbl.lib.tile.EnumSaveType;
 import com.feed_the_beast.ftbl.lib.tile.TileBase;
 import com.feed_the_beast.ftbl.lib.util.StringUtils;
 import com.latmod.modularpipes.ModularPipesCaps;
@@ -82,34 +83,50 @@ public class TileModularPipe extends TileBase implements ITickable
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+	protected void writeData(NBTTagCompound nbt, EnumSaveType type)
 	{
-		super.writeToNBT(nbt);
-		nbt.setString("Tier", tier.getName());
-		nbt.setByte("Connections", (byte) connections);
+		if (type.save)
+		{
+			nbt.setString("Tier", tier.getName());
+		}
+		else
+		{
+			nbt.setByte("Tier", (byte) tier.ordinal());
+		}
+
+		if (type.save || connections != 0)
+		{
+			nbt.setByte("Connections", (byte) connections);
+		}
+
 		NBTTagList moduleList = new NBTTagList();
 
 		for (ModuleContainer c : modules)
 		{
-			moduleList.appendTag(ModuleContainer.writeToNBT(c, false));
+			NBTTagCompound nbt1 = ModuleContainer.writeToNBT(c, type);
+
+			if (!nbt1.hasNoTags())
+			{
+				moduleList.appendTag(nbt1);
+			}
 		}
 
-		nbt.setTag("Modules", moduleList);
-		return nbt;
+		if (type.save || !moduleList.hasNoTags())
+		{
+			nbt.setTag("Modules", moduleList);
+		}
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbt)
+	protected void readData(NBTTagCompound nbt, EnumSaveType type)
 	{
-		super.readFromNBT(nbt);
-
-		if (nbt.hasKey("Tier", Constants.NBT.TAG_STRING))
+		if (!type.save || nbt.hasKey("Tier", Constants.NBT.TAG_BYTE))
 		{
-			tier = EnumTier.NAME_MAP.get(nbt.getString("Tier"));
+			tier = EnumTier.getFromMeta(nbt.getByte("Tier"));
 		}
 		else
 		{
-			tier = EnumTier.getFromMeta(nbt.getByte("Tier"));
+			tier = EnumTier.NAME_MAP.get(nbt.getString("Tier"));
 		}
 
 		connections = nbt.getByte("Connections") & 0xFF;
@@ -120,52 +137,7 @@ public class TileModularPipe extends TileBase implements ITickable
 
 		for (int i = 0; i < moduleList.tagCount(); i++)
 		{
-			ModuleContainer c = new ModuleContainer(this, moduleList.getCompoundTagAt(i), false);
-			modules[c.facing.getIndex()] = c;
-		}
-	}
-
-	@Override
-	public void writeUpdateTag(NBTTagCompound nbt)
-	{
-		if (tier.ordinal() > 0)
-		{
-			nbt.setByte("T", (byte) tier.ordinal());
-		}
-
-		if (connections != 0)
-		{
-			nbt.setByte("C", (byte) connections);
-		}
-
-		NBTTagList moduleList = new NBTTagList();
-
-		for (ModuleContainer c : modules)
-		{
-			NBTTagCompound nbt1 = ModuleContainer.writeToNBT(c, true);
-
-			if (!nbt1.hasNoTags())
-			{
-				moduleList.appendTag(nbt1);
-			}
-		}
-
-		nbt.setTag("M", moduleList);
-	}
-
-	@Override
-	public void readUpdateTag(NBTTagCompound nbt)
-	{
-		tier = EnumTier.getFromMeta(nbt.getByte("T"));
-		connections = nbt.getByte("C") & 0xFF;
-
-		clearModules();
-
-		NBTTagList moduleList = nbt.getTagList("M", Constants.NBT.TAG_COMPOUND);
-
-		for (int i = 0; i < moduleList.tagCount(); i++)
-		{
-			ModuleContainer c = new ModuleContainer(this, moduleList.getCompoundTagAt(i), true);
+			ModuleContainer c = new ModuleContainer(this, moduleList.getCompoundTagAt(i), type);
 			modules[c.facing.getIndex()] = c;
 		}
 	}
@@ -226,7 +198,7 @@ public class TileModularPipe extends TileBase implements ITickable
 				if (c.getData().shouldSave())
 				{
 					NBTTagCompound nbt1 = new NBTTagCompound();
-					c.getData().serializeNBT(nbt1, false);
+					c.getData().serializeNBT(nbt1, EnumSaveType.SAVE);
 					c.getItemStack().setTagInfo("ModuleData", nbt1);
 				}
 
@@ -302,7 +274,7 @@ public class TileModularPipe extends TileBase implements ITickable
 			if (c.getData().shouldSave())
 			{
 				NBTTagCompound nbt1 = new NBTTagCompound();
-				c.getData().serializeNBT(nbt1, false);
+				c.getData().serializeNBT(nbt1, EnumSaveType.SAVE);
 				c.getItemStack().setTagInfo("ModuleData", nbt1);
 			}
 

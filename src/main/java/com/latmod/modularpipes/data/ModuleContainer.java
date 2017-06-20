@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.data;
 
+import com.feed_the_beast.ftbl.lib.tile.EnumSaveType;
 import com.latmod.modularpipes.ModularPipesCaps;
 import com.latmod.modularpipes.tile.TileModularPipe;
 import net.minecraft.item.ItemStack;
@@ -33,23 +34,23 @@ public final class ModuleContainer implements ITickable, IItemHandler
 		setStack(stack);
 	}
 
-	public ModuleContainer(TileModularPipe t, NBTTagCompound nbt, boolean net)
+	public ModuleContainer(TileModularPipe t, NBTTagCompound nbt, EnumSaveType type)
 	{
-		this(t, EnumFacing.VALUES[nbt.getByte(net ? "F" : "Facing")], ItemStack.EMPTY);
+		this(t, EnumFacing.VALUES[nbt.getByte("Facing")], ItemStack.EMPTY);
 
-		if (nbt.hasKey(net ? "I" : "Item"))
+		if (nbt.hasKey("Item"))
 		{
-			setStack(new ItemStack(nbt.getCompoundTag(net ? "I" : "Item")));
+			setStack(new ItemStack(nbt.getCompoundTag("Item")));
 
-			if (data.shouldSave() && stack.hasTagCompound() && stack.getTagCompound().hasKey(net ? "MD" : "ModuleData"))
+			if (data.shouldSave() && stack.hasTagCompound() && stack.getTagCompound().hasKey("ModuleData"))
 			{
-				data.deserializeNBT(stack.getTagCompound().getCompoundTag(net ? "MD" : "ModuleData"), net);
+				data.deserializeNBT(stack.getTagCompound().getCompoundTag("ModuleData"), type);
 			}
 		}
 
-		if (nbt.hasKey(net ? "FC" : "FilterConfig"))
+		if (nbt.hasKey("FilterConfig"))
 		{
-			filterConfig.deserializeNBT(nbt.getTag(net ? "FC" : "FilterConfig"));
+			filterConfig.deserializeNBT(nbt.getTag("FilterConfig"));
 		}
 
 		tick = nbt.getInteger("Tick");
@@ -132,28 +133,28 @@ public final class ModuleContainer implements ITickable, IItemHandler
 		return tile.getWorld().isRemote;
 	}
 
-	public static NBTTagCompound writeToNBT(ModuleContainer c, boolean net)
+	public static NBTTagCompound writeToNBT(ModuleContainer c, EnumSaveType type)
 	{
 		NBTTagCompound nbt = new NBTTagCompound();
-		nbt.setByte(net ? "F" : "Facing", (byte) c.facing.getIndex());
+		nbt.setByte("Facing", (byte) c.facing.getIndex());
 
 		if (c.getTick() > 0)
 		{
-			nbt.setInteger(net ? "T" : "Tick", c.getTick());
+			nbt.setInteger("Tick", c.getTick());
 		}
 		if (c.getFilterConfig().shouldSave())
 		{
-			nbt.setTag(net ? "FC" : "FilterConfig", c.getFilterConfig().serializeNBT());
+			nbt.setTag("FilterConfig", c.getFilterConfig().serializeNBT());
 		}
 		if (!c.getItemStack().isEmpty())
 		{
-			nbt.setTag(net ? "I" : "Item", c.getItemStack().serializeNBT());
+			nbt.setTag("Item", c.getItemStack().serializeNBT());
 
 			if (c.getData().shouldSave())
 			{
 				NBTTagCompound nbt1 = new NBTTagCompound();
-				c.getData().serializeNBT(nbt1, net);
-				c.getItemStack().setTagInfo(net ? "MD" : "ModuleData", nbt1);
+				c.getData().serializeNBT(nbt1, type);
+				c.getItemStack().setTagInfo("ModuleData", nbt1);
 			}
 		}
 

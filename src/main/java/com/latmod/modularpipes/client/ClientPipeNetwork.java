@@ -169,7 +169,7 @@ public class ClientPipeNetwork extends PipeNetwork
 
 					networkVis.color.set(0x660000FF);
 					BlockPos size = pos.subtract(next);
-					networkVis.centeredCube(center.xCoord, center.yCoord, center.zCoord, conSize(size.getX()), conSize(size.getY()), conSize(size.getZ()));
+					networkVis.centeredCube(center.x, center.y, center.z, conSize(size.getX()), conSize(size.getY()), conSize(size.getZ()));
 				}
 			}
 		}
