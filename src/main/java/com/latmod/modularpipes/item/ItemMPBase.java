@@ -1,7 +1,6 @@
 package com.latmod.modularpipes.item;
 
 import com.latmod.modularpipes.ModularPipes;
-import com.latmod.modularpipes.ModularPipesCommon;
 import net.minecraft.item.Item;
 
 /**
@@ -13,6 +12,6 @@ public class ItemMPBase extends Item
 	{
 		setRegistryName(ModularPipes.MOD_ID + ':' + id);
 		setUnlocalizedName(ModularPipes.MOD_ID + '.' + id);
-		setCreativeTab(ModularPipesCommon.TAB);
+		setCreativeTab(ModularPipes.TAB);
 	}
 }

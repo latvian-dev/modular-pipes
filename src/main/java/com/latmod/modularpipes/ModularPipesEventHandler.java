@@ -1,5 +1,9 @@
 package com.latmod.modularpipes;
 
+import com.feed_the_beast.ftbl.api.EventHandler;
+import com.feed_the_beast.ftbl.api.events.FTBLibRegistryEvent;
+import com.feed_the_beast.ftbl.api.events.player.ForgePlayerSettingsEvent;
+import com.latmod.modularpipes.data.ModularPipesPlayerData;
 import com.latmod.modularpipes.data.PipeNetwork;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.WorldServer;
@@ -11,8 +15,27 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 /**
  * @author LatvianModder
  */
+@EventHandler
 public class ModularPipesEventHandler
 {
+	@SubscribeEvent
+	public static void registerCommon(FTBLibRegistryEvent event)
+	{
+		ModularPipesConfig.init(event.getRegistry());
+		event.getRegistry().addPlayerDataProvider(ModularPipesPlayerData.ID, ModularPipesPlayerData::new);
+	}
+
+	@SubscribeEvent
+	public static void playerSettings(ForgePlayerSettingsEvent event)
+	{
+		ModularPipesPlayerData data = (ModularPipesPlayerData) event.getPlayer().getData(ModularPipesPlayerData.ID);
+
+		if (data != null)
+		{
+			event.add(ModularPipes.MOD_ID, "dev_mode", data.devMode).setNameLangKey("config.modularpipes.dev_mode.name").setInfoLangKey("config.modularpipes.dev_mode.info");
+		}
+	}
+
 	@SubscribeEvent
 	public static void onTickEvent(TickEvent.WorldTickEvent event)
 	{

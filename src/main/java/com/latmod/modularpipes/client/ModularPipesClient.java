@@ -11,20 +11,22 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMap;
 import net.minecraft.item.Item;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * @author LatvianModder
  */
+@Mod.EventBusSubscriber(modid = ModularPipes.MOD_ID, value = Side.CLIENT)
 public class ModularPipesClient extends ModularPipesCommon
 {
-	@Override
-	public void onPreInit()
+	@SubscribeEvent
+	public static void registerModels(ModelRegistryEvent event)
 	{
-		super.onPreInit();
-
 		ModelLoader.setCustomStateMapper(ModularPipesItems.PIPE_MODULAR, new StateMap.Builder().ignore(BlockModularPipe.TIER).build());
 
 		registerModel(ModularPipesItems.PIPE_BASIC, 0, ModularPipes.MOD_ID + ":pipe_item#variant=basic");
@@ -39,7 +41,7 @@ public class ModularPipesClient extends ModularPipesCommon
 		registerModel(ModularPipesItems.MODULE, 0, "inventory");
 		registerModel(ModularPipesItems.DEBUG, 0, "inventory");
 
-		for (Item m : ModularPipesItems.Modules.LIST)
+		for (Item m : MODULE_LIST)
 		{
 			registerModel(m, 0, m.getRegistryName().toString().replace("module_", "module/") + "#inventory");
 		}
@@ -47,22 +49,14 @@ public class ModularPipesClient extends ModularPipesCommon
 		ClientRegistry.bindTileEntitySpecialRenderer(TileModularPipe.class, new RenderModularPipe());
 	}
 
-	private void registerModel(Block block, int meta, String variant)
+	private static void registerModel(Block block, int meta, String variant)
 	{
 		registerModel(Item.getItemFromBlock(block), meta, variant);
 	}
 
-	private void registerModel(Item item, int meta, String variant)
+	private static void registerModel(Item item, int meta, String variant)
 	{
 		ModelLoader.setCustomModelResourceLocation(item, meta, variant.indexOf('#') != -1 ? new ModelResourceLocation(variant) : new ModelResourceLocation(item.getRegistryName(), variant));
-	}
-
-	@Override
-	public void onInit()
-	{
-		super.onInit();
-
-		MinecraftForge.EVENT_BUS.register(ModularPipesClientEventHandler.class);
 	}
 
 	@Override
@@ -72,6 +66,7 @@ public class ModularPipesClient extends ModularPipesCommon
 		{
 			ClientPipeNetwork.INSTANCE = new ClientPipeNetwork(world);
 		}
+
 		return ClientPipeNetwork.INSTANCE;
 	}
 }

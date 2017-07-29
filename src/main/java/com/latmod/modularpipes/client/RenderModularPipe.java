@@ -1,10 +1,10 @@
 package com.latmod.modularpipes.client;
 
+import com.feed_the_beast.ftbl.lib.client.FTBLibClient;
 import com.feed_the_beast.ftbl.lib.math.MathUtils;
 import com.latmod.modularpipes.block.BlockPipeBase;
 import com.latmod.modularpipes.block.EnumTier;
 import com.latmod.modularpipes.tile.TileModularPipe;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -21,7 +21,7 @@ import org.lwjgl.opengl.GL11;
  */
 public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe>
 {
-	public static final TextureAtlasSprite[] SPRITES = new TextureAtlasSprite[EnumTier.VALUES.length];
+	public static final TextureAtlasSprite[] SPRITES = new TextureAtlasSprite[EnumTier.NAME_MAP.values.size()];
 
 	@Override
 	public void render(TileModularPipe te, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
@@ -30,8 +30,6 @@ public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe
 		{
 			return;
 		}
-
-		Minecraft mc = Minecraft.getMinecraft();
 
 		GlStateManager.pushMatrix();
 		GlStateManager.enableRescaleNormal();
@@ -46,7 +44,7 @@ public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe
 		GlStateManager.enableAlpha();
 		GlStateManager.enableCull();
 
-		mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+		FTBLibClient.MC.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 		TextureAtlasSprite sprite = SPRITES[te.tier.ordinal()];
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder buffer = tessellator.getBuffer();
@@ -100,7 +98,7 @@ public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe
 				GlStateManager.rotate(MathUtils.ROTATION_Y[i], 0F, 1F, 0F);
 				GlStateManager.rotate(MathUtils.ROTATION_X[i] + 90F, 1F, 0F, 0F);
 				GlStateManager.scale(0.5D, 0.5D, 1D);
-				ClientPipeNetwork.RENDER_ITEM.renderItem(te.modules[i].getItemStack(), ItemCameraTransforms.TransformType.FIXED);
+				FTBLibClient.MC.getRenderItem().renderItem(te.modules[i].getItemStack(), ItemCameraTransforms.TransformType.FIXED);
 				GlStateManager.popMatrix();
 			}
 		}

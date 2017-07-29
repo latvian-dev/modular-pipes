@@ -1,10 +1,12 @@
 package com.latmod.modularpipes;
 
 import com.latmod.modularpipes.data.ServerPipeNetwork;
+import com.latmod.modularpipes.item.ModularPipesItems;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import org.apache.logging.log4j.LogManager;
@@ -19,16 +21,19 @@ public class ModularPipes
 	@SidedProxy(serverSide = "com.latmod.modularpipes.ModularPipesCommon", clientSide = "com.latmod.modularpipes.client.ModularPipesClient")
 	public static ModularPipesCommon PROXY;
 
+	public static final CreativeTabs TAB = new CreativeTabs(MOD_ID)
+	{
+		@Override
+		public ItemStack getTabIconItem()
+		{
+			return new ItemStack(ModularPipesItems.PIPE_MODULAR, 1, 7);
+		}
+	};
+
 	@EventHandler
 	public void onPreInit(FMLPreInitializationEvent event)
 	{
-		PROXY.onPreInit();
-	}
-
-	@EventHandler
-	public void onInit(FMLInitializationEvent event)
-	{
-		PROXY.onInit();
+		PROXY.preInit();
 	}
 
 	@EventHandler

@@ -1,6 +1,5 @@
 package com.latmod.modularpipes.block;
 
-import com.feed_the_beast.ftbl.lib.block.ItemBlockBase;
 import com.latmod.modularpipes.data.IPipeBlock;
 import com.latmod.modularpipes.data.NodeType;
 import com.latmod.modularpipes.item.ModularPipesItems;
@@ -11,7 +10,6 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
@@ -85,12 +83,6 @@ public class BlockPipeBasicNode extends BlockPipeBase
 	public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state)
 	{
 		return new ItemStack(getItemDropped(state, worldIn.rand, 0), 1, damageDropped(state));
-	}
-
-	@Override
-	public ItemBlock createItemBlock()
-	{
-		return new ItemBlockBase(this, true);
 	}
 
 	@Override

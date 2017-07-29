@@ -9,11 +9,9 @@ import com.latmod.modularpipes.ModularPipesConfig;
 import com.latmod.modularpipes.data.NodeType;
 import com.latmod.modularpipes.data.PipeNetwork;
 import com.latmod.modularpipes.data.TransportedItem;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -32,7 +30,6 @@ import java.util.Map;
 public class ClientPipeNetwork extends PipeNetwork
 {
 	public static ClientPipeNetwork INSTANCE;
-	public static RenderItem RENDER_ITEM = Minecraft.getMinecraft().getRenderItem();
 	private static final Color4I BOOST_PARTICLE_COLOR = new Color4I(true, 0xFFFFFFFF);
 
 	private CachedVertexData networkVis;
@@ -87,7 +84,7 @@ public class ClientPipeNetwork extends PipeNetwork
 						GlStateManager.translate(x, y, z);
 						GlStateManager.scale(i.scale, i.scale, i.scale);
 						GlStateManager.rotate(i.rotationY, 0F, 1F, 0F);
-						ClientPipeNetwork.RENDER_ITEM.renderItem(i.stack, ItemCameraTransforms.TransformType.FIXED);
+						FTBLibClient.MC.getRenderItem().renderItem(i.stack, ItemCameraTransforms.TransformType.FIXED);
 						GlStateManager.popMatrix();
 					}
 

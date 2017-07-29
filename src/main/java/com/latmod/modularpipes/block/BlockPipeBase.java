@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.block;
 
+import com.feed_the_beast.ftbl.lib.client.FTBLibClient;
 import com.feed_the_beast.ftbl.lib.math.MathUtils;
 import com.latmod.modularpipes.data.IPipeBlock;
 import com.latmod.modularpipes.data.PipeNetwork;
@@ -7,7 +8,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockRenderLayer;
@@ -125,7 +125,7 @@ public abstract class BlockPipeBase extends BlockMPBase implements IPipeBlock
 	@SideOnly(Side.CLIENT)
 	public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos)
 	{
-		RayTraceResult mop = Minecraft.getMinecraft().objectMouseOver;
+		RayTraceResult mop = FTBLibClient.MC.objectMouseOver;
 
 		if (mop != null && mop.subHit >= 0 && mop.subHit < BlockPipeBase.BOXES.length)
 		{

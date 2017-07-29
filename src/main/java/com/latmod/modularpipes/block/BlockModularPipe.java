@@ -1,6 +1,5 @@
 package com.latmod.modularpipes.block;
 
-import com.feed_the_beast.ftbl.lib.block.ItemBlockBase;
 import com.feed_the_beast.ftbl.lib.util.StringUtils;
 import com.latmod.modularpipes.data.NodeType;
 import com.latmod.modularpipes.data.TransportedItem;
@@ -15,7 +14,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -82,19 +80,6 @@ public class BlockModularPipe extends BlockPipeBase
 	public int damageDropped(IBlockState state)
 	{
 		return getMetaFromState(state);
-	}
-
-	@Override
-	public ItemBlock createItemBlock()
-	{
-		return new ItemBlockBase(this, true)
-		{
-			@Override
-			public String getUnlocalizedName(ItemStack stack)
-			{
-				return super.getUnlocalizedName(stack) + '.' + EnumTier.getFromMeta(stack.getMetadata()).getName();
-			}
-		};
 	}
 
 	@Override
