@@ -5,7 +5,7 @@ import com.feed_the_beast.ftbl.api.IFTBLibRegistry;
 import com.feed_the_beast.ftbl.lib.config.PropertyBool;
 import com.feed_the_beast.ftbl.lib.config.PropertyByte;
 import com.feed_the_beast.ftbl.lib.config.PropertyDouble;
-import com.feed_the_beast.ftbl.lib.util.LMUtils;
+import com.feed_the_beast.ftbl.lib.util.CommonUtils;
 
 import java.io.File;
 
@@ -25,7 +25,7 @@ public class ModularPipesConfig
 
 	public static void init(IFTBLibRegistry reg)
 	{
-		reg.addConfigFileProvider(ModularPipes.MOD_ID, () -> new File(LMUtils.folderConfig, "ModularPipes.json"));
+		reg.addConfigFileProvider(ModularPipes.MOD_ID, () -> new File(CommonUtils.folderConfig, "ModularPipes.json"));
 
 		String group = ModularPipes.MOD_ID;
 		reg.addConfig(group, "dev_mode", DEV_MODE);

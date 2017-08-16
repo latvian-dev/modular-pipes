@@ -1,59 +1,56 @@
 package com.latmod.modularpipes.data;
 
+import com.feed_the_beast.ftbl.lib.util.DataStorage;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 
 /**
  * @author LatvianModder
  */
-public class Module
+public interface Module
 {
-	public static final Module EMPTY = new Module()
+	Module EMPTY = new Module()
 	{
 		@Override
-		public boolean isEmpty()
+		public boolean isEmptyModule()
 		{
 			return true;
 		}
 	};
 
-	public Module()
-	{
-	}
-
-	public boolean isEmpty()
+	default boolean isEmptyModule()
 	{
 		return false;
 	}
 
-	public ModuleData createData(ModuleContainer container)
+	default DataStorage createModuleData(ModuleContainer container)
 	{
-		return NoData.INSTANCE;
+		return DataStorage.EMPTY;
 	}
 
-	public FilterConfig createFilterConfig(ModuleContainer container)
+	default FilterConfig createFilterConfig(ModuleContainer container)
 	{
 		return new FilterConfig();
 	}
 
-	public boolean insertInPipe(ModuleContainer container, EntityPlayer player)
+	default boolean insertInPipe(ModuleContainer container, EntityPlayer player)
 	{
 		return true;
 	}
 
-	public void removeFromPipe(ModuleContainer container, EntityPlayer player)
+	default void removeFromPipe(ModuleContainer container, EntityPlayer player)
 	{
 	}
 
-	public void pipeBroken(ModuleContainer container)
+	default void pipeBroken(ModuleContainer container)
 	{
 	}
 
-	public void update(ModuleContainer container)
+	default void updateModule(ModuleContainer container)
 	{
 	}
 
-	public boolean onRightClick(ModuleContainer container, EntityPlayer player, EnumHand hand)
+	default boolean onModuleRightClick(ModuleContainer container, EntityPlayer player, EnumHand hand)
 	{
 		return false;
 	}

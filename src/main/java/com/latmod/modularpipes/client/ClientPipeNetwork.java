@@ -1,8 +1,9 @@
 package com.latmod.modularpipes.client;
 
 import com.feed_the_beast.ftbl.lib.Color4I;
+import com.feed_the_beast.ftbl.lib.MutableColor4I;
 import com.feed_the_beast.ftbl.lib.client.CachedVertexData;
-import com.feed_the_beast.ftbl.lib.client.FTBLibClient;
+import com.feed_the_beast.ftbl.lib.client.ClientUtils;
 import com.feed_the_beast.ftbl.lib.math.MathUtils;
 import com.feed_the_beast.ftbl.lib.util.UtilsCommon;
 import com.latmod.modularpipes.ModularPipesConfig;
@@ -30,7 +31,7 @@ import java.util.Map;
 public class ClientPipeNetwork extends PipeNetwork
 {
 	public static ClientPipeNetwork INSTANCE;
-	private static final Color4I BOOST_PARTICLE_COLOR = new Color4I(true, 0xFFFFFFFF);
+	private static final MutableColor4I BOOST_PARTICLE_COLOR = Color4I.WHITE.mutable();
 
 	private CachedVertexData networkVis;
 
@@ -57,9 +58,9 @@ public class ClientPipeNetwork extends PipeNetwork
 		boolean particles = ModularPipesConfig.ITEM_PARTICLES.getBoolean();
 
 		double x, y, z, s2;
-		double px = FTBLibClient.playerX;
-		double py = FTBLibClient.playerY;
-		double pz = FTBLibClient.playerZ;
+		double px = ClientUtils.playerX;
+		double py = ClientUtils.playerY;
+		double pz = ClientUtils.playerZ;
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(-px, -py, -pz);
 		GlStateManager.disableLighting();
@@ -78,13 +79,13 @@ public class ClientPipeNetwork extends PipeNetwork
 				if (MathUtils.distSq(x, y, z, px, py, pz) <= renderDistanceSq)
 				{
 					s2 = i.scale / 2D;
-					if (!i.remove() && FTBLibClient.FRUSTUM.isBoxInFrustum(x - s2, y - s2, z - s2, x + s2, y + s2, z + s2))
+					if (!i.remove() && ClientUtils.FRUSTUM.isBoxInFrustum(x - s2, y - s2, z - s2, x + s2, y + s2, z + s2))
 					{
 						GlStateManager.pushMatrix();
 						GlStateManager.translate(x, y, z);
 						GlStateManager.scale(i.scale, i.scale, i.scale);
 						GlStateManager.rotate(i.rotationY, 0F, 1F, 0F);
-						FTBLibClient.MC.getRenderItem().renderItem(i.stack, ItemCameraTransforms.TransformType.FIXED);
+						ClientUtils.MC.getRenderItem().renderItem(i.stack, ItemCameraTransforms.TransformType.FIXED);
 						GlStateManager.popMatrix();
 					}
 

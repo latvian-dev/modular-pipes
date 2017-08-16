@@ -1,6 +1,6 @@
 package com.latmod.modularpipes.client;
 
-import com.feed_the_beast.ftbl.lib.client.FTBLibClient;
+import com.feed_the_beast.ftbl.lib.client.ClientUtils;
 import com.feed_the_beast.ftbl.lib.math.MathUtils;
 import com.latmod.modularpipes.block.BlockPipeBase;
 import com.latmod.modularpipes.block.EnumTier;
@@ -44,7 +44,7 @@ public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe
 		GlStateManager.enableAlpha();
 		GlStateManager.enableCull();
 
-		FTBLibClient.MC.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+		ClientUtils.MC.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 		TextureAtlasSprite sprite = SPRITES[te.tier.ordinal()];
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder buffer = tessellator.getBuffer();
@@ -96,9 +96,9 @@ public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe
 				GlStateManager.translate(0.5D + facing.getFrontOffsetX() * 0.46975D, 0.5D + facing.getFrontOffsetY() * 0.46975D, 0.5D + facing.getFrontOffsetZ() * 0.46975D);
 				//GlStateManager.rotate(180F, 0F, 0F, 1F);
 				GlStateManager.rotate(MathUtils.ROTATION_Y[i], 0F, 1F, 0F);
-				GlStateManager.rotate(MathUtils.ROTATION_X[i] + 90F, 1F, 0F, 0F);
+				GlStateManager.rotate(MathUtils.ROTATION_X[i], 1F, 0F, 0F);
 				GlStateManager.scale(0.5D, 0.5D, 1D);
-				FTBLibClient.MC.getRenderItem().renderItem(te.modules[i].getItemStack(), ItemCameraTransforms.TransformType.FIXED);
+				ClientUtils.MC.getRenderItem().renderItem(te.modules[i].getItemStack(), ItemCameraTransforms.TransformType.FIXED);
 				GlStateManager.popMatrix();
 			}
 		}

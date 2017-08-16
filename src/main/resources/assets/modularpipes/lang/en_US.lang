@@ -20,9 +20,13 @@ item.modularpipes.module.name=Pipe Module
 item.modularpipes.debug.name=Modular Pipes Debug Item
 
 ## Modules
-item.modularpipes.module.extract.name=Extract
-item.modularpipes.module.rightclick_extract.name=Extract On Right-click
-item.modularpipes.module.crafting.name=Crafting
+item.modularpipes.module.desc=Modular Pipe Module
+item.modularpipes.module.cleared_data=Cleared Module Data
+item.modularpipes.module.cant_insert=Can't insert any more modules!
+
+item.modularpipes.module_extract.name=Extract
+item.modularpipes.module_rightclick_extract.name=Extract On Right-click
+item.modularpipes.module_crafting.name=Crafting
 
 # Config
 config_group.modularpipes.name=Modular Pipes

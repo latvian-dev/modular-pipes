@@ -1,12 +1,12 @@
 package com.latmod.modularpipes.tile;
 
+import com.feed_the_beast.ftbl.lib.LangKey;
 import com.feed_the_beast.ftbl.lib.math.MathUtils;
 import com.feed_the_beast.ftbl.lib.tile.EnumSaveType;
 import com.feed_the_beast.ftbl.lib.tile.TileBase;
-import com.feed_the_beast.ftbl.lib.util.StringUtils;
-import com.latmod.modularpipes.ModularPipesCaps;
 import com.latmod.modularpipes.block.EnumTier;
 import com.latmod.modularpipes.data.IPipeBlock;
+import com.latmod.modularpipes.data.Module;
 import com.latmod.modularpipes.data.ModuleContainer;
 import com.latmod.modularpipes.data.Node;
 import com.latmod.modularpipes.data.PipeNetwork;
@@ -25,6 +25,7 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
@@ -40,6 +41,8 @@ import javax.annotation.Nullable;
  */
 public class TileModularPipe extends TileBase implements ITickable
 {
+	public static final LangKey CANT_INSERT = LangKey.of("item.modularpipes.module.cant_insert");
+
 	public EnumTier tier;
 	private int connections = -1;
 	public final ModuleContainer[] modules;
@@ -195,7 +198,7 @@ public class TileModularPipe extends TileBase implements ITickable
 			{
 				c.getModule().removeFromPipe(c, playerIn);
 
-				if (c.getData().shouldSave())
+				if (!c.getData().isEmpty())
 				{
 					NBTTagCompound nbt1 = new NBTTagCompound();
 					c.getData().serializeNBT(nbt1, EnumSaveType.SAVE);
@@ -213,7 +216,7 @@ public class TileModularPipe extends TileBase implements ITickable
 			}
 		}
 
-		if (c.getItemStack().isEmpty() && stack.hasCapability(ModularPipesCaps.MODULE, null))
+		if (c.getItemStack().isEmpty() && stack.getItem() instanceof Module)
 		{
 			int modulesSize = 0;
 
@@ -227,7 +230,7 @@ public class TileModularPipe extends TileBase implements ITickable
 
 			if (tier.modules <= modulesSize)
 			{
-				playerIn.sendMessage(StringUtils.text("Can't insert any more modules!"));//TODO: Lang
+				playerIn.sendMessage(CANT_INSERT.textComponent());
 				return;
 			}
 
@@ -245,24 +248,22 @@ public class TileModularPipe extends TileBase implements ITickable
 			}
 		}
 
-		if (!c.getModule().onRightClick(c, playerIn, hand))
+		if (!c.getModule().onModuleRightClick(c, playerIn, hand))
 		{
-			//TODO: Open GUI
-			playerIn.sendMessage(StringUtils.text("GUI Not Implemented!"));
+			playerIn.sendMessage(new TextComponentString("GUI Not Implemented!")); //TODO: Open GUI
 		}
-			
 
-        /*
+		/*
 		List<TileModularPipe> list = PipeNetwork.findPipes(this, false);
-        List<String> list1 = new ArrayList<>();
+		List<String> list1 = new ArrayList<>();
 
-        for(TileModularPipe t : list)
-        {
-            list1.add("[" + t.getPos().getX() + ", " + t.getPos().getY() + ", " + t.getPos().getZ() + "]");
-        }
+		for (TileModularPipe t : list)
+		{
+			list1.add("[" + t.getPos().getX() + ", " + t.getPos().getY() + ", " + t.getPos().getZ() + "]");
+		}
 
-        playerIn.sendMessage(new TextComponentString("Found " + list.size() + " pipes on network: " + list1));
-        */
+		playerIn.sendMessage(new TextComponentString("Found " + list.size() + " pipes on network: " + list1));
+		*/
 	}
 
 	public void onBroken()
@@ -271,7 +272,7 @@ public class TileModularPipe extends TileBase implements ITickable
 		{
 			c.getModule().pipeBroken(c);
 
-			if (c.getData().shouldSave())
+			if (!c.getData().isEmpty())
 			{
 				NBTTagCompound nbt1 = new NBTTagCompound();
 				c.getData().serializeNBT(nbt1, EnumSaveType.SAVE);

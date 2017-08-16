@@ -2,7 +2,7 @@ package com.latmod.modularpipes.client;
 
 import com.feed_the_beast.ftbl.api.EventHandler;
 import com.feed_the_beast.ftbl.api.events.FTBLibClientRegistryEvent;
-import com.feed_the_beast.ftbl.lib.client.FTBLibClient;
+import com.feed_the_beast.ftbl.lib.client.ClientUtils;
 import com.latmod.modularpipes.ModularPipes;
 import com.latmod.modularpipes.ModularPipesConfig;
 import com.latmod.modularpipes.block.EnumTier;
@@ -39,9 +39,9 @@ public class ModularPipesClientEventHandler
 	@SubscribeEvent
 	public static void onTickEvent(TickEvent.ClientTickEvent event)
 	{
-		if (event.phase == TickEvent.Phase.END && FTBLibClient.MC.world != null && !FTBLibClient.MC.isGamePaused())
+		if (event.phase == TickEvent.Phase.END && ClientUtils.MC.world != null && !ClientUtils.MC.isGamePaused())
 		{
-			PipeNetwork.get(FTBLibClient.MC.world).update();
+			PipeNetwork.get(ClientUtils.MC.world).update();
 		}
 	}
 

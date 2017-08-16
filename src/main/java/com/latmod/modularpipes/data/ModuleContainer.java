@@ -1,7 +1,7 @@
 package com.latmod.modularpipes.data;
 
 import com.feed_the_beast.ftbl.lib.tile.EnumSaveType;
-import com.latmod.modularpipes.ModularPipesCaps;
+import com.feed_the_beast.ftbl.lib.util.DataStorage;
 import com.latmod.modularpipes.tile.TileModularPipe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -22,7 +22,7 @@ public final class ModuleContainer implements ITickable, IItemHandler
 	public final EnumFacing facing;
 	private Module module;
 	private ItemStack stack;
-	private ModuleData data;
+	private DataStorage data;
 	private FilterConfig filterConfig;
 	private int tick;
 
@@ -42,7 +42,7 @@ public final class ModuleContainer implements ITickable, IItemHandler
 		{
 			setStack(new ItemStack(nbt.getCompoundTag("Item")));
 
-			if (data.shouldSave() && stack.hasTagCompound() && stack.getTagCompound().hasKey("ModuleData"))
+			if (stack.hasTagCompound() && stack.getTagCompound().hasKey("ModuleData"))
 			{
 				data.deserializeNBT(stack.getTagCompound().getCompoundTag("ModuleData"), type);
 			}
@@ -63,25 +63,24 @@ public final class ModuleContainer implements ITickable, IItemHandler
 
 	public boolean hasModule()
 	{
-		return !getModule().isEmpty();
+		return !getModule().isEmptyModule();
 	}
 
 	public void setStack(ItemStack is)
 	{
 		module = Module.EMPTY;
-		data = NoData.INSTANCE;
+		data = DataStorage.EMPTY;
 		stack = ItemStack.EMPTY;
 		tick = 0;
 
-		if (!is.isEmpty() && is.hasCapability(ModularPipesCaps.MODULE, null))
+		if (is.getItem() instanceof Module)
 		{
 			stack = is;
-			Module m = stack.getCapability(ModularPipesCaps.MODULE, null);
+			module = (Module) is.getItem();
 
-			if (m != null)
+			if (!module.isEmptyModule())
 			{
-				module = m;
-				data = module.createData(this);
+				data = module.createModuleData(this);
 				filterConfig = module.createFilterConfig(this);
 			}
 		}
@@ -97,7 +96,7 @@ public final class ModuleContainer implements ITickable, IItemHandler
 		return stack;
 	}
 
-	public ModuleData getData()
+	public DataStorage getData()
 	{
 		return data;
 	}
@@ -117,7 +116,7 @@ public final class ModuleContainer implements ITickable, IItemHandler
 	{
 		if (hasModule())
 		{
-			module.update(this);
+			module.updateModule(this);
 			tick++;
 		}
 	}
@@ -149,11 +148,11 @@ public final class ModuleContainer implements ITickable, IItemHandler
 		if (!c.getItemStack().isEmpty())
 		{
 			nbt.setTag("Item", c.getItemStack().serializeNBT());
+			NBTTagCompound nbt1 = new NBTTagCompound();
+			c.getData().serializeNBT(nbt1, type);
 
-			if (c.getData().shouldSave())
+			if (!nbt1.hasNoTags())
 			{
-				NBTTagCompound nbt1 = new NBTTagCompound();
-				c.getData().serializeNBT(nbt1, type);
 				c.getItemStack().setTagInfo("ModuleData", nbt1);
 			}
 		}

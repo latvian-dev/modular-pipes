@@ -1,8 +1,8 @@
 package com.latmod.modularpipes.item.module;
 
-import com.latmod.modularpipes.data.Module;
 import com.latmod.modularpipes.data.ModuleContainer;
 import com.latmod.modularpipes.data.TransportedItem;
+import com.latmod.modularpipes.item.ItemModule;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -11,10 +11,15 @@ import net.minecraftforge.items.IItemHandler;
 /**
  * @author LatvianModder
  */
-public class ModuleExtract extends Module
+public class ItemModuleExtract extends ItemModule
 {
+	public ItemModuleExtract(String id)
+	{
+		super(id);
+	}
+
 	@Override
-	public void update(ModuleContainer container)
+	public void updateModule(ModuleContainer container)
 	{
 		if (!container.isRemote() && container.getTick() % 20 == 19)
 		{

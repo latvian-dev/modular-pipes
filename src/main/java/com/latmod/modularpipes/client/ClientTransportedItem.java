@@ -1,6 +1,6 @@
 package com.latmod.modularpipes.client;
 
-import com.feed_the_beast.ftbl.lib.client.FTBLibClient;
+import com.feed_the_beast.ftbl.lib.client.ClientUtils;
 import com.latmod.modularpipes.data.PipeNetwork;
 import com.latmod.modularpipes.data.TransportedItem;
 import net.minecraft.item.ItemSkull;
@@ -40,7 +40,7 @@ public class ClientTransportedItem extends TransportedItem
 		rotationY = 0F;
 		scale = 0.49F;
 
-		boolean render3D = FTBLibClient.MC.getRenderItem().shouldRenderItemIn3D(stack);
+		boolean render3D = ClientUtils.MC.getRenderItem().shouldRenderItemIn3D(stack);
 
 		if (!render3D || stack.getItem() instanceof ItemSkull)
 		{

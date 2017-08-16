@@ -7,15 +7,20 @@ import net.minecraft.util.EnumHand;
 /**
  * @author LatvianModder
  */
-public class ModuleRightClickExtract extends ModuleExtract
+public class ItemModuleRightClickExtract extends ItemModuleExtract
 {
+	public ItemModuleRightClickExtract(String id)
+	{
+		super(id);
+	}
+
 	@Override
-	public void update(ModuleContainer container)
+	public void updateModule(ModuleContainer container)
 	{
 	}
 
 	@Override
-	public boolean onRightClick(ModuleContainer container, EntityPlayer player, EnumHand hand)
+	public boolean onModuleRightClick(ModuleContainer container, EntityPlayer player, EnumHand hand)
 	{
 		extractItem(container);
 		return true;
