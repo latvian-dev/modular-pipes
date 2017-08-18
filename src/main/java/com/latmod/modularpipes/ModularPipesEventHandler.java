@@ -1,8 +1,8 @@
 package com.latmod.modularpipes;
 
 import com.feed_the_beast.ftbl.api.EventHandler;
-import com.feed_the_beast.ftbl.api.events.FTBLibRegistryEvent;
 import com.feed_the_beast.ftbl.api.events.player.ForgePlayerSettingsEvent;
+import com.feed_the_beast.ftbl.api.events.registry.RegisterDataProvidersEvent;
 import com.latmod.modularpipes.data.ModularPipesPlayerData;
 import com.latmod.modularpipes.data.PipeNetwork;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -19,10 +19,9 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 public class ModularPipesEventHandler
 {
 	@SubscribeEvent
-	public static void registerCommon(FTBLibRegistryEvent event)
+	public static void registerPlayerDataProvider(RegisterDataProvidersEvent.Player event)
 	{
-		ModularPipesConfig.init(event.getRegistry());
-		event.getRegistry().addPlayerDataProvider(ModularPipesPlayerData.ID, ModularPipesPlayerData::new);
+		event.register(ModularPipesPlayerData.ID, ModularPipesPlayerData::new);
 	}
 
 	@SubscribeEvent

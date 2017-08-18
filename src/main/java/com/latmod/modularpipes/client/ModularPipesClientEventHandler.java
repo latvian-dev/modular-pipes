@@ -1,10 +1,8 @@
 package com.latmod.modularpipes.client;
 
 import com.feed_the_beast.ftbl.api.EventHandler;
-import com.feed_the_beast.ftbl.api.events.FTBLibClientRegistryEvent;
 import com.feed_the_beast.ftbl.lib.client.ClientUtils;
 import com.latmod.modularpipes.ModularPipes;
-import com.latmod.modularpipes.ModularPipesConfig;
 import com.latmod.modularpipes.block.EnumTier;
 import com.latmod.modularpipes.data.PipeNetwork;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -20,12 +18,6 @@ import net.minecraftforge.fml.relauncher.Side;
 @EventHandler(Side.CLIENT)
 public class ModularPipesClientEventHandler
 {
-	@SubscribeEvent
-	public static void registerClient(FTBLibClientRegistryEvent event)
-	{
-		ModularPipesConfig.initClient(event.getRegistry());
-	}
-
 	@SubscribeEvent
 	public static void onDisconnected(FMLNetworkEvent.ClientDisconnectionFromServerEvent event)
 	{
