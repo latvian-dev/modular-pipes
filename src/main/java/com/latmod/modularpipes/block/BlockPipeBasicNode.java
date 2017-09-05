@@ -5,7 +5,6 @@ import com.latmod.modularpipes.data.NodeType;
 import com.latmod.modularpipes.item.ModularPipesItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
-import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
@@ -27,30 +26,22 @@ import java.util.Random;
  */
 public class BlockPipeBasicNode extends BlockPipeBase
 {
-	public static final PropertyInteger CON_D = PropertyInteger.create("con_d", 0, 1);
-	public static final PropertyInteger CON_U = PropertyInteger.create("con_u", 0, 1);
-	public static final PropertyInteger CON_N = PropertyInteger.create("con_n", 0, 1);
-	public static final PropertyInteger CON_S = PropertyInteger.create("con_s", 0, 1);
-	public static final PropertyInteger CON_W = PropertyInteger.create("con_w", 0, 1);
-	public static final PropertyInteger CON_E = PropertyInteger.create("con_e", 0, 1);
-	public static final PropertyInteger[] CONNECTIONS = {CON_D, CON_U, CON_N, CON_S, CON_W, CON_E};
-
 	public BlockPipeBasicNode(String id)
 	{
 		super(id, MapColor.GRAY);
 		setDefaultState(blockState.getBaseState()
-				.withProperty(CON_D, 0)
-				.withProperty(CON_U, 0)
-				.withProperty(CON_N, 0)
-				.withProperty(CON_S, 0)
-				.withProperty(CON_W, 0)
-				.withProperty(CON_E, 0));
+				.withProperty(BlockModularPipe.CON_D, 0)
+				.withProperty(BlockModularPipe.CON_U, 0)
+				.withProperty(BlockModularPipe.CON_N, 0)
+				.withProperty(BlockModularPipe.CON_S, 0)
+				.withProperty(BlockModularPipe.CON_W, 0)
+				.withProperty(BlockModularPipe.CON_E, 0));
 	}
 
 	@Override
 	protected BlockStateContainer createBlockState()
 	{
-		return new BlockStateContainer(this, CON_D, CON_U, CON_N, CON_S, CON_W, CON_E);
+		return new BlockStateContainer(this, BlockModularPipe.CON_D, BlockModularPipe.CON_U, BlockModularPipe.CON_N, BlockModularPipe.CON_S, BlockModularPipe.CON_W, BlockModularPipe.CON_E);
 	}
 
 	@Deprecated
@@ -97,7 +88,7 @@ public class BlockPipeBasicNode extends BlockPipeBase
 	{
 		for (int i = 0; i < 6; i++)
 		{
-			state = state.withProperty(CONNECTIONS[i], canConnectTo(state, worldIn, pos, EnumFacing.VALUES[i]) ? 1 : 0);
+			state = state.withProperty(BlockModularPipe.CONNECTIONS[i], canConnectTo(state, worldIn, pos, EnumFacing.VALUES[i]) ? 1 : 0);
 		}
 
 		return state;
@@ -144,7 +135,7 @@ public class BlockPipeBasicNode extends BlockPipeBase
 
 		for (int facing = 0; facing < 6; facing++)
 		{
-			c |= Math.min(1, state.getValue(CONNECTIONS[facing])) << facing;
+			c |= Math.min(1, state.getValue(BlockModularPipe.CONNECTIONS[facing])) << facing;
 		}
 
 		return c;

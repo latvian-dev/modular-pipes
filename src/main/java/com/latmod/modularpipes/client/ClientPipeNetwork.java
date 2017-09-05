@@ -54,8 +54,8 @@ public class ClientPipeNetwork extends PipeNetwork
 			return;
 		}
 
-		double renderDistanceSq = ModularPipesConfig.ITEM_RENDER_DISTANCE.getAsDouble() * ModularPipesConfig.ITEM_RENDER_DISTANCE.getAsDouble();
-		boolean particles = ModularPipesConfig.ITEM_PARTICLES.getBoolean();
+		double renderDistanceSq = ModularPipesClientConfig.general.item_render_distance * ModularPipesClientConfig.general.item_render_distance;
+		boolean particles = ModularPipesClientConfig.general.item_particles;
 
 		double x, y, z, s2;
 		double px = ClientUtils.playerX;
@@ -89,7 +89,7 @@ public class ClientPipeNetwork extends PipeNetwork
 						GlStateManager.popMatrix();
 					}
 
-					if (particles && i.speedModifier >= ModularPipesConfig.SUPER_BOOST.getDouble())
+					if (particles && i.speedModifier >= ModularPipesConfig.pipes.super_boost)
 					{
 						float prevHue = (i.renderTick - 1F) * 0.08F;
 						float hue = i.renderTick * 0.08F;

@@ -281,7 +281,7 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
         }
         */
 
-		progress += speedModifier * ModularPipesConfig.ITEM_BASE_SPEED.getAsDouble();
+		progress += speedModifier * ModularPipesConfig.pipes.base_speed;
 	}
 
 	public void updatePrevData()

@@ -7,18 +7,15 @@ import com.latmod.modularpipes.item.ItemModule;
 import com.latmod.modularpipes.tile.TileModularPipe;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
-import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -35,7 +32,6 @@ import java.util.List;
  */
 public class BlockModularPipe extends BlockPipeBase
 {
-	public static final PropertyEnum<EnumTier> TIER = PropertyEnum.create("tier", EnumTier.class);
 	public static final PropertyInteger CON_D = PropertyInteger.create("con_d", 0, 1);
 	public static final PropertyInteger CON_U = PropertyInteger.create("con_u", 0, 1);
 	public static final PropertyInteger CON_N = PropertyInteger.create("con_n", 0, 1);
@@ -44,11 +40,13 @@ public class BlockModularPipe extends BlockPipeBase
 	public static final PropertyInteger CON_E = PropertyInteger.create("con_e", 0, 1);
 	public static final PropertyInteger[] CONNECTIONS = {CON_D, CON_U, CON_N, CON_S, CON_W, CON_E};
 
-	public BlockModularPipe(String id)
+	public final EnumTier tier;
+
+	public BlockModularPipe(String id, EnumTier t)
 	{
 		super(id, MapColor.GRAY);
+		tier = t;
 		setDefaultState(blockState.getBaseState()
-				.withProperty(TIER, EnumTier.BASIC)
 				.withProperty(CON_D, 0)
 				.withProperty(CON_U, 0)
 				.withProperty(CON_N, 0)
@@ -60,26 +58,20 @@ public class BlockModularPipe extends BlockPipeBase
 	@Override
 	protected BlockStateContainer createBlockState()
 	{
-		return new BlockStateContainer(this, TIER, CON_D, CON_U, CON_N, CON_S, CON_W, CON_E);
+		return new BlockStateContainer(this, CON_D, CON_U, CON_N, CON_S, CON_W, CON_E);
 	}
 
 	@Deprecated
 	@Override
 	public IBlockState getStateFromMeta(int meta)
 	{
-		return getDefaultState().withProperty(TIER, EnumTier.getFromMeta(meta));
+		return getDefaultState();
 	}
 
 	@Override
 	public int getMetaFromState(IBlockState state)
 	{
-		return state.getValue(TIER).ordinal();
-	}
-
-	@Override
-	public int damageDropped(IBlockState state)
-	{
-		return getMetaFromState(state);
+		return 0;
 	}
 
 	@Override
@@ -91,25 +83,13 @@ public class BlockModularPipe extends BlockPipeBase
 	@Override
 	public TileEntity createTileEntity(World world, IBlockState state)
 	{
-		return new TileModularPipe(state.getValue(TIER));
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> list)
-	{
-		for (int i = 0; i < 8; i++)
-		{
-			list.add(new ItemStack(this, 1, i));
-		}
+		return new TileModularPipe(tier);
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flag)
 	{
-		EnumTier tier = EnumTier.getFromMeta(stack.getMetadata());
-
 		if (tier == EnumTier.BASIC)
 		{
 			tooltip.add(StringUtils.translate("tile.modularpipes.pipe_modular.tier_basic"));
@@ -252,7 +232,7 @@ public class BlockModularPipe extends BlockPipeBase
 	@Override
 	public double getItemSpeedModifier(IBlockAccess world, BlockPos pos, IBlockState state, TransportedItem item)
 	{
-		return state.getValue(TIER).speed.getDouble();
+		return tier.speed.getDouble();
 	}
 
 	@Override

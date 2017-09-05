@@ -12,10 +12,11 @@ import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = ModularPipes.MOD_ID, name = "Modular Pipes", useMetadata = true, acceptedMinecraftVersions = "[1.12,)", dependencies = "required-after:ftbl")
+@Mod(modid = ModularPipes.MOD_ID, name = ModularPipes.MOD_NAME, useMetadata = true, acceptedMinecraftVersions = "[1.12,)", dependencies = "required-after:ftbl")
 public class ModularPipes
 {
 	public static final String MOD_ID = "modularpipes";
+	public static final String MOD_NAME = "Modular Pipes";
 	public static final Logger LOGGER = LogManager.getLogger("ModularPipes");
 
 	@SidedProxy(serverSide = "com.latmod.modularpipes.ModularPipesCommon", clientSide = "com.latmod.modularpipes.client.ModularPipesClient")
@@ -26,13 +27,14 @@ public class ModularPipes
 		@Override
 		public ItemStack getTabIconItem()
 		{
-			return new ItemStack(ModularPipesItems.PIPE_MODULAR, 1, 7);
+			return new ItemStack(ModularPipesItems.PIPE_MODULAR_STAR);
 		}
 	};
 
 	@EventHandler
 	public void onPreInit(FMLPreInitializationEvent event)
 	{
+		ModularPipesConfig.sync();
 		PROXY.preInit();
 	}
 

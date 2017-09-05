@@ -1,48 +1,56 @@
 package com.latmod.modularpipes;
 
-import com.feed_the_beast.ftbl.api.EventHandler;
-import com.feed_the_beast.ftbl.api.events.registry.RegisterClientConfigEvent;
-import com.feed_the_beast.ftbl.api.events.registry.RegisterConfigEvent;
-import com.feed_the_beast.ftbl.lib.config.PropertyBool;
-import com.feed_the_beast.ftbl.lib.config.PropertyByte;
-import com.feed_the_beast.ftbl.lib.config.PropertyDouble;
-import com.feed_the_beast.ftbl.lib.util.CommonUtils;
+import net.minecraftforge.common.config.Config;
+import net.minecraftforge.common.config.ConfigManager;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
-import java.io.File;
 
 /**
  * @author LatvianModder
  */
-@EventHandler
+@Mod.EventBusSubscriber(modid = ModularPipes.MOD_ID)
+@Config(modid = ModularPipes.MOD_ID, category = "config")
 public class ModularPipesConfig
 {
-	public static final PropertyBool DEV_MODE = new PropertyBool(false);
-	public static final PropertyDouble ITEM_BASE_SPEED = new PropertyDouble(0.01D).setMin(0D);
-	public static final PropertyByte MAX_LINK_LENGTH = new PropertyByte(250, 1, 255).setUnsigned();
-	public static final PropertyDouble SUPER_BOOST = new PropertyDouble(10D, 1D, 1000D);
+	@Config.LangKey("ftbl.config.general")
+	public static final General general = new General();
 
-	//Client
-	public static final PropertyDouble ITEM_RENDER_DISTANCE = new PropertyDouble(90D).setMin(0D);
-	public static final PropertyBool ITEM_PARTICLES = new PropertyBool(true);
+	public static final Pipes pipes = new Pipes();
 
-	@SubscribeEvent
-	public static void init(RegisterConfigEvent event)
+	public static class General
 	{
-		event.registerFile(ModularPipes.MOD_ID, () -> new File(CommonUtils.folderConfig, "ModularPipes.json"));
+		@Config.Comment("Allows players to use dev features, like network visualisation")
+		public boolean dev_mode = false;
+	}
 
-		String group = ModularPipes.MOD_ID;
-		event.register(group, "dev_mode", DEV_MODE);
-		event.register(group, "item_base_speed", ITEM_BASE_SPEED);
-		event.register(group, "max_link_length", MAX_LINK_LENGTH);
-		event.register(group, "super_boost", SUPER_BOOST);
+	public static class Pipes
+	{
+		@Config.RangeDouble(min = 0, max = 100)
+		@Config.Comment("Base speed")
+		public double base_speed = 0.01;
+
+		@Config.RangeInt(min = 1, max = 255)
+		@Config.Comment("Maximum length of blocks that will be used to look for link paths")
+		public int max_link_length = 250;
+
+		@Config.RangeDouble(min = 1, max = 1000)
+		@Config.Comment("Super Boost speed modifier")
+		public double super_boost = 10;
+	}
+
+	public static void sync()
+	{
+		ConfigManager.sync(ModularPipes.MOD_ID, Config.Type.INSTANCE);
+		ModularPipes.PROXY.networkUpdated();
 	}
 
 	@SubscribeEvent
-	public static void initClient(RegisterClientConfigEvent event)
+	public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event)
 	{
-		String group = ModularPipes.MOD_ID;
-		event.register(group, "item_render_distance", ITEM_RENDER_DISTANCE);
-		event.register(group, "item_particles", ITEM_PARTICLES);
+		if (event.getModID().equals(ModularPipes.MOD_ID))
+		{
+			sync();
+		}
 	}
 }

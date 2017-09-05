@@ -4,14 +4,14 @@ itemGroup.modularpipes=Modular Pipes
 # Blocks
 tile.modularpipes.pipe_basic.name=Basic Pipe
 tile.modularpipes.pipe.speed_boost=Speed Boost: %s
-tile.modularpipes.pipe_modular.basic.name=Modular Pipe [Tier 0: Basic]
-tile.modularpipes.pipe_modular.iron.name=Modular Pipe [Tier 1: Iron]
-tile.modularpipes.pipe_modular.gold.name=Modular Pipe [Tier 2: Gold]
-tile.modularpipes.pipe_modular.quartz.name=Modular Pipe [Tier 3: Quartz]
-tile.modularpipes.pipe_modular.lapis.name=Modular Pipe [Tier 4: Lapis Lazuli]
-tile.modularpipes.pipe_modular.ender.name=Modular Pipe [Tier 5: Ender]
-tile.modularpipes.pipe_modular.emerald.name=Modular Pipe [Tier 6: Emerald]
-tile.modularpipes.pipe_modular.star.name=Modular Pipe [Tier 7: Nether Star]
+tile.modularpipes.pipe_modular_basic.name=Basic Modular Pipe
+tile.modularpipes.pipe_modular_iron.name=Iron Modular Pipe
+tile.modularpipes.pipe_modular_gold.name=Gold Modular Pipe
+tile.modularpipes.pipe_modular_quartz.name=Quartz Modular Pipe
+tile.modularpipes.pipe_modular_lapis.name=Lapis Lazuli Modular Pipe
+tile.modularpipes.pipe_modular_ender.name=Ender Modular Pipe
+tile.modularpipes.pipe_modular_emerald.name=Emerald Modular Pipe
+tile.modularpipes.pipe_modular_star.name=Nether Star Modular Pipe
 tile.modularpipes.pipe_modular.tier_basic=Not Very Modular
 tile.modularpipes.pipe_modular.slots=Available Module Slots: %d
 
@@ -29,11 +29,11 @@ item.modularpipes.module_rightclick_extract.name=Extract On Right-click
 item.modularpipes.module_crafting.name=Crafting
 
 # Config
-config_group.modularpipes.name=Modular Pipes
-config.modularpipes.dev_mode.name=Dev Mode
-config.modularpipes.item_base_speed.name=Item Base Speed
-config.modularpipes.max_link_length.name=Max Link Length
-config.modularpipes.super_boost.name=Super Boost
+modularpipes.config.general.dev_mode=Dev Mode
+modularpipes.config.pipes=Pipes
+modularpipes.config.pipes.base_speed=Base Speed
+modularpipes.config.pipes.max_link_length=Max Link Length
+modularpipes.config.pipes.super_boost=Super Boost
 
-client_config.modularpipes.item_render_distance.name=Item Render Distance
-client_config.modularpipes.item_particles.name=Item Particles
+modularpipes_client.config.general.item_render_distance=Item Render Distance
+modularpipes_client.config.general.item_particles=Item Particles

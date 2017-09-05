@@ -103,7 +103,6 @@ public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe
 			}
 		}
 
-
 		GlStateManager.disableRescaleNormal();
 		GlStateManager.color(1F, 1F, 1F, 1F);
 		GlStateManager.popMatrix();

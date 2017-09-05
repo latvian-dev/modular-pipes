@@ -35,7 +35,7 @@ import java.util.Map;
  */
 public class ServerPipeNetwork extends PipeNetwork
 {
-	public static final TIntObjectHashMap<PipeNetwork> NETWORK_MAP = new TIntObjectHashMap<>();
+	public static final TIntObjectHashMap<ServerPipeNetwork> NETWORK_MAP = new TIntObjectHashMap<>();
 
 	public static void clearAll()
 	{
@@ -47,6 +47,7 @@ public class ServerPipeNetwork extends PipeNetwork
 	private final Collection<Link> links = new HashSet<>();
 	private int nextItemId = 0;
 	private final Map<Integer, TransportedItem> updateCache = new HashMap<>();
+	private boolean prevDev = false;
 
 	ServerPipeNetwork(World w)
 	{
@@ -381,9 +382,8 @@ public class ServerPipeNetwork extends PipeNetwork
 		BlockPos pos = start.offset(facing);
 		EnumFacing source = facing.getOpposite();
 		IBlockState state;
-		int maxLength = ModularPipesConfig.MAX_LINK_LENGTH.getInt();
 
-		for (int length = 1; length < maxLength; length++)
+		for (int length = 1; length < ModularPipesConfig.pipes.max_link_length; length++)
 		{
 			state = world.getBlockState(pos);
 
@@ -480,8 +480,9 @@ public class ServerPipeNetwork extends PipeNetwork
 				}
 			}
 
-			if (ModularPipesConfig.DEV_MODE.getBoolean())
+			if (prevDev || ModularPipesConfig.general.dev_mode)
 			{
+				prevDev = ModularPipesConfig.general.dev_mode;
 				Map<BlockPos, NodeType> n = null;
 				Collection<List<BlockPos>> l = null;
 				Collection<BlockPos> t = null;
@@ -492,7 +493,7 @@ public class ServerPipeNetwork extends PipeNetwork
 
 					if (data != null)
 					{
-						boolean dev = data.devMode.getBoolean();
+						boolean dev = ModularPipesConfig.general.dev_mode && data.devMode.getBoolean();
 						if (n == null && dev)
 						{
 							n = new HashMap<>(nodes.size());

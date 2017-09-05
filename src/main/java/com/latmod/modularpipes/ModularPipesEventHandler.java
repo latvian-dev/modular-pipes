@@ -31,7 +31,7 @@ public class ModularPipesEventHandler
 
 		if (data != null)
 		{
-			event.add(ModularPipes.MOD_ID, "dev_mode", data.devMode).setNameLangKey("config.modularpipes.dev_mode.name").setInfoLangKey("config.modularpipes.dev_mode.info");
+			event.add(ModularPipes.MOD_ID, "dev_mode", data.devMode).setNameLangKey("modularpipes.general.dev_mode");
 		}
 	}
 

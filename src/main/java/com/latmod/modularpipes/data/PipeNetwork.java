@@ -29,7 +29,7 @@ public abstract class PipeNetwork implements ITickable
 		}
 
 		int dim = world.provider.getDimension();
-		PipeNetwork net = ServerPipeNetwork.NETWORK_MAP.get(dim);
+		ServerPipeNetwork net = ServerPipeNetwork.NETWORK_MAP.get(dim);
 
 		if (net == null)
 		{

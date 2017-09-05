@@ -51,7 +51,7 @@ public class ModularPipesClientEventHandler
 	{
 		for (EnumTier tier : EnumTier.NAME_MAP.values)
 		{
-			RenderModularPipe.SPRITES[tier.ordinal()] = event.getMap().getAtlasSprite(ModularPipes.MOD_ID + ":blocks/pipes/tier_" + tier.getName());
+			RenderModularPipe.SPRITES[tier.ordinal()] = event.getMap().getAtlasSprite(ModularPipes.MOD_ID + ":blocks/pipes/modular_" + tier.getName());
 		}
 	}
 }

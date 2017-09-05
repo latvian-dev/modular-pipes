@@ -1,14 +1,14 @@
 {
 	"type": "forge:ore_shaped",
 	"group": "modular_pipes:pipe",
-	"result": {"item": "pipe_modular", "data": 1, "count": 8},
+	"result": {"item": "pipe_modular_iron", "count": 8},
 	"pattern": [
 		"PPP",
 		"PIP",
 		"PPP"
 	],
 	"key": {
-		"P": {"item": "pipe_modular", "data": 0},
+		"P": {"item": "pipe_modular_basic"},
 		"I": {"type": "forge:ore_dict", "ore": "ingotIron"}
 	}
 }
