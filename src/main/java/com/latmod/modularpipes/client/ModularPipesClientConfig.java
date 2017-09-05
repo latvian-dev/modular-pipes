@@ -1,19 +1,17 @@
 package com.latmod.modularpipes.client;
 
-import com.feed_the_beast.ftbl.api.EventHandler;
-import com.feed_the_beast.ftbl.api.events.registry.RegisterClientConfigEvent;
-import com.feed_the_beast.ftbl.lib.client.ImageProvider;
 import com.latmod.modularpipes.ModularPipes;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * @author LatvianModder
  */
-@EventHandler(Side.CLIENT)
+@Mod.EventBusSubscriber(modid = ModularPipes.MOD_ID, value = Side.CLIENT)
 @Config(modid = ModularPipes.MOD_ID + "_client", category = "config", name = "../local/client/" + ModularPipes.MOD_ID)
 public class ModularPipesClientConfig
 {
@@ -40,11 +38,5 @@ public class ModularPipesClientConfig
 		{
 			sync();
 		}
-	}
-
-	@SubscribeEvent
-	public static void registerClientConfig(RegisterClientConfigEvent event)
-	{
-		event.register(ModularPipes.MOD_ID + "_client", ModularPipes.MOD_NAME, ImageProvider.get(ModularPipes.MOD_ID + ":textures/logo.png"));
 	}
 }
