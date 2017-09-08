@@ -1,7 +1,7 @@
 package com.latmod.modularpipes.block;
 
 import com.feed_the_beast.ftbl.lib.NameMap;
-import com.feed_the_beast.ftbl.lib.config.PropertyDouble;
+import com.feed_the_beast.ftbl.lib.config.ConfigDouble;
 import net.minecraft.util.IStringSerializable;
 
 /**
@@ -27,13 +27,13 @@ public enum EnumTier implements IStringSerializable
 
 	private final String name;
 	public final int modules;
-	public final PropertyDouble speed;
+	public final ConfigDouble speed;
 
 	EnumTier(String n, double d)
 	{
 		name = n;
 		modules = Math.min(ordinal(), 6);
-		speed = new PropertyDouble(d, 1D, 100D);
+		speed = new ConfigDouble(d, 1D, 100D);
 	}
 
 	@Override

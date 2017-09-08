@@ -1,7 +1,7 @@
 package com.latmod.modularpipes.data;
 
 import com.feed_the_beast.ftbl.api.IForgePlayer;
-import com.feed_the_beast.ftbl.lib.config.PropertyBool;
+import com.feed_the_beast.ftbl.lib.config.ConfigBoolean;
 import com.latmod.modularpipes.ModularPipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -13,7 +13,7 @@ import net.minecraftforge.common.util.INBTSerializable;
 public class ModularPipesPlayerData implements INBTSerializable<NBTTagCompound>
 {
 	public static final ResourceLocation ID = new ResourceLocation(ModularPipes.MOD_ID, "data");
-	public final PropertyBool devMode = new PropertyBool(false)
+	public final ConfigBoolean devMode = new ConfigBoolean(false)
 	{
 		@Override
 		public void setBoolean(boolean v)
