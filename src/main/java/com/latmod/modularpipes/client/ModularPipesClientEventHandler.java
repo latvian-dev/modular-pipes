@@ -49,7 +49,7 @@ public class ModularPipesClientEventHandler
 	@SubscribeEvent
 	public static void onTexturesStitched(TextureStitchEvent.Post event)
 	{
-		for (EnumTier tier : EnumTier.NAME_MAP.values)
+		for (EnumTier tier : EnumTier.NAME_MAP)
 		{
 			RenderModularPipe.SPRITES[tier.ordinal()] = event.getMap().getAtlasSprite(ModularPipes.MOD_ID + ":blocks/pipes/modular_" + tier.getName());
 		}
