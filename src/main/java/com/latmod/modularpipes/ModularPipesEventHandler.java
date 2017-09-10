@@ -1,11 +1,12 @@
 package com.latmod.modularpipes;
 
 import com.feed_the_beast.ftbl.api.EventHandler;
-import com.feed_the_beast.ftbl.api.events.player.ForgePlayerSettingsEvent;
+import com.feed_the_beast.ftbl.api.events.player.ForgePlayerConfigEvent;
 import com.feed_the_beast.ftbl.api.events.registry.RegisterDataProvidersEvent;
 import com.latmod.modularpipes.data.ModularPipesPlayerData;
 import com.latmod.modularpipes.data.PipeNetwork;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -25,13 +26,14 @@ public class ModularPipesEventHandler
 	}
 
 	@SubscribeEvent
-	public static void playerSettings(ForgePlayerSettingsEvent event)
+	public static void playerSettings(ForgePlayerConfigEvent event)
 	{
 		ModularPipesPlayerData data = (ModularPipesPlayerData) event.getPlayer().getData(ModularPipesPlayerData.ID);
 
 		if (data != null)
 		{
-			event.add(ModularPipes.MOD_ID, "dev_mode", data.devMode).setNameLangKey("modularpipes.general.dev_mode");
+			event.getConfig().setGroupName(ModularPipes.MOD_ID, new TextComponentString(ModularPipes.MOD_NAME));
+			event.getConfig().add(ModularPipes.MOD_ID, "dev_mode", data.devMode).setNameLangKey("modularpipes.config.general.dev_mode");
 		}
 	}
 
