@@ -489,46 +489,42 @@ public class ServerPipeNetwork extends PipeNetwork
 
 				for (IForgePlayer player : FTBLibAPI.API.getUniverse().getOnlinePlayers())
 				{
-					ModularPipesPlayerData data = (ModularPipesPlayerData) player.getData(ModularPipesPlayerData.ID);
-
-					if (data != null)
+					ModularPipesPlayerData data = ModularPipesPlayerData.get(player);
+					boolean dev = ModularPipesConfig.general.dev_mode && data.devMode.getBoolean();
+					if (n == null && dev)
 					{
-						boolean dev = ModularPipesConfig.general.dev_mode && data.devMode.getBoolean();
-						if (n == null && dev)
+						n = new HashMap<>(nodes.size());
+						for (Node node : nodes.values())
 						{
-							n = new HashMap<>(nodes.size());
-							for (Node node : nodes.values())
-							{
-								n.put(node, node.type);
-							}
+							n.put(node, node.type);
+						}
 
-							l = new ArrayList<>();
-							for (Link link : links)
-							{
-								l.add(link.path);
-							}
+						l = new ArrayList<>();
+						for (Link link : links)
+						{
+							l.add(link.path);
+						}
 
-							t = new ArrayList<>();
-							for (Node node : nodes.values())
+						t = new ArrayList<>();
+						for (Node node : nodes.values())
+						{
+							for (int facing = 0; facing < 6; facing++)
 							{
-								for (int facing = 0; facing < 6; facing++)
+								if (node.getTile(facing) != null)
 								{
-									if (node.getTile(facing) != null)
-									{
-										t.add(node.offset(EnumFacing.VALUES[facing]));
-									}
+									t.add(node.offset(EnumFacing.VALUES[facing]));
 								}
 							}
 						}
+					}
 
-						if (dev)
-						{
-							new MessageVisualizeNetwork(n, l, t).sendTo(player.getPlayer());
-						}
-						else
-						{
-							new MessageVisualizeNetwork(Collections.emptyMap(), Collections.emptyList(), Collections.emptyList()).sendTo(player.getPlayer());
-						}
+					if (dev)
+					{
+						new MessageVisualizeNetwork(n, l, t).sendTo(player.getPlayer());
+					}
+					else
+					{
+						new MessageVisualizeNetwork(Collections.emptyMap(), Collections.emptyList(), Collections.emptyList()).sendTo(player.getPlayer());
 					}
 				}
 			}

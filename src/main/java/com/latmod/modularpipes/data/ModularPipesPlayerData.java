@@ -13,6 +13,12 @@ import net.minecraftforge.common.util.INBTSerializable;
 public class ModularPipesPlayerData implements INBTSerializable<NBTTagCompound>
 {
 	public static final ResourceLocation ID = new ResourceLocation(ModularPipes.MOD_ID, "data");
+
+	public static ModularPipesPlayerData get(IForgePlayer player)
+	{
+		return player.getData().get(ID);
+	}
+
 	public final ConfigBoolean devMode = new ConfigBoolean(false)
 	{
 		@Override

@@ -28,13 +28,9 @@ public class ModularPipesEventHandler
 	@SubscribeEvent
 	public static void playerSettings(ForgePlayerConfigEvent event)
 	{
-		ModularPipesPlayerData data = (ModularPipesPlayerData) event.getPlayer().getData(ModularPipesPlayerData.ID);
-
-		if (data != null)
-		{
-			event.getConfig().setGroupName(ModularPipes.MOD_ID, new TextComponentString(ModularPipes.MOD_NAME));
-			event.getConfig().add(ModularPipes.MOD_ID, "dev_mode", data.devMode).setNameLangKey("modularpipes.config.general.dev_mode");
-		}
+		ModularPipesPlayerData data = ModularPipesPlayerData.get(event.getPlayer());
+		event.getConfig().setGroupName(ModularPipes.MOD_ID, new TextComponentString(ModularPipes.MOD_NAME));
+		event.getConfig().add(ModularPipes.MOD_ID, "dev_mode", data.devMode).setNameLangKey("modularpipes.config.general.dev_mode");
 	}
 
 	@SubscribeEvent
