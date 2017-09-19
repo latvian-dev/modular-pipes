@@ -459,7 +459,7 @@ public class ServerPipeNetwork extends PipeNetwork
 
 		if (!updateCache.isEmpty())
 		{
-			new MessageUpdateItems(updateCache).sendToDimension(world.provider.getDimension());
+			new MessageUpdateItems(updateCache.values()).sendToDimension(world.provider.getDimension());
 		}
 
 		if (networkUpdated)
@@ -483,20 +483,30 @@ public class ServerPipeNetwork extends PipeNetwork
 			if (prevDev || ModularPipesConfig.general.dev_mode)
 			{
 				prevDev = ModularPipesConfig.general.dev_mode;
-				Map<BlockPos, NodeType> n = null;
-				Collection<List<BlockPos>> l = null;
+				Collection<BlockPos> ns = null;
+				Collection<BlockPos> nt = null;
+				Collection<Collection<BlockPos>> l = null;
 				Collection<BlockPos> t = null;
 
 				for (IForgePlayer player : FTBLibAPI.API.getUniverse().getOnlinePlayers())
 				{
 					ModularPipesPlayerData data = ModularPipesPlayerData.get(player);
 					boolean dev = ModularPipesConfig.general.dev_mode && data.devMode.getBoolean();
-					if (n == null && dev)
+					if (ns == null && dev)
 					{
-						n = new HashMap<>(nodes.size());
+						ns = new HashSet<>();
+						nt = new HashSet<>();
+
 						for (Node node : nodes.values())
 						{
-							n.put(node, node.type);
+							if (node.type.hasTiles())
+							{
+								nt.add(node);
+							}
+							else
+							{
+								ns.add(node);
+							}
 						}
 
 						l = new ArrayList<>();
@@ -520,11 +530,11 @@ public class ServerPipeNetwork extends PipeNetwork
 
 					if (dev)
 					{
-						new MessageVisualizeNetwork(n, l, t).sendTo(player.getPlayer());
+						new MessageVisualizeNetwork(ns, nt, l, t).sendTo(player.getPlayer());
 					}
 					else
 					{
-						new MessageVisualizeNetwork(Collections.emptyMap(), Collections.emptyList(), Collections.emptyList()).sendTo(player.getPlayer());
+						new MessageVisualizeNetwork(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList()).sendTo(player.getPlayer());
 					}
 				}
 			}
@@ -539,7 +549,7 @@ public class ServerPipeNetwork extends PipeNetwork
 
 	public void playerLoggedIn(EntityPlayer player)
 	{
-		new MessageUpdateItems(items).sendTo(player);
+		new MessageUpdateItems(items.values()).sendTo(player);
 		networkUpdated = true;
 	}
 }

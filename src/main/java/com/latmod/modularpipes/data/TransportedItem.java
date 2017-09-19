@@ -1,10 +1,10 @@
 package com.latmod.modularpipes.data;
 
+import com.feed_the_beast.ftbl.lib.io.DataIn;
+import com.feed_the_beast.ftbl.lib.io.DataOut;
 import com.feed_the_beast.ftbl.lib.math.MathUtils;
-import com.feed_the_beast.ftbl.lib.util.NetUtils;
 import com.latmod.modularpipes.ModularPipesConfig;
 import com.latmod.modularpipes.client.ClientTransportedItem;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -12,7 +12,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,6 +23,48 @@ import java.util.List;
  */
 public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompound>
 {
+	public static final DataOut.Serializer<TransportedItem> SERIALIZER = (data, item) ->
+	{
+		data.writeInt(item.id);
+		data.writeByte(item.action.ordinal());
+
+		if (!item.action.remove())
+		{
+			data.writeItemStack(item.stack);
+			data.writePos(item.start);
+			data.writePos(item.pos);
+			byte[] b = PathPoint.toArray(item.path);
+			data.writeByte(b.length / 2);
+			data.writeBytes(b);
+			data.writeShort(item.filters);
+			data.writeDouble(item.progress);
+			data.writeDouble(item.speedModifier);
+		}
+	};
+
+	public static final DataIn.Deserializer<TransportedItem> DESERIALIZER = data ->
+	{
+		TransportedItem item = new TransportedItem(null);
+
+		item.id = data.readInt();
+		item.action = TransportedItem.Action.VALUES[data.readUnsignedByte()];
+
+		if (!item.action.remove())
+		{
+			item.stack = data.readItemStack();
+			item.start = data.readPos();
+			item.pos = data.readMutablePos();
+			byte[] b = new byte[data.readUnsignedByte() * 2];
+			data.readBytes(b);
+			PathPoint.fromArray(item.path, b);
+			item.filters = data.readUnsignedShort();
+			item.progress = data.readDouble();
+			item.speedModifier = data.readDouble();
+		}
+
+		return item;
+	};
+
 	public enum Action
 	{
 		NONE,
@@ -156,44 +197,6 @@ public class TransportedItem implements ITickable, INBTSerializable<NBTTagCompou
 		filters = nbt.getInteger("Filters");
 		progress = nbt.getDouble("Progress");
 		speedModifier = nbt.hasKey("Speed") ? nbt.getDouble("Speed") : 1D;
-	}
-
-	public void writeToByteBuf(ByteBuf buf)
-	{
-		buf.writeInt(id);
-		buf.writeByte(action.ordinal());
-
-		if (!action.remove())
-		{
-			ByteBufUtils.writeItemStack(buf, stack);
-			NetUtils.writePos(buf, start);
-			NetUtils.writePos(buf, pos);
-			byte[] b = PathPoint.toArray(path);
-			buf.writeByte(b.length / 2);
-			buf.writeBytes(b);
-			buf.writeShort(filters);
-			buf.writeDouble(progress);
-			buf.writeDouble(speedModifier);
-		}
-	}
-
-	public void readFromByteBuf(ByteBuf buf)
-	{
-		id = buf.readInt();
-		action = TransportedItem.Action.VALUES[buf.readUnsignedByte()];
-
-		if (!action.remove())
-		{
-			stack = ByteBufUtils.readItemStack(buf);
-			start = NetUtils.readPos(buf);
-			pos = NetUtils.readMutablePos(buf);
-			byte[] b = new byte[buf.readUnsignedByte() * 2];
-			buf.readBytes(b);
-			PathPoint.fromArray(path, b);
-			filters = buf.readUnsignedShort();
-			progress = buf.readDouble();
-			speedModifier = buf.readDouble();
-		}
 	}
 
 	public ClientTransportedItem client()

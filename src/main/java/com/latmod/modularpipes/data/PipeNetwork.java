@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -148,7 +147,7 @@ public abstract class PipeNetwork implements ITickable
 	{
 	}
 
-	public void visualizeNetwork(Map<BlockPos, NodeType> nodes, Collection<List<BlockPos>> links, Collection<BlockPos> tiles)
+	public void visualizeNetwork(Collection<BlockPos> nodesSimple, Collection<BlockPos> nodesTiles, Collection<Collection<BlockPos>> links, Collection<BlockPos> tiles)
 	{
 	}
 }

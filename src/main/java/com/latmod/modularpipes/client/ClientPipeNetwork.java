@@ -7,7 +7,6 @@ import com.feed_the_beast.ftbl.lib.client.ClientUtils;
 import com.feed_the_beast.ftbl.lib.math.MathUtils;
 import com.feed_the_beast.ftbl.lib.util.UtilsCommon;
 import com.latmod.modularpipes.ModularPipesConfig;
-import com.latmod.modularpipes.data.NodeType;
 import com.latmod.modularpipes.data.PipeNetwork;
 import com.latmod.modularpipes.data.TransportedItem;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -21,9 +20,9 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author LatvianModder
@@ -125,9 +124,9 @@ public class ClientPipeNetwork extends PipeNetwork
 	}
 
 	@Override
-	public void visualizeNetwork(Map<BlockPos, NodeType> nodes, Collection<List<BlockPos>> links, Collection<BlockPos> tiles)
+	public void visualizeNetwork(Collection<BlockPos> ns, Collection<BlockPos> nt, Collection<Collection<BlockPos>> links, Collection<BlockPos> tiles)
 	{
-		if (nodes.isEmpty() && links.isEmpty() && tiles.isEmpty())
+		if (ns.isEmpty() && nt.isEmpty() && links.isEmpty() && tiles.isEmpty())
 		{
 			networkVis = null;
 			return;
@@ -135,24 +134,21 @@ public class ClientPipeNetwork extends PipeNetwork
 
 		networkVis = new CachedVertexData(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
 
-		for (Map.Entry<BlockPos, NodeType> entry : nodes.entrySet())
+		for (BlockPos pos : ns)
 		{
-			BlockPos pos = entry.getKey();
-
-			if (entry.getValue().hasTiles())
-			{
-				networkVis.color.set(0x66FF0000);
-			}
-			else
-			{
-				networkVis.color.set(0x66FF6600);
-			}
-
+			networkVis.color.set(0x66FF6600);
 			networkVis.centeredCube(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, 0.3D);
 		}
 
-		for (List<BlockPos> l : links)
+		for (BlockPos pos : nt)
 		{
+			networkVis.color.set(0x66FF0000);
+			networkVis.centeredCube(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, 0.3D);
+		}
+
+		for (Collection<BlockPos> l0 : links)
+		{
+			List<BlockPos> l = new ArrayList<>(l0);
 			for (int i = 0; i < l.size(); i++)
 			{
 				BlockPos pos = l.get(i);

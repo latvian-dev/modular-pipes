@@ -1,28 +1,28 @@
 package com.latmod.modularpipes.net;
 
+import com.feed_the_beast.ftbl.lib.io.DataIn;
+import com.feed_the_beast.ftbl.lib.io.DataOut;
 import com.feed_the_beast.ftbl.lib.net.MessageToClient;
 import com.feed_the_beast.ftbl.lib.net.NetworkWrapper;
 import com.latmod.modularpipes.client.ClientTransportedItem;
 import com.latmod.modularpipes.data.PipeNetwork;
 import com.latmod.modularpipes.data.TransportedItem;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collection;
 
 /**
  * @author LatvianModder
  */
 public class MessageUpdateItems extends MessageToClient<MessageUpdateItems>
 {
-	private Map<Integer, TransportedItem> updated;
+	private Collection<TransportedItem> updated;
 
 	public MessageUpdateItems()
 	{
 	}
 
-	public MessageUpdateItems(Map<Integer, TransportedItem> u)
+	public MessageUpdateItems(Collection<TransportedItem> u)
 	{
 		updated = u;
 	}
@@ -34,26 +34,15 @@ public class MessageUpdateItems extends MessageToClient<MessageUpdateItems>
 	}
 
 	@Override
-	public void fromBytes(ByteBuf buf)
+	public void writeData(DataOut data)
 	{
-		int s = buf.readInt();
-		updated = new HashMap<>(s);
-		while (--s >= 0)
-		{
-			TransportedItem item = new TransportedItem(null);
-			item.readFromByteBuf(buf);
-			updated.put(item.id, item);
-		}
+		data.writeCollection(updated, TransportedItem.SERIALIZER);
 	}
 
 	@Override
-	public void toBytes(ByteBuf buf)
+	public void readData(DataIn data)
 	{
-		buf.writeInt(updated.size());
-		for (TransportedItem item : updated.values())
-		{
-			item.writeToByteBuf(buf);
-		}
+		updated = data.readCollection(TransportedItem.DESERIALIZER);
 	}
 
 	@Override
@@ -61,23 +50,20 @@ public class MessageUpdateItems extends MessageToClient<MessageUpdateItems>
 	{
 		PipeNetwork n = PipeNetwork.get(player.world);
 
-		for (Map.Entry<Integer, TransportedItem> entry : message.updated.entrySet())
+		for (TransportedItem item : message.updated)
 		{
-			int id = entry.getKey();
-			TransportedItem item = entry.getValue();
-
-			if (item == null || item.remove())
+			if (item.remove())
 			{
-				n.items.remove(id);
+				n.items.remove(item.id);
 			}
 			else
 			{
-				TransportedItem citem = n.items.get(id);
+				TransportedItem citem = n.items.get(item.id);
 
 				if (citem == null)
 				{
-					citem = new ClientTransportedItem(n, id);
-					n.items.put(id, citem);
+					citem = new ClientTransportedItem(n, item.id);
+					n.items.put(item.id, citem);
 				}
 
 				citem.copyFrom(item);
