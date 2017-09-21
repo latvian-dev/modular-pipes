@@ -6,7 +6,7 @@ import com.feed_the_beast.ftbl.lib.util.NBTUtils;
 import com.latmod.modularpipes.ModularPipesConfig;
 import com.latmod.modularpipes.net.MessageUpdateItems;
 import com.latmod.modularpipes.net.MessageVisualizeNetwork;
-import gnu.trove.map.hash.TIntObjectHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -35,7 +35,7 @@ import java.util.Map;
  */
 public class ServerPipeNetwork extends PipeNetwork
 {
-	public static final TIntObjectHashMap<ServerPipeNetwork> NETWORK_MAP = new TIntObjectHashMap<>();
+	public static final Int2ObjectOpenHashMap<ServerPipeNetwork> NETWORK_MAP = new Int2ObjectOpenHashMap<>();
 
 	public static void clearAll()
 	{
@@ -282,7 +282,7 @@ public class ServerPipeNetwork extends PipeNetwork
 			}
 
 			nodes.remove(pos);
-			networkUpdated = true;
+			markDirty();
 		}
 
 		if (removedLink || node == null)
@@ -293,7 +293,7 @@ public class ServerPipeNetwork extends PipeNetwork
 				{
 					link.setInvalid();
 					removedLink = true;
-					networkUpdated = true;
+					markDirty();
 				}
 			}
 		}
@@ -370,7 +370,7 @@ public class ServerPipeNetwork extends PipeNetwork
 			}
 		}
 
-		networkUpdated = true;
+		markDirty();
 		return true;
 	}
 
@@ -462,9 +462,9 @@ public class ServerPipeNetwork extends PipeNetwork
 			new MessageUpdateItems(updateCache.values()).sendToDimension(world.provider.getDimension());
 		}
 
-		if (networkUpdated)
+		if (isDirty)
 		{
-			networkUpdated = false;
+			isDirty = false;
 
 			Iterator<Link> iterator = links.iterator();
 
@@ -550,6 +550,6 @@ public class ServerPipeNetwork extends PipeNetwork
 	public void playerLoggedIn(EntityPlayer player)
 	{
 		new MessageUpdateItems(items.values()).sendTo(player);
-		networkUpdated = true;
+		markDirty();
 	}
 }

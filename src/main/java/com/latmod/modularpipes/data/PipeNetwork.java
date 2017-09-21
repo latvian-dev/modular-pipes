@@ -44,7 +44,7 @@ public abstract class PipeNetwork implements ITickable
 	public final World world;
 	public final Map<Integer, TransportedItem> items = new HashMap<>();
 	private boolean itemsRemoved = false;
-	public boolean networkUpdated;
+	public boolean isDirty;
 
 	private final Consumer<TransportedItem> foreachUpdate = item ->
 	{
@@ -64,6 +64,11 @@ public abstract class PipeNetwork implements ITickable
 	public PipeNetwork(World w)
 	{
 		world = w;
+	}
+
+	public void markDirty()
+	{
+		isDirty = true;
 	}
 
 	public ServerPipeNetwork server()

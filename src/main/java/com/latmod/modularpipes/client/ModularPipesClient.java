@@ -35,7 +35,7 @@ public class ModularPipesClient extends ModularPipesCommon
 
 		if (ClientUtils.MC.world != null)
 		{
-			getClientNetwork(ClientUtils.MC.world).networkUpdated = true;
+			getClientNetwork(ClientUtils.MC.world).markDirty();
 		}
 	}
 }

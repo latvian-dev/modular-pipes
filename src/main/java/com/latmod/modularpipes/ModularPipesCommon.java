@@ -3,19 +3,16 @@ package com.latmod.modularpipes;
 import com.latmod.modularpipes.data.PipeNetwork;
 import com.latmod.modularpipes.data.ServerPipeNetwork;
 import com.latmod.modularpipes.net.ModularPipesNet;
-import gnu.trove.procedure.TObjectProcedure;
 import net.minecraft.world.World;
+
+import java.util.function.Consumer;
 
 /**
  * @author LatvianModder
  */
 public class ModularPipesCommon
 {
-	private static final TObjectProcedure<ServerPipeNetwork> UPDATE_NETWORK = network ->
-	{
-		network.networkUpdated = true;
-		return true;
-	};
+	private static final Consumer<ServerPipeNetwork> UPDATE_NETWORK = PipeNetwork::markDirty;
 
 	public void preInit()
 	{
@@ -29,6 +26,6 @@ public class ModularPipesCommon
 
 	public void networkUpdated()
 	{
-		ServerPipeNetwork.NETWORK_MAP.forEachValue(UPDATE_NETWORK);
+		ServerPipeNetwork.NETWORK_MAP.values().forEach(UPDATE_NETWORK);
 	}
 }

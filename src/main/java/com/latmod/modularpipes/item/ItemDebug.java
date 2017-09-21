@@ -86,7 +86,7 @@ public class ItemDebug extends ItemMPBase
 		{
 			network.getNodes().forEach(Node::clearCache);
 			network.items.values().forEach(TransportedItem::setRemoved);
-			network.server().networkUpdated = true;
+			network.server().markDirty();
 		}
 
 		return new ActionResult<>(EnumActionResult.SUCCESS, stack);

@@ -71,7 +71,7 @@ public class Node extends BlockPos
 		}
 		if (prevTile != tiles[i])
 		{
-			network.networkUpdated = true;
+			network.markDirty();
 		}
 
 		return tiles[i];

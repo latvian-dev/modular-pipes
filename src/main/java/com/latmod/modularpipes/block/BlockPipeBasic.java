@@ -2,7 +2,7 @@ package com.latmod.modularpipes.block;
 
 import com.latmod.modularpipes.data.IPipeBlock;
 import com.latmod.modularpipes.item.ModularPipesItems;
-import gnu.trove.map.hash.TIntIntHashMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.properties.PropertyEnum;
@@ -42,7 +42,7 @@ public class BlockPipeBasic extends BlockPipeBase
 		S_E("s_e", EnumFacing.SOUTH, EnumFacing.EAST);
 
 		public static final Model[] VALUES = values();
-		public static final TIntIntHashMap CONNECTION_MAP = new TIntIntHashMap();
+		public static final Int2IntOpenHashMap CONNECTION_MAP = new Int2IntOpenHashMap();
 
 		private static int getConnectionId(@Nullable EnumFacing facing1, @Nullable EnumFacing facing2)
 		{

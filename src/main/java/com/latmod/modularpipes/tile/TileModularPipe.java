@@ -377,7 +377,7 @@ public class TileModularPipe extends TileBase implements ITickable
 				if (node != null)
 				{
 					node.clearCache();
-					node.network.networkUpdated = true;
+					node.network.markDirty();
 				}
 			}
 		}
