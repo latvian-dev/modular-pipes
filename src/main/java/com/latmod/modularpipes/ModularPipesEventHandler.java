@@ -1,8 +1,8 @@
 package com.latmod.modularpipes;
 
 import com.feed_the_beast.ftbl.api.EventHandler;
-import com.feed_the_beast.ftbl.api.events.player.ForgePlayerConfigEvent;
-import com.feed_the_beast.ftbl.api.events.registry.RegisterDataProvidersEvent;
+import com.feed_the_beast.ftbl.api.RegisterDataProvidersEvent;
+import com.feed_the_beast.ftbl.api.player.ForgePlayerConfigEvent;
 import com.latmod.modularpipes.data.ModularPipesPlayerData;
 import com.latmod.modularpipes.data.PipeNetwork;
 import net.minecraft.entity.player.EntityPlayerMP;
