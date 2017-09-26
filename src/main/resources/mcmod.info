@@ -4,7 +4,7 @@
 		"name": "Modular Pipes",
 		"description": "",
 		"version": "${version}",
-		"mcversion": "1.12",
+		"mcversion": "${mcversion}",
 		"url": "https://minecraft.curseforge.com/projects/modular-pipes",
 		"updateUrl": "",
 		"authorList": ["LatvianModder"],
