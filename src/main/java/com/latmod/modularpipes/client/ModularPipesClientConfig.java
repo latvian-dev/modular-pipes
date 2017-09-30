@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.client;
 
+import com.feed_the_beast.ftbl.lib.gui.GuiLang;
 import com.latmod.modularpipes.ModularPipes;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
@@ -15,7 +16,7 @@ import net.minecraftforge.fml.relauncher.Side;
 @Config(modid = ModularPipes.MOD_ID + "_client", category = "config", name = "../local/client/" + ModularPipes.MOD_ID)
 public class ModularPipesClientConfig
 {
-	@Config.LangKey("ftbl.config.general")
+	@Config.LangKey(GuiLang.LANG_GENERAL)
 	public static final General general = new General();
 
 	public static class General
