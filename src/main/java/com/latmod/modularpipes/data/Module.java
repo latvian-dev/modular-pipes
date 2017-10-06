@@ -1,6 +1,6 @@
 package com.latmod.modularpipes.data;
 
-import com.feed_the_beast.ftbl.lib.util.DataStorage;
+import com.feed_the_beast.ftbl.lib.util.misc.DataStorage;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 

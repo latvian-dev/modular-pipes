@@ -1,6 +1,6 @@
 package com.latmod.modularpipes.item;
 
-import com.feed_the_beast.ftbl.lib.LangKey;
+import com.feed_the_beast.ftbl.lib.util.LangKey;
 import com.latmod.modularpipes.data.Module;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;

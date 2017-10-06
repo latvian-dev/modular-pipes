@@ -1,9 +1,9 @@
 package com.latmod.modularpipes.tile;
 
-import com.feed_the_beast.ftbl.lib.LangKey;
 import com.feed_the_beast.ftbl.lib.math.MathUtils;
 import com.feed_the_beast.ftbl.lib.tile.EnumSaveType;
 import com.feed_the_beast.ftbl.lib.tile.TileBase;
+import com.feed_the_beast.ftbl.lib.util.LangKey;
 import com.latmod.modularpipes.block.EnumTier;
 import com.latmod.modularpipes.data.IPipeBlock;
 import com.latmod.modularpipes.data.Module;

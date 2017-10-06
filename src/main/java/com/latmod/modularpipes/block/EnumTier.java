@@ -1,7 +1,7 @@
 package com.latmod.modularpipes.block;
 
-import com.feed_the_beast.ftbl.lib.NameMap;
 import com.feed_the_beast.ftbl.lib.config.ConfigDouble;
+import com.feed_the_beast.ftbl.lib.util.misc.NameMap;
 import net.minecraft.util.IStringSerializable;
 
 /**
