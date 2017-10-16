@@ -16,7 +16,7 @@ import java.util.List;
  */
 public final class Link
 {
-	public static final Comparator<Link> COMPARATOR = Comparator.comparingInt(link -> link.length);
+	public static final Comparator<Link> COMPARATOR = (link1, link2) -> link1.length - link2.length;
 
 	public static List<BlockPos> simplify(Collection<BlockPos> path)
 	{
