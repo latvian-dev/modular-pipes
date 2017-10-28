@@ -102,13 +102,13 @@ public abstract class BlockPipeBase extends BlockMPBase implements IPipeBlock
 	@Deprecated
 	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean p_185477_7_)
 	{
-		addCollisionBoxToList(pos, entityBox, collidingBoxes, BlockPipeBase.BOXES[6]);
+		addCollisionBoxToList(pos, entityBox, collidingBoxes, BOXES[6]);
 
 		for (EnumFacing facing : EnumFacing.VALUES)
 		{
 			if (canConnectTo(state, worldIn, pos, facing))
 			{
-				addCollisionBoxToList(pos, entityBox, collidingBoxes, BlockPipeBase.BOXES[facing.ordinal()]);
+				addCollisionBoxToList(pos, entityBox, collidingBoxes, BOXES[facing.ordinal()]);
 			}
 		}
 	}
@@ -125,11 +125,11 @@ public abstract class BlockPipeBase extends BlockMPBase implements IPipeBlock
 	@SideOnly(Side.CLIENT)
 	public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos)
 	{
-		RayTraceResult mop = ClientUtils.MC.objectMouseOver;
+		RayTraceResult ray = ClientUtils.MC.objectMouseOver;
 
-		if (mop != null && mop.subHit >= 0 && mop.subHit < BlockPipeBase.BOXES.length)
+		if (ray != null && ray.subHit >= 0 && ray.subHit < BOXES.length)
 		{
-			return BlockPipeBase.BOXES[mop.subHit].offset(pos);
+			return BOXES[ray.subHit].offset(pos);
 		}
 
 		return super.getSelectedBoundingBox(state, worldIn, pos);

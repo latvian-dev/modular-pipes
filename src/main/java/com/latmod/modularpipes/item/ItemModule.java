@@ -42,7 +42,7 @@ public class ItemModule extends ItemMPBase implements Module
 				stack.setTagCompound(null);
 			}
 
-			playerIn.sendMessage(CLEARED_DATA.textComponent());
+			CLEARED_DATA.sendMessage(playerIn);
 			return new ActionResult<>(EnumActionResult.SUCCESS, stack);
 		}
 

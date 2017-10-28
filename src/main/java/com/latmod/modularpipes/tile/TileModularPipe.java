@@ -230,7 +230,7 @@ public class TileModularPipe extends TileBase implements ITickable
 
 			if (tier.modules <= modulesSize)
 			{
-				playerIn.sendMessage(CANT_INSERT.textComponent());
+				CANT_INSERT.sendMessage(playerIn);
 				return;
 			}
 
