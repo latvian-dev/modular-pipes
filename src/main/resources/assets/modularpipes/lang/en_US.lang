@@ -29,11 +29,11 @@ item.modularpipes.module_rightclick_extract.name=Extract On Right-click
 item.modularpipes.module_crafting.name=Crafting
 
 # Config
-modularpipes.config.general.dev_mode=Dev Mode
-modularpipes.config.pipes=Pipes
-modularpipes.config.pipes.base_speed=Base Speed
-modularpipes.config.pipes.max_link_length=Max Link Length
-modularpipes.config.pipes.super_boost=Super Boost
+modularpipes.general.dev_mode=Dev Mode
+modularpipes.pipes=Pipes
+modularpipes.pipes.base_speed=Base Speed
+modularpipes.pipes.max_link_length=Max Link Length
+modularpipes.pipes.super_boost=Super Boost
 
-modularpipes_client.config.general.item_render_distance=Item Render Distance
-modularpipes_client.config.general.item_particles=Item Particles
+modularpipes_client.general.item_render_distance=Item Render Distance
+modularpipes_client.general.item_particles=Item Particles

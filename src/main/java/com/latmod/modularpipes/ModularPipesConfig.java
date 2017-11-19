@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  * @author LatvianModder
  */
 @Mod.EventBusSubscriber(modid = ModularPipes.MOD_ID)
-@Config(modid = ModularPipes.MOD_ID, category = "config")
+@Config(modid = ModularPipes.MOD_ID, category = "")
 public class ModularPipesConfig
 {
 	@Config.LangKey(GuiLang.LANG_GENERAL)

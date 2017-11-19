@@ -44,18 +44,18 @@ public class ModularPipesPlayerData implements INBTSerializable<NBTTagCompound>
 	public NBTTagCompound serializeNBT()
 	{
 		NBTTagCompound nbt = new NBTTagCompound();
-		nbt.setBoolean("Dev", devMode.getBoolean());
+
+		if (devMode.getBoolean())
+		{
+			nbt.setBoolean("Dev", true);
+		}
+
 		return nbt;
 	}
 
 	@Override
 	public void deserializeNBT(NBTTagCompound nbt)
 	{
-		if (nbt == null)
-		{
-			return;
-		}
-
 		devMode.setBoolean(nbt.getBoolean("Dev"));
 	}
 }

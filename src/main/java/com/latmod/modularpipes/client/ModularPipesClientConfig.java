@@ -13,7 +13,7 @@ import net.minecraftforge.fml.relauncher.Side;
  * @author LatvianModder
  */
 @Mod.EventBusSubscriber(modid = ModularPipes.MOD_ID, value = Side.CLIENT)
-@Config(modid = ModularPipes.MOD_ID + "_client", category = "config", name = "../local/client/" + ModularPipes.MOD_ID)
+@Config(modid = ModularPipes.MOD_ID + "_client", category = "", name = "../local/client/" + ModularPipes.MOD_ID)
 public class ModularPipesClientConfig
 {
 	@Config.LangKey(GuiLang.LANG_GENERAL)
