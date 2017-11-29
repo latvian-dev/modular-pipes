@@ -41,11 +41,7 @@ public final class ModuleContainer implements ITickable, IItemHandler
 		if (nbt.hasKey("Item"))
 		{
 			setStack(new ItemStack(nbt.getCompoundTag("Item")));
-
-			if (stack.hasTagCompound() && stack.getTagCompound().hasKey("ModuleData"))
-			{
-				data.deserializeNBT(stack.getTagCompound().getCompoundTag("ModuleData"), type);
-			}
+			data.deserializeNBT(nbt.getCompoundTag("Data"), type);
 		}
 
 		if (nbt.hasKey("FilterConfig"))
@@ -132,28 +128,28 @@ public final class ModuleContainer implements ITickable, IItemHandler
 		return tile.getWorld().isRemote;
 	}
 
-	public static NBTTagCompound writeToNBT(ModuleContainer c, EnumSaveType type)
+	public NBTTagCompound writeToNBT(EnumSaveType type)
 	{
 		NBTTagCompound nbt = new NBTTagCompound();
-		nbt.setByte("Facing", (byte) c.facing.getIndex());
+		nbt.setByte("Facing", (byte) facing.getIndex());
 
-		if (c.getTick() > 0)
+		if (tick > 0)
 		{
-			nbt.setInteger("Tick", c.getTick());
+			nbt.setInteger("Tick", tick);
 		}
-		if (c.getFilterConfig().shouldSave())
+		if (filterConfig.shouldSave())
 		{
-			nbt.setTag("FilterConfig", c.getFilterConfig().serializeNBT());
+			nbt.setTag("FilterConfig", filterConfig.serializeNBT());
 		}
-		if (!c.getItemStack().isEmpty())
+		if (!stack.isEmpty())
 		{
-			nbt.setTag("Item", c.getItemStack().serializeNBT());
+			nbt.setTag("Item", stack.serializeNBT());
 			NBTTagCompound nbt1 = new NBTTagCompound();
-			c.getData().serializeNBT(nbt1, type);
+			data.serializeNBT(nbt1, type);
 
 			if (!nbt1.hasNoTags())
 			{
-				c.getItemStack().setTagInfo("ModuleData", nbt1);
+				nbt.setTag("Data", nbt1);
 			}
 		}
 

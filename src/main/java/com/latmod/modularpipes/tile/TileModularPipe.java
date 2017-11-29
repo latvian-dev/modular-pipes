@@ -88,14 +88,7 @@ public class TileModularPipe extends TileBase implements ITickable
 	@Override
 	protected void writeData(NBTTagCompound nbt, EnumSaveType type)
 	{
-		if (type.save)
-		{
-			nbt.setString("Tier", tier.getName());
-		}
-		else
-		{
-			nbt.setByte("Tier", (byte) tier.ordinal());
-		}
+		EnumTier.NAME_MAP.writeToNBT(nbt, "Tier", type, tier);
 
 		if (type.save || connections != 0)
 		{
@@ -106,7 +99,7 @@ public class TileModularPipe extends TileBase implements ITickable
 
 		for (ModuleContainer c : modules)
 		{
-			NBTTagCompound nbt1 = ModuleContainer.writeToNBT(c, type);
+			NBTTagCompound nbt1 = c.writeToNBT(type);
 
 			if (!nbt1.hasNoTags())
 			{
@@ -123,15 +116,7 @@ public class TileModularPipe extends TileBase implements ITickable
 	@Override
 	protected void readData(NBTTagCompound nbt, EnumSaveType type)
 	{
-		if (!type.save || nbt.hasKey("Tier", Constants.NBT.TAG_BYTE))
-		{
-			tier = EnumTier.getFromMeta(nbt.getByte("Tier"));
-		}
-		else
-		{
-			tier = EnumTier.NAME_MAP.get(nbt.getString("Tier"));
-		}
-
+		tier = EnumTier.NAME_MAP.readFromNBT(nbt, "Tier", type);
 		connections = nbt.getByte("Connections") & 0xFF;
 
 		clearModules();

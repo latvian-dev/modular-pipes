@@ -20,11 +20,6 @@ public enum EnumTier implements IStringSerializable
 
 	public static final NameMap<EnumTier> NAME_MAP = NameMap.create(BASIC, values());
 
-	public static EnumTier getFromMeta(int m)
-	{
-		return NAME_MAP.get(m & 7);
-	}
-
 	private final String name;
 	public final int modules;
 	public final ConfigDouble speed;
