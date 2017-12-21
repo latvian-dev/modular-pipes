@@ -1,12 +1,13 @@
 package com.latmod.modularpipes.client;
 
-import com.feed_the_beast.ftbl.api.EventHandler;
-import com.feed_the_beast.ftbl.lib.client.ClientUtils;
+import com.feed_the_beast.ftblib.lib.client.ClientUtils;
 import com.latmod.modularpipes.ModularPipes;
-import com.latmod.modularpipes.block.EnumTier;
+import com.latmod.modularpipes.ModularPipesConfig;
 import com.latmod.modularpipes.data.PipeNetwork;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
@@ -15,7 +16,7 @@ import net.minecraftforge.fml.relauncher.Side;
 /**
  * @author LatvianModder
  */
-@EventHandler(Side.CLIENT)
+@Mod.EventBusSubscriber(modid = ModularPipes.MOD_ID, value = Side.CLIENT)
 public class ModularPipesClientEventHandler
 {
 	@SubscribeEvent
@@ -47,11 +48,15 @@ public class ModularPipesClientEventHandler
 	}
 
 	@SubscribeEvent
-	public static void onTexturesStitched(TextureStitchEvent.Post event)
+	public static void onTexturesStitched(TextureStitchEvent.Pre event)
 	{
-		for (EnumTier tier : EnumTier.NAME_MAP)
+		RenderController.CONTROLLER_NO_ERROR = event.getMap().registerSprite(new ResourceLocation(ModularPipes.MOD_ID, "blocks/controller_no_error"));
+		RenderController.CONTROLLER_ERROR = event.getMap().registerSprite(new ResourceLocation(ModularPipes.MOD_ID, "blocks/controller_error"));
+		RenderController.PIPE_ERROR = event.getMap().registerSprite(new ResourceLocation(ModularPipes.MOD_ID, "blocks/pipes/modular_error"));
+
+		for (ModularPipesConfig.Tier tier : ModularPipesConfig.tiers.getNameMap())
 		{
-			RenderModularPipe.SPRITES[tier.ordinal()] = event.getMap().getAtlasSprite(ModularPipes.MOD_ID + ":blocks/pipes/modular_" + tier.getName());
+			tier.setSprite(event.getMap().registerSprite(new ResourceLocation(ModularPipes.MOD_ID, "blocks/pipes/modular_" + tier)));
 		}
 	}
 }

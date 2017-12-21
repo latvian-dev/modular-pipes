@@ -1,9 +1,8 @@
 package com.latmod.modularpipes.client;
 
-import com.feed_the_beast.ftbl.lib.client.ClientUtils;
-import com.feed_the_beast.ftbl.lib.math.MathUtils;
+import com.feed_the_beast.ftblib.lib.client.ClientUtils;
+import com.feed_the_beast.ftblib.lib.math.MathUtils;
 import com.latmod.modularpipes.block.BlockPipeBase;
-import com.latmod.modularpipes.block.EnumTier;
 import com.latmod.modularpipes.tile.TileModularPipe;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -21,12 +20,10 @@ import org.lwjgl.opengl.GL11;
  */
 public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe>
 {
-	public static final TextureAtlasSprite[] SPRITES = new TextureAtlasSprite[EnumTier.NAME_MAP.values.size()];
-
 	@Override
-	public void render(TileModularPipe te, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
+	public void render(TileModularPipe pipe, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
 	{
-		if (te.isInvalid())
+		if (pipe.isInvalid())
 		{
 			return;
 		}
@@ -39,13 +36,24 @@ public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe
 		GlStateManager.depthFunc(GL11.GL_LEQUAL);
 		GlStateManager.depthMask(true);
 		setLightmapDisabled(true);
-		GlStateManager.disableLighting();
-		GlStateManager.disableBlend();
-		GlStateManager.enableAlpha();
+		GlStateManager.enableLighting();
 		GlStateManager.enableCull();
+		TextureAtlasSprite sprite;
+
+		if (pipe.hasError())
+		{
+			GlStateManager.enableBlend();
+			GlStateManager.disableAlpha();
+			sprite = RenderController.PIPE_ERROR;
+		}
+		else
+		{
+			GlStateManager.disableBlend();
+			GlStateManager.enableAlpha();
+			sprite = pipe.tier.getSprite();
+		}
 
 		ClientUtils.MC.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		TextureAtlasSprite sprite = SPRITES[te.tier.ordinal()];
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder buffer = tessellator.getBuffer();
 
@@ -56,32 +64,38 @@ public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe
 		double minV = sprite.getInterpolatedV(BlockPipeBase.SIZE);
 		double maxU = sprite.getInterpolatedU(16D - BlockPipeBase.SIZE);
 		double maxV = sprite.getInterpolatedV(16D - BlockPipeBase.SIZE);
+		int alphai = 255;
 
-		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-		buffer.pos(s0, s0, s0).tex(minU, minV).endVertex();
-		buffer.pos(s1, s0, s0).tex(maxU, minV).endVertex();
-		buffer.pos(s1, s0, s1).tex(maxU, maxV).endVertex();
-		buffer.pos(s0, s0, s1).tex(minU, maxV).endVertex();
-		buffer.pos(s0, s1, s0).tex(minU, minV).endVertex();
-		buffer.pos(s0, s1, s1).tex(minU, maxV).endVertex();
-		buffer.pos(s1, s1, s1).tex(maxU, maxV).endVertex();
-		buffer.pos(s1, s1, s0).tex(maxU, minV).endVertex();
-		buffer.pos(s0, s0, s0).tex(maxU, maxV).endVertex();
-		buffer.pos(s0, s1, s0).tex(maxU, minV).endVertex();
-		buffer.pos(s1, s1, s0).tex(minU, minV).endVertex();
-		buffer.pos(s1, s0, s0).tex(minU, maxV).endVertex();
-		buffer.pos(s0, s0, s1).tex(minU, maxV).endVertex();
-		buffer.pos(s1, s0, s1).tex(maxU, maxV).endVertex();
-		buffer.pos(s1, s1, s1).tex(maxU, minV).endVertex();
-		buffer.pos(s0, s1, s1).tex(minU, minV).endVertex();
-		buffer.pos(s0, s0, s0).tex(minU, maxV).endVertex();
-		buffer.pos(s0, s0, s1).tex(maxU, maxV).endVertex();
-		buffer.pos(s0, s1, s1).tex(maxU, minV).endVertex();
-		buffer.pos(s0, s1, s0).tex(minU, minV).endVertex();
-		buffer.pos(s1, s0, s0).tex(maxU, maxV).endVertex();
-		buffer.pos(s1, s1, s0).tex(maxU, minV).endVertex();
-		buffer.pos(s1, s1, s1).tex(minU, minV).endVertex();
-		buffer.pos(s1, s0, s1).tex(minU, maxV).endVertex();
+		if (destroyStage < 0)
+		{
+			alphai = (int) (alpha * 255);
+		}
+
+		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+		buffer.pos(s0, s0, s0).tex(minU, minV).color(255, 255, 255, alphai).normal(0, -1, 0).endVertex();
+		buffer.pos(s1, s0, s0).tex(maxU, minV).color(255, 255, 255, alphai).normal(0, -1, 0).endVertex();
+		buffer.pos(s1, s0, s1).tex(maxU, maxV).color(255, 255, 255, alphai).normal(0, -1, 0).endVertex();
+		buffer.pos(s0, s0, s1).tex(minU, maxV).color(255, 255, 255, alphai).normal(0, -1, 0).endVertex();
+		buffer.pos(s0, s1, s0).tex(minU, minV).color(255, 255, 255, alphai).normal(0, 1, 0).endVertex();
+		buffer.pos(s0, s1, s1).tex(minU, maxV).color(255, 255, 255, alphai).normal(0, 1, 0).endVertex();
+		buffer.pos(s1, s1, s1).tex(maxU, maxV).color(255, 255, 255, alphai).normal(0, 1, 0).endVertex();
+		buffer.pos(s1, s1, s0).tex(maxU, minV).color(255, 255, 255, alphai).normal(0, 1, 0).endVertex();
+		buffer.pos(s0, s0, s0).tex(maxU, maxV).color(255, 255, 255, alphai).normal(0, 0, -1).endVertex();
+		buffer.pos(s0, s1, s0).tex(maxU, minV).color(255, 255, 255, alphai).normal(0, 0, -1).endVertex();
+		buffer.pos(s1, s1, s0).tex(minU, minV).color(255, 255, 255, alphai).normal(0, 0, -1).endVertex();
+		buffer.pos(s1, s0, s0).tex(minU, maxV).color(255, 255, 255, alphai).normal(0, 0, -1).endVertex();
+		buffer.pos(s0, s0, s1).tex(minU, maxV).color(255, 255, 255, alphai).normal(0, 0, 1).endVertex();
+		buffer.pos(s1, s0, s1).tex(maxU, maxV).color(255, 255, 255, alphai).normal(0, 0, 1).endVertex();
+		buffer.pos(s1, s1, s1).tex(maxU, minV).color(255, 255, 255, alphai).normal(0, 0, 1).endVertex();
+		buffer.pos(s0, s1, s1).tex(minU, minV).color(255, 255, 255, alphai).normal(0, 0, 1).endVertex();
+		buffer.pos(s0, s0, s0).tex(minU, maxV).color(255, 255, 255, alphai).normal(-1, 0, 0).endVertex();
+		buffer.pos(s0, s0, s1).tex(maxU, maxV).color(255, 255, 255, alphai).normal(-1, 0, 0).endVertex();
+		buffer.pos(s0, s1, s1).tex(maxU, minV).color(255, 255, 255, alphai).normal(-1, 0, 0).endVertex();
+		buffer.pos(s0, s1, s0).tex(minU, minV).color(255, 255, 255, alphai).normal(-1, 0, 0).endVertex();
+		buffer.pos(s1, s0, s0).tex(maxU, maxV).color(255, 255, 255, alphai).normal(1, 0, 0).endVertex();
+		buffer.pos(s1, s1, s0).tex(maxU, minV).color(255, 255, 255, alphai).normal(1, 0, 0).endVertex();
+		buffer.pos(s1, s1, s1).tex(minU, minV).color(255, 255, 255, alphai).normal(1, 0, 0).endVertex();
+		buffer.pos(s1, s0, s1).tex(minU, maxV).color(255, 255, 255, alphai).normal(1, 0, 0).endVertex();
 		tessellator.draw();
 
 		GlStateManager.enableLighting();
@@ -89,7 +103,7 @@ public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe
 
 		for (int i = 0; i < 6; i++)
 		{
-			if (te.modules[i].hasModule() && !te.modules[i].getItemStack().isEmpty())
+			if (pipe.modules[i].hasModule() && !pipe.modules[i].getItemStack().isEmpty())
 			{
 				EnumFacing facing = EnumFacing.VALUES[i];
 				GlStateManager.pushMatrix();
@@ -98,11 +112,13 @@ public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe
 				GlStateManager.rotate(MathUtils.ROTATION_Y[i], 0F, 1F, 0F);
 				GlStateManager.rotate(MathUtils.ROTATION_X[i], 1F, 0F, 0F);
 				GlStateManager.scale(0.5D, 0.5D, 1D);
-				ClientUtils.MC.getRenderItem().renderItem(te.modules[i].getItemStack(), ItemCameraTransforms.TransformType.FIXED);
+				ClientUtils.MC.getRenderItem().renderItem(pipe.modules[i].getItemStack(), ItemCameraTransforms.TransformType.FIXED);
 				GlStateManager.popMatrix();
 			}
 		}
 
+		GlStateManager.disableBlend();
+		GlStateManager.enableAlpha();
 		GlStateManager.disableRescaleNormal();
 		GlStateManager.color(1F, 1F, 1F, 1F);
 		GlStateManager.popMatrix();

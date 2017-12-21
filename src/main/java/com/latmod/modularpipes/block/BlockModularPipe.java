@@ -1,9 +1,11 @@
 package com.latmod.modularpipes.block;
 
-import com.feed_the_beast.ftbl.lib.util.StringUtils;
+import com.feed_the_beast.ftblib.lib.util.StringUtils;
+import com.latmod.modularpipes.ModularPipesConfig;
 import com.latmod.modularpipes.data.NodeType;
 import com.latmod.modularpipes.data.TransportedItem;
 import com.latmod.modularpipes.item.ItemModule;
+import com.latmod.modularpipes.tile.TileController;
 import com.latmod.modularpipes.tile.TileModularPipe;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
@@ -40,9 +42,9 @@ public class BlockModularPipe extends BlockPipeBase
 	public static final PropertyInteger CON_E = PropertyInteger.create("con_e", 0, 1);
 	public static final PropertyInteger[] CONNECTIONS = {CON_D, CON_U, CON_N, CON_S, CON_W, CON_E};
 
-	public final EnumTier tier;
+	public final ModularPipesConfig.Tier tier;
 
-	public BlockModularPipe(String id, EnumTier t)
+	public BlockModularPipe(String id, ModularPipesConfig.Tier t)
 	{
 		super(id, MapColor.GRAY);
 		tier = t;
@@ -90,7 +92,7 @@ public class BlockModularPipe extends BlockPipeBase
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flag)
 	{
-		if (tier == EnumTier.BASIC)
+		if (tier == ModularPipesConfig.tiers.basic)
 		{
 			tooltip.add(StringUtils.translate("tile.modularpipes.pipe_modular.tier_basic"));
 		}
@@ -99,7 +101,7 @@ public class BlockModularPipe extends BlockPipeBase
 			tooltip.add(StringUtils.translate("tile.modularpipes.pipe_modular.slots", tier.modules));
 		}
 
-		tooltip.add(StringUtils.translate("tile.modularpipes.pipe.speed_boost", StringUtils.formatDouble(tier.speed.getDouble()) + "x"));
+		tooltip.add(StringUtils.translate("tile.modularpipes.pipe.speed_boost", tier.getSpeedString()));
 	}
 
 	@Override
@@ -202,7 +204,7 @@ public class BlockModularPipe extends BlockPipeBase
 	public boolean canConnectTo(IBlockState state, IBlockAccess worldIn, BlockPos pos, EnumFacing facing)
 	{
 		TileEntity tileEntity = worldIn.getTileEntity(pos);
-		return tileEntity instanceof TileModularPipe && ((TileModularPipe) tileEntity).canConnectTo(facing);
+		return tileEntity instanceof TileController || tileEntity instanceof TileModularPipe && ((TileModularPipe) tileEntity).canConnectTo(facing);
 	}
 
 	@Override
@@ -232,7 +234,7 @@ public class BlockModularPipe extends BlockPipeBase
 	@Override
 	public double getItemSpeedModifier(IBlockAccess world, BlockPos pos, IBlockState state, TransportedItem item)
 	{
-		return tier.speed.getDouble();
+		return tier.speed;
 	}
 
 	@Override

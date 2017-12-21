@@ -1,7 +1,8 @@
 package com.latmod.modularpipes.block;
 
-import com.feed_the_beast.ftbl.lib.client.ClientUtils;
-import com.feed_the_beast.ftbl.lib.math.MathUtils;
+import com.feed_the_beast.ftblib.lib.client.ClientUtils;
+import com.feed_the_beast.ftblib.lib.math.MathUtils;
+import com.latmod.modularpipes.ModularPipesItems;
 import com.latmod.modularpipes.data.IPipeBlock;
 import com.latmod.modularpipes.data.PipeNetwork;
 import net.minecraft.block.Block;
@@ -140,7 +141,7 @@ public abstract class BlockPipeBase extends BlockMPBase implements IPipeBlock
 		BlockPos pos1 = pos.offset(facing);
 		IBlockState state1 = worldIn.getBlockState(pos1);
 		Block block1 = state1.getBlock();
-		return block1 instanceof IPipeBlock && ((IPipeBlock) block1).canPipeConnect(worldIn, pos1, state1, facing.getOpposite());
+		return block1 == ModularPipesItems.CONTROLLER || block1 instanceof IPipeBlock && ((IPipeBlock) block1).canPipeConnect(worldIn, pos1, state1, facing.getOpposite());
 
 	}
 

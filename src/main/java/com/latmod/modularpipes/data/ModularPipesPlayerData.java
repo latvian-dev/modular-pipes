@@ -1,7 +1,7 @@
 package com.latmod.modularpipes.data;
 
-import com.feed_the_beast.ftbl.api.IForgePlayer;
-import com.feed_the_beast.ftbl.lib.config.ConfigBoolean;
+import com.feed_the_beast.ftblib.lib.config.ConfigBoolean;
+import com.feed_the_beast.ftblib.lib.data.ForgePlayer;
 import com.latmod.modularpipes.ModularPipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -14,7 +14,7 @@ public class ModularPipesPlayerData implements INBTSerializable<NBTTagCompound>
 {
 	public static final ResourceLocation ID = new ResourceLocation(ModularPipes.MOD_ID, "data");
 
-	public static ModularPipesPlayerData get(IForgePlayer player)
+	public static ModularPipesPlayerData get(ForgePlayer player)
 	{
 		return player.getData().get(ID);
 	}
@@ -33,9 +33,9 @@ public class ModularPipesPlayerData implements INBTSerializable<NBTTagCompound>
 		}
 	};
 
-	private final IForgePlayer player;
+	private final ForgePlayer player;
 
-	public ModularPipesPlayerData(IForgePlayer p)
+	public ModularPipesPlayerData(ForgePlayer p)
 	{
 		player = p;
 	}

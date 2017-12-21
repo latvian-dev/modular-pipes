@@ -12,7 +12,7 @@
 			"modular_quartz": {"textures": {"overlay": "modularpipes:blocks/pipes/modular_quartz"}},
 			"modular_lapis": {"textures": {"overlay": "modularpipes:blocks/pipes/modular_lapis"}},
 			"modular_ender": {"textures": {"overlay": "modularpipes:blocks/pipes/modular_ender"}},
-			"modular_emerald": {"textures": {"overlay": "modularpipes:blocks/pipes/modular_emerald"}},
+			"modular_diamond": {"textures": {"overlay": "modularpipes:blocks/pipes/modular_diamond"}},
 			"modular_star": {"textures": {"overlay": "modularpipes:blocks/pipes/modular_star"}}
 		}
 	}

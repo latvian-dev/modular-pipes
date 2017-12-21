@@ -1,6 +1,6 @@
 package com.latmod.modularpipes.client;
 
-import com.feed_the_beast.ftbl.lib.client.ClientUtils;
+import com.feed_the_beast.ftblib.lib.client.ClientUtils;
 import com.latmod.modularpipes.data.PipeNetwork;
 import com.latmod.modularpipes.data.TransportedItem;
 import net.minecraft.item.ItemSkull;

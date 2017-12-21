@@ -1,11 +1,16 @@
 package com.latmod.modularpipes;
 
-import com.feed_the_beast.ftbl.lib.gui.GuiLang;
+import com.feed_the_beast.ftblib.lib.gui.GuiLang;
+import com.feed_the_beast.ftblib.lib.util.StringUtils;
+import com.feed_the_beast.ftblib.lib.util.misc.NameMap;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * @author LatvianModder
@@ -18,6 +23,7 @@ public class ModularPipesConfig
 	public static final General general = new General();
 
 	public static final Pipes pipes = new Pipes();
+	public static final Tiers tiers = new Tiers();
 
 	public static class General
 	{
@@ -40,9 +46,88 @@ public class ModularPipesConfig
 		public double super_boost = 10;
 	}
 
+	public static class Tiers
+	{
+		public final Tier basic = new Tier(0, "basic", 1, 1);
+		public final Tier iron = new Tier(1, "iron", 2, 1);
+		public final Tier gold = new Tier(2, "gold", 2, 2);
+		public final Tier quartz = new Tier(3, "quartz", 3, 2);
+		public final Tier lapis = new Tier(4, "lapis", 4, 3);
+		public final Tier ender = new Tier(5, "ender", 5, 8);
+		public final Tier diamond = new Tier(6, "diamond", 6, 10);
+		public final Tier star = new Tier(7, "star", 6, 100);
+
+		private final NameMap<Tier> nameMap = NameMap.create(basic, basic, iron, gold, quartz, lapis, ender, diamond, star);
+
+		public NameMap<Tier> getNameMap()
+		{
+			return nameMap;
+		}
+	}
+
+	public static class Tier
+	{
+		private final int index;
+		private final String name;
+		public int modules;
+		public double speed;
+		private String speedString;
+
+		@SideOnly(Side.CLIENT)
+		private TextureAtlasSprite sprite;
+
+		public Tier(int i, String n, int m, double s)
+		{
+			index = i;
+			name = n;
+			modules = m;
+			speed = s;
+		}
+
+		public int getIndex()
+		{
+			return index;
+		}
+
+		public String toString()
+		{
+			return name;
+		}
+
+		public String getSpeedString()
+		{
+			return speedString;
+		}
+
+		@SideOnly(Side.CLIENT)
+		public void setSprite(TextureAtlasSprite s)
+		{
+			sprite = s;
+		}
+
+		@SideOnly(Side.CLIENT)
+		public TextureAtlasSprite getSprite()
+		{
+			return sprite;
+		}
+	}
+
 	public static void sync()
 	{
 		ConfigManager.sync(ModularPipes.MOD_ID, Config.Type.INSTANCE);
+
+		for (Tier tier : tiers.getNameMap())
+		{
+			if (tier.speed == (int) tier.speed)
+			{
+				tier.speedString = (int) tier.speed + "x";
+			}
+			else
+			{
+				tier.speedString = StringUtils.formatDouble(tier.speed) + "x";
+			}
+		}
+
 		ModularPipes.PROXY.networkUpdated();
 	}
 

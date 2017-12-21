@@ -1,6 +1,6 @@
 package com.latmod.modularpipes.net;
 
-import com.feed_the_beast.ftbl.lib.net.NetworkWrapper;
+import com.feed_the_beast.ftblib.lib.net.NetworkWrapper;
 import com.latmod.modularpipes.ModularPipes;
 
 /**

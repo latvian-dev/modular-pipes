@@ -1,6 +1,6 @@
 {
 	"type": "forge:ore_shaped",
-	"group": "modular_pipes:pipe",
+	"group": "modularpipes:pipe",
 	"result": {"item": "pipe_basic", "count": 8},
 	"pattern": [
 		" G ",

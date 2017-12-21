@@ -1,11 +1,11 @@
 package com.latmod.modularpipes.client;
 
-import com.feed_the_beast.ftbl.lib.client.CachedVertexData;
-import com.feed_the_beast.ftbl.lib.client.ClientUtils;
-import com.feed_the_beast.ftbl.lib.icon.Color4I;
-import com.feed_the_beast.ftbl.lib.icon.MutableColor4I;
-import com.feed_the_beast.ftbl.lib.math.MathUtils;
-import com.feed_the_beast.ftbl.lib.util.UtilsCommon;
+import com.feed_the_beast.ftblib.lib.client.CachedVertexData;
+import com.feed_the_beast.ftblib.lib.client.ClientUtils;
+import com.feed_the_beast.ftblib.lib.icon.Color4I;
+import com.feed_the_beast.ftblib.lib.icon.MutableColor4I;
+import com.feed_the_beast.ftblib.lib.math.MathUtils;
+import com.feed_the_beast.ftblib.lib.util.UtilsCommon;
 import com.latmod.modularpipes.ModularPipesConfig;
 import com.latmod.modularpipes.data.PipeNetwork;
 import com.latmod.modularpipes.data.TransportedItem;
@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -57,9 +58,10 @@ public class ClientPipeNetwork extends PipeNetwork
 		boolean particles = ModularPipesClientConfig.general.item_particles;
 
 		double x, y, z, s2;
-		double px = ClientUtils.playerX;
-		double py = ClientUtils.playerY;
-		double pz = ClientUtils.playerZ;
+		double px = ClientUtils.getPlayerX();
+		double py = ClientUtils.getPlayerY();
+		double pz = ClientUtils.getPlayerZ();
+		Frustum frustum = ClientUtils.getFrustum(px, py, pz);
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(-px, -py, -pz);
 		GlStateManager.disableLighting();
@@ -78,7 +80,7 @@ public class ClientPipeNetwork extends PipeNetwork
 				if (MathUtils.distSq(x, y, z, px, py, pz) <= renderDistanceSq)
 				{
 					s2 = i.scale / 2D;
-					if (!i.remove() && ClientUtils.FRUSTUM.isBoxInFrustum(x - s2, y - s2, z - s2, x + s2, y + s2, z + s2))
+					if (!i.remove() && frustum.isBoxInFrustum(x - s2, y - s2, z - s2, x + s2, y + s2, z + s2))
 					{
 						GlStateManager.pushMatrix();
 						GlStateManager.translate(x, y, z);

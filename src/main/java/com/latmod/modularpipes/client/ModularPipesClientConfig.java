@@ -1,6 +1,6 @@
 package com.latmod.modularpipes.client;
 
-import com.feed_the_beast.ftbl.lib.gui.GuiLang;
+import com.feed_the_beast.ftblib.lib.gui.GuiLang;
 import com.latmod.modularpipes.ModularPipes;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;

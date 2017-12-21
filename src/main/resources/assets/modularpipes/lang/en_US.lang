@@ -2,6 +2,7 @@
 itemGroup.modularpipes=Modular Pipes
 
 # Blocks
+tile.modularpipes.controller.name=Controller
 tile.modularpipes.pipe_basic.name=Basic Pipe
 tile.modularpipes.pipe.speed_boost=Speed Boost: %s
 tile.modularpipes.pipe_modular_basic.name=Basic Modular Pipe
@@ -10,7 +11,7 @@ tile.modularpipes.pipe_modular_gold.name=Gold Modular Pipe
 tile.modularpipes.pipe_modular_quartz.name=Quartz Modular Pipe
 tile.modularpipes.pipe_modular_lapis.name=Lapis Lazuli Modular Pipe
 tile.modularpipes.pipe_modular_ender.name=Ender Modular Pipe
-tile.modularpipes.pipe_modular_emerald.name=Emerald Modular Pipe
+tile.modularpipes.pipe_modular_diamond.name=Diamond Modular Pipe
 tile.modularpipes.pipe_modular_star.name=Nether Star Modular Pipe
 tile.modularpipes.pipe_modular.tier_basic=Not Very Modular
 tile.modularpipes.pipe_modular.slots=Available Module Slots: %d
@@ -27,6 +28,8 @@ item.modularpipes.module.cant_insert=Can't insert any more modules!
 item.modularpipes.module_extract.name=Extract
 item.modularpipes.module_rightclick_extract.name=Extract On Right-click
 item.modularpipes.module_crafting.name=Crafting
+item.modularpipes.module_item_storage.name=Item Storage
+item.modularpipes.module_fluid_storage.name=Fluid Storage
 
 # Config
 modularpipes.general.dev_mode=Dev Mode

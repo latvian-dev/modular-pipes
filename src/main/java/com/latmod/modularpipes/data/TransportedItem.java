@@ -1,8 +1,8 @@
 package com.latmod.modularpipes.data;
 
-import com.feed_the_beast.ftbl.lib.io.DataIn;
-import com.feed_the_beast.ftbl.lib.io.DataOut;
-import com.feed_the_beast.ftbl.lib.math.MathUtils;
+import com.feed_the_beast.ftblib.lib.io.DataIn;
+import com.feed_the_beast.ftblib.lib.io.DataOut;
+import com.feed_the_beast.ftblib.lib.math.MathUtils;
 import com.latmod.modularpipes.ModularPipesConfig;
 import com.latmod.modularpipes.client.ClientTransportedItem;
 import net.minecraft.block.state.IBlockState;

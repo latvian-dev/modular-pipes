@@ -1,8 +1,8 @@
 package com.latmod.modularpipes.data;
 
-import com.feed_the_beast.ftbl.api.FTBLibAPI;
-import com.feed_the_beast.ftbl.api.IForgePlayer;
-import com.feed_the_beast.ftbl.lib.util.NBTUtils;
+import com.feed_the_beast.ftblib.lib.data.ForgePlayer;
+import com.feed_the_beast.ftblib.lib.data.Universe;
+import com.feed_the_beast.ftblib.lib.util.NBTUtils;
 import com.latmod.modularpipes.ModularPipesConfig;
 import com.latmod.modularpipes.net.MessageUpdateItems;
 import com.latmod.modularpipes.net.MessageVisualizeNetwork;
@@ -488,7 +488,7 @@ public class ServerPipeNetwork extends PipeNetwork
 				Collection<Collection<BlockPos>> l = null;
 				Collection<BlockPos> t = null;
 
-				for (IForgePlayer player : FTBLibAPI.API.getUniverse().getOnlinePlayers())
+				for (ForgePlayer player : Universe.get().getOnlinePlayers())
 				{
 					ModularPipesPlayerData data = ModularPipesPlayerData.get(player);
 					boolean dev = ModularPipesConfig.general.dev_mode && data.devMode.getBoolean();

@@ -1,6 +1,6 @@
 {
 	"type": "forge:ore_shaped",
-	"group": "modular_pipes:pipe",
+	"group": "modularpipes:pipe",
 	"result": {"item": "pipe_modular_star", "count": 8},
 	"pattern": [
 		"PPP",
@@ -8,7 +8,7 @@
 		"PPP"
 	],
 	"key": {
-		"P": {"item": "pipe_modular_emerald"},
+		"P": {"item": "pipe_modular_diamond"},
 		"I": {"type": "forge:ore_dict", "ore": "netherStar"}
 	}
 }

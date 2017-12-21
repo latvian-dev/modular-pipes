@@ -1,0 +1,33 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"base": "modularpipes:blocks/controller",
+		"glow": "modularpipes:blocks/controller_no_error"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"down": {"texture": "#base", "cullface": "down"},
+				"up": {"texture": "#base", "cullface": "up"},
+				"north": {"texture": "#base", "cullface": "north"},
+				"south": {"texture": "#base", "cullface": "south"},
+				"west": {"texture": "#base", "cullface": "west"},
+				"east": {"texture": "#base", "cullface": "east"}
+			}
+		},
+		{
+			"from": [-0.03, -0.03, -0.03],
+			"to": [16.003, 16.003, 16.003],
+			"faces": {
+				"down": {"texture": "#glow", "cullface": "down", "uv": [0, 0, 16, 16]},
+				"up": {"texture": "#glow", "cullface": "up", "uv": [0, 0, 16, 16]},
+				"north": {"texture": "#glow", "cullface": "north", "uv": [0, 0, 16, 16]},
+				"south": {"texture": "#glow", "cullface": "south", "uv": [0, 0, 16, 16]},
+				"west": {"texture": "#glow", "cullface": "west", "uv": [0, 0, 16, 16]},
+				"east": {"texture": "#glow", "cullface": "east", "uv": [0, 0, 16, 16]}
+			}
+		}
+	]
+}

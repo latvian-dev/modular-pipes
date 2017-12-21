@@ -1,8 +1,7 @@
 package com.latmod.modularpipes;
 
-import com.feed_the_beast.ftbl.lib.internal.FTBLibFinals;
+import com.feed_the_beast.ftblib.FTBLibFinals;
 import com.latmod.modularpipes.data.ServerPipeNetwork;
-import com.latmod.modularpipes.item.ModularPipesItems;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;

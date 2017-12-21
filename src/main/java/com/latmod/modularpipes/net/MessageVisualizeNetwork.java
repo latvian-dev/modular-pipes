@@ -1,9 +1,9 @@
 package com.latmod.modularpipes.net;
 
-import com.feed_the_beast.ftbl.lib.io.DataIn;
-import com.feed_the_beast.ftbl.lib.io.DataOut;
-import com.feed_the_beast.ftbl.lib.net.MessageToClient;
-import com.feed_the_beast.ftbl.lib.net.NetworkWrapper;
+import com.feed_the_beast.ftblib.lib.io.DataIn;
+import com.feed_the_beast.ftblib.lib.io.DataOut;
+import com.feed_the_beast.ftblib.lib.net.MessageToClient;
+import com.feed_the_beast.ftblib.lib.net.NetworkWrapper;
 import com.latmod.modularpipes.data.PipeNetwork;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;

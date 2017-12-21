@@ -1,6 +1,6 @@
 package com.latmod.modularpipes.data;
 
-import com.feed_the_beast.ftbl.lib.math.MathUtils;
+import com.feed_the_beast.ftblib.lib.math.MathUtils;
 import net.minecraft.block.BlockLog;
 import net.minecraft.util.math.BlockPos;
 

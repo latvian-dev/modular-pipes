@@ -1,6 +1,6 @@
 {
 	"type": "forge:ore_shaped",
-	"group": "modular_pipes:module",
+	"group": "modularpipes:module",
 	"result": {"item": "module_extract"},
 	"pattern": [
 		"R",

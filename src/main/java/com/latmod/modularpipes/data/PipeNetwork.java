@@ -1,6 +1,6 @@
 package com.latmod.modularpipes.data;
 
-import com.feed_the_beast.ftbl.lib.util.InvUtils;
+import com.feed_the_beast.ftblib.lib.util.InvUtils;
 import com.latmod.modularpipes.ModularPipes;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ITickable;

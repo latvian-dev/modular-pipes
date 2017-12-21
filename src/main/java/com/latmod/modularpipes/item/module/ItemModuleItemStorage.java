@@ -5,9 +5,9 @@ import com.latmod.modularpipes.item.ItemModule;
 /**
  * @author LatvianModder
  */
-public class ModuleCrafting extends ItemModule
+public class ItemModuleItemStorage extends ItemModule
 {
-	public ModuleCrafting(String id)
+	public ItemModuleItemStorage(String id)
 	{
 		super(id);
 	}

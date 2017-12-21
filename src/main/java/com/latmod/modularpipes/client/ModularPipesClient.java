@@ -1,6 +1,6 @@
 package com.latmod.modularpipes.client;
 
-import com.feed_the_beast.ftbl.lib.client.ClientUtils;
+import com.feed_the_beast.ftblib.lib.client.ClientUtils;
 import com.latmod.modularpipes.ModularPipesCommon;
 import com.latmod.modularpipes.data.PipeNetwork;
 import net.minecraft.world.World;

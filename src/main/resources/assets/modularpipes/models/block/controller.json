@@ -1,0 +1,7 @@
+{
+	"parent": "block/cube_all",
+	"textures": {
+		"all": "modularpipes:blocks/controller",
+		"particle": "modularpipes:blocks/controller"
+	}
+}

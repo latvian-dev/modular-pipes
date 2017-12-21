@@ -1,10 +1,11 @@
 package com.latmod.modularpipes.tile;
 
-import com.feed_the_beast.ftbl.lib.math.MathUtils;
-import com.feed_the_beast.ftbl.lib.tile.EnumSaveType;
-import com.feed_the_beast.ftbl.lib.tile.TileBase;
-import com.feed_the_beast.ftbl.lib.util.LangKey;
-import com.latmod.modularpipes.block.EnumTier;
+import com.feed_the_beast.ftblib.lib.math.MathUtils;
+import com.feed_the_beast.ftblib.lib.tile.EnumSaveType;
+import com.feed_the_beast.ftblib.lib.tile.TileBase;
+import com.feed_the_beast.ftblib.lib.util.LangKey;
+import com.latmod.modularpipes.ModularPipesConfig;
+import com.latmod.modularpipes.ModularPipesItems;
 import com.latmod.modularpipes.data.IPipeBlock;
 import com.latmod.modularpipes.data.Module;
 import com.latmod.modularpipes.data.ModuleContainer;
@@ -21,14 +22,12 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -39,21 +38,23 @@ import javax.annotation.Nullable;
 /**
  * @author LatvianModder
  */
-public class TileModularPipe extends TileBase implements ITickable
+public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
 {
 	public static final LangKey CANT_INSERT = LangKey.of("item.modularpipes.module.cant_insert");
 
-	public EnumTier tier;
+	public ModularPipesConfig.Tier tier;
 	private int connections = -1;
 	public final ModuleContainer[] modules;
 	private PipeNetwork network;
+	private BlockPos controllerPos;
+	private TileController cachedController;
 
 	public TileModularPipe()
 	{
-		this(EnumTier.BASIC);
+		this(ModularPipesConfig.tiers.basic);
 	}
 
-	public TileModularPipe(EnumTier t)
+	public TileModularPipe(ModularPipesConfig.Tier t)
 	{
 		tier = t;
 		modules = new ModuleContainer[6];
@@ -88,7 +89,7 @@ public class TileModularPipe extends TileBase implements ITickable
 	@Override
 	protected void writeData(NBTTagCompound nbt, EnumSaveType type)
 	{
-		EnumTier.NAME_MAP.writeToNBT(nbt, "Tier", type, tier);
+		ModularPipesConfig.tiers.getNameMap().writeToNBT(nbt, "Tier", type, tier);
 
 		if (type.save || connections != 0)
 		{
@@ -111,12 +112,17 @@ public class TileModularPipe extends TileBase implements ITickable
 		{
 			nbt.setTag("Modules", moduleList);
 		}
+
+		if (controllerPos != null)
+		{
+			nbt.setIntArray("Controller", new int[] {controllerPos.getX(), controllerPos.getY(), controllerPos.getZ()});
+		}
 	}
 
 	@Override
 	protected void readData(NBTTagCompound nbt, EnumSaveType type)
 	{
-		tier = EnumTier.NAME_MAP.readFromNBT(nbt, "Tier", type);
+		tier = ModularPipesConfig.tiers.getNameMap().readFromNBT(nbt, "Tier", type);
 		connections = nbt.getByte("Connections") & 0xFF;
 
 		clearModules();
@@ -128,6 +134,19 @@ public class TileModularPipe extends TileBase implements ITickable
 			ModuleContainer c = new ModuleContainer(this, moduleList.getCompoundTagAt(i), type);
 			modules[c.facing.getIndex()] = c;
 		}
+
+		controllerPos = null;
+		cachedController = null;
+
+		if (nbt.hasKey("Controller"))
+		{
+			int[] ai = nbt.getIntArray("Controller");
+
+			if (ai.length == 3)
+			{
+				controllerPos = new BlockPos(ai[0], ai[1], ai[2]);
+			}
+		}
 	}
 
 	@Override
@@ -135,10 +154,11 @@ public class TileModularPipe extends TileBase implements ITickable
 	{
 		super.updateContainingBlockInfo();
 		connections = -1;
+		cachedController = null;
 	}
 
 	@Override
-	public void update()
+	public void updateNetworkTile()
 	{
 		for (ModuleContainer c : modules)
 		{
@@ -197,6 +217,7 @@ public class TileModularPipe extends TileBase implements ITickable
 
 				c.setStack(ItemStack.EMPTY);
 				markDirty();
+				checkIfDirty();
 				return;
 			}
 		}
@@ -225,6 +246,7 @@ public class TileModularPipe extends TileBase implements ITickable
 			{
 				stack.shrink(1);
 				markDirty();
+				checkIfDirty();
 				return;
 			}
 			else
@@ -310,29 +332,7 @@ public class TileModularPipe extends TileBase implements ITickable
 		BlockPos pos1 = pos.offset(facing);
 		IBlockState state1 = world.getBlockState(pos1);
 		Block block1 = state1.getBlock();
-
-		if (block1 instanceof IPipeBlock)
-		{
-			return ((IPipeBlock) block1).canPipeConnect(world, pos1, state1, facing.getOpposite());
-		}
-		else if (block1.hasTileEntity(state1))
-		{
-			TileEntity tileEntity = world.getTileEntity(pos1);
-
-			if (tileEntity != null)
-			{
-				if (tileEntity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, facing.getOpposite()))
-				{
-					return true;
-				}
-				else if (tileEntity.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing.getOpposite()))
-				{
-					return true;
-				}
-			}
-		}
-
-		return false;
+		return block1 == ModularPipesItems.CONTROLLER || block1 instanceof IPipeBlock && ((IPipeBlock) block1).canPipeConnect(world, pos1, state1, facing.getOpposite());
 	}
 
 	public PipeNetwork getNetwork()
@@ -373,5 +373,29 @@ public class TileModularPipe extends TileBase implements ITickable
 	public AxisAlignedBB getRenderBoundingBox()
 	{
 		return new AxisAlignedBB(pos, pos.add(1, 1, 1));
+	}
+
+	@Nullable
+	@Override
+	public TileController getController()
+	{
+		if (cachedController == null && controllerPos != null)
+		{
+			TileEntity tileEntity = world.getTileEntity(controllerPos);
+
+			if (tileEntity instanceof TileController)
+			{
+				cachedController = (TileController) tileEntity;
+			}
+		}
+
+		return cachedController;
+	}
+
+	@Override
+	public void setControllerPosition(BlockPos pos)
+	{
+		controllerPos = pos;
+		cachedController = null;
 	}
 }

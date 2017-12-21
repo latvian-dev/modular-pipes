@@ -1,7 +1,7 @@
 package com.latmod.modularpipes.data;
 
-import com.feed_the_beast.ftbl.lib.tile.EnumSaveType;
-import com.feed_the_beast.ftbl.lib.util.misc.DataStorage;
+import com.feed_the_beast.ftblib.lib.tile.EnumSaveType;
+import com.feed_the_beast.ftblib.lib.util.misc.DataStorage;
 import com.latmod.modularpipes.tile.TileModularPipe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
