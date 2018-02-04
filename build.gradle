@@ -8,6 +8,7 @@ buildscript {
 	}
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'maven-publish'
 
 version = "${mod_version}"
 group = package_group
@@ -28,11 +29,12 @@ minecraft {
 }
 
 repositories {
-	ivy { name "com.latmod.mods"; artifactPattern "http://mods.latmod.com/[module]/[revision]/[module]-[revision](-[classifier]).[ext]" }
+	mavenLocal()
+	maven { url "http://maven.latmod.com/" }
 }
 
 dependencies {
-	compile "com.latmod.mods:FTBLib:${ftblib_version}:deobf"
+	deobfCompile "com.feed_the_beast.ftblib:FTBLib:${ftblib_version}"
 }
 
 processResources {
@@ -46,5 +48,22 @@ processResources {
 
 	from(sourceSets.main.resources.srcDirs) {
 		exclude 'mcmod.info'
+	}
+}
+
+artifacts {
+	archives jar
+	archives sourceJar
+}
+
+publishing {
+	publications {
+		ModularPipes(MavenPublication) {
+			groupId = project.group
+			artifactId = project.archivesBaseName
+			version = project.version
+			artifact jar
+			artifact sourceJar
+		}
 	}
 }
