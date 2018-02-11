@@ -1,6 +1,6 @@
 package com.latmod.modularpipes;
 
-import com.feed_the_beast.ftblib.FTBLibFinals;
+import com.feed_the_beast.ftblib.FTBLib;
 import com.latmod.modularpipes.data.ServerPipeNetwork;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
@@ -12,7 +12,13 @@ import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = ModularPipes.MOD_ID, name = ModularPipes.MOD_NAME, version = ModularPipes.VERSION, acceptedMinecraftVersions = "[1.12,)", dependencies = "required-after:" + FTBLibFinals.MOD_ID)
+@Mod(
+		modid = ModularPipes.MOD_ID,
+		name = ModularPipes.MOD_NAME,
+		version = ModularPipes.VERSION,
+		acceptedMinecraftVersions = "[1.12,)",
+		dependencies = "required-after:" + FTBLib.MOD_ID
+)
 public class ModularPipes
 {
 	public static final String MOD_ID = "modularpipes";

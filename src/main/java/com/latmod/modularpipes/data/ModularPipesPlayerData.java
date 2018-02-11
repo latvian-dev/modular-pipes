@@ -4,7 +4,6 @@ import com.feed_the_beast.ftblib.lib.config.ConfigBoolean;
 import com.feed_the_beast.ftblib.lib.data.ForgePlayer;
 import com.latmod.modularpipes.ModularPipes;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.INBTSerializable;
 
 /**
@@ -12,11 +11,9 @@ import net.minecraftforge.common.util.INBTSerializable;
  */
 public class ModularPipesPlayerData implements INBTSerializable<NBTTagCompound>
 {
-	public static final ResourceLocation ID = new ResourceLocation(ModularPipes.MOD_ID, "data");
-
 	public static ModularPipesPlayerData get(ForgePlayer player)
 	{
-		return player.getData().get(ID);
+		return player.getData().get(ModularPipes.MOD_ID);
 	}
 
 	public final ConfigBoolean devMode = new ConfigBoolean(false)

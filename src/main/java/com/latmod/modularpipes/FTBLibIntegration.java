@@ -16,7 +16,7 @@ public class FTBLibIntegration
 	@SubscribeEvent
 	public static void registerPlayerDataProvider(RegisterDataProvidersEvent.Player event)
 	{
-		event.register(ModularPipesPlayerData.ID, ModularPipesPlayerData::new);
+		event.register(ModularPipes.MOD_ID, ModularPipesPlayerData::new);
 	}
 
 	@SubscribeEvent

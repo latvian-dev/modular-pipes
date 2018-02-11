@@ -10,7 +10,6 @@
 	"key": {
 		"P": {"item": "pipe_modular_diamond"},
 		"I": {"type": "forge:ore_dict", "ore": "ingotIron"},
-		"R": {"type": "forge:ore_dict", "ore": "dustRedstone"},
 		"Q": {"item": "minecraft:comparator"}
 	}
 }
