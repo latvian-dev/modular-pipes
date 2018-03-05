@@ -161,7 +161,7 @@ public class ClientPipeNetwork extends PipeNetwork
 				{
 					BlockPos next = l.get(i + 1);
 
-					Vec3d center = MathUtils.getMidPoint(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, next.getX() + 0.5D, next.getY() + 0.5D, next.getZ() + 0.5D, 0.5D);
+					Vec3d center = MathUtils.lerp(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, next.getX() + 0.5D, next.getY() + 0.5D, next.getZ() + 0.5D, 0.5D);
 
 					networkVis.color.set(0x660000FF);
 					BlockPos size = pos.subtract(next);

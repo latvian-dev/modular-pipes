@@ -312,7 +312,7 @@ public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
 			{
 				if (canConnectTo0(facing))
 				{
-					connections |= MathUtils.FACING_BIT[facing.getIndex()];
+					connections |= 1 << facing.getIndex();
 				}
 			}
 
@@ -324,7 +324,7 @@ public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
 
 	public boolean canConnectTo(EnumFacing facing)
 	{
-		return (getConnections() & MathUtils.FACING_BIT[facing.getIndex()]) != 0;
+		return (getConnections() & (1 << facing.getIndex())) != 0;
 	}
 
 	private boolean canConnectTo0(EnumFacing facing)

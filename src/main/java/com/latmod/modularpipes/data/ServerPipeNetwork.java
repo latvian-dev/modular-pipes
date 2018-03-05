@@ -2,7 +2,7 @@ package com.latmod.modularpipes.data;
 
 import com.feed_the_beast.ftblib.lib.data.ForgePlayer;
 import com.feed_the_beast.ftblib.lib.data.Universe;
-import com.feed_the_beast.ftblib.lib.util.NBTUtils;
+import com.feed_the_beast.ftblib.lib.util.FileUtils;
 import com.latmod.modularpipes.ModularPipesConfig;
 import com.latmod.modularpipes.net.MessageUpdateItems;
 import com.latmod.modularpipes.net.MessageVisualizeNetwork;
@@ -15,7 +15,6 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
@@ -71,76 +70,69 @@ public class ServerPipeNetwork extends PipeNetwork
 
 	public void save()
 	{
-		try
+		File dir = new File(world.getSaveHandler().getWorldDirectory(), "data/modularpipes");
+		File file = new File(dir, "modularpipes.dat");
+
+		if (!file.exists() && nodes.isEmpty() && links.isEmpty() && items.isEmpty())
 		{
-			File dir = new File(((WorldServer) world).getChunkSaveLocation(), "data/modularpipes");
-			File file = new File(dir, "modularpipes.dat");
-
-			if (!file.exists() && nodes.isEmpty() && links.isEmpty() && items.isEmpty())
-			{
-				return;
-			}
-
-			//ModularPipes.LOGGER.info("Saved pipe info to " + dir.getAbsolutePath());
-			NBTTagCompound nbt = new NBTTagCompound();
-			NBTTagList list = new NBTTagList();
-
-			for (Node node : getNodes())
-			{
-				list.appendTag(new NBTTagIntArray(new int[] {node.getX(), node.getY(), node.getZ(), node.type.ordinal()}));
-			}
-
-			nbt.setTag("Nodes", list);
-			list = new NBTTagList();
-
-			for (Link link : links)
-			{
-				if (link.invalid())
-				{
-					continue;
-				}
-
-				NBTTagCompound nbt1 = new NBTTagCompound();
-				int[] ai = new int[link.path.size() * 3];
-
-				for (int i = 0; i < link.path.size(); i++)
-				{
-					BlockPos pos = link.path.get(i);
-					ai[i * 3] = pos.getX();
-					ai[i * 3 + 1] = pos.getY();
-					ai[i * 3 + 2] = pos.getZ();
-				}
-
-				nbt1.setIntArray("Path", ai);
-				nbt1.setInteger("Length", link.length);
-				list.appendTag(nbt1);
-			}
-			nbt.setTag("Links", list);
-			list = new NBTTagList();
-
-			for (TransportedItem item : items.values())
-			{
-				list.appendTag(item.serializeNBT());
-			}
-
-			nbt.setTag("Items", list);
-			NBTUtils.writeTag(file, nbt);
+			return;
 		}
-		catch (Exception ex)
+
+		//ModularPipes.LOGGER.info("Saved pipe info to " + dir.getAbsolutePath());
+		NBTTagCompound nbt = new NBTTagCompound();
+		NBTTagList list = new NBTTagList();
+
+		for (Node node : getNodes())
 		{
-			ex.printStackTrace();
+			list.appendTag(new NBTTagIntArray(new int[] {node.getX(), node.getY(), node.getZ(), node.type.ordinal()}));
 		}
+
+		nbt.setTag("Nodes", list);
+		list = new NBTTagList();
+
+		for (Link link : links)
+		{
+			if (link.invalid())
+			{
+				continue;
+			}
+
+			NBTTagCompound nbt1 = new NBTTagCompound();
+			int[] ai = new int[link.path.size() * 3];
+
+			for (int i = 0; i < link.path.size(); i++)
+			{
+				BlockPos pos = link.path.get(i);
+				ai[i * 3] = pos.getX();
+				ai[i * 3 + 1] = pos.getY();
+				ai[i * 3 + 2] = pos.getZ();
+			}
+
+			nbt1.setIntArray("Path", ai);
+			nbt1.setInteger("Length", link.length);
+			list.appendTag(nbt1);
+		}
+		nbt.setTag("Links", list);
+		list = new NBTTagList();
+
+		for (TransportedItem item : items.values())
+		{
+			list.appendTag(item.serializeNBT());
+		}
+
+		nbt.setTag("Items", list);
+		FileUtils.writeNBT(file, nbt);
 	}
 
 	public void load()
 	{
 		clear();
 		loaded = true;
-		File dir = new File(((WorldServer) world).getChunkSaveLocation(), "data/modularpipes");
+		File dir = new File(world.getSaveHandler().getWorldDirectory(), "data/modularpipes");
 		// ModularPipes.LOGGER.info("Loading pipe info from " + dir.getAbsolutePath());
 
 		File file = new File(dir, "modularpipes.dat");
-		NBTTagCompound nbt = NBTUtils.readTag(file);
+		NBTTagCompound nbt = FileUtils.readNBT(file);
 
 		if (nbt == null)
 		{

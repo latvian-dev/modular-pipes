@@ -25,7 +25,7 @@ public class ModularPipesPlayerData implements INBTSerializable<NBTTagCompound>
 
 			if (player.isOnline())
 			{
-				PipeNetwork.get(player.getPlayer().getEntityWorld()).markDirty();
+				PipeNetwork.get(player.getPlayer().world).markDirty();
 			}
 		}
 	};

@@ -251,15 +251,15 @@ public class BlockModularPipe extends BlockPipeBase
 	}
 
 	@Override
-	public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
+	public void breakBlock(World world, BlockPos pos, IBlockState state)
 	{
-		TileEntity tileEntity = worldIn.getTileEntity(pos);
+		TileEntity tileEntity = world.getTileEntity(pos);
 
 		if (tileEntity instanceof TileModularPipe)
 		{
 			((TileModularPipe) tileEntity).onBroken();
 		}
 
-		super.breakBlock(worldIn, pos, state);
+		super.breakBlock(world, pos, state);
 	}
 }

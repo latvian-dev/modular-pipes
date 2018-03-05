@@ -1,7 +1,6 @@
 package com.latmod.modularpipes.block;
 
 import com.feed_the_beast.ftblib.lib.client.ClientUtils;
-import com.feed_the_beast.ftblib.lib.math.MathUtils;
 import com.latmod.modularpipes.ModularPipesItems;
 import com.latmod.modularpipes.data.IPipeBlock;
 import com.latmod.modularpipes.data.PipeNetwork;
@@ -48,12 +47,12 @@ public abstract class BlockPipeBase extends BlockMPBase implements IPipeBlock
 
 		for (int i = 0; i < BOXES_64.length; i++)
 		{
-			boolean x0 = (i & MathUtils.FACING_BIT_WEST) != 0;
-			boolean x1 = (i & MathUtils.FACING_BIT_EAST) != 0;
-			boolean y0 = (i & MathUtils.FACING_BIT_DOWN) != 0;
-			boolean y1 = (i & MathUtils.FACING_BIT_UP) != 0;
-			boolean z0 = (i & MathUtils.FACING_BIT_NORTH) != 0;
-			boolean z1 = (i & MathUtils.FACING_BIT_SOUTH) != 0;
+			boolean x0 = (i & (1 << EnumFacing.WEST.getIndex())) != 0;
+			boolean x1 = (i & (1 << EnumFacing.EAST.getIndex())) != 0;
+			boolean y0 = (i & (1 << EnumFacing.DOWN.getIndex())) != 0;
+			boolean y1 = (i & (1 << EnumFacing.UP.getIndex())) != 0;
+			boolean z0 = (i & (1 << EnumFacing.NORTH.getIndex())) != 0;
+			boolean z1 = (i & (1 << EnumFacing.SOUTH.getIndex())) != 0;
 			BOXES_64[i] = new AxisAlignedBB(x0 ? 0D : d0, y0 ? 0D : d0, z0 ? 0D : d0, x1 ? 1D : d1, y1 ? 1D : d1, z1 ? 1D : d1);
 		}
 	}
@@ -160,13 +159,13 @@ public abstract class BlockPipeBase extends BlockMPBase implements IPipeBlock
 	}
 
 	@Override
-	public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
+	public void breakBlock(World world, BlockPos pos, IBlockState state)
 	{
-		if (!worldIn.isRemote)
+		if (!world.isRemote)
 		{
-			PipeNetwork.get(worldIn).removePipe(pos, false);
+			PipeNetwork.get(world).removePipe(pos, false);
 		}
 
-		super.breakBlock(worldIn, pos, state);
+		super.breakBlock(world, pos, state);
 	}
 }
