@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.block;
 
+import com.feed_the_beast.ftblib.lib.util.StringUtils;
 import com.latmod.modularpipes.ModularPipesItems;
 import com.latmod.modularpipes.data.IPipeBlock;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
@@ -8,14 +9,19 @@ import net.minecraft.block.material.MapColor;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * @author LatvianModder
@@ -129,6 +135,13 @@ public class BlockPipeBasic extends BlockPipeBase
 	public int damageDropped(IBlockState state)
 	{
 		return 0;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flag)
+	{
+		tooltip.add(StringUtils.translate("tile.modularpipes.pipe_modular.tier_basic"));
 	}
 
 	@Override

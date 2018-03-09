@@ -92,15 +92,7 @@ public class BlockModularPipe extends BlockPipeBase
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flag)
 	{
-		if (tier == ModularPipesConfig.tiers.basic)
-		{
-			tooltip.add(StringUtils.translate("tile.modularpipes.pipe_modular.tier_basic"));
-		}
-		else
-		{
-			tooltip.add(StringUtils.translate("tile.modularpipes.pipe_modular.slots", tier.modules));
-		}
-
+		tooltip.add(StringUtils.translate("tile.modularpipes.pipe_modular.slots", tier.modules));
 		tooltip.add(StringUtils.translate("tile.modularpipes.pipe.speed_boost", tier.getSpeedString()));
 	}
 
