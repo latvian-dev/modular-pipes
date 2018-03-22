@@ -113,7 +113,7 @@ public class ModularPipesItems
 	@SideOnly(Side.CLIENT)
 	public static void registerModels(ModelRegistryEvent event)
 	{
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CONTROLLER), 0, new ModelResourceLocation(CONTROLLER.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CONTROLLER), 0, new ModelResourceLocation(CONTROLLER.getRegistryName(), "error=false"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(PIPE_BASIC), 0, new ModelResourceLocation(ModularPipes.MOD_ID + ":pipe_item#variant=basic"));
 
 		registerModularPipe(PIPE_MODULAR_BASIC);

@@ -1,9 +1,0 @@
-{
-	"forge_marker": 1,
-	"variants": {
-		"normal": {
-			"model": "modularpipes:controller_overlay",
-			"textures": {"overlay": "modularpipes:blocks/controller_error"}
-		}
-	}
-}

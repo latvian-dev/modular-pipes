@@ -3,13 +3,14 @@
 	"group": "modularpipes:controller",
 	"result": {"item": "controller"},
 	"pattern": [
-		"IPI",
-		"PQP",
-		"IPI"
+		"IQI",
+		"PDP",
+		"IQI"
 	],
 	"key": {
-		"P": {"item": "pipe_modular_diamond"},
+		"P": {"item": "pipe_basic"},
 		"I": {"type": "forge:ore_dict", "ore": "ingotIron"},
+		"D": {"type": "forge:ore_dict", "ore": "gemDiamond"},
 		"Q": {"item": "minecraft:comparator"}
 	}
 }

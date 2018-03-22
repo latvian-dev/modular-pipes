@@ -1,24 +1,28 @@
 {
 	"forge_marker": 1,
 	"variants": {
-		"inventory": [{}],
 		"error": {
-			"true": {
-				"model": "forge:multi-layer",
-				"custom": {
-					"base": "modularpipes:controller_base",
-					"Solid": "modularpipes:controller_base",
-					"Translucent": "modularpipes:controller_error"
-				}
-			},
 			"false": {
 				"model": "forge:multi-layer",
+				"transform": "forge:default-block",
 				"custom": {
-					"base": "modularpipes:controller_base",
-					"Solid": "modularpipes:controller_base",
-					"Translucent": "modularpipes:controller_no_error"
+					"base": "modularpipes:controller#base",
+					"Solid": "modularpipes:controller#base",
+					"Translucent": "modularpipes:controller#overlay_no_error"
+				}
+			},
+			"true": {
+				"model": "forge:multi-layer",
+				"transform": "forge:default-block",
+				"custom": {
+					"base": "modularpipes:controller#base",
+					"Solid": "modularpipes:controller#base",
+					"Translucent": "modularpipes:controller#overlay_error"
 				}
 			}
-		}
+		},
+		"base": [{"model": "modularpipes:controller_base"}],
+		"overlay_no_error": [{"model": "modularpipes:controller_overlay"}],
+		"overlay_error": [{"model": "modularpipes:controller_overlay", "textures": {"overlay": "modularpipes:blocks/controller_error"}}]
 	}
 }
