@@ -1,10 +1,24 @@
 {
 	"forge_marker": 1,
-	"defaults": {
-		"model": "modularpipes:controller"
-	},
 	"variants": {
 		"inventory": [{}],
-		"normal": [{}]
+		"error": {
+			"true": {
+				"model": "forge:multi-layer",
+				"custom": {
+					"base": "modularpipes:controller_base",
+					"Solid": "modularpipes:controller_base",
+					"Translucent": "modularpipes:controller_error"
+				}
+			},
+			"false": {
+				"model": "forge:multi-layer",
+				"custom": {
+					"base": "modularpipes:controller_base",
+					"Solid": "modularpipes:controller_base",
+					"Translucent": "modularpipes:controller_no_error"
+				}
+			}
+		}
 	}
 }

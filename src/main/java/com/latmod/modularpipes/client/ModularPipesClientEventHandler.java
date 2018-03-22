@@ -50,9 +50,7 @@ public class ModularPipesClientEventHandler
 	@SubscribeEvent
 	public static void onTexturesStitched(TextureStitchEvent.Pre event)
 	{
-		RenderController.CONTROLLER_NO_ERROR = event.getMap().registerSprite(new ResourceLocation(ModularPipes.MOD_ID, "blocks/controller_no_error"));
-		RenderController.CONTROLLER_ERROR = event.getMap().registerSprite(new ResourceLocation(ModularPipes.MOD_ID, "blocks/controller_error"));
-		RenderController.PIPE_ERROR = event.getMap().registerSprite(new ResourceLocation(ModularPipes.MOD_ID, "blocks/pipes/modular_error"));
+		RenderModularPipe.PIPE_ERROR = event.getMap().registerSprite(new ResourceLocation(ModularPipes.MOD_ID, "blocks/pipes/modular_error"));
 
 		for (ModularPipesConfig.Tier tier : ModularPipesConfig.tiers.getNameMap())
 		{

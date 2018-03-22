@@ -34,6 +34,7 @@ public class TileController extends TileBase implements ITickable, IModularPipeN
 	@Override
 	public void update()
 	{
+		checkIfDirty();
 	}
 
 	@Override
@@ -65,7 +66,7 @@ public class TileController extends TileBase implements ITickable, IModularPipeN
 		return INFINITE_EXTENT_AABB;
 	}
 
-	public void onRightClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing)
+	public void onRightClick(EntityPlayer player, EnumHand hand, EnumFacing facing)
 	{
 		hasError = !hasError;
 		markDirty();

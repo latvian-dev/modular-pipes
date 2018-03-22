@@ -1,7 +1,6 @@
 package com.latmod.modularpipes;
 
 import com.feed_the_beast.ftblib.lib.block.ItemBlockBase;
-import com.feed_the_beast.ftblib.lib.client.ClientUtils;
 import com.latmod.modularpipes.block.BlockController;
 import com.latmod.modularpipes.block.BlockModularPipe;
 import com.latmod.modularpipes.block.BlockPipeBasic;
@@ -114,8 +113,8 @@ public class ModularPipesItems
 	@SideOnly(Side.CLIENT)
 	public static void registerModels(ModelRegistryEvent event)
 	{
-		ClientUtils.registerModel(CONTROLLER);
-		ClientUtils.registerModel(PIPE_BASIC, 0, ModularPipes.MOD_ID + ":pipe_item#variant=basic");
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CONTROLLER), 0, new ModelResourceLocation(CONTROLLER.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(PIPE_BASIC), 0, new ModelResourceLocation(ModularPipes.MOD_ID + ":pipe_item#variant=basic"));
 
 		registerModularPipe(PIPE_MODULAR_BASIC);
 		registerModularPipe(PIPE_MODULAR_IRON);
@@ -126,17 +125,16 @@ public class ModularPipesItems
 		registerModularPipe(PIPE_MODULAR_DIAMOND);
 		registerModularPipe(PIPE_MODULAR_STAR);
 
-		ClientUtils.registerModel(PIPE_NODE, 0, PIPE_BASIC.getRegistryName() + "#model=none");
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(PIPE_NODE), 0, new ModelResourceLocation(PIPE_BASIC.getRegistryName() + "#model=none"));
 		registerModularPipe(PIPE_NODE);
 
-		ClientUtils.registerModel(MODULE);
-		ClientUtils.registerModel(DEBUG);
-
-		ClientUtils.registerModel(MODULE_EXTRACT);
-		ClientUtils.registerModel(MODULE_RIGHTCLICK_EXTRACT);
-		ClientUtils.registerModel(MODULE_CRAFTING);
-		ClientUtils.registerModel(MODULE_ITEM_STORAGE);
-		ClientUtils.registerModel(MODULE_FLUID_STORAGE);
+		ModelLoader.setCustomModelResourceLocation(MODULE, 0, new ModelResourceLocation(MODULE.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(DEBUG, 0, new ModelResourceLocation(DEBUG.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(MODULE_EXTRACT, 0, new ModelResourceLocation(MODULE_EXTRACT.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(MODULE_RIGHTCLICK_EXTRACT, 0, new ModelResourceLocation(MODULE_RIGHTCLICK_EXTRACT.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(MODULE_CRAFTING, 0, new ModelResourceLocation(MODULE_CRAFTING.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(MODULE_ITEM_STORAGE, 0, new ModelResourceLocation(MODULE_ITEM_STORAGE.getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(MODULE_FLUID_STORAGE, 0, new ModelResourceLocation(MODULE_FLUID_STORAGE.getRegistryName(), "inventory"));
 
 		ClientRegistry.bindTileEntitySpecialRenderer(TileController.class, new RenderController());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileModularPipe.class, new RenderModularPipe());
@@ -147,7 +145,7 @@ public class ModularPipesItems
 	{
 		if (block instanceof BlockModularPipe)
 		{
-			ClientUtils.registerModel(block, 0, ModularPipes.MOD_ID + ":pipe_item#variant=modular_" + ((BlockModularPipe) block).tier);
+			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block), 0, new ModelResourceLocation(ModularPipes.MOD_ID + ":pipe_item#variant=modular_" + ((BlockModularPipe) block).tier));
 		}
 
 		ModelLoader.setCustomStateMapper(block, new DefaultStateMapper()

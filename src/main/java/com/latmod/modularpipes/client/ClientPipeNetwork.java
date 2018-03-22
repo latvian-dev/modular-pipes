@@ -61,7 +61,8 @@ public class ClientPipeNetwork extends PipeNetwork
 		double px = ClientUtils.getPlayerX();
 		double py = ClientUtils.getPlayerY();
 		double pz = ClientUtils.getPlayerZ();
-		Frustum frustum = ClientUtils.getFrustum(px, py, pz);
+		Frustum frustum = new Frustum();
+		frustum.setPosition(px, py, pz);
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(-px, -py, -pz);
 		GlStateManager.disableLighting();

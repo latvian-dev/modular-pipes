@@ -20,6 +20,8 @@ import org.lwjgl.opengl.GL11;
  */
 public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe>
 {
+	public static TextureAtlasSprite PIPE_ERROR;
+
 	@Override
 	public void render(TileModularPipe pipe, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
 	{
@@ -44,7 +46,7 @@ public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe
 		{
 			GlStateManager.enableBlend();
 			GlStateManager.disableAlpha();
-			sprite = RenderController.PIPE_ERROR;
+			sprite = PIPE_ERROR;
 		}
 		else
 		{

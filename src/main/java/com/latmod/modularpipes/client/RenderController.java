@@ -1,26 +1,17 @@
 package com.latmod.modularpipes.client;
 
-import com.feed_the_beast.ftblib.lib.client.ClientUtils;
 import com.latmod.modularpipes.tile.TileController;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import org.lwjgl.opengl.GL11;
 
 /**
  * @author LatvianModder
  */
 public class RenderController extends TileEntitySpecialRenderer<TileController>
 {
-	public static TextureAtlasSprite CONTROLLER_NO_ERROR, CONTROLLER_ERROR, PIPE_ERROR;
-
 	@Override
 	public void render(TileController controller, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
 	{
+		/*
 		if (controller.isInvalid())
 		{
 			return;
@@ -103,5 +94,6 @@ public class RenderController extends TileEntitySpecialRenderer<TileController>
 		GlStateManager.disableRescaleNormal();
 		GlStateManager.color(1F, 1F, 1F, 1F);
 		GlStateManager.popMatrix();
+		*/
 	}
 }
