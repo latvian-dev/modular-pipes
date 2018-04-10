@@ -1,6 +1,5 @@
 package com.latmod.modularpipes.block;
 
-import com.feed_the_beast.ftblib.lib.util.StringUtils;
 import com.latmod.modularpipes.ModularPipesItems;
 import com.latmod.modularpipes.data.IPipeBlock;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
@@ -9,6 +8,7 @@ import net.minecraft.block.material.MapColor;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
@@ -141,7 +141,7 @@ public class BlockPipeBasic extends BlockPipeBase
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flag)
 	{
-		tooltip.add(StringUtils.translate("tile.modularpipes.pipe_modular.tier_basic"));
+		tooltip.add(I18n.format("tile.modularpipes.pipe_modular.tier_basic"));
 	}
 
 	@Override

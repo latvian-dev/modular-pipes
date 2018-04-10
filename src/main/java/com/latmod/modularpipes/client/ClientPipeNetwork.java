@@ -1,11 +1,11 @@
 package com.latmod.modularpipes.client;
 
+import com.feed_the_beast.ftblib.FTBLib;
 import com.feed_the_beast.ftblib.lib.client.CachedVertexData;
 import com.feed_the_beast.ftblib.lib.client.ClientUtils;
 import com.feed_the_beast.ftblib.lib.icon.Color4I;
 import com.feed_the_beast.ftblib.lib.icon.MutableColor4I;
 import com.feed_the_beast.ftblib.lib.math.MathUtils;
-import com.feed_the_beast.ftblib.lib.util.UtilsCommon;
 import com.latmod.modularpipes.ModularPipesConfig;
 import com.latmod.modularpipes.data.PipeNetwork;
 import com.latmod.modularpipes.data.TransportedItem;
@@ -96,7 +96,7 @@ public class ClientPipeNetwork extends PipeNetwork
 						float prevHue = (i.renderTick - 1F) * 0.08F;
 						float hue = i.renderTick * 0.08F;
 						BOOST_PARTICLE_COLOR.setFromHSB(prevHue + (hue - prevHue) * pt, 1F, 1F);
-						UtilsCommon.INSTANCE.spawnDust(world, x, y, z, BOOST_PARTICLE_COLOR);
+						FTBLib.PROXY.spawnDust(world, x, y, z, BOOST_PARTICLE_COLOR);
 					}
 				}
 			}

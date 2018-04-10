@@ -1,6 +1,5 @@
 package com.latmod.modularpipes.block;
 
-import com.feed_the_beast.ftblib.lib.util.StringUtils;
 import com.latmod.modularpipes.ModularPipesConfig;
 import com.latmod.modularpipes.data.NodeType;
 import com.latmod.modularpipes.data.TransportedItem;
@@ -12,6 +11,7 @@ import net.minecraft.block.material.MapColor;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -92,8 +92,8 @@ public class BlockModularPipe extends BlockPipeBase
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flag)
 	{
-		tooltip.add(StringUtils.translate("tile.modularpipes.pipe_modular.slots", tier.modules));
-		tooltip.add(StringUtils.translate("tile.modularpipes.pipe.speed_boost", tier.getSpeedString()));
+		tooltip.add(I18n.format("tile.modularpipes.pipe_modular.slots", tier.modules));
+		tooltip.add(I18n.format("tile.modularpipes.pipe.speed_boost", tier.getSpeedString()));
 	}
 
 	@Override
