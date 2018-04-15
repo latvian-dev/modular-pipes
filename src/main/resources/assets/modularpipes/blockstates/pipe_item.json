@@ -6,6 +6,7 @@
 	"variants": {
 		"variant": {
 			"basic": {"model": "modularpipes:pipe"},
+			"basic_opaque": {"model": "modularpipes:pipe_opaque"},
 			"modular_basic": {"textures": {"overlay": "modularpipes:blocks/pipes/modular_basic"}},
 			"modular_iron": {"textures": {"overlay": "modularpipes:blocks/pipes/modular_iron"}},
 			"modular_gold": {"textures": {"overlay": "modularpipes:blocks/pipes/modular_gold"}},

@@ -11,6 +11,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -105,11 +106,13 @@ public class BlockPipeBasic extends BlockPipeBase
 	}
 
 	public static final PropertyEnum<Model> MODEL = PropertyEnum.create("model", Model.class);
+	public final boolean opaque;
 
-	public BlockPipeBasic(String id, MapColor color)
+	public BlockPipeBasic(String id, MapColor color, boolean o)
 	{
 		super(id, color);
 		setDefaultState(blockState.getBaseState().withProperty(MODEL, Model.NONE));
+		opaque = o;
 	}
 
 	@Override
@@ -135,6 +138,13 @@ public class BlockPipeBasic extends BlockPipeBase
 	public int damageDropped(IBlockState state)
 	{
 		return 0;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public BlockRenderLayer getBlockLayer()
+	{
+		return opaque ? BlockRenderLayer.SOLID : BlockRenderLayer.CUTOUT;
 	}
 
 	@Override
@@ -218,6 +228,6 @@ public class BlockPipeBasic extends BlockPipeBase
 
 	public IBlockState getNodeState()
 	{
-		return ModularPipesItems.PIPE_NODE.getDefaultState();
+		return opaque ? ModularPipesItems.PIPE_NODE_OPAQUE.getDefaultState() : ModularPipesItems.PIPE_NODE.getDefaultState();
 	}
 }

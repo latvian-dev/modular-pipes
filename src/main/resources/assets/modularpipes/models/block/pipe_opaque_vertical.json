@@ -1,0 +1,19 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"base": "modularpipes:blocks/pipes/opaque_vertical",
+		"particle": "modularpipes:blocks/pipes/opaque_vertical"
+	},
+	"elements": [
+		{
+			"from": [4, 0, 4],
+			"to": [12, 16, 12],
+			"faces": {
+				"north": {"texture": "#base", "uv": [4, 0, 12, 16]},
+				"east": {"texture": "#base", "uv": [4, 0, 12, 16]},
+				"south": {"texture": "#base", "uv": [4, 0, 12, 16]},
+				"west": {"texture": "#base", "uv": [4, 0, 12, 16]}
+			}
+		}
+	]
+}

@@ -4,6 +4,7 @@ itemGroup.modularpipes=Modular Pipes
 # Blocks
 tile.modularpipes.controller.name=Controller
 tile.modularpipes.pipe_basic.name=Basic Pipe
+tile.modularpipes.pipe_basic_opaque.name=Basic Pipe [Opaque]
 tile.modularpipes.pipe.speed_boost=Speed Boost: %s
 tile.modularpipes.pipe_modular_basic.name=Basic Modular Pipe
 tile.modularpipes.pipe_modular_iron.name=Iron Modular Pipe

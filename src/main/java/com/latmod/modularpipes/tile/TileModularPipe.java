@@ -216,8 +216,8 @@ public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
 				}
 
 				c.setStack(ItemStack.EMPTY);
+				updateContainingBlockInfo();
 				markDirty();
-				checkIfDirty();
 				return;
 			}
 		}
@@ -245,8 +245,8 @@ public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
 			if (c.hasModule() && c.getModule().insertInPipe(c, playerIn))
 			{
 				stack.shrink(1);
+				updateContainingBlockInfo();
 				markDirty();
-				checkIfDirty();
 				return;
 			}
 			else
@@ -316,7 +316,8 @@ public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
 				}
 			}
 
-			markDirty();
+			IBlockState state = world.getBlockState(pos);
+			world.notifyBlockUpdate(pos, state, state, 255);
 		}
 
 		return connections;
@@ -343,6 +344,12 @@ public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
 		}
 
 		return network;
+	}
+
+	@Override
+	public void markDirty()
+	{
+		sendDirtyUpdate();
 	}
 
 	public void onNeighborChange()

@@ -90,20 +90,20 @@ public class BlockModularPipe extends BlockPipeBase
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flag)
+	public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag flag)
 	{
 		tooltip.add(I18n.format("tile.modularpipes.pipe_modular.slots", tier.modules));
 		tooltip.add(I18n.format("tile.modularpipes.pipe.speed_boost", tier.getSpeedString()));
 	}
 
 	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
 	{
-		TileEntity tileEntity = worldIn.getTileEntity(pos);
+		TileEntity tileEntity = world.getTileEntity(pos);
 
 		if (tileEntity instanceof TileModularPipe)
 		{
-			((TileModularPipe) tileEntity).onRightClick(playerIn, hand);
+			((TileModularPipe) tileEntity).onRightClick(player, hand);
 		}
 
 		return true;
@@ -111,9 +111,9 @@ public class BlockModularPipe extends BlockPipeBase
 
 	@Override
 	@Deprecated
-	public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+	public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos)
 	{
-		TileEntity tileEntity = worldIn.getTileEntity(pos);
+		TileEntity tileEntity = world.getTileEntity(pos);
 
 		if (tileEntity instanceof TileModularPipe)
 		{
@@ -130,9 +130,9 @@ public class BlockModularPipe extends BlockPipeBase
 
 	@Override
 	@Deprecated
-	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
+	public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block, BlockPos fromPos)
 	{
-		TileEntity tileEntity = worldIn.getTileEntity(pos);
+		TileEntity tileEntity = world.getTileEntity(pos);
 
 		if (tileEntity instanceof TileModularPipe)
 		{
@@ -143,20 +143,20 @@ public class BlockModularPipe extends BlockPipeBase
 	@Override
 	@Nullable
 	@Deprecated
-	public RayTraceResult collisionRayTrace(IBlockState blockState, World worldIn, BlockPos pos, Vec3d start, Vec3d end)
+	public RayTraceResult collisionRayTrace(IBlockState state, World world, BlockPos pos, Vec3d start, Vec3d end)
 	{
-		TileEntity tileEntity = worldIn.getTileEntity(pos);
+		TileEntity tileEntity = world.getTileEntity(pos);
 		TileModularPipe tile = (tileEntity instanceof TileModularPipe) ? (TileModularPipe) tileEntity : null;
 
 		if (tile == null)
 		{
-			return super.collisionRayTrace(blockState, worldIn, pos, start, end);
+			return super.collisionRayTrace(state, world, pos, start, end);
 		}
 
 		Vec3d start1 = start.subtract(pos.getX(), pos.getY(), pos.getZ());
 		Vec3d end1 = end.subtract(pos.getX(), pos.getY(), pos.getZ());
 		RayTraceResult ray1 = null;
-		EntityPlayer player = worldIn.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 5D, false);
+		EntityPlayer player = world.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 5D, false);
 		boolean holdingModule = player != null && (player.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemModule || player.getHeldItem(EnumHand.OFF_HAND).getItem() instanceof ItemModule);
 		double dist = Double.POSITIVE_INFINITY;
 

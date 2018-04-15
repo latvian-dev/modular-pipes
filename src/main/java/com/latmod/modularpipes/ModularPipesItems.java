@@ -44,6 +44,7 @@ public class ModularPipesItems
 	public static final Block CONTROLLER = Blocks.AIR;
 
 	public static final Block PIPE_BASIC = Blocks.AIR;
+	public static final Block PIPE_BASIC_OPAQUE = Blocks.AIR;
 	public static final Block PIPE_MODULAR_BASIC = Blocks.AIR;
 	public static final Block PIPE_MODULAR_IRON = Blocks.AIR;
 	public static final Block PIPE_MODULAR_GOLD = Blocks.AIR;
@@ -53,6 +54,7 @@ public class ModularPipesItems
 	public static final Block PIPE_MODULAR_DIAMOND = Blocks.AIR;
 	public static final Block PIPE_MODULAR_STAR = Blocks.AIR;
 	public static final Block PIPE_NODE = Blocks.AIR;
+	public static final Block PIPE_NODE_OPAQUE = Blocks.AIR;
 
 	public static final Item MODULE = Items.AIR;
 	public static final Item DEBUG = Items.AIR;
@@ -73,8 +75,10 @@ public class ModularPipesItems
 	{
 		event.getRegistry().registerAll(
 				new BlockController("controller"),
-				new BlockPipeBasic("pipe_basic", MapColor.GRAY),
-				new BlockPipeBasicNode("pipe_node"));
+				new BlockPipeBasic("pipe_basic", MapColor.GRAY, false),
+				new BlockPipeBasic("pipe_basic_opaque", MapColor.GRAY, true),
+				new BlockPipeBasicNode("pipe_node", false),
+				new BlockPipeBasicNode("pipe_node_opaque", true));
 
 		for (ModularPipesConfig.Tier tier : ModularPipesConfig.tiers.getNameMap())
 		{
@@ -91,6 +95,7 @@ public class ModularPipesItems
 		event.getRegistry().registerAll(
 				new ItemBlockBase(CONTROLLER),
 				new ItemBlockBase(PIPE_BASIC),
+				new ItemBlockBase(PIPE_BASIC_OPAQUE),
 				new ItemBlockBase(PIPE_MODULAR_BASIC),
 				new ItemBlockBase(PIPE_MODULAR_IRON),
 				new ItemBlockBase(PIPE_MODULAR_GOLD),
@@ -100,6 +105,7 @@ public class ModularPipesItems
 				new ItemBlockBase(PIPE_MODULAR_DIAMOND),
 				new ItemBlockBase(PIPE_MODULAR_STAR),
 				new ItemBlockBase(PIPE_NODE, true),
+				new ItemBlockBase(PIPE_NODE_OPAQUE, true),
 				new ItemMPBase("module"),
 				new ItemDebug("debug"),
 				new ItemModuleExtract("module_extract"),
@@ -115,6 +121,7 @@ public class ModularPipesItems
 	{
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CONTROLLER), 0, new ModelResourceLocation(CONTROLLER.getRegistryName(), "error=false"));
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(PIPE_BASIC), 0, new ModelResourceLocation(ModularPipes.MOD_ID + ":pipe_item#variant=basic"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(PIPE_BASIC_OPAQUE), 0, new ModelResourceLocation(ModularPipes.MOD_ID + ":pipe_item#variant=basic_opaque"));
 
 		registerModularPipe(PIPE_MODULAR_BASIC);
 		registerModularPipe(PIPE_MODULAR_IRON);
@@ -126,6 +133,7 @@ public class ModularPipesItems
 		registerModularPipe(PIPE_MODULAR_STAR);
 
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(PIPE_NODE), 0, new ModelResourceLocation(PIPE_BASIC.getRegistryName() + "#model=none"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(PIPE_NODE_OPAQUE), 0, new ModelResourceLocation(PIPE_BASIC_OPAQUE.getRegistryName() + "#model=none"));
 		registerModularPipe(PIPE_NODE);
 
 		ModelLoader.setCustomModelResourceLocation(MODULE, 0, new ModelResourceLocation(MODULE.getRegistryName(), "inventory"));
