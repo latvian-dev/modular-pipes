@@ -10,6 +10,6 @@
 	"key": {
 		"G": {"type": "forge:ore_dict", "ore": "paneGlass"},
 		"R": {"type": "forge:ore_dict", "ore": "dustRedstone"},
-		"S": {"type": "forge:ore_dict", "ore": "cobblestone"}
+		"S": {"item": "#any_stone"}
 	}
 }

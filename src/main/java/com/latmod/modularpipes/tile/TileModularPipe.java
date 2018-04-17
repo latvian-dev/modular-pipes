@@ -3,6 +3,7 @@ package com.latmod.modularpipes.tile;
 import com.feed_the_beast.ftblib.lib.math.MathUtils;
 import com.feed_the_beast.ftblib.lib.tile.EnumSaveType;
 import com.feed_the_beast.ftblib.lib.tile.TileBase;
+import com.feed_the_beast.ftblib.lib.util.CommonUtils;
 import com.feed_the_beast.ftblib.lib.util.LangKey;
 import com.latmod.modularpipes.ModularPipesConfig;
 import com.latmod.modularpipes.ModularPipesItems;
@@ -316,8 +317,7 @@ public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
 				}
 			}
 
-			IBlockState state = world.getBlockState(pos);
-			world.notifyBlockUpdate(pos, state, state, 255);
+			CommonUtils.notifyBlockUpdate(world, pos, null);
 		}
 
 		return connections;
@@ -359,8 +359,7 @@ public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
 
 		if (world != null)
 		{
-			IBlockState state = world.getBlockState(pos);
-			world.notifyBlockUpdate(pos, state, state, 255);
+			CommonUtils.notifyBlockUpdate(world, pos, null);
 
 			if (!world.isRemote)
 			{
