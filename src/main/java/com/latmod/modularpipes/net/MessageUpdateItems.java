@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.net;
 
+import com.feed_the_beast.ftblib.lib.client.ClientUtils;
 import com.feed_the_beast.ftblib.lib.io.DataIn;
 import com.feed_the_beast.ftblib.lib.io.DataOut;
 import com.feed_the_beast.ftblib.lib.net.MessageToClient;
@@ -7,7 +8,8 @@ import com.feed_the_beast.ftblib.lib.net.NetworkWrapper;
 import com.latmod.modularpipes.client.ClientTransportedItem;
 import com.latmod.modularpipes.data.PipeNetwork;
 import com.latmod.modularpipes.data.TransportedItem;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Collection;
 
@@ -46,11 +48,12 @@ public class MessageUpdateItems extends MessageToClient<MessageUpdateItems>
 	}
 
 	@Override
-	public void onMessage(MessageUpdateItems message, EntityPlayer player)
+	@SideOnly(Side.CLIENT)
+	public void onMessage()
 	{
-		PipeNetwork n = PipeNetwork.get(player.world);
+		PipeNetwork n = PipeNetwork.get(ClientUtils.MC.world);
 
-		for (TransportedItem item : message.updated)
+		for (TransportedItem item : updated)
 		{
 			if (item.remove())
 			{

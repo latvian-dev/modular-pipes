@@ -1,12 +1,14 @@
 package com.latmod.modularpipes.net;
 
+import com.feed_the_beast.ftblib.lib.client.ClientUtils;
 import com.feed_the_beast.ftblib.lib.io.DataIn;
 import com.feed_the_beast.ftblib.lib.io.DataOut;
 import com.feed_the_beast.ftblib.lib.net.MessageToClient;
 import com.feed_the_beast.ftblib.lib.net.NetworkWrapper;
 import com.latmod.modularpipes.data.PipeNetwork;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.Collection;
 
@@ -60,8 +62,9 @@ public class MessageVisualizeNetwork extends MessageToClient<MessageVisualizeNet
 	}
 
 	@Override
-	public void onMessage(MessageVisualizeNetwork message, EntityPlayer player)
+	@SideOnly(Side.CLIENT)
+	public void onMessage()
 	{
-		PipeNetwork.get(player.world).visualizeNetwork(message.nodesSimple, message.nodesTiles, message.links, message.tiles);
+		PipeNetwork.get(ClientUtils.MC.world).visualizeNetwork(nodesSimple, nodesTiles, links, tiles);
 	}
 }
