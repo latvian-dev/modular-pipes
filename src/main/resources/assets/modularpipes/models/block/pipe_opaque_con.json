@@ -1,7 +1,7 @@
 {
 	"parent": "block/block",
 	"textures": {
-		"base": "modularpipes:blocks/pipes/opaque_con",
+		"base": "modularpipes:blocks/pipes/opaque_base",
 		"particle": "modularpipes:blocks/pipes/opaque_vertical"
 	},
 	"elements": [

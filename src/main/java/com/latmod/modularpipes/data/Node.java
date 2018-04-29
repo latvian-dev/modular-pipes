@@ -104,7 +104,7 @@ public class Node extends BlockPos
 		}
 		else if (list.size() > 1)
 		{
-			list.sort(Link.COMPARATOR);
+			list.sort(null);
 		}
 
 		return list.get(0);

@@ -8,7 +8,7 @@ import com.latmod.modularpipes.net.MessageUpdateItems;
 import com.latmod.modularpipes.net.MessageVisualizeNetwork;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
@@ -539,7 +539,7 @@ public class ServerPipeNetwork extends PipeNetwork
 		updateCache.put(item.id, item);
 	}
 
-	public void playerLoggedIn(EntityPlayer player)
+	public void playerLoggedIn(EntityPlayerMP player)
 	{
 		new MessageUpdateItems(items.values()).sendTo(player);
 		markDirty();

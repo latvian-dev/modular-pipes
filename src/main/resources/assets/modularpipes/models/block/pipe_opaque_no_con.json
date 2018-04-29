@@ -1,0 +1,16 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"base": "modularpipes:blocks/pipes/opaque_base",
+		"particle": "modularpipes:blocks/pipes/opaque_vertical"
+	},
+	"elements": [
+		{
+			"from": [4, 4, 4],
+			"to": [12, 4, 12],
+			"faces": {
+				"down": {"texture": "#base", "uv": [4, 4, 12, 12]}
+			}
+		}
+	]
+}

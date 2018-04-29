@@ -7,17 +7,14 @@ import net.minecraft.util.math.BlockPos;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
  * @author LatvianModder
  */
-public final class Link
+public final class Link implements Comparable<Link>
 {
-	public static final Comparator<Link> COMPARATOR = (link1, link2) -> link1.length - link2.length;
-
 	public static List<BlockPos> simplify(Collection<BlockPos> path)
 	{
 		if (path.size() < 2)
@@ -138,5 +135,11 @@ public final class Link
 	public String toString()
 	{
 		return "[#" + Integer.toHexString(path.hashCode()) + ' ' + length + 'x' + start + "->" + end + ']';
+	}
+
+	@Override
+	public int compareTo(Link o)
+	{
+		return Integer.compare(length, o.length);
 	}
 }

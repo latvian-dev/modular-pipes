@@ -36,7 +36,8 @@ public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe
 		GlStateManager.color(1F, 1F, 1F, 1F);
 		GlStateManager.enableDepth();
 		GlStateManager.depthFunc(GL11.GL_LEQUAL);
-		GlStateManager.depthMask(true);
+		GlStateManager.depthMask(false);
+		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 		setLightmapDisabled(true);
 		GlStateManager.enableLighting();
 		GlStateManager.enableCull();
@@ -100,6 +101,7 @@ public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe
 		buffer.pos(s1, s0, s1).tex(minU, maxV).color(255, 255, 255, alphai).normal(1, 0, 0).endVertex();
 		tessellator.draw();
 
+		GlStateManager.depthMask(true);
 		GlStateManager.enableLighting();
 		setLightmapDisabled(false);
 

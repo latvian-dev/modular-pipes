@@ -53,7 +53,7 @@ public class ModularPipesEventHandler
 	{
 		if (event.player instanceof EntityPlayerMP)
 		{
-			PipeNetwork.get(event.player.world).server().playerLoggedIn(event.player);
+			PipeNetwork.get(event.player.world).server().playerLoggedIn((EntityPlayerMP) event.player);
 		}
 	}
 }

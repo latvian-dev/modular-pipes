@@ -1,6 +1,11 @@
 {
 	"multipart": [
-		{"apply": {"model": "modularpipes:pipe_opaque"}},
+		{"when": {"con_d": 0}, "apply": {"model": "modularpipes:pipe_opaque_no_con", "x": 0, "y": 0}},
+		{"when": {"con_u": 0}, "apply": {"model": "modularpipes:pipe_opaque_no_con", "x": 180, "y": 0}},
+		{"when": {"con_n": 0}, "apply": {"model": "modularpipes:pipe_opaque_no_con", "x": 90, "y": 180}},
+		{"when": {"con_s": 0}, "apply": {"model": "modularpipes:pipe_opaque_no_con", "x": 90, "y": 0}},
+		{"when": {"con_w": 0}, "apply": {"model": "modularpipes:pipe_opaque_no_con", "x": 90, "y": 90}},
+		{"when": {"con_e": 0}, "apply": {"model": "modularpipes:pipe_opaque_no_con", "x": 90, "y": 270}},
 		{"when": {"con_d": 1}, "apply": {"model": "modularpipes:pipe_opaque_con", "x": 0, "y": 0}},
 		{"when": {"con_u": 1}, "apply": {"model": "modularpipes:pipe_opaque_con", "x": 180, "y": 0}},
 		{"when": {"con_n": 1}, "apply": {"model": "modularpipes:pipe_opaque_con", "x": 90, "y": 180}},
