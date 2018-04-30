@@ -15,7 +15,7 @@ import java.util.Collection;
 /**
  * @author LatvianModder
  */
-public class MessageVisualizeNetwork extends MessageToClient<MessageVisualizeNetwork>
+public class MessageVisualizeNetwork extends MessageToClient
 {
 	private static final DataOut.Serializer<Collection<BlockPos>> BLOCK_POS_LIST_SERIALIZER = (data, object) -> data.writeCollection(object, DataOut.BLOCK_POS);
 	private static final DataIn.Deserializer<Collection<BlockPos>> BLOCK_POS_LIST_DESERIALIZER = data -> data.readCollection(null, DataIn.BLOCK_POS);

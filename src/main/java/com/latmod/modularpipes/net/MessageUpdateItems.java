@@ -16,7 +16,7 @@ import java.util.Collection;
 /**
  * @author LatvianModder
  */
-public class MessageUpdateItems extends MessageToClient<MessageUpdateItems>
+public class MessageUpdateItems extends MessageToClient
 {
 	private Collection<TransportedItem> updated;
 
