@@ -41,18 +41,16 @@ public class RenderModularPipe extends TileEntitySpecialRenderer<TileModularPipe
 		setLightmapDisabled(true);
 		GlStateManager.enableLighting();
 		GlStateManager.enableCull();
+		GlStateManager.disableBlend();
+		GlStateManager.enableAlpha();
 		TextureAtlasSprite sprite;
 
 		if (pipe.hasError())
 		{
-			GlStateManager.enableBlend();
-			GlStateManager.disableAlpha();
 			sprite = PIPE_ERROR;
 		}
 		else
 		{
-			GlStateManager.disableBlend();
-			GlStateManager.enableAlpha();
 			sprite = pipe.tier.getSprite();
 		}
 

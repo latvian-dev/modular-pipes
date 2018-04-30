@@ -90,20 +90,20 @@ public class BlockController extends BlockMPBase
 	@Override
 	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos)
 	{
-		return MinecraftForgeClient.getRenderLayer() == BlockRenderLayer.TRANSLUCENT ? 15 : 0;
+		return MinecraftForgeClient.getRenderLayer() == BlockRenderLayer.CUTOUT ? 15 : 0;
 	}
 
 	@Override
 	public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer)
 	{
-		return layer == BlockRenderLayer.SOLID || layer == BlockRenderLayer.TRANSLUCENT;
+		return layer == BlockRenderLayer.SOLID || layer == BlockRenderLayer.CUTOUT;
 	}
 
 	@Override
 	@Deprecated
 	public int getPackedLightmapCoords(IBlockState state, IBlockAccess source, BlockPos pos)
 	{
-		if (MinecraftForgeClient.getRenderLayer() == BlockRenderLayer.TRANSLUCENT)
+		if (MinecraftForgeClient.getRenderLayer() == BlockRenderLayer.CUTOUT)
 		{
 			int result = source.getCombinedLight(pos, 15);
 			int skylight = (result >> 16) & 0xFFFF;
