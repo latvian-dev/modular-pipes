@@ -74,6 +74,7 @@ public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
 
 	@Override
 	@Nullable
+	@SuppressWarnings("unchecked")
 	public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing)
 	{
 		return (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && facing != null) ? (T) modules[facing.getIndex()] : super.getCapability(capability, facing);
