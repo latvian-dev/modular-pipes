@@ -1,0 +1,21 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"glass": "modularpipes:blocks/pipe/glass",
+		"particle": "modularpipes:blocks/pipe/particle"
+	},
+	"elements": [
+		{
+			"from": [5, 5, 5],
+			"to": [11, 11, 11],
+			"faces": {
+				"down": {"texture": "#glass", "uv": [5, 5, 11, 11]},
+				"up": {"texture": "#glass", "uv": [5, 5, 11, 11]},
+				"north": {"texture": "#glass", "uv": [5, 5, 11, 11]},
+				"south": {"texture": "#glass", "uv": [5, 5, 11, 11]},
+				"west": {"texture": "#glass", "uv": [5, 5, 11, 11]},
+				"east": {"texture": "#glass", "uv": [5, 5, 11, 11]}
+			}
+		}
+	]
+}

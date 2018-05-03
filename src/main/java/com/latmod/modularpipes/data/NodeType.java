@@ -7,7 +7,7 @@ public enum NodeType
 {
 	NONE,
 	SIMPLE,
-	TILES;
+	MODULAR;
 
 	public static final NodeType[] VALUES = values();
 
@@ -16,8 +16,8 @@ public enum NodeType
 		return this != NONE;
 	}
 
-	public boolean hasTiles()
+	public boolean isModular()
 	{
-		return this == TILES;
+		return this == MODULAR;
 	}
 }

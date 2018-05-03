@@ -20,7 +20,7 @@ public final class ModuleContainer implements ITickable, IItemHandler
 {
 	public final TileModularPipe tile;
 	public final EnumFacing facing;
-	private Module module;
+	private IModule module;
 	private ItemStack stack;
 	private DataStorage data;
 	private FilterConfig filterConfig;
@@ -64,15 +64,15 @@ public final class ModuleContainer implements ITickable, IItemHandler
 
 	public void setStack(ItemStack is)
 	{
-		module = Module.EMPTY;
+		module = IModule.EMPTY;
 		data = DataStorage.EMPTY;
 		stack = ItemStack.EMPTY;
 		tick = 0;
 
-		if (is.getItem() instanceof Module)
+		if (is.getItem() instanceof IModule)
 		{
 			stack = is;
-			module = (Module) is.getItem();
+			module = (IModule) is.getItem();
 
 			if (!module.isEmptyModule())
 			{
@@ -82,7 +82,7 @@ public final class ModuleContainer implements ITickable, IItemHandler
 		}
 	}
 
-	public Module getModule()
+	public IModule getModule()
 	{
 		return module;
 	}

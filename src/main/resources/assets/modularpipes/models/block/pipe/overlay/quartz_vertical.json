@@ -1,0 +1,6 @@
+{
+	"parent": "modularpipes:block/pipe/overlay/basic_vertical",
+	"textures": {
+		"overlay": "modularpipes:blocks/pipe/modular/quartz_vertical"
+	}
+}

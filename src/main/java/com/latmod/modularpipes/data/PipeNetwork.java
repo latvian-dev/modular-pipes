@@ -2,7 +2,7 @@ package com.latmod.modularpipes.data;
 
 import com.feed_the_beast.ftblib.lib.util.InvUtils;
 import com.latmod.modularpipes.ModularPipes;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -97,12 +97,12 @@ public abstract class PipeNetwork implements ITickable
 		return Collections.emptyList();
 	}
 
-	public boolean removePipe(BlockPos pos, boolean simulate)
+	public boolean removePipe(TileEntity tileEntity, boolean simulate)
 	{
 		return false;
 	}
 
-	public void addPipe(BlockPos pos, IBlockState state)
+	public void addPipe(TileEntity tileEntity)
 	{
 	}
 

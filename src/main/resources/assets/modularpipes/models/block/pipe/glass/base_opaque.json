@@ -1,0 +1,6 @@
+{
+	"parent": "modularpipes:block/pipe/glass/base",
+	"textures": {
+		"glass": "modularpipes:blocks/pipe/glass_opaque"
+	}
+}

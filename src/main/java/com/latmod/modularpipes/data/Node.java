@@ -43,7 +43,7 @@ public class Node extends BlockPos
 	{
 		int i = facing < 0 || facing >= 6 ? 6 : facing;
 
-		if (i != 6 && !type.hasTiles())
+		if (i != 6 && !type.isModular())
 		{
 			return null;
 		}

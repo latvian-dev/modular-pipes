@@ -4,8 +4,6 @@ itemGroup.modularpipes=Modular Pipes
 # Blocks
 tile.modularpipes.controller.name=Controller
 tile.modularpipes.pipe_basic.name=Basic Pipe
-tile.modularpipes.pipe_basic_opaque.name=Basic Pipe [Opaque]
-tile.modularpipes.pipe.speed_boost=Speed Boost: %s
 tile.modularpipes.pipe_modular_basic.name=Basic Modular Pipe
 tile.modularpipes.pipe_modular_iron.name=Iron Modular Pipe
 tile.modularpipes.pipe_modular_gold.name=Gold Modular Pipe
@@ -14,6 +12,17 @@ tile.modularpipes.pipe_modular_lapis.name=Lapis Lazuli Modular Pipe
 tile.modularpipes.pipe_modular_ender.name=Ender Modular Pipe
 tile.modularpipes.pipe_modular_diamond.name=Diamond Modular Pipe
 tile.modularpipes.pipe_modular_star.name=Nether Star Modular Pipe
+tile.modularpipes.pipe_basic_opaque.name=Basic Pipe [Opaque]
+tile.modularpipes.pipe_modular_basic_opaque.name=Basic Modular Pipe [Opaque]
+tile.modularpipes.pipe_modular_iron_opaque.name=Iron Modular Pipe [Opaque]
+tile.modularpipes.pipe_modular_gold_opaque.name=Gold Modular Pipe [Opaque]
+tile.modularpipes.pipe_modular_quartz_opaque.name=Quartz Modular Pipe [Opaque]
+tile.modularpipes.pipe_modular_lapis_opaque.name=Lapis Lazuli Modular Pipe [Opaque]
+tile.modularpipes.pipe_modular_ender_opaque.name=Ender Modular Pipe [Opaque]
+tile.modularpipes.pipe_modular_diamond_opaque.name=Diamond Modular Pipe [Opaque]
+tile.modularpipes.pipe_modular_star_opaque.name=Nether Star Modular Pipe [Opaque]
+
+tile.modularpipes.pipe.speed_boost=Speed Boost: %s
 tile.modularpipes.pipe_modular.tier_basic=Not Very Modular
 tile.modularpipes.pipe_modular.slots=Available Module Slots: %d
 

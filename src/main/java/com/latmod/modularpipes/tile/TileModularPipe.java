@@ -2,19 +2,15 @@ package com.latmod.modularpipes.tile;
 
 import com.feed_the_beast.ftblib.lib.math.MathUtils;
 import com.feed_the_beast.ftblib.lib.tile.EnumSaveType;
-import com.feed_the_beast.ftblib.lib.tile.TileBase;
-import com.feed_the_beast.ftblib.lib.util.CommonUtils;
-import com.feed_the_beast.ftblib.lib.util.LangKey;
 import com.latmod.modularpipes.ModularPipesConfig;
-import com.latmod.modularpipes.ModularPipesItems;
-import com.latmod.modularpipes.data.IPipeBlock;
-import com.latmod.modularpipes.data.Module;
+import com.latmod.modularpipes.block.PipeConnection;
+import com.latmod.modularpipes.data.IModule;
+import com.latmod.modularpipes.data.IPipe;
 import com.latmod.modularpipes.data.ModuleContainer;
 import com.latmod.modularpipes.data.Node;
+import com.latmod.modularpipes.data.NodeType;
 import com.latmod.modularpipes.data.PipeNetwork;
 import com.latmod.modularpipes.data.TransportedItem;
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -23,14 +19,12 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 
@@ -39,12 +33,9 @@ import javax.annotation.Nullable;
 /**
  * @author LatvianModder
  */
-public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
+public class TileModularPipe extends TilePipeBase implements IModularPipeNetworkTile
 {
-	public static final LangKey CANT_INSERT = LangKey.of("item.modularpipes.module.cant_insert");
-
 	public ModularPipesConfig.Tier tier;
-	private int connections = -1;
 	public final ModuleContainer[] modules;
 	private PipeNetwork network;
 	private BlockPos controllerPos;
@@ -91,12 +82,9 @@ public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
 	@Override
 	protected void writeData(NBTTagCompound nbt, EnumSaveType type)
 	{
-		ModularPipesConfig.tiers.getNameMap().writeToNBT(nbt, "Tier", type, tier);
+		super.writeData(nbt, type);
 
-		if (type.save || connections != 0)
-		{
-			nbt.setByte("Connections", (byte) connections);
-		}
+		ModularPipesConfig.tiers.getNameMap().writeToNBT(nbt, "Tier", type, tier);
 
 		NBTTagList moduleList = new NBTTagList();
 
@@ -124,9 +112,8 @@ public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
 	@Override
 	protected void readData(NBTTagCompound nbt, EnumSaveType type)
 	{
+		super.readData(nbt, type);
 		tier = ModularPipesConfig.tiers.getNameMap().readFromNBT(nbt, "Tier", type);
-		connections = nbt.getByte("Connections") & 0xFF;
-
 		clearModules();
 
 		NBTTagList moduleList = nbt.getTagList("Modules", Constants.NBT.TAG_COMPOUND);
@@ -155,7 +142,6 @@ public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
 	public void updateContainingBlockInfo()
 	{
 		super.updateContainingBlockInfo();
-		connections = -1;
 		cachedController = null;
 	}
 
@@ -175,14 +161,14 @@ public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
 		checkIfDirty();
 	}
 
-	public void onRightClick(EntityPlayer playerIn, EnumHand hand)
+	public void onRightClick(EntityPlayer player, EnumHand hand)
 	{
 		if (world.isRemote)
 		{
 			return;
 		}
 
-		RayTraceResult ray = MathUtils.rayTrace(playerIn, false);
+		RayTraceResult ray = MathUtils.rayTrace(player, false);
 
 		if (ray == null)
 		{
@@ -191,19 +177,23 @@ public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
 
 		int facing = ray.subHit;
 
-		if (facing >= 6 || facing < 0)
+		if (facing <= 0)
 		{
 			facing = ray.sideHit.getIndex();
 		}
+		else
+		{
+			facing = (ray.subHit - 1) % 6;
+		}
 
-		ItemStack stack = playerIn.getHeldItem(hand);
+		ItemStack stack = player.getHeldItem(hand);
 		ModuleContainer c = modules[facing];
 
-		if (stack.isEmpty() && playerIn.isSneaking())
+		if (stack.isEmpty() && player.isSneaking())
 		{
 			if (!c.getItemStack().isEmpty())
 			{
-				c.getModule().removeFromPipe(c, playerIn);
+				c.getModule().removeFromPipe(c, player);
 
 				if (!c.getData().isEmpty())
 				{
@@ -212,9 +202,9 @@ public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
 					c.getItemStack().setTagInfo("ModuleData", nbt1);
 				}
 
-				if (!playerIn.inventory.addItemStackToInventory(c.getItemStack()) && !c.getItemStack().isEmpty())
+				if (!player.inventory.addItemStackToInventory(c.getItemStack()) && !c.getItemStack().isEmpty())
 				{
-					world.spawnEntity(new EntityItem(world, playerIn.posX, playerIn.posY, playerIn.posZ, c.getItemStack()));
+					world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, c.getItemStack()));
 				}
 
 				c.setStack(ItemStack.EMPTY);
@@ -224,7 +214,7 @@ public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
 			}
 		}
 
-		if (c.getItemStack().isEmpty() && stack.getItem() instanceof Module)
+		if (c.getItemStack().isEmpty() && stack.getItem() instanceof IModule)
 		{
 			int modulesSize = 0;
 
@@ -238,13 +228,13 @@ public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
 
 			if (tier.modules <= modulesSize)
 			{
-				CANT_INSERT.sendMessage(playerIn);
+				player.sendMessage(new TextComponentTranslation("item.modularpipes.module.cant_insert"));
 				return;
 			}
 
 			c.setStack(ItemHandlerHelper.copyStackWithSize(stack, 1));
 
-			if (c.hasModule() && c.getModule().insertInPipe(c, playerIn))
+			if (c.hasModule() && c.getModule().insertInPipe(c, player))
 			{
 				stack.shrink(1);
 				updateContainingBlockInfo();
@@ -257,9 +247,9 @@ public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
 			}
 		}
 
-		if (!c.getModule().onModuleRightClick(c, playerIn, hand))
+		if (!c.getModule().onModuleRightClick(c, player, hand))
 		{
-			playerIn.sendMessage(new TextComponentString("GUI Not Implemented!")); //TODO: Open GUI
+			player.sendMessage(new TextComponentString("GUI Not Implemented!")); //TODO: Open GUI
 		}
 
 		/*
@@ -299,44 +289,6 @@ public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
 		clearModules();
 	}
 
-	public EnumFacing getItemDirection(TransportedItem item, EnumFacing source)
-	{
-		return source;
-	}
-
-	public int getConnections()
-	{
-		if (connections == -1)
-		{
-			connections = 0;
-
-			for (EnumFacing facing : EnumFacing.VALUES)
-			{
-				if (canConnectTo0(facing))
-				{
-					connections |= 1 << facing.getIndex();
-				}
-			}
-
-			CommonUtils.notifyBlockUpdate(world, pos, null);
-		}
-
-		return connections;
-	}
-
-	public boolean canConnectTo(EnumFacing facing)
-	{
-		return (getConnections() & (1 << facing.getIndex())) != 0;
-	}
-
-	private boolean canConnectTo0(EnumFacing facing)
-	{
-		BlockPos pos1 = pos.offset(facing);
-		IBlockState state1 = world.getBlockState(pos1);
-		Block block1 = state1.getBlock();
-		return block1 == ModularPipesItems.CONTROLLER || block1 instanceof IPipeBlock && ((IPipeBlock) block1).canPipeConnect(world, pos1, state1, facing.getOpposite());
-	}
-
 	public PipeNetwork getNetwork()
 	{
 		if (network == null)
@@ -348,38 +300,20 @@ public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
 	}
 
 	@Override
-	public void markDirty()
-	{
-		sendDirtyUpdate();
-	}
-
 	public void onNeighborChange()
 	{
-		updateContainingBlockInfo();
-		getConnections();
+		super.onNeighborChange();
 
-		if (world != null)
+		if (!world.isRemote)
 		{
-			CommonUtils.notifyBlockUpdate(world, pos, null);
+			Node node = getNetwork().getNode(pos);
 
-			if (!world.isRemote)
+			if (node != null)
 			{
-				Node node = getNetwork().getNode(pos);
-
-				if (node != null)
-				{
-					node.clearCache();
-					node.network.markDirty();
-				}
+				node.clearCache();
+				node.network.markDirty();
 			}
 		}
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public AxisAlignedBB getRenderBoundingBox()
-	{
-		return new AxisAlignedBB(pos, pos.add(1, 1, 1));
 	}
 
 	@Nullable
@@ -404,5 +338,36 @@ public class TileModularPipe extends TileBase implements IModularPipeNetworkTile
 	{
 		controllerPos = pos;
 		cachedController = null;
+	}
+
+	@Override
+	public PipeConnection getPipeConnectionType(EnumFacing facing)
+	{
+		return modules[facing.getIndex()].hasModule() ? PipeConnection.PIPE_MODULE : super.getPipeConnectionType(facing);
+	}
+
+	@Override
+	public NodeType getNodeType()
+	{
+		return NodeType.MODULAR;
+	}
+
+	@Override
+	public double getItemSpeedModifier(TransportedItem item)
+	{
+		return tier.speed;
+	}
+
+	@Override
+	public EnumFacing getItemDirection(TransportedItem item, EnumFacing source)
+	{
+		TileEntity tileEntity = world.getTileEntity(pos);
+
+		if (tileEntity instanceof IPipe)
+		{
+			return ((IPipe) tileEntity).getItemDirection(item, source);
+		}
+
+		return source;
 	}
 }

@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.block;
 
+import com.latmod.modularpipes.data.IPipeConnection;
 import com.latmod.modularpipes.tile.TileController;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
@@ -19,7 +20,7 @@ import net.minecraftforge.client.MinecraftForgeClient;
 /**
  * @author LatvianModder
  */
-public class BlockController extends BlockMPBase
+public class BlockController extends BlockMPBase implements IPipeConnection
 {
 	public static final PropertyBool ERROR = PropertyBool.create("error");
 
@@ -90,20 +91,20 @@ public class BlockController extends BlockMPBase
 	@Override
 	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos)
 	{
-		return MinecraftForgeClient.getRenderLayer() == BlockRenderLayer.CUTOUT ? 15 : 0;
+		return MinecraftForgeClient.getRenderLayer() == BlockRenderLayer.TRANSLUCENT ? 15 : 0;
 	}
 
 	@Override
 	public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer)
 	{
-		return layer == BlockRenderLayer.SOLID || layer == BlockRenderLayer.CUTOUT;
+		return layer == BlockRenderLayer.SOLID || layer == BlockRenderLayer.TRANSLUCENT;
 	}
 
 	@Override
 	@Deprecated
 	public int getPackedLightmapCoords(IBlockState state, IBlockAccess source, BlockPos pos)
 	{
-		if (MinecraftForgeClient.getRenderLayer() == BlockRenderLayer.CUTOUT)
+		if (MinecraftForgeClient.getRenderLayer() == BlockRenderLayer.TRANSLUCENT)
 		{
 			int result = source.getCombinedLight(pos, 15);
 			int skylight = (result >> 16) & 0xFFFF;

@@ -2,11 +2,8 @@ package com.latmod.modularpipes.client;
 
 import com.feed_the_beast.ftblib.lib.client.ClientUtils;
 import com.latmod.modularpipes.ModularPipes;
-import com.latmod.modularpipes.ModularPipesConfig;
 import com.latmod.modularpipes.data.PipeNetwork;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -44,17 +41,6 @@ public class ModularPipesClientEventHandler
 		if (ClientPipeNetwork.INSTANCE != null)
 		{
 			ClientPipeNetwork.INSTANCE.render(event.getPartialTicks());
-		}
-	}
-
-	@SubscribeEvent
-	public static void onTexturesStitched(TextureStitchEvent.Pre event)
-	{
-		RenderModularPipe.PIPE_ERROR = event.getMap().registerSprite(new ResourceLocation(ModularPipes.MOD_ID, "blocks/pipes/modular_error"));
-
-		for (ModularPipesConfig.Tier tier : ModularPipesConfig.tiers.getNameMap())
-		{
-			tier.setSprite(event.getMap().registerSprite(new ResourceLocation(ModularPipes.MOD_ID, "blocks/pipes/modular_" + tier)));
 		}
 	}
 }

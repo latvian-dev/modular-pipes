@@ -1,0 +1,49 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"base": "modularpipes:blocks/pipe/base",
+		"particle": "modularpipes:blocks/pipe/particle"
+	},
+	"elements": [
+		{
+			"from": [4, 0, 4],
+			"to": [5, 16, 5],
+			"faces": {
+				"north": {"texture": "#base", "uv": [15, 0, 16, 16]},
+				"east": {"texture": "#base", "uv": [15, 0, 16, 16]},
+				"south": {"texture": "#base", "uv": [15, 0, 16, 16]},
+				"west": {"texture": "#base", "uv": [15, 0, 16, 16]}
+			}
+		},
+		{
+			"from": [11, 0, 4],
+			"to": [12, 16, 5],
+			"faces": {
+				"north": {"texture": "#base", "uv": [15, 0, 16, 16]},
+				"east": {"texture": "#base", "uv": [15, 0, 16, 16]},
+				"south": {"texture": "#base", "uv": [15, 0, 16, 16]},
+				"west": {"texture": "#base", "uv": [15, 0, 16, 16]}
+			}
+		},
+		{
+			"from": [4, 0, 11],
+			"to": [5, 16, 12],
+			"faces": {
+				"north": {"texture": "#base", "uv": [15, 0, 16, 16]},
+				"east": {"texture": "#base", "uv": [15, 0, 16, 16]},
+				"south": {"texture": "#base", "uv": [15, 0, 16, 16]},
+				"west": {"texture": "#base", "uv": [15, 0, 16, 16]}
+			}
+		},
+		{
+			"from": [11, 0, 11],
+			"to": [12, 16, 12],
+			"faces": {
+				"north": {"texture": "#base", "uv": [15, 0, 16, 16]},
+				"east": {"texture": "#base", "uv": [15, 0, 16, 16]},
+				"south": {"texture": "#base", "uv": [15, 0, 16, 16]},
+				"west": {"texture": "#base", "uv": [15, 0, 16, 16]}
+			}
+		}
+	]
+}

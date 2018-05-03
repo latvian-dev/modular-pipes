@@ -3,14 +3,11 @@ package com.latmod.modularpipes;
 import com.feed_the_beast.ftblib.lib.gui.GuiLang;
 import com.feed_the_beast.ftblib.lib.util.StringUtils;
 import com.feed_the_beast.ftblib.lib.util.misc.NameMap;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * @author LatvianModder
@@ -73,9 +70,6 @@ public class ModularPipesConfig
 		public double speed;
 		private String speedString;
 
-		@SideOnly(Side.CLIENT)
-		private TextureAtlasSprite sprite;
-
 		public Tier(int i, String n, int m, double s)
 		{
 			index = i;
@@ -97,18 +91,6 @@ public class ModularPipesConfig
 		public String getSpeedString()
 		{
 			return speedString;
-		}
-
-		@SideOnly(Side.CLIENT)
-		public void setSprite(TextureAtlasSprite s)
-		{
-			sprite = s;
-		}
-
-		@SideOnly(Side.CLIENT)
-		public TextureAtlasSprite getSprite()
-		{
-			return sprite;
 		}
 	}
 

@@ -1,12 +1,10 @@
 package com.latmod.modularpipes;
 
 import com.feed_the_beast.ftblib.lib.block.ItemBlockBase;
+import com.latmod.modularpipes.block.BlockBasicPipe;
 import com.latmod.modularpipes.block.BlockController;
 import com.latmod.modularpipes.block.BlockModularPipe;
-import com.latmod.modularpipes.block.BlockPipeBasic;
-import com.latmod.modularpipes.block.BlockPipeBasicNode;
-import com.latmod.modularpipes.client.RenderController;
-import com.latmod.modularpipes.client.RenderModularPipe;
+import com.latmod.modularpipes.client.ModelPipe;
 import com.latmod.modularpipes.item.ItemDebug;
 import com.latmod.modularpipes.item.ItemMPBase;
 import com.latmod.modularpipes.item.module.ItemModuleCrafting;
@@ -14,25 +12,24 @@ import com.latmod.modularpipes.item.module.ItemModuleExtract;
 import com.latmod.modularpipes.item.module.ItemModuleFluidStorage;
 import com.latmod.modularpipes.item.module.ItemModuleItemStorage;
 import com.latmod.modularpipes.item.module.ItemModuleRightClickExtract;
+import com.latmod.modularpipes.tile.TileBasicPipe;
 import com.latmod.modularpipes.tile.TileController;
 import com.latmod.modularpipes.tile.TileModularPipe;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.MapColor;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.block.statemap.DefaultStateMapper;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.registries.IForgeRegistry;
 
 /**
  * @author LatvianModder
@@ -44,7 +41,6 @@ public class ModularPipesItems
 	public static final Block CONTROLLER = Blocks.AIR;
 
 	public static final Block PIPE_BASIC = Blocks.AIR;
-	public static final Block PIPE_BASIC_OPAQUE = Blocks.AIR;
 	public static final Block PIPE_MODULAR_BASIC = Blocks.AIR;
 	public static final Block PIPE_MODULAR_IRON = Blocks.AIR;
 	public static final Block PIPE_MODULAR_GOLD = Blocks.AIR;
@@ -53,8 +49,16 @@ public class ModularPipesItems
 	public static final Block PIPE_MODULAR_ENDER = Blocks.AIR;
 	public static final Block PIPE_MODULAR_DIAMOND = Blocks.AIR;
 	public static final Block PIPE_MODULAR_STAR = Blocks.AIR;
-	public static final Block PIPE_NODE = Blocks.AIR;
-	public static final Block PIPE_NODE_OPAQUE = Blocks.AIR;
+
+	public static final Block PIPE_BASIC_OPAQUE = Blocks.AIR;
+	public static final Block PIPE_MODULAR_BASIC_OPAQUE = Blocks.AIR;
+	public static final Block PIPE_MODULAR_IRON_OPAQUE = Blocks.AIR;
+	public static final Block PIPE_MODULAR_GOLD_OPAQUE = Blocks.AIR;
+	public static final Block PIPE_MODULAR_QUARTZ_OPAQUE = Blocks.AIR;
+	public static final Block PIPE_MODULAR_LAPIS_OPAQUE = Blocks.AIR;
+	public static final Block PIPE_MODULAR_ENDER_OPAQUE = Blocks.AIR;
+	public static final Block PIPE_MODULAR_DIAMOND_OPAQUE = Blocks.AIR;
+	public static final Block PIPE_MODULAR_STAR_OPAQUE = Blocks.AIR;
 
 	public static final Item MODULE = Items.AIR;
 	public static final Item DEBUG = Items.AIR;
@@ -73,19 +77,24 @@ public class ModularPipesItems
 	@SubscribeEvent
 	public static void registerBlocks(RegistryEvent.Register<Block> event)
 	{
-		event.getRegistry().registerAll(
-				new BlockController("controller"),
-				new BlockPipeBasic("pipe_basic", MapColor.GRAY, false),
-				new BlockPipeBasic("pipe_basic_opaque", MapColor.GRAY, true),
-				new BlockPipeBasicNode("pipe_node", false),
-				new BlockPipeBasicNode("pipe_node_opaque", true));
+		IForgeRegistry<Block> r = event.getRegistry();
+		r.register(new BlockController("controller"));
+		r.register(new BlockBasicPipe("pipe_basic", false));
 
 		for (ModularPipesConfig.Tier tier : ModularPipesConfig.tiers.getNameMap())
 		{
-			event.getRegistry().register(new BlockModularPipe("pipe_modular_" + tier, tier));
+			r.register(new BlockModularPipe("pipe_modular_" + tier, tier, false));
+		}
+
+		r.register(new BlockBasicPipe("pipe_basic_opaque", true));
+
+		for (ModularPipesConfig.Tier tier : ModularPipesConfig.tiers.getNameMap())
+		{
+			r.register(new BlockModularPipe("pipe_modular_" + tier + "_opaque", tier, true));
 		}
 
 		GameRegistry.registerTileEntity(TileController.class, ModularPipes.MOD_ID + ":controller");
+		GameRegistry.registerTileEntity(TileBasicPipe.class, ModularPipes.MOD_ID + ":pipe_basic");
 		GameRegistry.registerTileEntity(TileModularPipe.class, ModularPipes.MOD_ID + ":pipe_modular");
 	}
 
@@ -95,7 +104,6 @@ public class ModularPipesItems
 		event.getRegistry().registerAll(
 				new ItemBlockBase(CONTROLLER),
 				new ItemBlockBase(PIPE_BASIC),
-				new ItemBlockBase(PIPE_BASIC_OPAQUE),
 				new ItemBlockBase(PIPE_MODULAR_BASIC),
 				new ItemBlockBase(PIPE_MODULAR_IRON),
 				new ItemBlockBase(PIPE_MODULAR_GOLD),
@@ -104,8 +112,15 @@ public class ModularPipesItems
 				new ItemBlockBase(PIPE_MODULAR_ENDER),
 				new ItemBlockBase(PIPE_MODULAR_DIAMOND),
 				new ItemBlockBase(PIPE_MODULAR_STAR),
-				new ItemBlockBase(PIPE_NODE, true),
-				new ItemBlockBase(PIPE_NODE_OPAQUE, true),
+				new ItemBlockBase(PIPE_BASIC_OPAQUE),
+				new ItemBlockBase(PIPE_MODULAR_BASIC_OPAQUE),
+				new ItemBlockBase(PIPE_MODULAR_IRON_OPAQUE),
+				new ItemBlockBase(PIPE_MODULAR_GOLD_OPAQUE),
+				new ItemBlockBase(PIPE_MODULAR_QUARTZ_OPAQUE),
+				new ItemBlockBase(PIPE_MODULAR_LAPIS_OPAQUE),
+				new ItemBlockBase(PIPE_MODULAR_ENDER_OPAQUE),
+				new ItemBlockBase(PIPE_MODULAR_DIAMOND_OPAQUE),
+				new ItemBlockBase(PIPE_MODULAR_STAR_OPAQUE),
 				new ItemMPBase("module"),
 				new ItemDebug("debug"),
 				new ItemModuleExtract("module_extract"),
@@ -119,22 +134,28 @@ public class ModularPipesItems
 	@SideOnly(Side.CLIENT)
 	public static void registerModels(ModelRegistryEvent event)
 	{
+		ModelLoaderRegistry.registerLoader(ModelPipe.INSTANCE);
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CONTROLLER), 0, new ModelResourceLocation(CONTROLLER.getRegistryName(), "error=false"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(PIPE_BASIC), 0, new ModelResourceLocation(ModularPipes.MOD_ID + ":pipe_item#variant=basic"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(PIPE_BASIC_OPAQUE), 0, new ModelResourceLocation(ModularPipes.MOD_ID + ":pipe_item#variant=basic_opaque"));
 
-		registerModularPipe(PIPE_MODULAR_BASIC);
-		registerModularPipe(PIPE_MODULAR_IRON);
-		registerModularPipe(PIPE_MODULAR_GOLD);
-		registerModularPipe(PIPE_MODULAR_QUARTZ);
-		registerModularPipe(PIPE_MODULAR_LAPIS);
-		registerModularPipe(PIPE_MODULAR_ENDER);
-		registerModularPipe(PIPE_MODULAR_DIAMOND);
-		registerModularPipe(PIPE_MODULAR_STAR);
+		registerPipe(PIPE_BASIC);
+		registerPipe(PIPE_MODULAR_BASIC);
+		registerPipe(PIPE_MODULAR_IRON);
+		registerPipe(PIPE_MODULAR_GOLD);
+		registerPipe(PIPE_MODULAR_QUARTZ);
+		registerPipe(PIPE_MODULAR_LAPIS);
+		registerPipe(PIPE_MODULAR_ENDER);
+		registerPipe(PIPE_MODULAR_DIAMOND);
+		registerPipe(PIPE_MODULAR_STAR);
 
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(PIPE_NODE), 0, new ModelResourceLocation(PIPE_BASIC.getRegistryName() + "#model=none"));
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(PIPE_NODE_OPAQUE), 0, new ModelResourceLocation(PIPE_BASIC_OPAQUE.getRegistryName() + "#model=none"));
-		registerModularPipe(PIPE_NODE);
+		registerPipe(PIPE_BASIC_OPAQUE);
+		registerPipe(PIPE_MODULAR_BASIC_OPAQUE);
+		registerPipe(PIPE_MODULAR_IRON_OPAQUE);
+		registerPipe(PIPE_MODULAR_GOLD_OPAQUE);
+		registerPipe(PIPE_MODULAR_QUARTZ_OPAQUE);
+		registerPipe(PIPE_MODULAR_LAPIS_OPAQUE);
+		registerPipe(PIPE_MODULAR_ENDER_OPAQUE);
+		registerPipe(PIPE_MODULAR_DIAMOND_OPAQUE);
+		registerPipe(PIPE_MODULAR_STAR_OPAQUE);
 
 		ModelLoader.setCustomModelResourceLocation(MODULE, 0, new ModelResourceLocation(MODULE.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(DEBUG, 0, new ModelResourceLocation(DEBUG.getRegistryName(), "inventory"));
@@ -143,26 +164,12 @@ public class ModularPipesItems
 		ModelLoader.setCustomModelResourceLocation(MODULE_CRAFTING, 0, new ModelResourceLocation(MODULE_CRAFTING.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(MODULE_ITEM_STORAGE, 0, new ModelResourceLocation(MODULE_ITEM_STORAGE.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(MODULE_FLUID_STORAGE, 0, new ModelResourceLocation(MODULE_FLUID_STORAGE.getRegistryName(), "inventory"));
-
-		ClientRegistry.bindTileEntitySpecialRenderer(TileController.class, new RenderController());
-		ClientRegistry.bindTileEntitySpecialRenderer(TileModularPipe.class, new RenderModularPipe());
 	}
 
 	@SideOnly(Side.CLIENT)
-	private static void registerModularPipe(Block block)
+	private static void registerPipe(Block block)
 	{
-		if (block instanceof BlockModularPipe)
-		{
-			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block), 0, new ModelResourceLocation(ModularPipes.MOD_ID + ":pipe_item#variant=modular_" + ((BlockModularPipe) block).tier));
-		}
-
-		ModelLoader.setCustomStateMapper(block, new DefaultStateMapper()
-		{
-			@Override
-			protected ModelResourceLocation getModelResourceLocation(IBlockState state)
-			{
-				return new ModelResourceLocation("modularpipes:pipe_modular#" + getPropertyString(state.getProperties()));
-			}
-		});
+		ModelLoader.setCustomStateMapper(block, ModelPipe.INSTANCE);
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(block), 0, ModelPipe.INSTANCE.ID);
 	}
 }

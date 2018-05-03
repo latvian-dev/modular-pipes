@@ -8,7 +8,7 @@
 				"custom": {
 					"base": "modularpipes:controller#base",
 					"Solid": "modularpipes:controller#base",
-					"Cutout": "modularpipes:controller#overlay_no_error"
+					"Translucent": "modularpipes:controller#overlay_no_error"
 				}
 			},
 			"true": {
@@ -17,7 +17,7 @@
 				"custom": {
 					"base": "modularpipes:controller#base",
 					"Solid": "modularpipes:controller#base",
-					"Cutout": "modularpipes:controller#overlay_error"
+					"Translucent": "modularpipes:controller#overlay_error"
 				}
 			}
 		},

@@ -1,6 +1,6 @@
 package com.latmod.modularpipes.item;
 
-import com.latmod.modularpipes.data.IPipeBlock;
+import com.latmod.modularpipes.data.IPipe;
 import com.latmod.modularpipes.data.Link;
 import com.latmod.modularpipes.data.Node;
 import com.latmod.modularpipes.data.PipeNetwork;
@@ -37,7 +37,7 @@ public class ItemDebug extends ItemMPBase
 	{
 		IBlockState state = worldIn.getBlockState(pos);
 
-		if (state.getBlock() instanceof IPipeBlock)
+		if (state.getBlock() instanceof IPipe)
 		{
 			if (worldIn.isRemote)
 			{

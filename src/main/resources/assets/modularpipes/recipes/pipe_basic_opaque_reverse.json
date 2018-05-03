@@ -1,6 +1,0 @@
-{
-	"type": "forge:ore_shapeless",
-	"group": "modularpipes:pipe",
-	"result": {"item": "pipe_basic"},
-	"ingredients": [{"item": "pipe_basic_opaque"}]
-}

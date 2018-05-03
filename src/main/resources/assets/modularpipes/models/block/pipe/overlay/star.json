@@ -1,0 +1,6 @@
+{
+	"parent": "modularpipes:block/pipe/overlay/basic",
+	"textures": {
+		"overlay": "modularpipes:blocks/pipe/modular/star"
+	}
+}

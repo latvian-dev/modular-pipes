@@ -7,11 +7,11 @@ import com.latmod.modularpipes.ModularPipesConfig;
 import com.latmod.modularpipes.net.MessageUpdateItems;
 import com.latmod.modularpipes.net.MessageVisualizeNetwork;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -147,7 +147,7 @@ public class ServerPipeNetwork extends PipeNetwork
 
 			if (pos.length >= 3)
 			{
-				Node node = new Node(this, pos[0], pos[1], pos[2], pos.length >= 4 ? NodeType.VALUES[pos[3]] : NodeType.TILES);
+				Node node = new Node(this, pos[0], pos[1], pos[2], pos.length >= 4 ? NodeType.VALUES[pos[3]] : NodeType.MODULAR);
 				nodes.put(node, node);
 			}
 		}
@@ -230,14 +230,14 @@ public class ServerPipeNetwork extends PipeNetwork
 	}
 
 	@Override
-	public boolean removePipe(BlockPos pos, boolean simulate)
+	public boolean removePipe(TileEntity tileEntity, boolean simulate)
 	{
 		if (!loaded)
 		{
 			return false;
 		}
 
-		Node node = getNode(pos);
+		Node node = getNode(tileEntity.getPos());
 
 		if (simulate)
 		{
@@ -248,7 +248,7 @@ public class ServerPipeNetwork extends PipeNetwork
 
 			for (Link link : links)
 			{
-				if (link.contains(pos, false))
+				if (link.contains(tileEntity.getPos(), false))
 				{
 					return true;
 				}
@@ -273,7 +273,7 @@ public class ServerPipeNetwork extends PipeNetwork
 				removedLink = true;
 			}
 
-			nodes.remove(pos);
+			nodes.remove(tileEntity.getPos());
 			markDirty();
 		}
 
@@ -281,7 +281,7 @@ public class ServerPipeNetwork extends PipeNetwork
 		{
 			for (Link link : links)
 			{
-				if (link.contains(pos, node != null))
+				if (link.contains(tileEntity.getPos(), node != null))
 				{
 					link.setInvalid();
 					removedLink = true;
@@ -294,34 +294,38 @@ public class ServerPipeNetwork extends PipeNetwork
 	}
 
 	@Override
-	public void addPipe(BlockPos pos, IBlockState state)
+	public void addPipe(TileEntity tileEntity)
 	{
-		if (loaded && state.getBlock() instanceof IPipeBlock)
+		if (!loaded || !(tileEntity instanceof IPipe))
 		{
-			if (addPipe0(pos, ((IPipeBlock) state.getBlock()).getNodeType(world, pos, state), true))
-			{
-				for (EnumFacing facing : EnumFacing.VALUES)
-				{
-					BlockPos pos1 = pos.offset(facing);
-					IBlockState state1 = world.getBlockState(pos1);
+			return;
+		}
 
-					if (state1.getBlock() instanceof IPipeBlock)
-					{
-						addPipe0(pos1, ((IPipeBlock) state1.getBlock()).getNodeType(world, pos1, state1), true);
-					}
+		if (addPipe0(tileEntity, true))
+		{
+			for (EnumFacing facing : EnumFacing.VALUES)
+			{
+				TileEntity tileEntity1 = world.getTileEntity(tileEntity.getPos().offset(facing));
+
+				if (tileEntity1 instanceof IPipe)
+				{
+					addPipe0(tileEntity1, true);
 				}
 			}
 		}
 	}
 
-	private boolean addPipe0(BlockPos pos, NodeType type, boolean init)
+	private boolean addPipe0(TileEntity tileEntity, boolean init)
 	{
-		if (init && removePipe(pos, true))
+		NodeType type = ((IPipe) tileEntity).getNodeType();
+
+		if (init && removePipe(tileEntity, true))
 		{
 			return false;
 		}
 
 		boolean isNode = type.isNode();
+		BlockPos pos = tileEntity.getPos();
 
 		if (isNode)
 		{
@@ -336,9 +340,9 @@ public class ServerPipeNetwork extends PipeNetwork
 
 		for (EnumFacing facing : EnumFacing.VALUES)
 		{
-			IBlockState state1 = world.getBlockState(pos.offset(facing));
+			TileEntity tileEntity1 = world.getTileEntity(pos.offset(facing));
 
-			if (state1.getBlock() instanceof IPipeBlock)
+			if (tileEntity1 instanceof IPipe)
 			{
 				CachedBlock data = findNode(pos, facing, isNode);
 
@@ -356,7 +360,12 @@ public class ServerPipeNetwork extends PipeNetwork
 					}
 					else if (data.getNode() != null)
 					{
-						addPipe0(data.getNode(), data.getNode().type, false);
+						TileEntity tileEntity2 = world.getTileEntity(data.getNode());
+
+						if (tileEntity2 instanceof IPipe)
+						{
+							addPipe0(tileEntity2, false);
+						}
 					}
 				}
 			}
@@ -373,13 +382,13 @@ public class ServerPipeNetwork extends PipeNetwork
 		path.add(start);
 		BlockPos pos = start.offset(facing);
 		EnumFacing source = facing.getOpposite();
-		IBlockState state;
+		TileEntity tileEntity;
 
 		for (int length = 1; length < ModularPipesConfig.pipes.max_link_length; length++)
 		{
-			state = world.getBlockState(pos);
+			tileEntity = world.getTileEntity(pos);
 
-			if (!(state.getBlock() instanceof IPipeBlock))
+			if (!(tileEntity instanceof IPipe))
 			{
 				return null;
 			}
@@ -392,9 +401,9 @@ public class ServerPipeNetwork extends PipeNetwork
 
 			path.add(pos);
 
-			IPipeBlock pipe = (IPipeBlock) state.getBlock();
+			IPipe pipe = (IPipe) tileEntity;
 
-			if (pipe.getNodeType(world, pos, state).isNode())
+			if (pipe.getNodeType().isNode())
 			{
 				if (isNode)
 				{
@@ -410,7 +419,7 @@ public class ServerPipeNetwork extends PipeNetwork
 			}
 			else
 			{
-				facing = pipe.getPipeFacing(world, pos, state, source);
+				facing = pipe.getPipeFacing(source);
 
 				if (facing != source)
 				{
@@ -491,7 +500,7 @@ public class ServerPipeNetwork extends PipeNetwork
 
 						for (Node node : nodes.values())
 						{
-							if (node.type.hasTiles())
+							if (node.type.isModular())
 							{
 								nt.add(node);
 							}
