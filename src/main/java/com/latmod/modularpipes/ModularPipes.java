@@ -1,6 +1,5 @@
 package com.latmod.modularpipes;
 
-import com.feed_the_beast.ftblib.FTBLib;
 import com.latmod.modularpipes.data.ServerPipeNetwork;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
@@ -17,7 +16,7 @@ import org.apache.logging.log4j.Logger;
 		name = ModularPipes.MOD_NAME,
 		version = ModularPipes.VERSION,
 		acceptedMinecraftVersions = "[1.12,)",
-		dependencies = "required-after:" + FTBLib.MOD_ID
+		dependencies = "required-after:ftblib"
 )
 public class ModularPipes
 {

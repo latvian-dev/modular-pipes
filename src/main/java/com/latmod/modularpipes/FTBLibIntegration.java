@@ -25,6 +25,6 @@ public class FTBLibIntegration
 	{
 		ModularPipesPlayerData data = ModularPipesPlayerData.get(event.getPlayer());
 		event.getConfig().setGroupName(ModularPipes.MOD_ID, new TextComponentString(ModularPipes.MOD_NAME));
-		event.getConfig().add(ModularPipes.MOD_ID, "dev_mode", data.devMode).setDisplayName(new TextComponentTranslation(ModularPipes.MOD_ID + ".general.dev_mode"));
+		event.getConfig().add(ModularPipes.MOD_ID, "dev_mode", data.devMode).setDisplayName(new TextComponentTranslation("modularpipes.general.dev_mode"));
 	}
 }

@@ -1,6 +1,5 @@
 package com.latmod.modularpipes.client;
 
-import com.feed_the_beast.ftblib.lib.gui.GuiLang;
 import com.latmod.modularpipes.ModularPipes;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
@@ -13,10 +12,10 @@ import net.minecraftforge.fml.relauncher.Side;
  * @author LatvianModder
  */
 @Mod.EventBusSubscriber(modid = ModularPipes.MOD_ID, value = Side.CLIENT)
-@Config(modid = ModularPipes.MOD_ID + "_client", category = "", name = "../local/client/" + ModularPipes.MOD_ID)
+@Config(modid = "modularpipes_client", category = "", name = "../local/client/modularpipes")
 public class ModularPipesClientConfig
 {
-	@Config.LangKey(GuiLang.LANG_GENERAL)
+	@Config.LangKey("stat.generalButton")
 	public static final General general = new General();
 
 	public static class General
@@ -29,13 +28,13 @@ public class ModularPipesClientConfig
 
 	public static void sync()
 	{
-		ConfigManager.sync(ModularPipes.MOD_ID + "_client", Config.Type.INSTANCE);
+		ConfigManager.sync("modularpipes_client", Config.Type.INSTANCE);
 	}
 
 	@SubscribeEvent
 	public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event)
 	{
-		if (event.getModID().equals(ModularPipes.MOD_ID + "_client"))
+		if (event.getModID().equals("modularpipes_client"))
 		{
 			sync();
 		}

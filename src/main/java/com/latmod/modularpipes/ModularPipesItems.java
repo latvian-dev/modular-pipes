@@ -93,9 +93,9 @@ public class ModularPipesItems
 			r.register(new BlockModularPipe("pipe_modular_" + tier + "_opaque", tier, true));
 		}
 
-		GameRegistry.registerTileEntity(TileController.class, ModularPipes.MOD_ID + ":controller");
-		GameRegistry.registerTileEntity(TileBasicPipe.class, ModularPipes.MOD_ID + ":pipe_basic");
-		GameRegistry.registerTileEntity(TileModularPipe.class, ModularPipes.MOD_ID + ":pipe_modular");
+		GameRegistry.registerTileEntity(TileController.class, "modularpipes:controller");
+		GameRegistry.registerTileEntity(TileBasicPipe.class, "modularpipes:pipe_basic");
+		GameRegistry.registerTileEntity(TileModularPipe.class, "modularpipes:pipe_modular");
 	}
 
 	@SubscribeEvent

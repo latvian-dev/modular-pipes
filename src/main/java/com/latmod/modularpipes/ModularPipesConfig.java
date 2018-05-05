@@ -1,6 +1,5 @@
 package com.latmod.modularpipes;
 
-import com.feed_the_beast.ftblib.lib.gui.GuiLang;
 import com.feed_the_beast.ftblib.lib.util.StringUtils;
 import com.feed_the_beast.ftblib.lib.util.misc.NameMap;
 import net.minecraftforge.common.config.Config;
@@ -16,7 +15,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 @Config(modid = ModularPipes.MOD_ID, category = "")
 public class ModularPipesConfig
 {
-	@Config.LangKey(GuiLang.LANG_GENERAL)
+	@Config.LangKey("stat.generalButton")
 	public static final General general = new General();
 
 	public static final Pipes pipes = new Pipes();

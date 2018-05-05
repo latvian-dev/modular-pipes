@@ -1,13 +1,14 @@
 package com.latmod.modularpipes.item;
 
-import com.feed_the_beast.ftblib.lib.util.LangKey;
 import com.latmod.modularpipes.data.IModule;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -20,20 +21,17 @@ import java.util.List;
  */
 public class ItemModule extends ItemMPBase implements IModule
 {
-	public static final LangKey DESC = LangKey.of("item.modularpipes.module.desc");
-	public static final LangKey CLEARED_DATA = LangKey.of("item.modularpipes.module.cleared_data");
-
 	public ItemModule(String id)
 	{
 		super(id);
 	}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn)
+	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
 	{
-		ItemStack stack = playerIn.getHeldItem(handIn);
+		ItemStack stack = player.getHeldItem(hand);
 
-		if (playerIn.isSneaking() && (stack.hasTagCompound() && stack.getTagCompound().hasKey("Module")))
+		if (player.isSneaking() && (stack.hasTagCompound() && stack.getTagCompound().hasKey("Module")))
 		{
 			stack.getTagCompound().removeTag("Module");
 
@@ -42,7 +40,7 @@ public class ItemModule extends ItemMPBase implements IModule
 				stack.setTagCompound(null);
 			}
 
-			CLEARED_DATA.sendMessage(playerIn);
+			player.sendMessage(new TextComponentTranslation("item.modularpipes.module.cleared_data"));
 			return new ActionResult<>(EnumActionResult.SUCCESS, stack);
 		}
 
@@ -51,8 +49,8 @@ public class ItemModule extends ItemMPBase implements IModule
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
+	public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag flag)
 	{
-		tooltip.add(DESC.translate());
+		tooltip.add(I18n.format("item.modularpipes.module.desc"));
 	}
 }
