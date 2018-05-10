@@ -1,8 +1,10 @@
 package com.latmod.modularpipes.block;
 
-import com.latmod.modularpipes.ModularPipesConfig;
+import com.feed_the_beast.ftblib.lib.client.ClientUtils;
+import com.latmod.modularpipes.ModularPipesItems;
 import com.latmod.modularpipes.data.IModule;
 import com.latmod.modularpipes.tile.TileModularPipe;
+import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
@@ -13,6 +15,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -30,12 +33,52 @@ import java.util.List;
  */
 public class BlockModularPipe extends BlockPipeBase
 {
-	public final ModularPipesConfig.Tier tier;
+	public static final AxisAlignedBB[] BOXES_MODULE = new AxisAlignedBB[7];
 
-	public BlockModularPipe(String id, ModularPipesConfig.Tier t, boolean o)
+	static
+	{
+		double d0 = (SIZE - 1F) / 16D;
+		double d1 = 1D - d0;
+		BOXES_MODULE[0] = new AxisAlignedBB(d0, 0D, d0, d1, d0, d1);
+		BOXES_MODULE[1] = new AxisAlignedBB(d0, d1, d0, d1, 1D, d1);
+		BOXES_MODULE[2] = new AxisAlignedBB(d0, d0, 0D, d1, d1, d0);
+		BOXES_MODULE[3] = new AxisAlignedBB(d0, d0, d1, d1, d1, 1D);
+		BOXES_MODULE[4] = new AxisAlignedBB(0D, d0, d0, d0, d1, d1);
+		BOXES_MODULE[5] = new AxisAlignedBB(d1, d0, d0, 1D, d1, d1);
+	}
+
+	public final PipeTier tier;
+
+	public BlockModularPipe(String id, PipeTier t, boolean o)
 	{
 		super(id, MapColor.GRAY, o);
 		tier = t;
+	}
+
+	@Override
+	public Block getOppositeOpaque()
+	{
+		switch (tier)
+		{
+			case BASIC:
+				return opaque ? ModularPipesItems.PIPE_MODULAR_BASIC : ModularPipesItems.PIPE_MODULAR_BASIC_OPAQUE;
+			case IRON:
+				return opaque ? ModularPipesItems.PIPE_MODULAR_IRON : ModularPipesItems.PIPE_MODULAR_IRON_OPAQUE;
+			case GOLD:
+				return opaque ? ModularPipesItems.PIPE_MODULAR_GOLD : ModularPipesItems.PIPE_MODULAR_GOLD_OPAQUE;
+			case QUARTZ:
+				return opaque ? ModularPipesItems.PIPE_MODULAR_QUARTZ : ModularPipesItems.PIPE_MODULAR_QUARTZ_OPAQUE;
+			case LAPIS:
+				return opaque ? ModularPipesItems.PIPE_MODULAR_LAPIS : ModularPipesItems.PIPE_MODULAR_LAPIS_OPAQUE;
+			case ENDER:
+				return opaque ? ModularPipesItems.PIPE_MODULAR_ENDER : ModularPipesItems.PIPE_MODULAR_ENDER_OPAQUE;
+			case DIAMOND:
+				return opaque ? ModularPipesItems.PIPE_MODULAR_DIAMOND : ModularPipesItems.PIPE_MODULAR_DIAMOND_OPAQUE;
+			case STAR:
+				return opaque ? ModularPipesItems.PIPE_MODULAR_STAR : ModularPipesItems.PIPE_MODULAR_STAR_OPAQUE;
+		}
+
+		return this;
 	}
 
 	@Override
@@ -48,13 +91,19 @@ public class BlockModularPipe extends BlockPipeBase
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag flag)
 	{
-		tooltip.add(I18n.format("tile.modularpipes.pipe_modular.slots", tier.modules));
-		tooltip.add(I18n.format("tile.modularpipes.pipe.speed_boost", tier.getSpeedString()));
+		tooltip.add(I18n.format("tile.modularpipes.pipe_modular.slots", tier.config.modules));
+		tooltip.add(I18n.format("tile.modularpipes.pipe.speed_boost", tier.speedString));
 	}
 
 	@Override
 	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
 	{
+		if (player.isSneaking())
+		{
+			world.setBlockState(pos, getOppositeOpaque().getDefaultState());
+			return true;
+		}
+
 		TileEntity tileEntity = world.getTileEntity(pos);
 
 		if (tileEntity instanceof TileModularPipe)
@@ -63,6 +112,21 @@ public class BlockModularPipe extends BlockPipeBase
 		}
 
 		return true;
+	}
+
+	@Override
+	@Deprecated
+	@SideOnly(Side.CLIENT)
+	public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World world, BlockPos pos)
+	{
+		RayTraceResult ray = ClientUtils.MC.objectMouseOver;
+
+		if (ray != null)
+		{
+			return (ray.subHit < 6 ? BOXES_64[1 << ray.subHit] : BOXES_MODULE[ray.subHit - 6]).offset(pos);
+		}
+
+		return BOXES_64[0].offset(pos);
 	}
 
 	@Override
@@ -86,24 +150,53 @@ public class BlockModularPipe extends BlockPipeBase
 		boolean holdingModule = player != null && (player.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof IModule || player.getHeldItem(EnumHand.OFF_HAND).getItem() instanceof IModule);
 		double dist = Double.POSITIVE_INFINITY;
 
-		for (int i = 0; i < BlockPipeBase.BOXES.length; i++)
+		RayTraceResult ray = BOXES_64[0].calculateIntercept(start1, end1);
+
+		if (ray != null)
 		{
-			if (i > 0 && !(holdingModule || pipe.getPipeConnectionType(EnumFacing.VALUES[(i - 1) % 6]).hasPipe()))
+			double dist1 = ray.hitVec.squareDistanceTo(start1);
+
+			if (dist >= dist1)
 			{
-				continue;
+				dist = dist1;
+				ray1 = ray;
+				ray1.subHit = -1;
+			}
+		}
+
+		for (int i = 0; i < 6; i++)
+		{
+			if (pipe.getPipeConnectionType(EnumFacing.VALUES[i]).hasPipe())
+			{
+				ray = BOXES_64[1 << i].calculateIntercept(start1, end1);
+
+				if (ray != null)
+				{
+					double dist1 = ray.hitVec.squareDistanceTo(start1);
+
+					if (dist >= dist1)
+					{
+						dist = dist1;
+						ray1 = ray;
+						ray1.subHit = i;
+					}
+				}
 			}
 
-			RayTraceResult ray = BlockPipeBase.BOXES[i].calculateIntercept(start1, end1);
-
-			if (ray != null)
+			if (holdingModule || pipe.getPipeConnectionType(EnumFacing.VALUES[i]).hasModule())
 			{
-				double dist1 = ray.hitVec.squareDistanceTo(start1);
+				ray = BOXES_MODULE[i].calculateIntercept(start1, end1);
 
-				if (dist >= dist1)
+				if (ray != null)
 				{
-					dist = dist1;
-					ray1 = ray;
-					ray1.subHit = i;
+					double dist1 = ray.hitVec.squareDistanceTo(start1);
+
+					if (dist >= dist1)
+					{
+						dist = dist1;
+						ray1 = ray;
+						ray1.subHit = i + 6;
+					}
 				}
 			}
 		}

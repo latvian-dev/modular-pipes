@@ -4,6 +4,7 @@ import com.feed_the_beast.ftblib.lib.block.ItemBlockBase;
 import com.latmod.modularpipes.block.BlockBasicPipe;
 import com.latmod.modularpipes.block.BlockController;
 import com.latmod.modularpipes.block.BlockModularPipe;
+import com.latmod.modularpipes.block.PipeTier;
 import com.latmod.modularpipes.client.ModelPipe;
 import com.latmod.modularpipes.item.ItemDebug;
 import com.latmod.modularpipes.item.ItemMPBase;
@@ -81,16 +82,16 @@ public class ModularPipesItems
 		r.register(new BlockController("controller"));
 		r.register(new BlockBasicPipe("pipe_basic", false));
 
-		for (ModularPipesConfig.Tier tier : ModularPipesConfig.tiers.getNameMap())
+		for (PipeTier tier : PipeTier.NAME_MAP)
 		{
-			r.register(new BlockModularPipe("pipe_modular_" + tier, tier, false));
+			r.register(new BlockModularPipe("pipe_modular_" + tier.getName(), tier, false));
 		}
 
 		r.register(new BlockBasicPipe("pipe_basic_opaque", true));
 
-		for (ModularPipesConfig.Tier tier : ModularPipesConfig.tiers.getNameMap())
+		for (PipeTier tier : PipeTier.NAME_MAP)
 		{
-			r.register(new BlockModularPipe("pipe_modular_" + tier + "_opaque", tier, true));
+			r.register(new BlockModularPipe("pipe_modular_" + tier.getName() + "_opaque", tier, true));
 		}
 
 		GameRegistry.registerTileEntity(TileController.class, "modularpipes:controller");

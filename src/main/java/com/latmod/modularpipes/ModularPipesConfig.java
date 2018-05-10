@@ -1,7 +1,6 @@
 package com.latmod.modularpipes;
 
-import com.feed_the_beast.ftblib.lib.util.StringUtils;
-import com.feed_the_beast.ftblib.lib.util.misc.NameMap;
+import com.latmod.modularpipes.block.PipeTier;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
@@ -44,52 +43,25 @@ public class ModularPipesConfig
 
 	public static class Tiers
 	{
-		public final Tier basic = new Tier(0, "basic", 1, 1);
-		public final Tier iron = new Tier(1, "iron", 2, 1);
-		public final Tier gold = new Tier(2, "gold", 2, 2);
-		public final Tier quartz = new Tier(3, "quartz", 3, 2);
-		public final Tier lapis = new Tier(4, "lapis", 4, 3);
-		public final Tier ender = new Tier(5, "ender", 5, 8);
-		public final Tier diamond = new Tier(6, "diamond", 6, 10);
-		public final Tier star = new Tier(7, "star", 6, 100);
-
-		private final NameMap<Tier> nameMap = NameMap.create(basic, basic, iron, gold, quartz, lapis, ender, diamond, star);
-
-		public NameMap<Tier> getNameMap()
-		{
-			return nameMap;
-		}
+		public final Tier basic = new Tier(1, 1);
+		public final Tier iron = new Tier(2, 1);
+		public final Tier gold = new Tier(2, 2);
+		public final Tier quartz = new Tier(3, 2);
+		public final Tier lapis = new Tier(4, 3);
+		public final Tier ender = new Tier(5, 8);
+		public final Tier diamond = new Tier(6, 10);
+		public final Tier star = new Tier(6, 100);
 	}
 
 	public static class Tier
 	{
-		private final int index;
-		private final String name;
 		public int modules;
 		public double speed;
-		private String speedString;
 
-		public Tier(int i, String n, int m, double s)
+		public Tier(int m, double s)
 		{
-			index = i;
-			name = n;
 			modules = m;
 			speed = s;
-		}
-
-		public int getIndex()
-		{
-			return index;
-		}
-
-		public String toString()
-		{
-			return name;
-		}
-
-		public String getSpeedString()
-		{
-			return speedString;
 		}
 	}
 
@@ -97,16 +69,9 @@ public class ModularPipesConfig
 	{
 		ConfigManager.sync(ModularPipes.MOD_ID, Config.Type.INSTANCE);
 
-		for (Tier tier : tiers.getNameMap())
+		for (PipeTier tier : PipeTier.NAME_MAP)
 		{
-			if (tier.speed == (int) tier.speed)
-			{
-				tier.speedString = (int) tier.speed + "x";
-			}
-			else
-			{
-				tier.speedString = StringUtils.formatDouble(tier.speed) + "x";
-			}
+			tier.sync();
 		}
 
 		ModularPipes.PROXY.networkUpdated();

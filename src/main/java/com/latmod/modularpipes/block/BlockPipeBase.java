@@ -1,6 +1,5 @@
 package com.latmod.modularpipes.block;
 
-import com.feed_the_beast.ftblib.lib.client.ClientUtils;
 import com.feed_the_beast.ftblib.lib.util.CommonUtils;
 import com.latmod.modularpipes.data.IPipe;
 import com.latmod.modularpipes.data.PipeNetwork;
@@ -18,7 +17,6 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.property.ExtendedBlockState;
@@ -36,29 +34,12 @@ import java.util.List;
 public abstract class BlockPipeBase extends BlockMPBase
 {
 	public static final float SIZE = 4F;
-	public static final AxisAlignedBB[] BOXES = new AxisAlignedBB[13];
 	public static final AxisAlignedBB BOXES_64[] = new AxisAlignedBB[64];
 
 	static
 	{
 		double d0 = SIZE / 16D;
 		double d1 = 1D - d0;
-
-		BOXES[0] = new AxisAlignedBB(d0, d0, d0, d1, d1, d1);
-		BOXES[1] = new AxisAlignedBB(d0, 0D, d0, d1, d0, d1);
-		BOXES[2] = new AxisAlignedBB(d0, d1, d0, d1, 1D, d1);
-		BOXES[3] = new AxisAlignedBB(d0, d0, 0D, d1, d1, d0);
-		BOXES[4] = new AxisAlignedBB(d0, d0, d1, d1, d1, 1D);
-		BOXES[5] = new AxisAlignedBB(0D, d0, d0, d0, d1, d1);
-		BOXES[6] = new AxisAlignedBB(d1, d0, d0, 1D, d1, d1);
-		d0 = (SIZE - 1F) / 16D;
-		d1 = 1D - d0;
-		BOXES[7] = new AxisAlignedBB(d0, 0D, d0, d1, d0, d1);
-		BOXES[8] = new AxisAlignedBB(d0, d1, d0, d1, 1D, d1);
-		BOXES[9] = new AxisAlignedBB(d0, d0, 0D, d1, d1, d0);
-		BOXES[10] = new AxisAlignedBB(d0, d0, d1, d1, d1, 1D);
-		BOXES[11] = new AxisAlignedBB(0D, d0, d0, d0, d1, d1);
-		BOXES[12] = new AxisAlignedBB(d1, d0, d0, 1D, d1, d1);
 
 		for (int i = 0; i < BOXES_64.length; i++)
 		{
@@ -106,6 +87,11 @@ public abstract class BlockPipeBase extends BlockMPBase
 		super(id, Material.ROCK, color);
 		setHardness(1F);
 		opaque = o;
+	}
+
+	public Block getOppositeOpaque()
+	{
+		return this;
 	}
 
 	@Override
@@ -208,7 +194,7 @@ public abstract class BlockPipeBase extends BlockMPBase
 	@Deprecated
 	public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entity, boolean isActualState)
 	{
-		addCollisionBoxToList(pos, entityBox, collidingBoxes, BOXES[0]);
+		addCollisionBoxToList(pos, entityBox, collidingBoxes, BOXES_64[0]);
 		TileEntity tileEntity = world.getTileEntity(pos);
 
 		if (tileEntity instanceof IPipe)
@@ -219,25 +205,10 @@ public abstract class BlockPipeBase extends BlockMPBase
 			{
 				if (pipe.getPipeConnectionType(facing).hasPipe())
 				{
-					addCollisionBoxToList(pos, entityBox, collidingBoxes, BOXES[1 + facing.ordinal()]);
+					addCollisionBoxToList(pos, entityBox, collidingBoxes, BOXES_64[1 << facing.ordinal()]);
 				}
 			}
 		}
-	}
-
-	@Override
-	@Deprecated
-	@SideOnly(Side.CLIENT)
-	public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World world, BlockPos pos)
-	{
-		RayTraceResult ray = ClientUtils.MC.objectMouseOver;
-
-		if (ray != null && ray.subHit >= 0 && ray.subHit < BOXES.length)
-		{
-			return BOXES[ray.subHit].offset(pos);
-		}
-
-		return super.getSelectedBoundingBox(state, world, pos);
 	}
 
 	@Override

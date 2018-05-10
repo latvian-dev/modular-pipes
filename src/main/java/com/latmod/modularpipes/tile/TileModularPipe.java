@@ -2,8 +2,8 @@ package com.latmod.modularpipes.tile;
 
 import com.feed_the_beast.ftblib.lib.math.MathUtils;
 import com.feed_the_beast.ftblib.lib.tile.EnumSaveType;
-import com.latmod.modularpipes.ModularPipesConfig;
 import com.latmod.modularpipes.block.PipeConnection;
+import com.latmod.modularpipes.block.PipeTier;
 import com.latmod.modularpipes.data.IModule;
 import com.latmod.modularpipes.data.IPipe;
 import com.latmod.modularpipes.data.ModuleContainer;
@@ -35,7 +35,7 @@ import javax.annotation.Nullable;
  */
 public class TileModularPipe extends TilePipeBase implements IModularPipeNetworkTile
 {
-	public ModularPipesConfig.Tier tier;
+	public PipeTier tier;
 	public final ModuleContainer[] modules;
 	private PipeNetwork network;
 	private BlockPos controllerPos;
@@ -43,10 +43,10 @@ public class TileModularPipe extends TilePipeBase implements IModularPipeNetwork
 
 	public TileModularPipe()
 	{
-		this(ModularPipesConfig.tiers.basic);
+		this(PipeTier.BASIC);
 	}
 
-	public TileModularPipe(ModularPipesConfig.Tier t)
+	public TileModularPipe(PipeTier t)
 	{
 		tier = t;
 		modules = new ModuleContainer[6];
@@ -84,7 +84,7 @@ public class TileModularPipe extends TilePipeBase implements IModularPipeNetwork
 	{
 		super.writeData(nbt, type);
 
-		ModularPipesConfig.tiers.getNameMap().writeToNBT(nbt, "Tier", type, tier);
+		PipeTier.NAME_MAP.writeToNBT(nbt, "Tier", type, tier);
 
 		NBTTagList moduleList = new NBTTagList();
 
@@ -113,7 +113,7 @@ public class TileModularPipe extends TilePipeBase implements IModularPipeNetwork
 	protected void readData(NBTTagCompound nbt, EnumSaveType type)
 	{
 		super.readData(nbt, type);
-		tier = ModularPipesConfig.tiers.getNameMap().readFromNBT(nbt, "Tier", type);
+		tier = PipeTier.NAME_MAP.readFromNBT(nbt, "Tier", type);
 		clearModules();
 
 		NBTTagList moduleList = nbt.getTagList("Modules", Constants.NBT.TAG_COMPOUND);
@@ -175,17 +175,7 @@ public class TileModularPipe extends TilePipeBase implements IModularPipeNetwork
 			return;
 		}
 
-		int facing = ray.subHit;
-
-		if (facing <= 0)
-		{
-			facing = ray.sideHit.getIndex();
-		}
-		else
-		{
-			facing = (ray.subHit - 1) % 6;
-		}
-
+		int facing = ray.subHit < 0 ? ray.sideHit.getIndex() : ray.subHit % 6;
 		ItemStack stack = player.getHeldItem(hand);
 		ModuleContainer c = modules[facing];
 
@@ -226,7 +216,7 @@ public class TileModularPipe extends TilePipeBase implements IModularPipeNetwork
 				}
 			}
 
-			if (tier.modules <= modulesSize)
+			if (tier.config.modules <= modulesSize)
 			{
 				player.sendMessage(new TextComponentTranslation("item.modularpipes.module.cant_insert"));
 				return;
@@ -355,7 +345,7 @@ public class TileModularPipe extends TilePipeBase implements IModularPipeNetwork
 	@Override
 	public double getItemSpeedModifier(TransportedItem item)
 	{
-		return tier.speed;
+		return tier.config.speed;
 	}
 
 	@Override

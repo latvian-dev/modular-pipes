@@ -5,9 +5,9 @@ import com.feed_the_beast.ftblib.lib.client.ModelBase;
 import com.feed_the_beast.ftblib.lib.io.Bits;
 import com.google.common.collect.ImmutableList;
 import com.latmod.modularpipes.ModularPipes;
-import com.latmod.modularpipes.ModularPipesConfig;
 import com.latmod.modularpipes.block.BlockModularPipe;
 import com.latmod.modularpipes.block.BlockPipeBase;
+import com.latmod.modularpipes.block.PipeTier;
 import com.latmod.modularpipes.data.IPipe;
 import com.latmod.modularpipes.tile.TileModularPipe;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -75,13 +75,13 @@ public class ModelPipe extends DefaultStateMapper implements IModel, ICustomMode
 		models0.add(modelOverlayErrorVertical = new ResourceLocation("modularpipes:block/pipe/overlay/error_vertical"));
 		models0.add(modelModule = new ResourceLocation("modularpipes:block/pipe/module"));
 
-		modelOverlay = new ResourceLocation[ModularPipesConfig.tiers.getNameMap().values.size()];
-		modelOverlayVertical = new ResourceLocation[ModularPipesConfig.tiers.getNameMap().values.size()];
+		modelOverlay = new ResourceLocation[PipeTier.NAME_MAP.size()];
+		modelOverlayVertical = new ResourceLocation[modelOverlay.length];
 
-		for (ModularPipesConfig.Tier tier : ModularPipesConfig.tiers.getNameMap())
+		for (PipeTier tier : PipeTier.NAME_MAP)
 		{
-			models0.add(modelOverlay[tier.getIndex()] = new ResourceLocation(ModularPipes.MOD_ID + ":block/pipe/overlay/" + tier.toString()));
-			models0.add(modelOverlayVertical[tier.getIndex()] = new ResourceLocation(ModularPipes.MOD_ID + ":block/pipe/overlay/" + tier.toString() + "_vertical"));
+			models0.add(modelOverlay[tier.ordinal()] = new ResourceLocation(ModularPipes.MOD_ID + ":block/pipe/overlay/" + tier.getName()));
+			models0.add(modelOverlayVertical[tier.ordinal()] = new ResourceLocation(ModularPipes.MOD_ID + ":block/pipe/overlay/" + tier.getName() + "_vertical"));
 		}
 
 		models0.add(modelGlassBase = new ResourceLocation("modularpipes:block/pipe/glass/base"));
@@ -162,7 +162,7 @@ public class ModelPipe extends DefaultStateMapper implements IModel, ICustomMode
 		{
 			private final List<BakedQuad> quads;
 
-			public BakedItem(@Nullable ModularPipesConfig.Tier tier, boolean opaque)
+			public BakedItem(@Nullable PipeTier tier, boolean opaque)
 			{
 				super(null);
 				quads = new ArrayList<>();
@@ -171,7 +171,7 @@ public class ModelPipe extends DefaultStateMapper implements IModel, ICustomMode
 
 				if (tier != null)
 				{
-					quads.addAll(overlay.get(tier.getIndex()));
+					quads.addAll(overlay.get(tier.ordinal()));
 				}
 			}
 
@@ -343,7 +343,7 @@ public class ModelPipe extends DefaultStateMapper implements IModel, ICustomMode
 					}
 					else
 					{
-						return overlay.get(modularPipe.tier.getIndex() + ModularPipesConfig.tiers.getNameMap().values.size() * baseIndex);
+						return overlay.get(modularPipe.tier.ordinal() + PipeTier.NAME_MAP.size() * baseIndex);
 					}
 				}
 				else
