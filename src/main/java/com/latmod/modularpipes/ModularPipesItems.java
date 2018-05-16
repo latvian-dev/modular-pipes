@@ -39,8 +39,6 @@ import net.minecraftforge.registries.IForgeRegistry;
 @Mod.EventBusSubscriber(modid = ModularPipes.MOD_ID)
 public class ModularPipesItems
 {
-	public static final Block CONTROLLER = Blocks.AIR;
-
 	public static final Block PIPE_BASIC = Blocks.AIR;
 	public static final Block PIPE_MODULAR_BASIC = Blocks.AIR;
 	public static final Block PIPE_MODULAR_IRON = Blocks.AIR;
@@ -61,6 +59,8 @@ public class ModularPipesItems
 	public static final Block PIPE_MODULAR_DIAMOND_OPAQUE = Blocks.AIR;
 	public static final Block PIPE_MODULAR_STAR_OPAQUE = Blocks.AIR;
 
+	public static final Block CONTROLLER = Blocks.AIR;
+
 	public static final Item MODULE = Items.AIR;
 	public static final Item DEBUG = Items.AIR;
 
@@ -79,7 +79,6 @@ public class ModularPipesItems
 	public static void registerBlocks(RegistryEvent.Register<Block> event)
 	{
 		IForgeRegistry<Block> r = event.getRegistry();
-		r.register(new BlockController("controller"));
 		r.register(new BlockBasicPipe("pipe_basic", false));
 
 		for (PipeTier tier : PipeTier.NAME_MAP)
@@ -94,6 +93,8 @@ public class ModularPipesItems
 			r.register(new BlockModularPipe("pipe_modular_" + tier.getName() + "_opaque", tier, true));
 		}
 
+		r.register(new BlockController("controller"));
+
 		GameRegistry.registerTileEntity(TileController.class, "modularpipes:controller");
 		GameRegistry.registerTileEntity(TileBasicPipe.class, "modularpipes:pipe_basic");
 		GameRegistry.registerTileEntity(TileModularPipe.class, "modularpipes:pipe_modular");
@@ -103,7 +104,6 @@ public class ModularPipesItems
 	public static void registerItem(RegistryEvent.Register<Item> event)
 	{
 		event.getRegistry().registerAll(
-				new ItemBlockBase(CONTROLLER),
 				new ItemBlockBase(PIPE_BASIC),
 				new ItemBlockBase(PIPE_MODULAR_BASIC),
 				new ItemBlockBase(PIPE_MODULAR_IRON),
@@ -122,6 +122,7 @@ public class ModularPipesItems
 				new ItemBlockBase(PIPE_MODULAR_ENDER_OPAQUE),
 				new ItemBlockBase(PIPE_MODULAR_DIAMOND_OPAQUE),
 				new ItemBlockBase(PIPE_MODULAR_STAR_OPAQUE),
+				new ItemBlockBase(CONTROLLER),
 				new ItemMPBase("module"),
 				new ItemDebug("debug"),
 				new ItemModuleExtract("module_extract"),
@@ -136,7 +137,6 @@ public class ModularPipesItems
 	public static void registerModels(ModelRegistryEvent event)
 	{
 		ModelLoaderRegistry.registerLoader(ModelPipe.INSTANCE);
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CONTROLLER), 0, new ModelResourceLocation(CONTROLLER.getRegistryName(), "error=false"));
 
 		registerPipe(PIPE_BASIC);
 		registerPipe(PIPE_MODULAR_BASIC);
@@ -157,6 +157,8 @@ public class ModularPipesItems
 		registerPipe(PIPE_MODULAR_ENDER_OPAQUE);
 		registerPipe(PIPE_MODULAR_DIAMOND_OPAQUE);
 		registerPipe(PIPE_MODULAR_STAR_OPAQUE);
+
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CONTROLLER), 0, new ModelResourceLocation(CONTROLLER.getRegistryName(), "error=false"));
 
 		ModelLoader.setCustomModelResourceLocation(MODULE, 0, new ModelResourceLocation(MODULE.getRegistryName(), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(DEBUG, 0, new ModelResourceLocation(DEBUG.getRegistryName(), "inventory"));

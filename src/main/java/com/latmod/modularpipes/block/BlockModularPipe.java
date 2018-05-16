@@ -121,7 +121,7 @@ public class BlockModularPipe extends BlockPipeBase
 	{
 		RayTraceResult ray = ClientUtils.MC.objectMouseOver;
 
-		if (ray != null)
+		if (ray != null && ray.subHit != -1)
 		{
 			return (ray.subHit < 6 ? BOXES_64[1 << ray.subHit] : BOXES_MODULE[ray.subHit - 6]).offset(pos);
 		}
