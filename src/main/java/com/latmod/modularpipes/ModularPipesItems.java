@@ -21,6 +21,7 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
@@ -95,9 +96,9 @@ public class ModularPipesItems
 
 		r.register(new BlockController("controller"));
 
-		GameRegistry.registerTileEntity(TileController.class, "modularpipes:controller");
-		GameRegistry.registerTileEntity(TileBasicPipe.class, "modularpipes:pipe_basic");
-		GameRegistry.registerTileEntity(TileModularPipe.class, "modularpipes:pipe_modular");
+		GameRegistry.registerTileEntity(TileController.class, new ResourceLocation(ModularPipes.MOD_ID, "controller"));
+		GameRegistry.registerTileEntity(TileBasicPipe.class, new ResourceLocation(ModularPipes.MOD_ID, "pipe_basic"));
+		GameRegistry.registerTileEntity(TileModularPipe.class, new ResourceLocation(ModularPipes.MOD_ID, "pipe_modular"));
 	}
 
 	@SubscribeEvent
