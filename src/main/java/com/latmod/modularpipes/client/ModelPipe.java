@@ -68,33 +68,33 @@ public class ModelPipe extends DefaultStateMapper implements IModel, ICustomMode
 		ID = new ModelResourceLocation("modularpipes:pipe#normal");
 		Collection<ResourceLocation> models0 = new ArrayList<>();
 
-		models0.add(modelBase = new ResourceLocation("modularpipes:block/pipe/base"));
-		models0.add(modelConnection = new ResourceLocation("modularpipes:block/pipe/connection"));
-		models0.add(modelVertical = new ResourceLocation("modularpipes:block/pipe/vertical"));
-		models0.add(modelOverlayError = new ResourceLocation("modularpipes:block/pipe/overlay/error"));
-		models0.add(modelOverlayErrorVertical = new ResourceLocation("modularpipes:block/pipe/overlay/error_vertical"));
-		models0.add(modelModule = new ResourceLocation("modularpipes:block/pipe/module"));
+		models0.add(modelBase = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/base"));
+		models0.add(modelConnection = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/connection"));
+		models0.add(modelVertical = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/vertical"));
+		models0.add(modelOverlayError = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/overlay/error"));
+		models0.add(modelOverlayErrorVertical = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/overlay/error_vertical"));
+		models0.add(modelModule = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/module"));
 
 		modelOverlay = new ResourceLocation[PipeTier.NAME_MAP.size()];
 		modelOverlayVertical = new ResourceLocation[modelOverlay.length];
 
 		for (PipeTier tier : PipeTier.NAME_MAP)
 		{
-			models0.add(modelOverlay[tier.ordinal()] = new ResourceLocation(ModularPipes.MOD_ID + ":block/pipe/overlay/" + tier.getName()));
-			models0.add(modelOverlayVertical[tier.ordinal()] = new ResourceLocation(ModularPipes.MOD_ID + ":block/pipe/overlay/" + tier.getName() + "_vertical"));
+			models0.add(modelOverlay[tier.ordinal()] = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/overlay/" + tier.getName()));
+			models0.add(modelOverlayVertical[tier.ordinal()] = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/overlay/" + tier.getName() + "_vertical"));
 		}
 
-		models0.add(modelGlassBase = new ResourceLocation("modularpipes:block/pipe/glass/base"));
-		models0.add(modelGlassConnection = new ResourceLocation("modularpipes:block/pipe/glass/connection"));
-		models0.add(modelGlassVertical = new ResourceLocation("modularpipes:block/pipe/glass/vertical"));
+		models0.add(modelGlassBase = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass/base"));
+		models0.add(modelGlassConnection = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass/connection"));
+		models0.add(modelGlassVertical = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass/vertical"));
 
-		models0.add(modelGlassBaseOpaque = new ResourceLocation("modularpipes:block/pipe/glass/base_opaque"));
-		models0.add(modelGlassConnectionOpaque = new ResourceLocation("modularpipes:block/pipe/glass/connection_opaque"));
-		models0.add(modelGlassVerticalOpaque = new ResourceLocation("modularpipes:block/pipe/glass/vertical_opaque"));
+		models0.add(modelGlassBaseOpaque = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass/base_opaque"));
+		models0.add(modelGlassConnectionOpaque = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass/connection_opaque"));
+		models0.add(modelGlassVerticalOpaque = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass/vertical_opaque"));
 
 		models = Collections.unmodifiableCollection(models0);
 
-		textureParticle = new ResourceLocation("modularpipes:blocks/pipe/particle");
+		textureParticle = new ResourceLocation(ModularPipes.MOD_ID, "blocks/pipe/particle");
 		textures = ImmutableList.of(textureParticle);
 	}
 
