@@ -1,6 +1,5 @@
 package com.latmod.modularpipes.data;
 
-import com.feed_the_beast.ftblib.lib.util.misc.DataStorage;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 
@@ -9,40 +8,25 @@ import net.minecraft.util.EnumHand;
  */
 public interface IModule
 {
-	IModule EMPTY = new IModule()
-	{
-		@Override
-		public boolean isEmptyModule()
-		{
-			return true;
-		}
-	};
-
-	default boolean isEmptyModule()
-	{
-		return false;
-	}
-
-	default DataStorage createModuleData(ModuleContainer container)
-	{
-		return DataStorage.EMPTY;
-	}
-
-	default FilterConfig createFilterConfig(ModuleContainer container)
-	{
-		return new FilterConfig();
-	}
-
-	default boolean insertInPipe(ModuleContainer container, EntityPlayer player)
+	default boolean canInsert(ModuleContainer container, EntityPlayer player)
 	{
 		return true;
 	}
 
-	default void removeFromPipe(ModuleContainer container, EntityPlayer player)
+	default void onInserted(ModuleContainer container, EntityPlayer player)
 	{
 	}
 
-	default void pipeBroken(ModuleContainer container)
+	default boolean canRemove(ModuleContainer container, EntityPlayer player)
+	{
+		return true;
+	}
+
+	default void onRemoved(ModuleContainer container, EntityPlayer player)
+	{
+	}
+
+	default void onPipeBroken(ModuleContainer container)
 	{
 	}
 

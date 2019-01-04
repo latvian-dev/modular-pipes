@@ -9,11 +9,6 @@ import net.minecraft.util.EnumHand;
  */
 public class ItemModuleRightClickExtract extends ItemModuleExtract
 {
-	public ItemModuleRightClickExtract(String id)
-	{
-		super(id);
-	}
-
 	@Override
 	public void updateModule(ModuleContainer container)
 	{

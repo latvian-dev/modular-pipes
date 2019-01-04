@@ -1,15 +1,10 @@
 {
-	"type": "forge:ore_shaped",
+	"type": "minecraft:crafting_shapeless",
 	"group": "modularpipes:module",
 	"result": {"item": "module_fluid_storage"},
-	"pattern": [
-		"G",
-		"M",
-		"C"
-	],
-	"key": {
-		"G": {"type": "forge:ore_dict", "ore": "ingotGold"},
-		"M": {"item": "#blank_module"},
-		"C": {"type": "forge:ore_dict", "ore": "blockGlass"}
-	}
+	"ingredients": [
+		{"item": "module"},
+		{"type": "forge:ore_dict", "ore": "ingotGold"},
+		{"type": "forge:ore_dict", "ore": "blockGlass"}
+	]
 }

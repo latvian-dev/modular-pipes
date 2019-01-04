@@ -1,16 +1,15 @@
 package com.latmod.modularpipes.data;
 
-import com.feed_the_beast.ftblib.lib.tile.EnumSaveType;
-import com.feed_the_beast.ftblib.lib.util.misc.DataStorage;
+import com.latmod.modularpipes.ModularPipes;
 import com.latmod.modularpipes.tile.TileModularPipe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.items.IItemHandler;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -22,66 +21,40 @@ public final class ModuleContainer implements ITickable, IItemHandler
 	public final EnumFacing facing;
 	private IModule module;
 	private ItemStack stack;
-	private DataStorage data;
-	private FilterConfig filterConfig;
-	private int tick;
+	private long tick;
 
 	public ModuleContainer(TileModularPipe t, EnumFacing f, ItemStack stack)
 	{
 		tile = t;
 		facing = f;
-		filterConfig = new FilterConfig();
 		setStack(stack);
 	}
 
-	public ModuleContainer(TileModularPipe t, NBTTagCompound nbt, EnumSaveType type)
+	public ModuleContainer(TileModularPipe t, NBTTagCompound nbt)
 	{
 		this(t, EnumFacing.VALUES[nbt.getByte("Facing")], ItemStack.EMPTY);
 
 		if (nbt.hasKey("Item"))
 		{
 			setStack(new ItemStack(nbt.getCompoundTag("Item")));
-			data.deserializeNBT(nbt.getCompoundTag("Data"), type);
 		}
 
-		if (nbt.hasKey("FilterConfig"))
-		{
-			filterConfig.deserializeNBT(nbt.getTag("FilterConfig"));
-		}
-
-		tick = nbt.getInteger("Tick");
-	}
-
-	public PipeNetwork getNetwork()
-	{
-		return tile.getNetwork();
+		tick = nbt.getLong("Tick");
 	}
 
 	public boolean hasModule()
 	{
-		return !getModule().isEmptyModule();
+		return module != null;
 	}
 
 	public void setStack(ItemStack is)
 	{
-		module = IModule.EMPTY;
-		data = DataStorage.EMPTY;
-		stack = ItemStack.EMPTY;
-		tick = 0;
-
-		if (is.getItem() instanceof IModule)
-		{
-			stack = is;
-			module = (IModule) is.getItem();
-
-			if (!module.isEmptyModule())
-			{
-				data = module.createModuleData(this);
-				filterConfig = module.createFilterConfig(this);
-			}
-		}
+		stack = is.isEmpty() ? ItemStack.EMPTY : is;
+		module = is.getCapability(ModularPipes.MODULE_CAP, null);
+		tick = 0L;
 	}
 
+	@Nullable
 	public IModule getModule()
 	{
 		return module;
@@ -92,17 +65,7 @@ public final class ModuleContainer implements ITickable, IItemHandler
 		return stack;
 	}
 
-	public DataStorage getData()
-	{
-		return data;
-	}
-
-	public FilterConfig getFilterConfig()
-	{
-		return filterConfig;
-	}
-
-	public int getTick()
+	public long getTick()
 	{
 		return tick;
 	}
@@ -120,7 +83,13 @@ public final class ModuleContainer implements ITickable, IItemHandler
 	@Nullable
 	public TileEntity getFacingTile()
 	{
-		return tile.getWorld().getTileEntity(tile.getPos().offset(facing));
+		if (!tile.hasWorld())
+		{
+			return null;
+		}
+
+		BlockPos pos = tile.getPos().offset(facing);
+		return tile.getWorld().isBlockLoaded(pos) ? tile.getWorld().getTileEntity(pos) : null;
 	}
 
 	public boolean isRemote()
@@ -128,29 +97,19 @@ public final class ModuleContainer implements ITickable, IItemHandler
 		return tile.getWorld().isRemote;
 	}
 
-	public NBTTagCompound writeToNBT(EnumSaveType type)
+	public NBTTagCompound writeToNBT()
 	{
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setByte("Facing", (byte) facing.getIndex());
 
-		if (tick > 0)
+		if (tick > 0L)
 		{
-			nbt.setInteger("Tick", tick);
+			nbt.setLong("Tick", tick);
 		}
-		if (filterConfig.shouldSave())
-		{
-			nbt.setTag("FilterConfig", filterConfig.serializeNBT());
-		}
+
 		if (!stack.isEmpty())
 		{
 			nbt.setTag("Item", stack.serializeNBT());
-			NBTTagCompound nbt1 = new NBTTagCompound();
-			data.serializeNBT(nbt1, type);
-
-			if (!nbt1.hasNoTags())
-			{
-				nbt.setTag("Data", nbt1);
-			}
 		}
 
 		return nbt;
@@ -162,21 +121,18 @@ public final class ModuleContainer implements ITickable, IItemHandler
 		return 1;
 	}
 
-	@Nonnull
 	@Override
 	public ItemStack getStackInSlot(int slot)
 	{
 		return ItemStack.EMPTY;
 	}
 
-	@Nonnull
 	@Override
-	public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate)
+	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
 	{
-		return ItemStack.EMPTY;
+		return stack;
 	}
 
-	@Nonnull
 	@Override
 	public ItemStack extractItem(int slot, int amount, boolean simulate)
 	{

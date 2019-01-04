@@ -1,15 +1,10 @@
 {
-	"type": "forge:ore_shaped",
+	"type": "minecraft:crafting_shapeless",
 	"group": "modularpipes:module",
 	"result": {"item": "module_extract"},
-	"pattern": [
-		"R",
-		"M",
-		"H"
-	],
-	"key": {
-		"R": {"item": "minecraft:repeater"},
-		"M": {"item": "#blank_module"},
-		"H": {"item": "minecraft:hopper"}
-	}
+	"ingredients": [
+		{"item": "module"},
+		{"item": "minecraft:repeater"},
+		{"item": "minecraft:hopper"}
+	]
 }

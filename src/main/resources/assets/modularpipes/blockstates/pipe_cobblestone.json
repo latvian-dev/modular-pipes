@@ -1,0 +1,8 @@
+{
+	"variants": {
+		"inventory": [{"model": "modularpipes:pipe_cobblestone_item"}],
+		"axis=y": {"model": "modularpipes:pipe_cobblestone", "uvlock": true},
+		"axis=z": {"model": "modularpipes:pipe_cobblestone", "uvlock": true, "x": 90},
+		"axis=x": {"model": "modularpipes:pipe_cobblestone", "uvlock": true, "x": 90, "y": 90}
+	}
+}

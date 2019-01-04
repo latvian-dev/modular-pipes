@@ -1,0 +1,6 @@
+{
+	"parent": "modularpipes:block/pipe_base",
+	"textures": {
+		"material": "minecraft:blocks/diamond_block"
+	}
+}

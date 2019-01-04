@@ -7,8 +7,4 @@ import com.latmod.modularpipes.item.ItemModule;
  */
 public class ItemModuleCrafting extends ItemModule
 {
-	public ItemModuleCrafting(String id)
-	{
-		super(id);
-	}
 }

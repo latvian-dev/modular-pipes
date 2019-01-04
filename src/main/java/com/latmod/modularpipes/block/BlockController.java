@@ -1,7 +1,7 @@
 package com.latmod.modularpipes.block;
 
-import com.latmod.modularpipes.data.IPipeConnection;
 import com.latmod.modularpipes.tile.TileController;
+import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
@@ -20,13 +20,13 @@ import net.minecraftforge.client.MinecraftForgeClient;
 /**
  * @author LatvianModder
  */
-public class BlockController extends BlockMPBase implements IPipeConnection
+public class BlockController extends Block
 {
 	public static final PropertyBool ERROR = PropertyBool.create("error");
 
-	public BlockController(String id)
+	public BlockController()
 	{
-		super(id, Material.IRON, MapColor.LIGHT_BLUE);
+		super(Material.IRON, MapColor.LIGHT_BLUE);
 		setDefaultState(blockState.getBaseState().withProperty(ERROR, false));
 	}
 

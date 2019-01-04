@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"group": "modularpipes:pipe",
+	"result": {"item": "pipe_modular", "count": 6},
+	"pattern": [
+		"PPP",
+		"QQQ",
+		"PPP"
+	],
+	"key": {
+		"P": {"item": "pipe_diamond"},
+		"Q": {"type": "forge:ore_dict", "ore": "gemQuartz"}
+	}
+}

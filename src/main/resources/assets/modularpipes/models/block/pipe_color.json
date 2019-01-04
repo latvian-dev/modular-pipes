@@ -1,0 +1,53 @@
+{
+	"parent": "block/block",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"particle": "#material"
+	},
+	"elements": [
+		{
+			"name": "pipe1",
+			"from": [3.99, 0, 3.99],
+			"to": [5.01, 3, 5.01],
+			"faces": {
+				"north": {"uv": [10.99, 13, 12.01, 16], "texture": "#material"},
+				"east": {"uv": [12.01, 16, 10.99, 13], "texture": "#material"},
+				"south": {"uv": [3.99, 13, 5.01, 16], "texture": "#material"},
+				"west": {"uv": [3.99, 13, 5.01, 16], "texture": "#material"}
+			}
+		},
+		{
+			"name": "pipe2",
+			"from": [10.99, 0, 3.99],
+			"to": [12.01, 3, 5.01],
+			"faces": {
+				"north": {"uv": [3.99, 13, 5.01, 16], "texture": "#material"},
+				"east": {"uv": [12.01, 16, 10.99, 13], "texture": "#material"},
+				"south": {"uv": [10.99, 13, 12.01, 16], "texture": "#material"},
+				"west": {"uv": [3.99, 13, 5.01, 16], "texture": "#material"}
+			}
+		},
+		{
+			"name": "pipe3",
+			"from": [3.99, 0, 10.99],
+			"to": [5.01, 3, 12.01],
+			"faces": {
+				"north": {"uv": [10.99, 13, 12.01, 16], "texture": "#material"},
+				"east": {"uv": [5.01, 16, 3.99, 13], "texture": "#material"},
+				"south": {"uv": [3.99, 13, 5.01, 16], "texture": "#material"},
+				"west": {"uv": [10.99, 13, 12.01, 16], "texture": "#material"}
+			}
+		},
+		{
+			"name": "pipe4",
+			"from": [10.99, 0, 10.99],
+			"to": [12.01, 3, 12.01],
+			"faces": {
+				"north": {"uv": [3.99, 13, 5.01, 16], "texture": "#material"},
+				"east": {"uv": [5.01, 16, 3.99, 13], "texture": "#material"},
+				"south": {"uv": [10.99, 13, 12.01, 16], "texture": "#material"},
+				"west": {"uv": [10.99, 13, 12.01, 16], "texture": "#material"}
+			}
+		}
+	]
+}

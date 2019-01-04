@@ -4,6 +4,7 @@ import com.latmod.modularpipes.data.IModule;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
@@ -19,13 +20,8 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public class ItemModule extends ItemMPBase implements IModule
+public class ItemModule extends Item implements IModule
 {
-	public ItemModule(String id)
-	{
-		super(id);
-	}
-
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
 	{
@@ -35,7 +31,7 @@ public class ItemModule extends ItemMPBase implements IModule
 		{
 			stack.getTagCompound().removeTag("Module");
 
-			if (stack.getTagCompound().hasNoTags())
+			if (stack.getTagCompound().isEmpty())
 			{
 				stack.setTagCompound(null);
 			}

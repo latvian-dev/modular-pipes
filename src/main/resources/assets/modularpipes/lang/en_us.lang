@@ -3,34 +3,16 @@ itemGroup.modularpipes=Modular Pipes
 
 # Blocks
 tile.modularpipes.controller.name=Controller
-tile.modularpipes.pipe_basic.name=Basic Pipe
-tile.modularpipes.pipe_modular_basic.name=Basic Modular Pipe
-tile.modularpipes.pipe_modular_iron.name=Iron Modular Pipe
-tile.modularpipes.pipe_modular_gold.name=Gold Modular Pipe
-tile.modularpipes.pipe_modular_quartz.name=Quartz Modular Pipe
-tile.modularpipes.pipe_modular_lapis.name=Lapis Lazuli Modular Pipe
-tile.modularpipes.pipe_modular_ender.name=Ender Modular Pipe
-tile.modularpipes.pipe_modular_diamond.name=Diamond Modular Pipe
-tile.modularpipes.pipe_modular_star.name=Nether Star Modular Pipe
-tile.modularpipes.pipe_basic_opaque.name=Basic Pipe [Opaque]
-tile.modularpipes.pipe_modular_basic_opaque.name=Basic Modular Pipe [Opaque]
-tile.modularpipes.pipe_modular_iron_opaque.name=Iron Modular Pipe [Opaque]
-tile.modularpipes.pipe_modular_gold_opaque.name=Gold Modular Pipe [Opaque]
-tile.modularpipes.pipe_modular_quartz_opaque.name=Quartz Modular Pipe [Opaque]
-tile.modularpipes.pipe_modular_lapis_opaque.name=Lapis Lazuli Modular Pipe [Opaque]
-tile.modularpipes.pipe_modular_ender_opaque.name=Ender Modular Pipe [Opaque]
-tile.modularpipes.pipe_modular_diamond_opaque.name=Diamond Modular Pipe [Opaque]
-tile.modularpipes.pipe_modular_star_opaque.name=Nether Star Modular Pipe [Opaque]
-
-tile.modularpipes.pipe.speed_boost=Speed Boost: %s
-tile.modularpipes.pipe_modular.tier_basic=Not Very Modular
-tile.modularpipes.pipe_modular.slots=Available Module Slots: %d
+tile.modularpipes.pipe_modular.name=Modular Pipe
+tile.modularpipes.pipe_cobblestone.name=Cobblestone Pipe
+tile.modularpipes.pipe_diamond.name=Diamond Pipe
+tile.modularpipes.pipe_diamond.mode=Mode: %s
+tile.modularpipes.pipe_diamond.mode.in=Input
+tile.modularpipes.pipe_diamond.mode.out=Output
+tile.modularpipes.pipe_diamond.mode.disabled=Disabled
 
 # Items
 item.modularpipes.module.name=Pipe Module
-item.modularpipes.debug.name=Modular Pipes Debug Item
-
-## Modules
 item.modularpipes.module.desc=Modular Pipe Module
 item.modularpipes.module.cleared_data=Cleared Module Data
 item.modularpipes.module.cant_insert=Can't insert any more modules!
@@ -48,5 +30,5 @@ modularpipes.pipes.base_speed=Base Speed
 modularpipes.pipes.max_link_length=Max Link Length
 modularpipes.pipes.super_boost=Super Boost
 
-modularpipes_client.general.item_render_distance=Item Render Distance
-modularpipes_client.general.item_particles=Item Particles
+modularpipes.general.item_render_distance=Item Render Distance
+modularpipes.general.item_particles=Item Particles

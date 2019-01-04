@@ -1,5 +1,5 @@
 {
-	"type": "forge:ore_shaped",
+	"type": "minecraft:crafting_shaped",
 	"group": "modularpipes:controller",
 	"result": {"item": "controller"},
 	"pattern": [
@@ -8,7 +8,7 @@
 		"IQI"
 	],
 	"key": {
-		"P": {"item": "pipe_basic"},
+		"P": {"item": "pipe_modular"},
 		"I": {"type": "forge:ore_dict", "ore": "ingotIron"},
 		"D": {"type": "forge:ore_dict", "ore": "gemDiamond"},
 		"Q": {"item": "minecraft:comparator"}

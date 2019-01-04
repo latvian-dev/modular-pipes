@@ -1,0 +1,6 @@
+{
+	"parent": "modularpipes:block/pipe_color",
+	"textures": {
+		"material": "minecraft:blocks/concrete_red"
+	}
+}

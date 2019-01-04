@@ -1,18 +1,16 @@
 package com.latmod.modularpipes.net;
 
-import com.feed_the_beast.ftblib.lib.net.NetworkWrapper;
 import com.latmod.modularpipes.ModularPipes;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 
 /**
  * @author LatvianModder
  */
 public class ModularPipesNet
 {
-	static final NetworkWrapper NET = NetworkWrapper.newWrapper(ModularPipes.MOD_ID);
+	public static final SimpleNetworkWrapper NET = new SimpleNetworkWrapper(ModularPipes.MOD_ID);
 
 	public static void init()
 	{
-		NET.register(new MessageUpdateItems());
-		NET.register(new MessageVisualizeNetwork());
 	}
 }

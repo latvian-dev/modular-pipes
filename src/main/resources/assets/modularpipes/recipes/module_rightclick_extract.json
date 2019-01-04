@@ -1,13 +1,9 @@
 {
-	"type": "forge:ore_shaped",
+	"type": "minecraft:crafting_shapeless",
 	"group": "modularpipes:module",
 	"result": {"item": "module_rightclick_extract"},
-	"pattern": [
-		"C",
-		"M"
-	],
-	"key": {
-		"C": {"item": "minecraft:clock"},
-		"M": {"item": "#blank_module"}
-	}
+	"ingredients": [
+		{"item": "module"},
+		{"item": "minecraft:clock"}
+	]
 }

@@ -1,15 +1,10 @@
 {
-	"type": "forge:ore_shaped",
+	"type": "minecraft:crafting_shapeless",
 	"group": "modularpipes:module",
 	"result": {"item": "module_crafting"},
-	"pattern": [
-		"D",
-		"M",
-		"C"
-	],
-	"key": {
-		"D": {"type": "forge:ore_dict", "ore": "gemDiamond"},
-		"M": {"item": "#blank_module"},
-		"C": {"type": "forge:ore_dict", "ore": "workbench"}
-	}
+	"ingredients": [
+		{"type": "forge:ore_dict", "ore": "gemDiamond"},
+		{"item": "module"},
+		{"type": "forge:ore_dict", "ore": "workbench"}
+	]
 }

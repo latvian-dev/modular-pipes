@@ -1,7 +1,6 @@
 package com.latmod.modularpipes.item.module;
 
 import com.latmod.modularpipes.data.ModuleContainer;
-import com.latmod.modularpipes.data.TransportedItem;
 import com.latmod.modularpipes.item.ItemModule;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -13,15 +12,10 @@ import net.minecraftforge.items.IItemHandler;
  */
 public class ItemModuleExtract extends ItemModule
 {
-	public ItemModuleExtract(String id)
-	{
-		super(id);
-	}
-
 	@Override
 	public void updateModule(ModuleContainer container)
 	{
-		if (!container.isRemote() && container.getTick() % 20 == 19)
+		if (!container.isRemote() && container.getTick() % 20 == 0)
 		{
 			extractItem(container);
 		}
@@ -53,15 +47,16 @@ public class ItemModuleExtract extends ItemModule
 
 				if (slot != -1)
 				{
-					TransportedItem item = new TransportedItem(container.getNetwork());
+					/* FIXME
+					PipeItem item = new PipeItem(container.getNetwork());
 					item.stack = stack;
-					item.filters = container.getFilterConfig().get();
 
 					if (item.generatePath(container))
 					{
 						handler.extractItem(slot, 1, false);
 						item.addToNetwork();
 					}
+					*/
 				}
 			}
 		}

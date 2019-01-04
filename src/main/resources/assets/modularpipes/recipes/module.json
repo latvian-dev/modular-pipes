@@ -1,14 +1,14 @@
 {
-	"type": "forge:ore_shaped",
+	"type": "minecraft:crafting_shaped",
 	"group": "modularpipes:module",
-	"result": {"item": "module", "data": 0, "count": 8},
+	"result": {"item": "module", "count": 8},
 	"pattern": [
 		"III",
 		"IPI",
 		"III"
 	],
 	"key": {
-		"P": {"item": "#pipe_basic"},
-		"I": {"item": "#iron"}
+		"P": {"item": "pipe_cobblestone"},
+		"I": {"type": "forge:ore_dict", "ore": "ingotIron"}
 	}
 }

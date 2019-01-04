@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"group": "modularpipes:pipe",
+	"result": {"item": "pipe_diamond", "count": 6},
+	"pattern": [
+		"PPP",
+		"HDH",
+		"PPP"
+	],
+	"key": {
+		"P": {"item": "pipe_cobblestone"},
+		"H": {"item": "minecraft:hopper"},
+		"D": {"type": "forge:ore_dict", "ore": "gemDiamond"}
+	}
+}

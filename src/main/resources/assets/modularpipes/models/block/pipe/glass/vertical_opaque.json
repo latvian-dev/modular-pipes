@@ -1,6 +1,0 @@
-{
-	"parent": "modularpipes:block/pipe/glass/vertical",
-	"textures": {
-		"glass": "modularpipes:blocks/pipe/glass_opaque"
-	}
-}

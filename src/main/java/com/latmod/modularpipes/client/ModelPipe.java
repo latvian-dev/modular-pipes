@@ -1,65 +1,20 @@
 package com.latmod.modularpipes.client;
 
-import com.feed_the_beast.ftblib.lib.client.ClientUtils;
-import com.feed_the_beast.ftblib.lib.client.ModelBase;
-import com.feed_the_beast.ftblib.lib.io.Bits;
-import com.google.common.collect.ImmutableList;
-import com.latmod.modularpipes.ModularPipes;
-import com.latmod.modularpipes.block.BlockModularPipe;
-import com.latmod.modularpipes.block.BlockPipeBase;
-import com.latmod.modularpipes.block.PipeTier;
-import com.latmod.modularpipes.data.IPipe;
-import com.latmod.modularpipes.tile.TileModularPipe;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.block.model.ModelRotation;
-import net.minecraft.client.renderer.block.statemap.DefaultStateMapper;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
-import net.minecraftforge.client.MinecraftForgeClient;
-import net.minecraftforge.client.model.ICustomModelLoader;
-import net.minecraftforge.client.model.IModel;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.common.model.IModelState;
-import net.minecraftforge.common.property.IExtendedBlockState;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-
 /**
  * @author LatvianModder
  */
-public class ModelPipe extends DefaultStateMapper implements IModel, ICustomModelLoader
+public class ModelPipe// extends DefaultStateMapper implements IModel, ICustomModelLoader
 {
 	public static final ModelPipe INSTANCE = new ModelPipe();
 
+	/*
 	public final ModelResourceLocation ID;
 	public final ResourceLocation textureParticle;
 	public final Collection<ResourceLocation> textures;
 
-	public final ResourceLocation modelBase, modelConnection, modelVertical, modelOverlayError, modelOverlayErrorVertical, modelModule;
-	public final ResourceLocation[] modelOverlay, modelOverlayVertical;
+	public final ResourceLocation modelBase, modelConnection, modelVertical, modelModule;
+	public final ResourceLocation modelOverlay, modelOverlayVertical, modelOverlayError, modelOverlayErrorVertical;
 	public final ResourceLocation modelGlassBase, modelGlassConnection, modelGlassVertical;
-	public final ResourceLocation modelGlassBaseOpaque, modelGlassConnectionOpaque, modelGlassVerticalOpaque;
 
 	public final Collection<ResourceLocation> models;
 
@@ -71,26 +26,14 @@ public class ModelPipe extends DefaultStateMapper implements IModel, ICustomMode
 		models0.add(modelBase = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/base"));
 		models0.add(modelConnection = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/connection"));
 		models0.add(modelVertical = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/vertical"));
+		models0.add(modelOverlay = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/overlay/basic"));
+		models0.add(modelOverlayVertical = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/overlay/basic_vertical"));
 		models0.add(modelOverlayError = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/overlay/error"));
 		models0.add(modelOverlayErrorVertical = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/overlay/error_vertical"));
 		models0.add(modelModule = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/module"));
-
-		modelOverlay = new ResourceLocation[PipeTier.NAME_MAP.size()];
-		modelOverlayVertical = new ResourceLocation[modelOverlay.length];
-
-		for (PipeTier tier : PipeTier.NAME_MAP)
-		{
-			models0.add(modelOverlay[tier.ordinal()] = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/overlay/" + tier.getName()));
-			models0.add(modelOverlayVertical[tier.ordinal()] = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/overlay/" + tier.getName() + "_vertical"));
-		}
-
 		models0.add(modelGlassBase = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass/base"));
 		models0.add(modelGlassConnection = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass/connection"));
 		models0.add(modelGlassVertical = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass/vertical"));
-
-		models0.add(modelGlassBaseOpaque = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass/base_opaque"));
-		models0.add(modelGlassConnectionOpaque = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass/connection_opaque"));
-		models0.add(modelGlassVerticalOpaque = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass/vertical_opaque"));
 
 		models = Collections.unmodifiableCollection(models0);
 
@@ -101,7 +44,7 @@ public class ModelPipe extends DefaultStateMapper implements IModel, ICustomMode
 	@Override
 	public boolean accepts(ResourceLocation id)
 	{
-		return ID.getResourceDomain().equals(id.getResourceDomain()) && ID.getResourcePath().equals(id.getResourcePath());
+		return ID.getNamespace().equals(id.getNamespace()) && ID.getPath().equals(id.getPath());
 	}
 
 	@Override
@@ -149,30 +92,53 @@ public class ModelPipe extends DefaultStateMapper implements IModel, ICustomMode
 		List<BakedQuad> get(ResourceLocation id, ModelRotation rotation, boolean uvlock);
 	}
 
-	private static class Baked extends ModelBase
+	private static class Baked implements IBakedModel
 	{
-		private final List<List<BakedQuad>> base, glassBase, glassBaseOpaque, error;
-		private final List<List<BakedQuad>> connection, glassConnection, glassConnectionOpaque, module;
+		private static final ImmutableMap<ItemCameraTransforms.TransformType, TRSRTransformation> TRANSFORM_MAP;
+
+		private static TRSRTransformation get(float ty, float ax, float ay, float s)
+		{
+			return TRSRTransformation.blockCenterToCorner(new TRSRTransformation(new javax.vecmath.Vector3f(0F, ty / 16F, 0F), TRSRTransformation.quatFromXYZDegrees(new javax.vecmath.Vector3f(ax, ay, 0F)), new javax.vecmath.Vector3f(s, s, s), null));
+		}
+
+		static
+		{
+			TRSRTransformation thirdperson = get(2.5F, 75, 45, 0.375F);
+			TRSRTransformation flipX = new TRSRTransformation(null, null, new javax.vecmath.Vector3f(-1, 1, 1), null);
+			ImmutableMap.Builder<ItemCameraTransforms.TransformType, TRSRTransformation> builder = ImmutableMap.builder();
+			builder.put(ItemCameraTransforms.TransformType.GUI, get(0, 30, 225, 0.625F));
+			builder.put(ItemCameraTransforms.TransformType.GROUND, get(3, 0, 0, 0.25F));
+			builder.put(ItemCameraTransforms.TransformType.FIXED, get(0, 0, 0, 0.5F));
+			builder.put(ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND, thirdperson);
+			builder.put(ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND, TRSRTransformation.blockCenterToCorner(flipX.compose(TRSRTransformation.blockCornerToCenter(thirdperson)).compose(flipX)));
+			builder.put(ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND, get(0, 0, 45, 0.4F));
+			builder.put(ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND, get(0, 0, 225, 0.4F));
+			TRANSFORM_MAP = Maps.immutableEnumMap(builder.build());
+		}
+
+		public static Pair<? extends IBakedModel, Matrix4f> handlePerspective(IBakedModel model, ItemCameraTransforms.TransformType cameraTransformType)
+		{
+			return PerspectiveMapWrapper.handlePerspective(model, TRANSFORM_MAP, cameraTransformType);
+		}
+
+		private final TextureAtlasSprite particle;
+		private final List<List<BakedQuad>> base, glassBase, error;
+		private final List<List<BakedQuad>> connection, glassConnection, module;
 		private final List<List<BakedQuad>> overlay;
 		private final Int2ObjectOpenHashMap<List<BakedQuad>> cache;
-		private final Map<BlockPipeBase, IBakedModel> bakedItem;
+		private final IBakedModel bakedItem;
 		private final ItemOverrideList itemOverrideList;
 
-		private final class BakedItem extends ModelBase
+		private final class BakedItem implements IBakedModel
 		{
 			private final List<BakedQuad> quads;
 
-			public BakedItem(@Nullable PipeTier tier, boolean opaque)
+			public BakedItem()
 			{
-				super(null);
 				quads = new ArrayList<>();
 				quads.addAll(base.get(0));
-				quads.addAll((opaque ? glassBaseOpaque : glassBase).get(0));
-
-				if (tier != null)
-				{
-					quads.addAll(overlay.get(tier.ordinal()));
-				}
+				quads.addAll(glassBase.get(0));
+				quads.addAll(overlay.get(0));
 			}
 
 			@Override
@@ -180,11 +146,41 @@ public class ModelPipe extends DefaultStateMapper implements IModel, ICustomMode
 			{
 				return quads;
 			}
+
+			@Override
+			public boolean isAmbientOcclusion()
+			{
+				return true;
+			}
+
+			@Override
+			public boolean isGui3d()
+			{
+				return true;
+			}
+
+			@Override
+			public boolean isBuiltInRenderer()
+			{
+				return false;
+			}
+
+			@Override
+			public TextureAtlasSprite getParticleTexture()
+			{
+				return particle;
+			}
+
+			@Override
+			public ItemOverrideList getOverrides()
+			{
+				return ItemOverrideList.NONE;
+			}
 		}
 
 		public Baked(ModelPipe m, VertexFormat format, TextureAtlasSprite p, ModelCallback c)
 		{
-			super(p);
+			particle = p;
 			base = new ArrayList<>(4);
 			base.add(c.get(m.modelBase, ModelRotation.X0_Y0, false));
 			base.add(c.get(m.modelVertical, ModelRotation.X90_Y90, false));
@@ -197,12 +193,6 @@ public class ModelPipe extends DefaultStateMapper implements IModel, ICustomMode
 			glassBase.add(c.get(m.modelGlassVertical, ModelRotation.X0_Y0, true));
 			glassBase.add(c.get(m.modelGlassVertical, ModelRotation.X90_Y0, true));
 
-			glassBaseOpaque = new ArrayList<>(4);
-			glassBaseOpaque.add(c.get(m.modelGlassBaseOpaque, ModelRotation.X0_Y0, true));
-			glassBaseOpaque.add(c.get(m.modelGlassVerticalOpaque, ModelRotation.X90_Y90, true));
-			glassBaseOpaque.add(c.get(m.modelGlassVerticalOpaque, ModelRotation.X0_Y0, true));
-			glassBaseOpaque.add(c.get(m.modelGlassVerticalOpaque, ModelRotation.X90_Y0, true));
-
 			error = new ArrayList<>(4);
 			error.add(c.get(m.modelOverlayError, ModelRotation.X0_Y0, false));
 			error.add(c.get(m.modelOverlayErrorVertical, ModelRotation.X90_Y90, false));
@@ -211,38 +201,20 @@ public class ModelPipe extends DefaultStateMapper implements IModel, ICustomMode
 
 			connection = new ArrayList<>(6);
 			glassConnection = new ArrayList<>(6);
-			glassConnectionOpaque = new ArrayList<>(6);
 			module = new ArrayList<>(6);
 
 			for (int i = 0; i < 6; i++)
 			{
 				connection.add(c.get(m.modelConnection, ClientUtils.FACE_ROTATIONS[i], false));
 				glassConnection.add(c.get(m.modelGlassConnection, ClientUtils.FACE_ROTATIONS[i], true));
-				glassConnectionOpaque.add(c.get(m.modelGlassConnectionOpaque, ClientUtils.FACE_ROTATIONS[i], true));
 				module.add(c.get(m.modelModule, ClientUtils.FACE_ROTATIONS[i], false));
 			}
 
-			overlay = new ArrayList<>(m.modelOverlay.length * 4);
-
-			for (int i = 0; i < m.modelOverlay.length; i++)
-			{
-				overlay.add(c.get(m.modelOverlay[i], ModelRotation.X0_Y0, false));
-			}
-
-			for (int i = 0; i < m.modelOverlay.length; i++)
-			{
-				overlay.add(c.get(m.modelOverlayVertical[i], ModelRotation.X90_Y90, false));
-			}
-
-			for (int i = 0; i < m.modelOverlay.length; i++)
-			{
-				overlay.add(c.get(m.modelOverlayVertical[i], ModelRotation.X0_Y0, false));
-			}
-
-			for (int i = 0; i < m.modelOverlay.length; i++)
-			{
-				overlay.add(c.get(m.modelOverlayVertical[i], ModelRotation.X90_Y0, false));
-			}
+			overlay = new ArrayList<>(4);
+			overlay.add(c.get(m.modelOverlay, ModelRotation.X0_Y0, false));
+			overlay.add(c.get(m.modelOverlayVertical, ModelRotation.X90_Y90, false));
+			overlay.add(c.get(m.modelOverlayVertical, ModelRotation.X0_Y0, false));
+			overlay.add(c.get(m.modelOverlayVertical, ModelRotation.X90_Y0, false));
 
 			cache = new Int2ObjectOpenHashMap<>();
 			bakedItem = new HashMap<>();
@@ -264,7 +236,7 @@ public class ModelPipe extends DefaultStateMapper implements IModel, ICustomMode
 
 					if (model == null)
 					{
-						model = new BakedItem(pipe instanceof BlockModularPipe ? ((BlockModularPipe) pipe).tier : null, pipe.opaque);
+						model = new BakedItem(pipe instanceof BlockPipeModular ? ((BlockPipeModular) pipe).tier : null, pipe.opaque);
 						bakedItem.put(pipe, model);
 					}
 
@@ -425,9 +397,40 @@ public class ModelPipe extends DefaultStateMapper implements IModel, ICustomMode
 		}
 
 		@Override
+		public boolean isAmbientOcclusion()
+		{
+			return true;
+		}
+
+		@Override
+		public boolean isGui3d()
+		{
+			return true;
+		}
+
+		@Override
+		public boolean isBuiltInRenderer()
+		{
+			return false;
+		}
+
+		@Override
+		public TextureAtlasSprite getParticleTexture()
+		{
+			return particle;
+		}
+
+		@Override
 		public ItemOverrideList getOverrides()
 		{
 			return itemOverrideList;
 		}
+
+		@Override
+		public Pair<? extends IBakedModel, Matrix4f> handlePerspective(ItemCameraTransforms.TransformType cameraTransformType)
+		{
+			return handlePerspective(this, cameraTransformType);
+		}
 	}
+	*/
 }

@@ -7,8 +7,4 @@ import com.latmod.modularpipes.item.ItemModule;
  */
 public class ItemModuleFluidStorage extends ItemModule
 {
-	public ItemModuleFluidStorage(String id)
-	{
-		super(id);
-	}
 }
