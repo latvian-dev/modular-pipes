@@ -1,6 +1,6 @@
 {
 	"parent": "modularpipes:block/pipe/connection",
 	"textures": {
-		"material": "minecraft:blocks/diamond_block"
+		"material": "minecraft:blocks/cobblestone"
 	}
 }

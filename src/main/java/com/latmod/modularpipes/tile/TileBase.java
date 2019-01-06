@@ -1,8 +1,11 @@
 package com.latmod.modularpipes.tile;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 /**
  * @author LatvianModder
@@ -55,5 +58,11 @@ public class TileBase extends TileEntity
 	public void onDataPacket(net.minecraft.network.NetworkManager net, SPacketUpdateTileEntity packet)
 	{
 		readData(packet.getNbtCompound());
+	}
+
+	@Override
+	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newSate)
+	{
+		return oldState.getBlock() != newSate.getBlock();
 	}
 }

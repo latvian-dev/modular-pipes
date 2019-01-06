@@ -1,0 +1,6 @@
+{
+	"parent": "modularpipes:item/pipe_item",
+	"textures": {
+		"material": "minecraft:blocks/gold_block"
+	}
+}

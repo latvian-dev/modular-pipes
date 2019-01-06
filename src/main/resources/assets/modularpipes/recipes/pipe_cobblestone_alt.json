@@ -1,0 +1,12 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"group": "modularpipes:pipe",
+	"result": {"item": "pipe_cobblestone"},
+	"ingredients": [
+		[
+			{"item": "pipe_granite"},
+			{"item": "pipe_diorite"},
+			{"item": "pipe_andesite"}
+		]
+	]
+}

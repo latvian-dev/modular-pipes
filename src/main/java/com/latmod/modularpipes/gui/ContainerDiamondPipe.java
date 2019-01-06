@@ -1,7 +1,7 @@
 package com.latmod.modularpipes.gui;
 
-import com.latmod.modularpipes.tile.EnumDiamondPipeMode;
-import com.latmod.modularpipes.tile.TileDiamondPipe;
+import com.latmod.mods.itemfilters.api.ItemFiltersAPI;
+import com.latmod.modularpipes.tile.TilePipeDiamond;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
@@ -15,9 +15,9 @@ import net.minecraftforge.items.ItemHandlerHelper;
 public class ContainerDiamondPipe extends Container
 {
 	public final EntityPlayer player;
-	public final TileDiamondPipe pipe;
+	public final TilePipeDiamond pipe;
 
-	public ContainerDiamondPipe(EntityPlayer ep, TileDiamondPipe p)
+	public ContainerDiamondPipe(EntityPlayer ep, TilePipeDiamond p)
 	{
 		player = ep;
 		pipe = p;
@@ -26,13 +26,13 @@ public class ContainerDiamondPipe extends Container
 		{
 			for (int i1 = 0; i1 < 9; ++i1)
 			{
-				addSlotToContainer(new Slot(player.inventory, i1 + k * 9 + 9, 8 + i1 * 18, 84 + k * 18));
+				addSlotToContainer(new Slot(player.inventory, i1 + k * 9 + 9, 8 + i1 * 18, 36 + k * 18));
 			}
 		}
 
 		for (int l = 0; l < 9; ++l)
 		{
-			addSlotToContainer(new Slot(player.inventory, l, 8 + l * 18, 142));
+			addSlotToContainer(new Slot(player.inventory, l, 8 + l * 18, 94));
 		}
 	}
 
@@ -53,16 +53,30 @@ public class ContainerDiamondPipe extends Container
 	{
 		if (id >= 0 && id <= 5)
 		{
-			pipe.inventories[id].mode = EnumDiamondPipeMode.VALUES[(pipe.inventories[id].mode.ordinal() + 1) % EnumDiamondPipeMode.VALUES.length];
+			if (player.inventory.getItemStack().isEmpty())
+			{
+				if (pipe.inventories[id].filter.isEmpty())
+				{
+					pipe.inventories[id].filter = new ItemStack(ItemFiltersAPI.NULL_ITEM);
+				}
+				else
+				{
+					pipe.inventories[id].filter = ItemStack.EMPTY;
+				}
+			}
+			else
+			{
+				pipe.inventories[id].filter = ItemHandlerHelper.copyStackWithSize(player.inventory.getItemStack(), 1);
+			}
+
 			pipe.markDirty();
-			IBlockState state = pipe.getWorld().getBlockState(pipe.getPos());
-			pipe.getWorld().notifyBlockUpdate(pipe.getPos(), state, state, 11);
-			return true;
-		}
-		else if (id >= 6 && id <= 11)
-		{
-			pipe.inventories[id - 6].filter = player.inventory.getItemStack().isEmpty() ? ItemStack.EMPTY : ItemHandlerHelper.copyStackWithSize(player.inventory.getItemStack(), 1);
-			pipe.markDirty();
+
+			if (player.world.isRemote)
+			{
+				IBlockState state = player.world.getBlockState(pipe.getPos());
+				player.world.notifyBlockUpdate(pipe.getPos(), state, state, 11);
+			}
+
 			return true;
 		}
 

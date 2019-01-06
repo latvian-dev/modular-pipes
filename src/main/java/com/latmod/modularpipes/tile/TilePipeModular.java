@@ -3,6 +3,6 @@ package com.latmod.modularpipes.tile;
 /**
  * @author LatvianModder
  */
-public class TileModularPipe extends TileBase
+public class TilePipeModular extends TilePipeBase
 {
 }

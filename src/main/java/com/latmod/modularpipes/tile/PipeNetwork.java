@@ -31,8 +31,41 @@ public class PipeNetwork implements ICapabilityProvider
 		return world.getCapability(CAP, null);
 	}
 
+	public static final float[] POS_X = new float[6];
+	public static final float[] POS_Y = new float[6];
+	public static final float[] POS_Z = new float[6];
+	public static final float[] ROT_X = new float[6];
+	public static final float[] ROT_Y = new float[6];
+	public static final int[] OPPOSITE = new int[7];
+
+	static
+	{
+		for (int i = 0; i < 6; i++)
+		{
+			POS_X[i] = EnumFacing.VALUES[i].getXOffset();
+			POS_Y[i] = EnumFacing.VALUES[i].getYOffset();
+			POS_Z[i] = EnumFacing.VALUES[i].getZOffset();
+			OPPOSITE[i] = EnumFacing.VALUES[i].getOpposite().getIndex();
+		}
+
+		OPPOSITE[6] = 6;
+
+		ROT_X[0] = 90F;
+		ROT_Y[0] = 0F;
+		ROT_X[1] = 270F;
+		ROT_Y[1] = 180F;
+		ROT_X[2] = 0F;
+		ROT_Y[2] = 180F;
+		ROT_X[3] = 0F;
+		ROT_Y[3] = 0F;
+		ROT_X[4] = 0F;
+		ROT_Y[4] = 270F;
+		ROT_X[5] = 0F;
+		ROT_Y[5] = 90F;
+	}
+
 	public final World world;
-	public final List<TileCobblestonePipe> pipes = new ArrayList<>();
+	public final List<TilePipeBase> pipes = new ArrayList<>();
 	public boolean refresh = true;
 
 	public PipeNetwork(World w)
@@ -66,23 +99,33 @@ public class PipeNetwork implements ICapabilityProvider
 
 			for (TileEntity tileEntity : world.loadedTileEntityList)
 			{
-				if (!tileEntity.isInvalid() && tileEntity instanceof TileCobblestonePipe)
+				if (!tileEntity.isInvalid() && tileEntity instanceof TilePipeBase)
 				{
-					pipes.add((TileCobblestonePipe) tileEntity);
+					pipes.add((TilePipeBase) tileEntity);
 				}
+			}
+
+			for (TilePipeBase pipe : pipes)
+			{
+				pipe.updateContainingBlockInfo();
 			}
 
 			refresh = false;
 		}
 
-		for (TileCobblestonePipe pipe : pipes)
+		for (TilePipeBase pipe : pipes)
 		{
-			pipe.movePipeItems();
+			for (PipeItem item : pipe.items)
+			{
+				item.prevPos = item.pos;
+				pipe.moveItem(item);
+			}
 		}
 
-		for (TileCobblestonePipe pipe : pipes)
+		for (TilePipeBase pipe : pipes)
 		{
 			pipe.tickPipe();
+			pipe.sendUpdates();
 		}
 	}
 
@@ -91,9 +134,8 @@ public class PipeNetwork implements ICapabilityProvider
 		Minecraft mc = Minecraft.getMinecraft();
 		RenderItem renderItem = mc.getRenderItem();
 		double renderDistanceSq = 64 * 64;
-		EnumFacing.Axis axis;
 		float pos;
-		double rx, ry, rz;
+		float rx, ry, rz;
 		float scale, rotX, rotY;
 		double px = TileEntityRendererDispatcher.staticPlayerX;
 		double py = TileEntityRendererDispatcher.staticPlayerY;
@@ -105,9 +147,9 @@ public class PipeNetwork implements ICapabilityProvider
 		GlStateManager.disableLighting();
 		RenderHelper.enableStandardItemLighting();
 
-		for (TileCobblestonePipe pipe : pipes)
+		for (TilePipeBase pipe : pipes)
 		{
-			if (pipe.fromNegative.items.isEmpty() && pipe.fromPositive.items.isEmpty())
+			if (pipe.items.isEmpty())
 			{
 				continue;
 			}
@@ -122,77 +164,33 @@ public class PipeNetwork implements ICapabilityProvider
 				continue;
 			}
 
-			axis = pipe.getAxis();
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(pipePos.getX(), pipePos.getY(), pipePos.getZ());
+			GlStateManager.translate(x, y, z);
 
-			for (PipeItem item : pipe.fromNegative.items)
+			for (PipeItem item : pipe.items)
 			{
-				pos = (item.pos - item.speed + item.speed * partialTicks);
-
-				if (axis == EnumFacing.Axis.X)
+				if (item.from == 6 || item.to == 6)
 				{
-					rx = pos;
-					ry = 0.5D;
-					rz = 0.5D;
-					rotX = 0F;
-					rotY = 270F;
+					continue;
 				}
-				else if (axis == EnumFacing.Axis.Z)
+
+				pos = (item.prevPos + (item.pos - item.prevPos) * partialTicks);
+
+				if (pos < 0.5D)
 				{
-					rx = 0.5D;
-					ry = 0.5D;
-					rz = pos;
-					rotX = 0F;
-					rotY = 180F;
+					rx = POS_X[item.from] * (0.5F - pos);
+					ry = POS_Y[item.from] * (0.5F - pos);
+					rz = POS_Z[item.from] * (0.5F - pos);
+					rotX = ROT_X[item.from];
+					rotY = ROT_Y[item.from];
 				}
 				else
 				{
-					rx = 0.5D;
-					ry = pos;
-					rz = 0.5D;
-					rotX = 90F;
-					rotY = 0F;
-				}
-
-				scale = item.getScale(mc, renderItem);
-
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(rx, ry, rz);
-				GlStateManager.rotate(rotY, 0F, 1F, 0F);
-				GlStateManager.rotate(rotX, 1F, 0F, 0F);
-				GlStateManager.scale(scale, scale, scale);
-				item.render(renderItem);
-				GlStateManager.popMatrix();
-			}
-
-			for (PipeItem item : pipe.fromPositive.items)
-			{
-				pos = 1F - (item.pos - item.speed + item.speed * partialTicks);
-
-				if (axis == EnumFacing.Axis.X)
-				{
-					rx = pos;
-					ry = 0.5D;
-					rz = 0.5D;
-					rotX = 0F;
-					rotY = 90F;
-				}
-				else if (axis == EnumFacing.Axis.Z)
-				{
-					rx = 0.5D;
-					ry = 0.5D;
-					rz = pos;
-					rotX = 0F;
-					rotY = 0F;
-				}
-				else
-				{
-					rx = 0.5D;
-					ry = pos;
-					rz = 0.5D;
-					rotX = 270F;
-					rotY = 180F;
+					rx = POS_X[item.to] * (pos - 0.5F);
+					ry = POS_Y[item.to] * (pos - 0.5F);
+					rz = POS_Z[item.to] * (pos - 0.5F);
+					rotX = ROT_X[OPPOSITE[item.to]];
+					rotY = ROT_Y[OPPOSITE[item.to]];
 				}
 
 				scale = item.getScale(mc, renderItem);

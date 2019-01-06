@@ -1,5 +1,5 @@
 {
-	"parent": "modularpipes:block/pipe/connection",
+	"parent": "modularpipes:item/pipe_item",
 	"textures": {
 		"material": "minecraft:blocks/diamond_block"
 	}

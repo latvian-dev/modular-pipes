@@ -1,5 +1,5 @@
 {
-	"parent": "modularpipes:block/pipe_color",
+	"parent": "modularpipes:block/pipe/color",
 	"textures": {
 		"material": "minecraft:blocks/concrete_black"
 	}

@@ -6,43 +6,61 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nullable;
+import java.util.function.Predicate;
 
 /**
  * @author LatvianModder
  */
 public class PipeItem implements INBTSerializable<NBTTagCompound>
 {
+	public static final Predicate<PipeItem> IS_DEAD = item -> item.age == Integer.MAX_VALUE || item.age > item.lifespan;
+
 	public ItemStack stack = ItemStack.EMPTY;
-	public float pos = 0F;
+	public float pos = 0F, prevPos = 0F;
+	public int from = 6;
+	public int to = 6;
 	public float speed = 0.05F;
-	public long created = 0L;
-	public int lifespan = -1;
+	public int age = 0;
+	public int lifespan = 6000;
 	private float scale = -1F;
 
-	public int getLifespan(World world)
+	public PipeItem copyForTransfer(@Nullable ItemStack newStack)
 	{
-		if (lifespan == -1)
-		{
-			lifespan = stack.getItem().getEntityLifespan(stack, world);
-		}
-
-		return lifespan;
+		PipeItem item = new PipeItem();
+		item.stack = newStack == null ? stack.copy() : newStack;
+		item.pos = pos % 1F;
+		item.prevPos = item.pos - (pos - prevPos);
+		item.from = from;
+		item.to = to;
+		item.speed = speed;
+		item.age = age;
+		item.lifespan = lifespan;
+		item.scale = scale;
+		return item;
 	}
 
 	@Override
 	public NBTTagCompound serializeNBT()
 	{
 		NBTTagCompound nbt = stack.serializeNBT();
-		nbt.setLong("created", created);
+		nbt.setInteger("age", age);
 		nbt.setFloat("pos", pos);
+		nbt.setFloat("prevpos", prevPos);
+		nbt.setByte("dir", (byte) (from | (to << 4)));
 
 		if (speed != 0.05F)
 		{
 			nbt.setFloat("speed", speed);
+		}
+
+		if (lifespan != 6000)
+		{
+			nbt.setInteger("lifespan", 6000);
 		}
 
 		return nbt;
@@ -52,9 +70,14 @@ public class PipeItem implements INBTSerializable<NBTTagCompound>
 	public void deserializeNBT(NBTTagCompound nbt)
 	{
 		stack = new ItemStack(nbt);
-		created = nbt.getLong("created");
+		age = nbt.getInteger("age");
 		pos = nbt.getFloat("pos");
+		prevPos = nbt.getFloat("prevpos");
+		int dir = nbt.getByte("dir") & 0xFF;
+		from = dir & 0xF;
+		to = (dir >> 4) & 0xF;
 		speed = nbt.hasKey("speed") ? MathHelper.clamp(nbt.getFloat("speed"), 0.01F, 1F) : 0.05F;
+		lifespan = nbt.hasKey("lifespan") ? nbt.getInteger("lifespan") : 6000;
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -79,29 +102,5 @@ public class PipeItem implements INBTSerializable<NBTTagCompound>
 		}
 
 		return scale;
-	}
-
-	public void move(float pipeSpeed)
-	{
-		pos += speed;
-
-		if (speed > pipeSpeed)
-		{
-			speed *= 0.98F;
-
-			if (speed < pipeSpeed)
-			{
-				speed = pipeSpeed;
-			}
-		}
-		else if (speed < pipeSpeed)
-		{
-			speed *= 1.3F;
-
-			if (speed > pipeSpeed)
-			{
-				speed = pipeSpeed;
-			}
-		}
 	}
 }

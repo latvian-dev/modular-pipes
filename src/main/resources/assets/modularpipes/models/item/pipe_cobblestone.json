@@ -1,5 +1,5 @@
 {
-	"parent": "modularpipes:block/pipe_base",
+	"parent": "modularpipes:item/pipe_item",
 	"textures": {
 		"material": "minecraft:blocks/cobblestone"
 	}

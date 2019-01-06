@@ -1,5 +1,5 @@
 {
-	"parent": "modularpipes:block/pipe_io",
+	"parent": "modularpipes:block/pipe/io",
 	"textures": {
 		"material": "minecraft:blocks/concrete_powder_blue"
 	}

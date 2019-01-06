@@ -271,9 +271,9 @@ public class ModelPipe// extends DefaultStateMapper implements IModel, ICustomMo
 			int modules = 0;
 			int tierIndex = -1;
 
-			if (pipe instanceof TileModularPipe)
+			if (pipe instanceof TilePipeModular)
 			{
-				TileModularPipe modularPipe = (TileModularPipe) pipe;
+				TilePipeModular modularPipe = (TilePipeModular) pipe;
 
 				for (int i = 0; i < 6; i++)
 				{
@@ -305,9 +305,9 @@ public class ModelPipe// extends DefaultStateMapper implements IModel, ICustomMo
 
 			if (layer == BlockRenderLayer.TRANSLUCENT)
 			{
-				if (pipe instanceof TileModularPipe)
+				if (pipe instanceof TilePipeModular)
 				{
-					TileModularPipe modularPipe = (TileModularPipe) pipe;
+					TilePipeModular modularPipe = (TilePipeModular) pipe;
 
 					if (modularPipe.hasError())
 					{

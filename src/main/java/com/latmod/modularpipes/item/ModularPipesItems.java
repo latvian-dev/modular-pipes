@@ -16,11 +16,18 @@ public class ModularPipesItems
 	public static final Item CONTROLLER = Items.AIR;
 	public static final Item PIPE_MODULAR = Items.AIR;
 	public static final Item PIPE_COBBLESTONE = Items.AIR;
+	public static final Item PIPE_GRANITE = Items.AIR;
+	public static final Item PIPE_DIORITE = Items.AIR;
+	public static final Item PIPE_ANDESITE = Items.AIR;
+	public static final Item PIPE_BRICK = Items.AIR;
+	public static final Item PIPE_QUARTZ = Items.AIR;
+	public static final Item PIPE_ENDSTONE = Items.AIR;
+	public static final Item PIPE_GOLD = Items.AIR;
 	public static final Item PIPE_GLOWSTONE = Items.AIR;
+	public static final Item PIPE_MAGMA = Items.AIR;
 	public static final Item PIPE_DIAMOND = Items.AIR;
 
 	public static final Item MODULE = Items.AIR;
-
 	public static final Item MODULE_EXTRACT = Items.AIR;
 	public static final Item MODULE_RIGHTCLICK_EXTRACT = Items.AIR;
 	public static final Item MODULE_CRAFTING = Items.AIR;

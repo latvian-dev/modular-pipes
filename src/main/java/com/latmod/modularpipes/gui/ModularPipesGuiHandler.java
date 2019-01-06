@@ -1,6 +1,6 @@
 package com.latmod.modularpipes.gui;
 
-import com.latmod.modularpipes.tile.TileDiamondPipe;
+import com.latmod.modularpipes.tile.TilePipeDiamond;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -26,9 +26,9 @@ public enum ModularPipesGuiHandler implements IGuiHandler
 		{
 			TileEntity tileEntity = world.getTileEntity(new BlockPos(x, y, z));
 
-			if (tileEntity instanceof TileDiamondPipe)
+			if (tileEntity instanceof TilePipeDiamond)
 			{
-				return new ContainerDiamondPipe(player, (TileDiamondPipe) tileEntity);
+				return new ContainerDiamondPipe(player, (TilePipeDiamond) tileEntity);
 			}
 		}
 
@@ -49,9 +49,9 @@ public enum ModularPipesGuiHandler implements IGuiHandler
 		{
 			TileEntity tileEntity = world.getTileEntity(new BlockPos(x, y, z));
 
-			if (tileEntity instanceof TileDiamondPipe)
+			if (tileEntity instanceof TilePipeDiamond)
 			{
-				return new GuiDiamondPipe(new ContainerDiamondPipe(player, (TileDiamondPipe) tileEntity));
+				return new GuiDiamondPipe(new ContainerDiamondPipe(player, (TilePipeDiamond) tileEntity));
 			}
 		}
 
