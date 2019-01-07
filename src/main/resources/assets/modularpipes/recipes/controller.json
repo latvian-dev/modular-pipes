@@ -8,9 +8,9 @@
 		"IQI"
 	],
 	"key": {
-		"P": {"item": "pipe_modular"},
+		"P": {"item": "pipe_modular_mk3"},
 		"I": {"type": "forge:ore_dict", "ore": "ingotIron"},
-		"D": {"type": "forge:ore_dict", "ore": "gemDiamond"},
+		"D": {"type": "forge:ore_dict", "ore": "blockQuartz"},
 		"Q": {"item": "minecraft:comparator"}
 	}
 }

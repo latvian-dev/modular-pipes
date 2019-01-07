@@ -47,6 +47,6 @@ public class ItemModule extends Item implements IModule
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag flag)
 	{
-		tooltip.add(I18n.format("item.modularpipes.module.desc"));
+		tooltip.add(I18n.format("item.modularpipes.module.name"));
 	}
 }

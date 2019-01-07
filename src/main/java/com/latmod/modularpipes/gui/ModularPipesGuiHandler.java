@@ -1,6 +1,6 @@
 package com.latmod.modularpipes.gui;
 
-import com.latmod.modularpipes.tile.TilePipeDiamond;
+import com.latmod.modularpipes.tile.TilePipeModularMK1;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -16,20 +16,15 @@ public enum ModularPipesGuiHandler implements IGuiHandler
 {
 	INSTANCE;
 
-	public static final int DIAMOND_PIPE = 1;
-
 	@Nullable
 	@Override
 	public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z)
 	{
-		if (id == DIAMOND_PIPE)
-		{
-			TileEntity tileEntity = world.getTileEntity(new BlockPos(x, y, z));
+		TileEntity tileEntity = world.getTileEntity(new BlockPos(x, y, z));
 
-			if (tileEntity instanceof TilePipeDiamond)
-			{
-				return new ContainerDiamondPipe(player, (TilePipeDiamond) tileEntity);
-			}
+		if (tileEntity instanceof TilePipeModularMK1)
+		{
+			return new ContainerPipeModular(player, (TilePipeModularMK1) tileEntity, id);
 		}
 
 		return null;
@@ -45,14 +40,11 @@ public enum ModularPipesGuiHandler implements IGuiHandler
 	@Nullable
 	private Object getClientGuiElement0(int id, EntityPlayer player, World world, int x, int y, int z)
 	{
-		if (id == DIAMOND_PIPE)
-		{
-			TileEntity tileEntity = world.getTileEntity(new BlockPos(x, y, z));
+		TileEntity tileEntity = world.getTileEntity(new BlockPos(x, y, z));
 
-			if (tileEntity instanceof TilePipeDiamond)
-			{
-				return new GuiDiamondPipe(new ContainerDiamondPipe(player, (TilePipeDiamond) tileEntity));
-			}
+		if (tileEntity instanceof TilePipeModularMK1)
+		{
+			return new GuiPipeModular(new ContainerPipeModular(player, (TilePipeModularMK1) tileEntity, id));
 		}
 
 		return null;

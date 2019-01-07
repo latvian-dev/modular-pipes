@@ -3,31 +3,13 @@ itemGroup.modularpipes=Modular Pipes
 
 # Blocks
 tile.modularpipes.controller.name=Controller
-tile.modularpipes.pipe_modular.name=Modular Pipe
-tile.modularpipes.pipe_basic_mk1.tooltip=MK1 Pipe, will slow down items
-tile.modularpipes.pipe_basic_mk2.tooltip=MK2 Pipe, won't slow down items
-tile.modularpipes.pipe_basic_mk3.tooltip=MK3 Pipe, will speed up items
-tile.modularpipes.pipe_cobblestone.name=Cobblestone Pipe
-tile.modularpipes.pipe_stone.name=Stone Pipe
-tile.modularpipes.pipe_stonebrick.name=Stone Brick Pipe
-tile.modularpipes.pipe_granite.name=Granite Pipe
-tile.modularpipes.pipe_diorite.name=Diorite Pipe
-tile.modularpipes.pipe_andesite.name=Andesite Pipe
-tile.modularpipes.pipe_brick.name=Brick Pipe
-tile.modularpipes.pipe_quartz.name=Quartz Pipe
-tile.modularpipes.pipe_endstone.name=End Stone Pipe
-tile.modularpipes.pipe_gold.name=Gold Pipe
-tile.modularpipes.pipe_glowstone.name=Glowstone Pipe
-tile.modularpipes.pipe_magma.name=Magma Pipe
-tile.modularpipes.pipe_diamond.name=Diamond Pipe
-tile.modularpipes.pipe_diamond.mode=Mode: %s
-tile.modularpipes.pipe_diamond.mode.in=Input
-tile.modularpipes.pipe_diamond.mode.out=Output
-tile.modularpipes.pipe_diamond.mode.disabled=Disabled
+tile.modularpipes.pipe_transport.name=Transport Pipe
+tile.modularpipes.pipe_modular_mk1.name=Modular Pipe MK1
+tile.modularpipes.pipe_modular_mk2.name=Modular Pipe MK2
+tile.modularpipes.pipe_modular_mk3.name=Modular Pipe MK3
 
 # Items
 item.modularpipes.module.name=Pipe Module
-item.modularpipes.module.desc=Modular Pipe Module
 item.modularpipes.module.cleared_data=Cleared Module Data
 item.modularpipes.module.cant_insert=Can't insert any more modules!
 

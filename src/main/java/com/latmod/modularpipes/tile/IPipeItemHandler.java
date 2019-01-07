@@ -57,31 +57,21 @@ public interface IPipeItemHandler extends IItemHandler
 		return 64;
 	}
 
-	default boolean insertPipeItem(PipeItem item, boolean simulate)
+	boolean insertPipeItem(PipeItem item, boolean simulate);
+
+	static boolean insertPipeItem(IPipeItemHandler pipe, PipeItem item, int to, boolean simulate)
 	{
-		int to = getDirection(item);
-
-		if (to == 6)
-		{
-			return false;
-		}
-
 		if (simulate)
 		{
 			return true;
 		}
 
-		item.from = getFacing().getIndex();
+		item.from = pipe.getFacing().getIndex();
 		item.to = to;
-		item.lifespan = item.stack.getItem().getEntityLifespan(item.stack, getPipe().getWorld());
-		getPipe().items.add(item);
-		getPipe().markDirty();
-		getPipe().sync = false;
+		item.lifespan = item.stack.getItem().getEntityLifespan(item.stack, pipe.getPipe().getWorld());
+		pipe.getPipe().items.add(item);
+		pipe.getPipe().markDirty();
+		pipe.getPipe().sync = false;
 		return true;
-	}
-
-	default int getDirection(PipeItem item)
-	{
-		return 6;
 	}
 }

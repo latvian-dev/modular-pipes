@@ -1,0 +1,15 @@
+{
+	"parent": "block/block",
+	"elements": [
+		{
+			"from": [3.97, 0, 3.97],
+			"to": [12.03, 16, 12.03],
+			"faces": {
+				"north": {"texture": "#overlay", "uv": [4, 0, 12, 16]},
+				"east": {"texture": "#overlay", "uv": [4, 0, 12, 16]},
+				"south": {"texture": "#overlay", "uv": [4, 0, 12, 16]},
+				"west": {"texture": "#overlay", "uv": [4, 0, 12, 16]}
+			}
+		}
+	]
+}

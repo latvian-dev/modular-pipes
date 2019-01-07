@@ -8,7 +8,7 @@
 		"III"
 	],
 	"key": {
-		"P": {"item": "pipe_cobblestone"},
+		"P": {"item": "pipe_transport"},
 		"I": {"type": "forge:ore_dict", "ore": "ingotIron"}
 	}
 }

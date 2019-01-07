@@ -1,6 +1,0 @@
-{
-	"parent": "modularpipes:item/pipe_item",
-	"textures": {
-		"material": "minecraft:blocks/quartz_block_bottom"
-	}
-}

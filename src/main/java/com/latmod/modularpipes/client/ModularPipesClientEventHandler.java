@@ -11,6 +11,7 @@ import net.minecraft.item.Item;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -29,29 +30,20 @@ public class ModularPipesClientEventHandler
 
 	private static void addPipeModel(Block block, Item item)
 	{
-		addModel(item, "inventory"); //FIXME: Pipe Model
-		//ModelLoader.setCustomStateMapper(ModularPipesBlocks.PIPE_MODULAR, ModelPipe.INSTANCE);
-		//ModelLoader.setCustomModelResourceLocation(ModularPipesItems.PIPE_MODULAR, 0, ModelPipe.INSTANCE.ID);
+		ModelLoader.setCustomStateMapper(block, ModelPipe.INSTANCE);
+		ModelLoader.setCustomModelResourceLocation(item, 0, ModelPipe.ID);
 	}
 
 	@SubscribeEvent
 	public static void registerModels(ModelRegistryEvent event)
 	{
-		//ModelLoaderRegistry.registerLoader(ModelPipe.INSTANCE);
+		ModelLoaderRegistry.registerLoader(ModelPipe.INSTANCE);
 
 		addModel(ModularPipesItems.CONTROLLER, "error=false");
-		addPipeModel(ModularPipesBlocks.PIPE_MODULAR, ModularPipesItems.PIPE_MODULAR);
-		addPipeModel(ModularPipesBlocks.PIPE_COBBLESTONE, ModularPipesItems.PIPE_COBBLESTONE);
-		addPipeModel(ModularPipesBlocks.PIPE_GRANITE, ModularPipesItems.PIPE_GRANITE);
-		addPipeModel(ModularPipesBlocks.PIPE_DIORITE, ModularPipesItems.PIPE_DIORITE);
-		addPipeModel(ModularPipesBlocks.PIPE_ANDESITE, ModularPipesItems.PIPE_ANDESITE);
-		addPipeModel(ModularPipesBlocks.PIPE_BRICK, ModularPipesItems.PIPE_BRICK);
-		addPipeModel(ModularPipesBlocks.PIPE_QUARTZ, ModularPipesItems.PIPE_QUARTZ);
-		addPipeModel(ModularPipesBlocks.PIPE_ENDSTONE, ModularPipesItems.PIPE_ENDSTONE);
-		addPipeModel(ModularPipesBlocks.PIPE_GOLD, ModularPipesItems.PIPE_GOLD);
-		addPipeModel(ModularPipesBlocks.PIPE_GLOWSTONE, ModularPipesItems.PIPE_GLOWSTONE);
-		addPipeModel(ModularPipesBlocks.PIPE_MAGMA, ModularPipesItems.PIPE_MAGMA);
-		addPipeModel(ModularPipesBlocks.PIPE_DIAMOND, ModularPipesItems.PIPE_DIAMOND);
+		addPipeModel(ModularPipesBlocks.PIPE_TRANSPORT, ModularPipesItems.PIPE_TRANSPORT);
+		addPipeModel(ModularPipesBlocks.PIPE_MODULAR_MK1, ModularPipesItems.PIPE_MODULAR_MK1);
+		addPipeModel(ModularPipesBlocks.PIPE_MODULAR_MK2, ModularPipesItems.PIPE_MODULAR_MK2);
+		addPipeModel(ModularPipesBlocks.PIPE_MODULAR_MK3, ModularPipesItems.PIPE_MODULAR_MK3);
 
 		addModel(ModularPipesItems.MODULE, "inventory");
 		addModel(ModularPipesItems.MODULE_EXTRACT, "inventory");

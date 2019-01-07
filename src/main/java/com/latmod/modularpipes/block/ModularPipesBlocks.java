@@ -14,16 +14,8 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 public class ModularPipesBlocks
 {
 	public static final Block CONTROLLER = Blocks.AIR;
-	public static final Block PIPE_MODULAR = Blocks.AIR;
-	public static final Block PIPE_COBBLESTONE = Blocks.AIR;
-	public static final Block PIPE_GRANITE = Blocks.AIR;
-	public static final Block PIPE_DIORITE = Blocks.AIR;
-	public static final Block PIPE_ANDESITE = Blocks.AIR;
-	public static final Block PIPE_BRICK = Blocks.AIR;
-	public static final Block PIPE_QUARTZ = Blocks.AIR;
-	public static final Block PIPE_ENDSTONE = Blocks.AIR;
-	public static final Block PIPE_GOLD = Blocks.AIR;
-	public static final Block PIPE_GLOWSTONE = Blocks.AIR;
-	public static final Block PIPE_MAGMA = Blocks.AIR;
-	public static final Block PIPE_DIAMOND = Blocks.AIR;
+	public static final Block PIPE_TRANSPORT = Blocks.AIR;
+	public static final Block PIPE_MODULAR_MK1 = Blocks.AIR;
+	public static final Block PIPE_MODULAR_MK2 = Blocks.AIR;
+	public static final Block PIPE_MODULAR_MK3 = Blocks.AIR;
 }

@@ -23,6 +23,6 @@
 		},
 		"base": [{"model": "modularpipes:controller_base"}],
 		"overlay_no_error": [{"model": "modularpipes:controller_overlay"}],
-		"overlay_error": [{"model": "modularpipes:controller_overlay", "textures": {"overlay": "modularpipes:blocks/controller_error"}}]
+		"overlay_error": [{"model": "modularpipes:controller_overlay_error"}]
 	}
 }

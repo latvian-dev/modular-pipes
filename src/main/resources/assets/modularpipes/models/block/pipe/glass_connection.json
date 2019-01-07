@@ -1,0 +1,21 @@
+{
+	"parent": "block/block",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"glass": "modularpipes:blocks/pipe/glass"
+	},
+	"elements": [
+		{
+			"name": "glass",
+			"from": [5, 0, 5],
+			"to": [11, 4, 11],
+			"faces": {
+				"north": {"uv": [5, 5, 11, 11], "texture": "#glass"},
+				"east": {"uv": [11, 11, 5, 5], "texture": "#glass"},
+				"south": {"uv": [5, 5, 11, 11], "texture": "#glass"},
+				"west": {"uv": [5, 5, 11, 11], "texture": "#glass"},
+				"down": {"uv": [5, 5, 11, 11], "texture": "#glass", "cullface": "down"}
+			}
+		}
+	]
+}

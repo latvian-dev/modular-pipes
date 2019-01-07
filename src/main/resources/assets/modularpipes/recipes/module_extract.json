@@ -1,6 +1,6 @@
 {
 	"type": "minecraft:crafting_shaped",
-	"group": "modularpipes:pipe",
+	"group": "modularpipes:module",
 	"result": {"item": "module_extract", "count": 6},
 	"pattern": [
 		"MMM",

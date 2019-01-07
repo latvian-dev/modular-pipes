@@ -6,18 +6,25 @@ import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.PropertyBool;
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.item.EnumDyeColor;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.property.ExtendedBlockState;
+import net.minecraftforge.common.property.IExtendedBlockState;
+import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.items.CapabilityItemHandler;
 
 import javax.annotation.Nullable;
@@ -29,16 +36,10 @@ import java.util.List;
 public class BlockPipeBase extends Block
 {
 	public static final float SIZE = 4F;
-	public static final PropertyBool[] CONNECTION = new PropertyBool[6];
 	public static final AxisAlignedBB[] BOXES_64 = new AxisAlignedBB[1 << 6];
 
 	static
 	{
-		for (int i = 0; i < 6; i++)
-		{
-			CONNECTION[i] = PropertyBool.create(EnumFacing.VALUES[i].getName());
-		}
-
 		double d0 = SIZE / 16D;
 		double d1 = 1D - d0;
 
@@ -54,25 +55,50 @@ public class BlockPipeBase extends Block
 		}
 	}
 
+	public static final IUnlistedProperty<TilePipeBase> PIPE = new IUnlistedProperty<TilePipeBase>()
+	{
+		@Override
+		public String getName()
+		{
+			return "pipe";
+		}
+
+		@Override
+		public boolean isValid(TilePipeBase value)
+		{
+			return true;
+		}
+
+		@Override
+		public Class<TilePipeBase> getType()
+		{
+			return TilePipeBase.class;
+		}
+
+		@Override
+		public String valueToString(TilePipeBase value)
+		{
+			return TileEntity.getKey(value.getClass()).getPath();
+		}
+	};
+
 	public BlockPipeBase(MapColor color)
 	{
 		super(Material.ROCK, color);
 		setHardness(0.35F);
 		setSoundType(SoundType.STONE);
-		setDefaultState(blockState.getBaseState()
-				.withProperty(CONNECTION[0], false)
-				.withProperty(CONNECTION[1], false)
-				.withProperty(CONNECTION[2], false)
-				.withProperty(CONNECTION[3], false)
-				.withProperty(CONNECTION[4], false)
-				.withProperty(CONNECTION[5], false)
-		);
+		setDefaultState(blockState.getBaseState());
+	}
+
+	public boolean isModular()
+	{
+		return false;
 	}
 
 	@Override
 	protected BlockStateContainer createBlockState()
 	{
-		return new BlockStateContainer(this, CONNECTION);
+		return new ExtendedBlockState(this, new IProperty[0], new IUnlistedProperty[] {PIPE});
 	}
 
 	@Override
@@ -92,6 +118,12 @@ public class BlockPipeBase extends Block
 	public boolean hasTileEntity(IBlockState state)
 	{
 		return true;
+	}
+
+	@Override
+	public TilePipeBase createTileEntity(World world, IBlockState state)
+	{
+		return new TilePipeBase();
 	}
 
 	@Override
@@ -115,15 +147,9 @@ public class BlockPipeBase extends Block
 	}
 
 	@Override
-	public BlockRenderLayer getRenderLayer()
+	public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer)
 	{
-		return BlockRenderLayer.CUTOUT;
-	}
-
-	public boolean isConnected(TilePipeBase pipe, IBlockAccess world, BlockPos pos, EnumFacing facing)
-	{
-		TileEntity tileEntity = world.getTileEntity(pos.offset(facing));
-		return tileEntity != null && tileEntity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, facing.getOpposite());
+		return layer == BlockRenderLayer.SOLID || layer == BlockRenderLayer.CUTOUT;
 	}
 
 	@Override
@@ -140,7 +166,7 @@ public class BlockPipeBase extends Block
 
 			for (int i = 0; i < 6; i++)
 			{
-				if (isConnected(pipe, world, pos, EnumFacing.VALUES[i]))
+				if (pipe.isConnected(EnumFacing.VALUES[i]))
 				{
 					id |= 1 << i;
 				}
@@ -165,7 +191,7 @@ public class BlockPipeBase extends Block
 
 			for (int i = 0; i < 6; i++)
 			{
-				if (isConnected(pipe, world, pos, EnumFacing.VALUES[i]))
+				if (pipe.isConnected(EnumFacing.VALUES[i]))
 				{
 					addCollisionBoxToList(pos, entityBox, collidingBoxes, BOXES_64[1 << i]);
 				}
@@ -188,21 +214,48 @@ public class BlockPipeBase extends Block
 	}
 
 	@Override
-	@Deprecated
-	public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos)
+	public boolean recolorBlock(World world, BlockPos pos, EnumFacing side, EnumDyeColor color)
 	{
 		TileEntity tileEntity = world.getTileEntity(pos);
 
 		if (tileEntity instanceof TilePipeBase)
 		{
-			TilePipeBase pipe = (TilePipeBase) tileEntity;
-
-			for (EnumFacing facing : EnumFacing.VALUES)
+			if (((TilePipeBase) tileEntity).color != color)
 			{
-				if (isConnected(pipe, world, pos, facing))
-				{
-					state = state.withProperty(CONNECTION[facing.getIndex()], true);
-				}
+				((TilePipeBase) tileEntity).color = color;
+				tileEntity.markDirty();
+				IBlockState state = world.getBlockState(pos);
+				world.notifyBlockUpdate(pos, state, state, 11);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	@Override
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+	{
+		ItemStack stack = player.getHeldItem(hand);
+
+		if (stack.getItem() == Items.DYE)
+		{
+			return recolorBlock(world, pos, EnumFacing.UP, EnumDyeColor.byDyeDamage(stack.getMetadata()));
+		}
+
+		return false;
+	}
+
+	@Override
+	public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos)
+	{
+		if (state instanceof IExtendedBlockState)
+		{
+			TileEntity tileEntity = world.getTileEntity(pos);
+
+			if (tileEntity instanceof TilePipeBase)
+			{
+				return ((IExtendedBlockState) state).withProperty(PIPE, (TilePipeBase) tileEntity);
 			}
 		}
 

@@ -2,6 +2,7 @@ package com.latmod.modularpipes.tile;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.inventory.InventoryHelper;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -32,6 +33,7 @@ public class TilePipeBase extends TileBase
 	public List<PipeItem> items = new ArrayList<>(0);
 	private boolean isDirty = false;
 	public boolean sync = false;
+	public EnumDyeColor color = EnumDyeColor.BLACK;
 
 	@Override
 	public void writeData(NBTTagCompound nbt)
@@ -46,6 +48,11 @@ public class TilePipeBase extends TileBase
 			}
 
 			nbt.setTag("items", list);
+		}
+
+		if (color != EnumDyeColor.BLACK)
+		{
+			nbt.setByte("color", (byte) color.getMetadata());
 		}
 	}
 
@@ -65,6 +72,15 @@ public class TilePipeBase extends TileBase
 			{
 				items.add(item);
 			}
+		}
+
+		if (nbt.hasKey("color"))
+		{
+			color = EnumDyeColor.byMetadata(nbt.getByte("color"));
+		}
+		else
+		{
+			color = EnumDyeColor.BLACK;
 		}
 	}
 
@@ -207,6 +223,26 @@ public class TilePipeBase extends TileBase
 	public void moveItem(PipeItem item)
 	{
 		item.pos += item.speed;
+		float pipeSpeed = 0.05F;
+
+		if (item.speed > pipeSpeed)
+		{
+			item.speed *= 0.98F;
+
+			if (item.speed < pipeSpeed)
+			{
+				item.speed = pipeSpeed;
+			}
+		}
+		else if (item.speed < pipeSpeed)
+		{
+			item.speed *= 1.3F;
+
+			if (item.speed > pipeSpeed)
+			{
+				item.speed = pipeSpeed;
+			}
+		}
 	}
 
 	@Override
@@ -238,5 +274,27 @@ public class TilePipeBase extends TileBase
 		{
 			InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), item.stack);
 		}
+	}
+
+	public boolean canColorConnect(EnumDyeColor c)
+	{
+		return color == c || color == EnumDyeColor.BLACK || c == EnumDyeColor.BLACK;
+	}
+
+	public boolean isConnected(EnumFacing facing)
+	{
+		if (!hasPipeItemHandler(facing))
+		{
+			return false;
+		}
+
+		TileEntity tileEntity = world.getTileEntity(pos.offset(facing));
+
+		if (tileEntity instanceof TilePipeBase && !canColorConnect(((TilePipeBase) tileEntity).color))
+		{
+			return false;
+		}
+
+		return tileEntity instanceof TileController || tileEntity != null && tileEntity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, facing.getOpposite());
 	}
 }

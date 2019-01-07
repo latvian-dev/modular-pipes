@@ -1,44 +1,152 @@
 package com.latmod.modularpipes.client;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.latmod.modularpipes.ModularPipes;
+import com.latmod.modularpipes.block.BlockPipeBase;
+import com.latmod.modularpipes.block.BlockPipeModular;
+import com.latmod.modularpipes.block.EnumMK;
+import com.latmod.modularpipes.tile.TilePipeBase;
+import com.latmod.modularpipes.tile.TilePipeModularMK1;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.block.model.ItemOverrideList;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ModelRotation;
+import net.minecraft.client.renderer.block.statemap.DefaultStateMapper;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.EnumDyeColor;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
+import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.client.model.ICustomModelLoader;
+import net.minecraftforge.client.model.IModel;
+import net.minecraftforge.client.model.ModelLoaderRegistry;
+import net.minecraftforge.client.model.PerspectiveMapWrapper;
+import net.minecraftforge.common.model.IModelState;
+import net.minecraftforge.common.model.TRSRTransformation;
+import net.minecraftforge.common.property.IExtendedBlockState;
+
+import javax.annotation.Nullable;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
 /**
  * @author LatvianModder
  */
-public class ModelPipe// extends DefaultStateMapper implements IModel, ICustomModelLoader
+public class ModelPipe extends DefaultStateMapper implements IModel, ICustomModelLoader
 {
 	public static final ModelPipe INSTANCE = new ModelPipe();
+	public static final ModelResourceLocation ID = new ModelResourceLocation(ModularPipes.MOD_ID + ":pipe#normal");
 
-	/*
-	public final ModelResourceLocation ID;
+	public static final ModelRotation[] FACE_ROTATIONS = {
+			ModelRotation.X0_Y0,
+			ModelRotation.X180_Y0,
+			ModelRotation.X90_Y180,
+			ModelRotation.X90_Y0,
+			ModelRotation.X90_Y90,
+			ModelRotation.X90_Y270
+	};
+
+	public static final EnumDyeColor[] FACE_COLORS = {
+			EnumDyeColor.GRAY,
+			EnumDyeColor.SILVER,
+			EnumDyeColor.RED,
+			EnumDyeColor.LIGHT_BLUE,
+			EnumDyeColor.LIME,
+			EnumDyeColor.YELLOW
+	};
+
+	private static final ImmutableMap<ItemCameraTransforms.TransformType, TRSRTransformation> TRANSFORM_MAP;
+
+	private static TRSRTransformation get(float ty, float ax, float ay, float s)
+	{
+		return TRSRTransformation.blockCenterToCorner(new TRSRTransformation(new javax.vecmath.Vector3f(0F, ty / 16F, 0F), TRSRTransformation.quatFromXYZDegrees(new javax.vecmath.Vector3f(ax, ay, 0F)), new javax.vecmath.Vector3f(s, s, s), null));
+	}
+
+	static
+	{
+		TRSRTransformation thirdperson = get(2.5F, 75, 45, 0.375F);
+		TRSRTransformation flipX = new TRSRTransformation(null, null, new javax.vecmath.Vector3f(-1, 1, 1), null);
+		ImmutableMap.Builder<ItemCameraTransforms.TransformType, TRSRTransformation> builder = ImmutableMap.builder();
+		builder.put(ItemCameraTransforms.TransformType.GUI, get(0, 30, 225, 0.625F));
+		builder.put(ItemCameraTransforms.TransformType.GROUND, get(3, 0, 0, 0.25F));
+		builder.put(ItemCameraTransforms.TransformType.FIXED, get(0, 0, 0, 0.5F));
+		builder.put(ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND, thirdperson);
+		builder.put(ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND, TRSRTransformation.blockCenterToCorner(flipX.compose(TRSRTransformation.blockCornerToCenter(thirdperson)).compose(flipX)));
+		builder.put(ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND, get(0, 0, 45, 0.4F));
+		builder.put(ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND, get(0, 0, 225, 0.4F));
+		TRANSFORM_MAP = Maps.immutableEnumMap(builder.build());
+	}
+
+	public static org.apache.commons.lang3.tuple.Pair<? extends IBakedModel, javax.vecmath.Matrix4f> handleModelPerspective(IBakedModel model, ItemCameraTransforms.TransformType cameraTransformType)
+	{
+		return PerspectiveMapWrapper.handlePerspective(model, TRANSFORM_MAP, cameraTransformType);
+	}
+
 	public final ResourceLocation textureParticle;
 	public final Collection<ResourceLocation> textures;
 
-	public final ResourceLocation modelBase, modelConnection, modelVertical, modelModule;
-	public final ResourceLocation modelOverlay, modelOverlayVertical, modelOverlayError, modelOverlayErrorVertical;
+	public final ResourceLocation modelBase, modelConnection, modelVertical;
+	public final ResourceLocation modelOverlay, modelOverlayVertical;
 	public final ResourceLocation modelGlassBase, modelGlassConnection, modelGlassVertical;
+	public final ResourceLocation modelColor;
+
+	public final ResourceLocation[] colorTextures;
+	public final ResourceLocation[] overlayTextures, overlayVerticalTextures;
 
 	public final Collection<ResourceLocation> models;
 
 	private ModelPipe()
 	{
-		ID = new ModelResourceLocation("modularpipes:pipe#normal");
-		Collection<ResourceLocation> models0 = new ArrayList<>();
-
+		Collection<ResourceLocation> models0 = new HashSet<>();
 		models0.add(modelBase = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/base"));
 		models0.add(modelConnection = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/connection"));
 		models0.add(modelVertical = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/vertical"));
-		models0.add(modelOverlay = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/overlay/basic"));
-		models0.add(modelOverlayVertical = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/overlay/basic_vertical"));
-		models0.add(modelOverlayError = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/overlay/error"));
-		models0.add(modelOverlayErrorVertical = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/overlay/error_vertical"));
-		models0.add(modelModule = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/module"));
-		models0.add(modelGlassBase = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass/base"));
-		models0.add(modelGlassConnection = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass/connection"));
-		models0.add(modelGlassVertical = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass/vertical"));
+		models0.add(modelOverlay = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/overlay"));
+		models0.add(modelOverlayVertical = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/overlay_vertical"));
+		models0.add(modelGlassBase = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass_base"));
+		models0.add(modelGlassConnection = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass_connection"));
+		models0.add(modelGlassVertical = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass_vertical"));
+		models0.add(modelColor = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/color"));
 
 		models = Collections.unmodifiableCollection(models0);
+		textures = new HashSet<>();
 
-		textureParticle = new ResourceLocation(ModularPipes.MOD_ID, "blocks/pipe/particle");
-		textures = ImmutableList.of(textureParticle);
+		colorTextures = new ResourceLocation[16];
+
+		for (EnumDyeColor color : EnumDyeColor.values())
+		{
+			textures.add(colorTextures[color.getMetadata()] = new ResourceLocation("minecraft:blocks/concrete_" + color.getName()));
+		}
+
+		overlayTextures = new ResourceLocation[EnumMK.VALUES.length];
+		overlayVerticalTextures = new ResourceLocation[EnumMK.VALUES.length];
+
+		for (int i = 0; i < EnumMK.VALUES.length; i++)
+		{
+			textures.add(overlayTextures[i] = new ResourceLocation("modularpipes:blocks/pipe/overlay/" + EnumMK.VALUES[i].getName()));
+			textures.add(overlayVerticalTextures[i] = new ResourceLocation("modularpipes:blocks/pipe/overlay/" + EnumMK.VALUES[i].getName() + "_vertical"));
+		}
+
+		textures.add(textureParticle = new ResourceLocation("minecraft:blocks/cobblestone"));
 	}
 
 	@Override
@@ -71,12 +179,19 @@ public class ModelPipe// extends DefaultStateMapper implements IModel, ICustomMo
 	}
 
 	@Override
-	public IBakedModel bake(IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> textures)
+	public IBakedModel bake(IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> tex)
 	{
-		return new Baked(this, format, textures.apply(textureParticle), (id, rotation, uvlock) ->
+		return new Baked(this, tex.apply(textureParticle), (id, rotation, retextures) ->
 		{
-			IModel model = ModelLoaderRegistry.getModelOrMissing(id).smoothLighting(false).uvlock(uvlock);
-			IBakedModel bakedModel = model.bake(rotation, format, textures);
+			ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+
+			for (Map.Entry entry : retextures)
+			{
+				builder.put(new AbstractMap.SimpleEntry(entry.getKey().toString(), new ResourceLocation(entry.getValue().toString()).toString()));
+			}
+
+			IModel model = ModelLoaderRegistry.getModelOrMissing(id).uvlock(true).retexture(builder.build());//.smoothLighting(false);
+			IBakedModel bakedModel = model.bake(rotation, format, tex);
 			return Arrays.asList(bakedModel.getQuads(null, null, 0L).toArray(new BakedQuad[0]));
 		});
 	}
@@ -89,56 +204,35 @@ public class ModelPipe// extends DefaultStateMapper implements IModel, ICustomMo
 
 	private interface ModelCallback
 	{
-		List<BakedQuad> get(ResourceLocation id, ModelRotation rotation, boolean uvlock);
+		List<BakedQuad> get(ResourceLocation id, ModelRotation rotation, Map.Entry... retextures);
 	}
 
 	private static class Baked implements IBakedModel
 	{
-		private static final ImmutableMap<ItemCameraTransforms.TransformType, TRSRTransformation> TRANSFORM_MAP;
-
-		private static TRSRTransformation get(float ty, float ax, float ay, float s)
-		{
-			return TRSRTransformation.blockCenterToCorner(new TRSRTransformation(new javax.vecmath.Vector3f(0F, ty / 16F, 0F), TRSRTransformation.quatFromXYZDegrees(new javax.vecmath.Vector3f(ax, ay, 0F)), new javax.vecmath.Vector3f(s, s, s), null));
-		}
-
-		static
-		{
-			TRSRTransformation thirdperson = get(2.5F, 75, 45, 0.375F);
-			TRSRTransformation flipX = new TRSRTransformation(null, null, new javax.vecmath.Vector3f(-1, 1, 1), null);
-			ImmutableMap.Builder<ItemCameraTransforms.TransformType, TRSRTransformation> builder = ImmutableMap.builder();
-			builder.put(ItemCameraTransforms.TransformType.GUI, get(0, 30, 225, 0.625F));
-			builder.put(ItemCameraTransforms.TransformType.GROUND, get(3, 0, 0, 0.25F));
-			builder.put(ItemCameraTransforms.TransformType.FIXED, get(0, 0, 0, 0.5F));
-			builder.put(ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND, thirdperson);
-			builder.put(ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND, TRSRTransformation.blockCenterToCorner(flipX.compose(TRSRTransformation.blockCornerToCenter(thirdperson)).compose(flipX)));
-			builder.put(ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND, get(0, 0, 45, 0.4F));
-			builder.put(ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND, get(0, 0, 225, 0.4F));
-			TRANSFORM_MAP = Maps.immutableEnumMap(builder.build());
-		}
-
-		public static Pair<? extends IBakedModel, Matrix4f> handlePerspective(IBakedModel model, ItemCameraTransforms.TransformType cameraTransformType)
-		{
-			return PerspectiveMapWrapper.handlePerspective(model, TRANSFORM_MAP, cameraTransformType);
-		}
-
 		private final TextureAtlasSprite particle;
-		private final List<List<BakedQuad>> base, glassBase, error;
-		private final List<List<BakedQuad>> connection, glassConnection, module;
-		private final List<List<BakedQuad>> overlay;
+		private final List<List<List<BakedQuad>>> base, connection, overlay;
+		private final List<List<BakedQuad>> glassBase, glassConnection, colors;
 		private final Int2ObjectOpenHashMap<List<BakedQuad>> cache;
 		private final IBakedModel bakedItem;
+		private final IBakedModel[] bakedItemWithOverlay;
 		private final ItemOverrideList itemOverrideList;
 
 		private final class BakedItem implements IBakedModel
 		{
-			private final List<BakedQuad> quads;
+			private List<BakedQuad> quads;
 
-			public BakedItem()
+			public BakedItem(@Nullable EnumMK mk)
 			{
 				quads = new ArrayList<>();
-				quads.addAll(base.get(0));
+				quads.addAll(base.get(15).get(0));
 				quads.addAll(glassBase.get(0));
-				quads.addAll(overlay.get(0));
+
+				if (mk != null)
+				{
+					quads.addAll(overlay.get(mk.ordinal()).get(0));
+				}
+
+				quads = Collections.unmodifiableList(Arrays.asList(quads.toArray(new BakedQuad[0])));
 			}
 
 			@Override
@@ -176,71 +270,88 @@ public class ModelPipe// extends DefaultStateMapper implements IModel, ICustomMo
 			{
 				return ItemOverrideList.NONE;
 			}
+
+			@Override
+			public org.apache.commons.lang3.tuple.Pair<? extends IBakedModel, javax.vecmath.Matrix4f> handlePerspective(ItemCameraTransforms.TransformType cameraTransformType)
+			{
+				return handleModelPerspective(this, cameraTransformType);
+			}
 		}
 
-		public Baked(ModelPipe m, VertexFormat format, TextureAtlasSprite p, ModelCallback c)
+		public Baked(ModelPipe m, TextureAtlasSprite p, ModelCallback c)
 		{
 			particle = p;
-			base = new ArrayList<>(4);
-			base.add(c.get(m.modelBase, ModelRotation.X0_Y0, false));
-			base.add(c.get(m.modelVertical, ModelRotation.X90_Y90, false));
-			base.add(c.get(m.modelVertical, ModelRotation.X0_Y0, false));
-			base.add(c.get(m.modelVertical, ModelRotation.X90_Y0, false));
+			base = new ArrayList<>(16);
+
+			for (int i = 0; i < 16; i++)
+			{
+				AbstractMap.SimpleEntry entry = new AbstractMap.SimpleEntry("material", m.colorTextures[i]);
+				List<List<BakedQuad>> base1 = new ArrayList<>(4);
+				base1.add(c.get(m.modelBase, ModelRotation.X0_Y0, entry));
+				base1.add(c.get(m.modelVertical, ModelRotation.X90_Y90, entry));
+				base1.add(c.get(m.modelVertical, ModelRotation.X0_Y0, entry));
+				base1.add(c.get(m.modelVertical, ModelRotation.X90_Y0, entry));
+				base.add(base1);
+			}
 
 			glassBase = new ArrayList<>(4);
-			glassBase.add(c.get(m.modelGlassBase, ModelRotation.X0_Y0, true));
-			glassBase.add(c.get(m.modelGlassVertical, ModelRotation.X90_Y90, true));
-			glassBase.add(c.get(m.modelGlassVertical, ModelRotation.X0_Y0, true));
-			glassBase.add(c.get(m.modelGlassVertical, ModelRotation.X90_Y0, true));
+			glassBase.add(c.get(m.modelGlassBase, ModelRotation.X0_Y0));
+			glassBase.add(c.get(m.modelGlassVertical, ModelRotation.X90_Y90));
+			glassBase.add(c.get(m.modelGlassVertical, ModelRotation.X0_Y0));
+			glassBase.add(c.get(m.modelGlassVertical, ModelRotation.X90_Y0));
 
-			error = new ArrayList<>(4);
-			error.add(c.get(m.modelOverlayError, ModelRotation.X0_Y0, false));
-			error.add(c.get(m.modelOverlayErrorVertical, ModelRotation.X90_Y90, false));
-			error.add(c.get(m.modelOverlayErrorVertical, ModelRotation.X0_Y0, false));
-			error.add(c.get(m.modelOverlayErrorVertical, ModelRotation.X90_Y0, false));
-
-			connection = new ArrayList<>(6);
+			connection = new ArrayList<>(16);
 			glassConnection = new ArrayList<>(6);
-			module = new ArrayList<>(6);
+			colors = new ArrayList<>(6);
+
+			for (int col = 0; col < 16; col++)
+			{
+				AbstractMap.SimpleEntry entry = new AbstractMap.SimpleEntry("material", m.colorTextures[col]);
+				List<List<BakedQuad>> connection1 = new ArrayList<>(6);
+
+				for (int i = 0; i < 6; i++)
+				{
+					connection1.add(c.get(m.modelConnection, FACE_ROTATIONS[i], entry));
+				}
+
+				connection.add(connection1);
+			}
 
 			for (int i = 0; i < 6; i++)
 			{
-				connection.add(c.get(m.modelConnection, ClientUtils.FACE_ROTATIONS[i], false));
-				glassConnection.add(c.get(m.modelGlassConnection, ClientUtils.FACE_ROTATIONS[i], true));
-				module.add(c.get(m.modelModule, ClientUtils.FACE_ROTATIONS[i], false));
+				glassConnection.add(c.get(m.modelGlassConnection, FACE_ROTATIONS[i]));
+				colors.add(c.get(m.modelColor, FACE_ROTATIONS[i], new AbstractMap.SimpleEntry("color", m.colorTextures[FACE_COLORS[i].getMetadata()])));
 			}
 
-			overlay = new ArrayList<>(4);
-			overlay.add(c.get(m.modelOverlay, ModelRotation.X0_Y0, false));
-			overlay.add(c.get(m.modelOverlayVertical, ModelRotation.X90_Y90, false));
-			overlay.add(c.get(m.modelOverlayVertical, ModelRotation.X0_Y0, false));
-			overlay.add(c.get(m.modelOverlayVertical, ModelRotation.X90_Y0, false));
+			overlay = new ArrayList<>(EnumMK.VALUES.length);
+
+			for (int i = 0; i < EnumMK.VALUES.length; i++)
+			{
+				AbstractMap.SimpleEntry entryV = new AbstractMap.SimpleEntry("overlay", m.overlayVerticalTextures[i]);
+				List<List<BakedQuad>> overlay1 = new ArrayList<>(4);
+				overlay1.add(c.get(m.modelOverlay, ModelRotation.X0_Y0, new AbstractMap.SimpleEntry("overlay", m.overlayTextures[i])));
+				overlay1.add(c.get(m.modelOverlayVertical, ModelRotation.X90_Y90, entryV));
+				overlay1.add(c.get(m.modelOverlayVertical, ModelRotation.X0_Y0, entryV));
+				overlay1.add(c.get(m.modelOverlayVertical, ModelRotation.X90_Y0, entryV));
+				overlay.add(overlay1);
+			}
 
 			cache = new Int2ObjectOpenHashMap<>();
-			bakedItem = new HashMap<>();
+			bakedItem = new BakedItem(null);
+			bakedItemWithOverlay = new BakedItem[EnumMK.VALUES.length];
+
+			for (EnumMK mk : EnumMK.VALUES)
+			{
+				bakedItemWithOverlay[mk.ordinal()] = new BakedItem(mk);
+			}
+
 			itemOverrideList = new ItemOverrideList(Collections.emptyList())
 			{
 				@Override
 				public IBakedModel handleItemState(IBakedModel originalModel, ItemStack stack, @Nullable World world, @Nullable EntityLivingBase entity)
 				{
 					Block block = Block.getBlockFromItem(stack.getItem());
-
-					if (!(block instanceof BlockPipeBase))
-					{
-						return originalModel;
-					}
-
-					BlockPipeBase pipe = (BlockPipeBase) block;
-
-					IBakedModel model = bakedItem.get(pipe);
-
-					if (model == null)
-					{
-						model = new BakedItem(pipe instanceof BlockPipeModular ? ((BlockPipeModular) pipe).tier : null, pipe.opaque);
-						bakedItem.put(pipe, model);
-					}
-
-					return model;
+					return block instanceof BlockPipeBase ? block instanceof BlockPipeModular ? bakedItemWithOverlay[((BlockPipeModular) block).tier.ordinal()] : bakedItem : originalModel;
 				}
 			};
 		}
@@ -253,7 +364,7 @@ public class ModelPipe// extends DefaultStateMapper implements IModel, ICustomMo
 				return Collections.emptyList();
 			}
 
-			IPipe pipe = null;
+			TilePipeBase pipe = null;
 
 			if (state instanceof IExtendedBlockState)
 			{
@@ -265,29 +376,20 @@ public class ModelPipe// extends DefaultStateMapper implements IModel, ICustomMo
 				return Collections.emptyList();
 			}
 
+			int colorIndex = pipe.color.getMetadata();
+
 			BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
 
 			int connections = 0;
-			int modules = 0;
-			int tierIndex = -1;
 
-			if (pipe instanceof TilePipeModular)
+			for (EnumFacing facing : EnumFacing.VALUES)
 			{
-				TilePipeModular modularPipe = (TilePipeModular) pipe;
-
-				for (int i = 0; i < 6; i++)
+				if (pipe.isConnected(facing))
 				{
-					if (modularPipe.modules[i].hasModule())
-					{
-						modules |= 1 << i;
-					}
+					connections |= 1 << facing.getIndex();
 				}
-
-				connections = modules;
 			}
 
-			connections |= pipe.getConnections();
-			boolean opaque = pipe.isPipeOpaque();
 			int baseIndex = 0;
 
 			switch (connections)
@@ -305,18 +407,9 @@ public class ModelPipe// extends DefaultStateMapper implements IModel, ICustomMo
 
 			if (layer == BlockRenderLayer.TRANSLUCENT)
 			{
-				if (pipe instanceof TilePipeModular)
+				if (pipe instanceof TilePipeModularMK1)
 				{
-					TilePipeModular modularPipe = (TilePipeModular) pipe;
-
-					if (modularPipe.hasError())
-					{
-						return error.get(baseIndex);
-					}
-					else
-					{
-						return overlay.get(modularPipe.tier.ordinal() + PipeTier.NAME_MAP.size() * baseIndex);
-					}
+					return overlay.get(((TilePipeModularMK1) pipe).getMK().ordinal()).get(baseIndex);
 				}
 				else
 				{
@@ -324,7 +417,7 @@ public class ModelPipe// extends DefaultStateMapper implements IModel, ICustomMo
 				}
 			}
 
-			int cacheIndex = connections | ((opaque ? 1 : 0) << 6) | ((layer == BlockRenderLayer.CUTOUT ? 1 : 0) << 7) | (modules << 8);
+			int cacheIndex = connections | ((layer == BlockRenderLayer.CUTOUT ? 1 : 0) << 7) | ((pipe instanceof TilePipeModularMK1 ? 1 : 0) << 8) | (colorIndex << 12);
 
 			List<BakedQuad> quads = cache.get(cacheIndex);
 
@@ -337,45 +430,32 @@ public class ModelPipe// extends DefaultStateMapper implements IModel, ICustomMo
 
 			if (layer == BlockRenderLayer.SOLID)
 			{
-				quads.addAll(base.get(baseIndex));
+				quads.addAll(base.get(colorIndex).get(baseIndex));
 
 				if (baseIndex == 0)
 				{
 					for (int i = 0; i < 6; i++)
 					{
-						if (Bits.getFlag(connections, 1 << i))
+						if ((connections & (1 << i)) != 0)
 						{
-							quads.addAll(connection.get(i));
+							quads.addAll(connection.get(colorIndex).get(i));
 						}
 					}
 				}
 
-				for (int i = 0; i < 6; i++)
+				if (pipe instanceof TilePipeModularMK1)
 				{
-					if (Bits.getFlag(modules, 1 << i))
+					for (int i = 0; i < 6; i++)
 					{
-						quads.addAll(module.get(i));
-					}
-				}
-
-				if (opaque)
-				{
-					quads.addAll(glassBaseOpaque.get(baseIndex));
-
-					if (baseIndex == 0)
-					{
-						for (int i = 0; i < 6; i++)
+						if ((connections & (1 << i)) != 0)
 						{
-							if (Bits.getFlag(connections, 1 << i))
-							{
-								quads.addAll(glassConnectionOpaque.get(i));
-							}
+							quads.addAll(colors.get(i));
 						}
 					}
 				}
 			}
 
-			if (!opaque && layer == BlockRenderLayer.CUTOUT)
+			if (layer == BlockRenderLayer.CUTOUT)
 			{
 				quads.addAll(glassBase.get(baseIndex));
 
@@ -383,7 +463,7 @@ public class ModelPipe// extends DefaultStateMapper implements IModel, ICustomMo
 				{
 					for (int i = 0; i < 6; i++)
 					{
-						if (Bits.getFlag(connections, 1 << i))
+						if ((connections & (1 << i)) != 0)
 						{
 							quads.addAll(glassConnection.get(i));
 						}
@@ -427,10 +507,9 @@ public class ModelPipe// extends DefaultStateMapper implements IModel, ICustomMo
 		}
 
 		@Override
-		public Pair<? extends IBakedModel, Matrix4f> handlePerspective(ItemCameraTransforms.TransformType cameraTransformType)
+		public org.apache.commons.lang3.tuple.Pair<? extends IBakedModel, javax.vecmath.Matrix4f> handlePerspective(ItemCameraTransforms.TransformType cameraTransformType)
 		{
-			return handlePerspective(this, cameraTransformType);
+			return handleModelPerspective(this, cameraTransformType);
 		}
 	}
-	*/
 }

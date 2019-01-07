@@ -1,7 +1,7 @@
 package com.latmod.modularpipes.data;
 
 import com.latmod.modularpipes.ModularPipes;
-import com.latmod.modularpipes.tile.TilePipeModular;
+import com.latmod.modularpipes.tile.TilePipeModularMK1;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -17,20 +17,20 @@ import javax.annotation.Nullable;
  */
 public final class ModuleContainer implements ITickable, IItemHandler
 {
-	public final TilePipeModular tile;
+	public final TilePipeModularMK1 tile;
 	public final EnumFacing facing;
 	private IModule module;
 	private ItemStack stack;
 	private long tick;
 
-	public ModuleContainer(TilePipeModular t, EnumFacing f, ItemStack stack)
+	public ModuleContainer(TilePipeModularMK1 t, EnumFacing f, ItemStack stack)
 	{
 		tile = t;
 		facing = f;
 		setStack(stack);
 	}
 
-	public ModuleContainer(TilePipeModular t, NBTTagCompound nbt)
+	public ModuleContainer(TilePipeModularMK1 t, NBTTagCompound nbt)
 	{
 		this(t, EnumFacing.VALUES[nbt.getByte("Facing")], ItemStack.EMPTY);
 

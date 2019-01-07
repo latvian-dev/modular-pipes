@@ -44,7 +44,7 @@ public class ModularPipes
 		@Override
 		public ItemStack createIcon()
 		{
-			return new ItemStack(ModularPipesItems.PIPE_MODULAR);
+			return new ItemStack(ModularPipesItems.PIPE_MODULAR_MK1);
 		}
 	};
 
