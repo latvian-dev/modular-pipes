@@ -34,7 +34,7 @@ public class ItemBlockPipe extends ItemBlock
 
 				if (pipe instanceof TilePipeBase)
 				{
-					((TilePipeBase) pipe).color = ((TilePipeBase) tileEntity).color;
+					((TilePipeBase) pipe).skin = ((TilePipeBase) tileEntity).skin;
 					pipe.markDirty();
 				}
 			}

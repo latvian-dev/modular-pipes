@@ -1,8 +1,8 @@
 package com.latmod.modularpipes.tile;
 
+import com.latmod.modularpipes.block.EnumPipeSkin;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -33,7 +33,7 @@ public class TilePipeBase extends TileBase
 	public List<PipeItem> items = new ArrayList<>(0);
 	private boolean isDirty = false;
 	public boolean sync = false;
-	public EnumDyeColor color = EnumDyeColor.BLACK;
+	public EnumPipeSkin skin = EnumPipeSkin.NONE;
 
 	@Override
 	public void writeData(NBTTagCompound nbt)
@@ -50,9 +50,9 @@ public class TilePipeBase extends TileBase
 			nbt.setTag("items", list);
 		}
 
-		if (color != EnumDyeColor.BLACK)
+		if (skin != null)
 		{
-			nbt.setByte("color", (byte) color.getMetadata());
+			nbt.setByte("skin", (byte) skin.ordinal());
 		}
 	}
 
@@ -74,14 +74,7 @@ public class TilePipeBase extends TileBase
 			}
 		}
 
-		if (nbt.hasKey("color"))
-		{
-			color = EnumDyeColor.byMetadata(nbt.getByte("color"));
-		}
-		else
-		{
-			color = EnumDyeColor.BLACK;
-		}
+		skin = EnumPipeSkin.byID(nbt.getByte("skin"));
 	}
 
 	@Override
@@ -276,9 +269,9 @@ public class TilePipeBase extends TileBase
 		}
 	}
 
-	public boolean canColorConnect(EnumDyeColor c)
+	public boolean canPipesConnect(EnumPipeSkin s)
 	{
-		return color == c || color == EnumDyeColor.BLACK || c == EnumDyeColor.BLACK;
+		return skin == s || skin == EnumPipeSkin.NONE || s == EnumPipeSkin.NONE;
 	}
 
 	public boolean isConnected(EnumFacing facing)
@@ -290,7 +283,7 @@ public class TilePipeBase extends TileBase
 
 		TileEntity tileEntity = world.getTileEntity(pos.offset(facing));
 
-		if (tileEntity instanceof TilePipeBase && !canColorConnect(((TilePipeBase) tileEntity).color))
+		if (tileEntity instanceof TilePipeBase && !canPipesConnect(((TilePipeBase) tileEntity).skin))
 		{
 			return false;
 		}

@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.block;
 
+import com.latmod.modularpipes.item.ModularPipesItems;
 import com.latmod.modularpipes.tile.IPipeItemHandler;
 import com.latmod.modularpipes.tile.TilePipeBase;
 import net.minecraft.block.Block;
@@ -11,8 +12,6 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
-import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
@@ -214,33 +213,26 @@ public class BlockPipeBase extends Block
 	}
 
 	@Override
-	public boolean recolorBlock(World world, BlockPos pos, EnumFacing side, EnumDyeColor color)
-	{
-		TileEntity tileEntity = world.getTileEntity(pos);
-
-		if (tileEntity instanceof TilePipeBase)
-		{
-			if (((TilePipeBase) tileEntity).color != color)
-			{
-				((TilePipeBase) tileEntity).color = color;
-				tileEntity.markDirty();
-				IBlockState state = world.getBlockState(pos);
-				world.notifyBlockUpdate(pos, state, state, 11);
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	@Override
 	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
 	{
 		ItemStack stack = player.getHeldItem(hand);
 
-		if (stack.getItem() == Items.DYE)
+		if (stack.getItem() == ModularPipesItems.PAINTER)
 		{
-			return recolorBlock(world, pos, EnumFacing.UP, EnumDyeColor.byDyeDamage(stack.getMetadata()));
+			TileEntity tileEntity = world.getTileEntity(pos);
+
+			if (tileEntity instanceof TilePipeBase)
+			{
+				((TilePipeBase) tileEntity).skin = stack.hasTagCompound() ? EnumPipeSkin.byName(stack.getTagCompound().getString("skin")) : EnumPipeSkin.NONE;
+				tileEntity.markDirty();
+
+				if (world.isRemote)
+				{
+					world.notifyBlockUpdate(pos, state, state, 11);
+				}
+			}
+
+			return true;
 		}
 
 		return false;

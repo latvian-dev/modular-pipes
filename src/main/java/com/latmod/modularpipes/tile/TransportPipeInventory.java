@@ -46,7 +46,7 @@ public class TransportPipeInventory implements IPipeItemHandler
 			{
 				TileEntity tileEntity = pipe.getWorld().getTileEntity(pipe.getPos().offset(EnumFacing.VALUES[i]));
 
-				if (tileEntity instanceof TilePipeTransport && !pipe.canColorConnect(((TilePipeTransport) tileEntity).color))
+				if (tileEntity instanceof TilePipeTransport && !pipe.canPipesConnect(((TilePipeTransport) tileEntity).skin))
 				{
 					continue;
 				}

@@ -6,6 +6,7 @@ import com.latmod.modularpipes.block.BlockPipeTransport;
 import com.latmod.modularpipes.block.EnumMK;
 import com.latmod.modularpipes.block.ModularPipesBlocks;
 import com.latmod.modularpipes.item.ItemBlockPipe;
+import com.latmod.modularpipes.item.ItemPainter;
 import com.latmod.modularpipes.item.module.ItemModuleCrafting;
 import com.latmod.modularpipes.item.module.ItemModuleExtract;
 import com.latmod.modularpipes.item.module.ItemModuleFluidStorage;
@@ -81,6 +82,7 @@ public class ModularPipesEventHandler
 		r.register(new ItemBlockPipe(ModularPipesBlocks.PIPE_MODULAR_MK2).setRegistryName("pipe_modular_mk2"));
 		r.register(new ItemBlockPipe(ModularPipesBlocks.PIPE_MODULAR_MK3).setRegistryName("pipe_modular_mk3"));
 
+		r.register(withName(new ItemPainter(), "painter"));
 		r.register(withName(new Item(), "module"));
 		r.register(withName(new ItemModuleExtract(), "module_extract"));
 		r.register(withName(new ItemModuleRightClickExtract(), "module_rightclick_extract"));

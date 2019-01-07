@@ -19,6 +19,7 @@ public class ModularPipesItems
 	public static final Item PIPE_MODULAR_MK2 = Items.AIR;
 	public static final Item PIPE_MODULAR_MK3 = Items.AIR;
 
+	public static final Item PAINTER = Items.AIR;
 	public static final Item MODULE = Items.AIR;
 	public static final Item MODULE_EXTRACT = Items.AIR;
 	public static final Item MODULE_RIGHTCLICK_EXTRACT = Items.AIR;

@@ -9,6 +9,7 @@ tile.modularpipes.pipe_modular_mk2.name=Modular Pipe MK2
 tile.modularpipes.pipe_modular_mk3.name=Modular Pipe MK3
 
 # Items
+item.modularpipes.painter.name=Pipe Painter
 item.modularpipes.module.name=Pipe Module
 item.modularpipes.module.cleared_data=Cleared Module Data
 item.modularpipes.module.cant_insert=Can't insert any more modules!

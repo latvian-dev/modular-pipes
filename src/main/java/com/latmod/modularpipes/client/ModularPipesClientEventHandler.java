@@ -30,14 +30,14 @@ public class ModularPipesClientEventHandler
 
 	private static void addPipeModel(Block block, Item item)
 	{
-		ModelLoader.setCustomStateMapper(block, ModelPipe.INSTANCE);
-		ModelLoader.setCustomModelResourceLocation(item, 0, ModelPipe.ID);
+		ModelLoader.setCustomStateMapper(block, ModelPipeLoader.INSTANCE);
+		ModelLoader.setCustomModelResourceLocation(item, 0, ModelPipeLoader.ID);
 	}
 
 	@SubscribeEvent
 	public static void registerModels(ModelRegistryEvent event)
 	{
-		ModelLoaderRegistry.registerLoader(ModelPipe.INSTANCE);
+		ModelLoaderRegistry.registerLoader(ModelPipeLoader.INSTANCE);
 
 		addModel(ModularPipesItems.CONTROLLER, "error=false");
 		addPipeModel(ModularPipesBlocks.PIPE_TRANSPORT, ModularPipesItems.PIPE_TRANSPORT);
@@ -45,6 +45,7 @@ public class ModularPipesClientEventHandler
 		addPipeModel(ModularPipesBlocks.PIPE_MODULAR_MK2, ModularPipesItems.PIPE_MODULAR_MK2);
 		addPipeModel(ModularPipesBlocks.PIPE_MODULAR_MK3, ModularPipesItems.PIPE_MODULAR_MK3);
 
+		addModel(ModularPipesItems.PAINTER, "inventory");
 		addModel(ModularPipesItems.MODULE, "inventory");
 		addModel(ModularPipesItems.MODULE_EXTRACT, "inventory");
 		addModel(ModularPipesItems.MODULE_RIGHTCLICK_EXTRACT, "inventory");
