@@ -61,10 +61,8 @@ public class BlockPipeModular extends BlockPipeBase
 			int skylight = (result >> 16) & 0xFFFF;
 			return (skylight << 16) | (15 << 4);
 		}
-		else
-		{
-			return super.getPackedLightmapCoords(state, source, pos);
-		}
+
+		return super.getPackedLightmapCoords(state, source, pos);
 	}
 
 	@Override

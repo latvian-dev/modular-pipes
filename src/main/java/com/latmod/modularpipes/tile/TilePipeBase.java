@@ -1,6 +1,6 @@
 package com.latmod.modularpipes.tile;
 
-import com.latmod.modularpipes.block.EnumPipeSkin;
+import com.latmod.modularpipes.block.PipeSkin;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
@@ -33,7 +33,8 @@ public class TilePipeBase extends TileBase
 	public List<PipeItem> items = new ArrayList<>(0);
 	private boolean isDirty = false;
 	public boolean sync = false;
-	public EnumPipeSkin skin = EnumPipeSkin.NONE;
+	public PipeSkin skin = PipeSkin.NONE;
+	public boolean invisible = false;
 
 	@Override
 	public void writeData(NBTTagCompound nbt)
@@ -50,9 +51,14 @@ public class TilePipeBase extends TileBase
 			nbt.setTag("items", list);
 		}
 
-		if (skin != null)
+		if (skin != PipeSkin.NONE)
 		{
-			nbt.setByte("skin", (byte) skin.ordinal());
+			nbt.setString("skin", skin.name);
+		}
+
+		if (invisible)
+		{
+			nbt.setBoolean("invisible", true);
 		}
 	}
 
@@ -74,7 +80,8 @@ public class TilePipeBase extends TileBase
 			}
 		}
 
-		skin = EnumPipeSkin.byID(nbt.getByte("skin"));
+		skin = PipeSkin.byName(nbt.getString("skin"));
+		invisible = nbt.getBoolean("invisible");
 	}
 
 	@Override
@@ -269,9 +276,9 @@ public class TilePipeBase extends TileBase
 		}
 	}
 
-	public boolean canPipesConnect(EnumPipeSkin s)
+	public boolean canPipesConnect(PipeSkin s)
 	{
-		return skin == s || skin == EnumPipeSkin.NONE || s == EnumPipeSkin.NONE;
+		return skin == s || skin == PipeSkin.NONE || s == PipeSkin.NONE;
 	}
 
 	public boolean isConnected(EnumFacing facing)

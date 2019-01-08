@@ -1,6 +1,6 @@
 package com.latmod.modularpipes.item;
 
-import com.latmod.modularpipes.block.EnumPipeSkin;
+import com.latmod.modularpipes.block.PipeSkin;
 import com.latmod.modularpipes.data.IModule;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
@@ -17,6 +17,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,9 +34,10 @@ public class ItemPainter extends Item implements IModule
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
 	{
 		ItemStack stack = player.getHeldItem(hand);
-		EnumPipeSkin skin = stack.hasTagCompound() ? EnumPipeSkin.byName(stack.getTagCompound().getString("skin")) : EnumPipeSkin.NONE;
-		EnumPipeSkin newSkin = player.isSneaking() ? EnumPipeSkin.NONE : EnumPipeSkin.VALUES[(skin.ordinal() + 1) % EnumPipeSkin.VALUES.length];
-		stack.setTagInfo("skin", new NBTTagString(newSkin.getName()));
+		PipeSkin skin = stack.hasTagCompound() ? PipeSkin.byName(stack.getTagCompound().getString("skin")) : PipeSkin.NONE;
+		ArrayList<PipeSkin> skins = new ArrayList<>(PipeSkin.MAP.values());
+		PipeSkin newSkin = player.isSneaking() ? PipeSkin.NONE : skins.get((skins.indexOf(skin) + 1) % skins.size());
+		stack.setTagInfo("skin", new NBTTagString(newSkin.name));
 
 		if (world.isRemote)
 		{
@@ -49,7 +51,6 @@ public class ItemPainter extends Item implements IModule
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag flag)
 	{
-		EnumPipeSkin skin = stack.hasTagCompound() ? EnumPipeSkin.byName(stack.getTagCompound().getString("skin")) : EnumPipeSkin.NONE;
-		tooltip.add(I18n.format(skin.translationKey));
+		tooltip.add(I18n.format((stack.hasTagCompound() ? PipeSkin.byName(stack.getTagCompound().getString("skin")) : PipeSkin.NONE).translationKey));
 	}
 }

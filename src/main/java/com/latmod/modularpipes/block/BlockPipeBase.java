@@ -223,7 +223,7 @@ public class BlockPipeBase extends Block
 
 			if (tileEntity instanceof TilePipeBase)
 			{
-				((TilePipeBase) tileEntity).skin = stack.hasTagCompound() ? EnumPipeSkin.byName(stack.getTagCompound().getString("skin")) : EnumPipeSkin.NONE;
+				((TilePipeBase) tileEntity).skin = stack.hasTagCompound() ? PipeSkin.byName(stack.getTagCompound().getString("skin")) : PipeSkin.NONE;
 				tileEntity.markDirty();
 
 				if (world.isRemote)

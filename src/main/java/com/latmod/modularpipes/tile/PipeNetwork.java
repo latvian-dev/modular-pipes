@@ -154,18 +154,15 @@ public class PipeNetwork implements ICapabilityProvider
 				continue;
 			}
 
-			BlockPos pipePos = pipe.getPos();
-			double x = pipePos.getX() + 0.5D;
-			double y = pipePos.getY() + 0.5D;
-			double z = pipePos.getZ() + 0.5D;
+			BlockPos p = pipe.getPos();
 
-			if (((px - x) * (px - x) + (py - y) * (py - y) + (pz - z) * (pz - z)) > renderDistanceSq || !frustum.isBoxInFrustum(x - 0.5D, y - 0.5D, z - 0.5D, x + 0.5D, y + 0.5D, z + 0.5D))
+			if (p.distanceSqToCenter(px, py, pz) > renderDistanceSq || !frustum.isBoxInFrustum(p.getX(), p.getY(), p.getZ(), p.getX() + 1, p.getY() + 1, p.getZ() + 1))
 			{
 				continue;
 			}
 
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(x, y, z);
+			GlStateManager.translate(p.getX() + 0.5D, p.getY() + 0.5D, p.getZ() + 0.5D);
 
 			for (PipeItem item : pipe.items)
 			{

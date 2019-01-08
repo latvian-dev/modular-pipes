@@ -6,7 +6,7 @@ import com.latmod.modularpipes.ModularPipes;
 import com.latmod.modularpipes.block.BlockPipeBase;
 import com.latmod.modularpipes.block.BlockPipeModular;
 import com.latmod.modularpipes.block.EnumMK;
-import com.latmod.modularpipes.block.EnumPipeSkin;
+import com.latmod.modularpipes.block.PipeSkin;
 import com.latmod.modularpipes.tile.TilePipeBase;
 import com.latmod.modularpipes.tile.TilePipeModularMK1;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -86,18 +87,14 @@ public class ModelPipe extends DefaultStateMapper implements IModel
 		return PerspectiveMapWrapper.handlePerspective(model, TRANSFORM_MAP, cameraTransformType);
 	}
 
-	public final ResourceLocation textureParticle;
-	public final Collection<ResourceLocation> textures;
-
+	public final Collection<ResourceLocation> models;
 	public final ResourceLocation modelBase, modelConnection, modelVertical;
 	public final ResourceLocation modelOverlay;
 	public final ResourceLocation modelGlassBase, modelGlassConnection, modelGlassVertical;
-	public final ResourceLocation modelColor;
 
-	public final ResourceLocation[] skinTextures, colorTextures;
+	public final Collection<ResourceLocation> textures;
+	public final ResourceLocation textureParticle;
 	public final ResourceLocation[] overlayTextures;
-
-	public final Collection<ResourceLocation> models;
 
 	public ModelPipe()
 	{
@@ -109,25 +106,9 @@ public class ModelPipe extends DefaultStateMapper implements IModel
 		models0.add(modelGlassBase = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass_base"));
 		models0.add(modelGlassConnection = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass_connection"));
 		models0.add(modelGlassVertical = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass_vertical"));
-		models0.add(modelColor = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/color"));
 
 		models = Collections.unmodifiableCollection(models0);
 		textures = new HashSet<>();
-
-		skinTextures = new ResourceLocation[EnumPipeSkin.VALUES.length];
-
-		for (EnumPipeSkin skin : EnumPipeSkin.VALUES)
-		{
-			textures.add(skinTextures[skin.ordinal()] = skin.texture);
-		}
-
-		colorTextures = new ResourceLocation[6];
-		textures.add(colorTextures[0] = new ResourceLocation("minecraft:blocks/concrete_gray"));
-		textures.add(colorTextures[1] = new ResourceLocation("minecraft:blocks/concrete_silver"));
-		textures.add(colorTextures[2] = new ResourceLocation("minecraft:blocks/concrete_red"));
-		textures.add(colorTextures[3] = new ResourceLocation("minecraft:blocks/concrete_light_blue"));
-		textures.add(colorTextures[4] = new ResourceLocation("minecraft:blocks/concrete_lime"));
-		textures.add(colorTextures[5] = new ResourceLocation("minecraft:blocks/concrete_yellow"));
 
 		overlayTextures = new ResourceLocation[EnumMK.VALUES.length];
 
@@ -136,7 +117,12 @@ public class ModelPipe extends DefaultStateMapper implements IModel
 			textures.add(overlayTextures[i] = new ResourceLocation("modularpipes:blocks/pipe/overlay/" + EnumMK.VALUES[i].getName()));
 		}
 
-		textures.add(textureParticle = new ResourceLocation("minecraft:blocks/cobblestone"));
+		textures.add(textureParticle = new ResourceLocation("minecraft:blocks/concrete_gray"));
+
+		for (PipeSkin skin : PipeSkin.MAP.values())
+		{
+			textures.add(skin.texture);
+		}
 	}
 
 	@Override
@@ -177,9 +163,9 @@ public class ModelPipe extends DefaultStateMapper implements IModel
 	private static class Baked implements IBakedModel
 	{
 		private final TextureAtlasSprite particle;
-		private final List<List<List<BakedQuad>>> base, connection;
-		private final List<List<BakedQuad>> glassBase, glassConnection, colors, overlay;
-		private final Int2ObjectOpenHashMap<List<BakedQuad>> cache;
+		private final Map<PipeSkin, List<List<BakedQuad>>> base, connection;
+		private final List<List<BakedQuad>> glassBase, glassConnection, overlay;
+		private final Map<PipeSkin, Int2ObjectOpenHashMap<List<BakedQuad>>> cache;
 		private final IBakedModel bakedItem;
 		private final IBakedModel[] bakedItemWithOverlay;
 		private final ItemOverrideList itemOverrideList;
@@ -191,7 +177,7 @@ public class ModelPipe extends DefaultStateMapper implements IModel
 			public BakedItem(@Nullable EnumMK mk)
 			{
 				quads = new ArrayList<>();
-				quads.addAll(base.get(0).get(0));
+				quads.addAll(base.get(PipeSkin.NONE).get(0));
 				quads.addAll(glassBase.get(0));
 
 				if (mk != null)
@@ -248,17 +234,17 @@ public class ModelPipe extends DefaultStateMapper implements IModel
 		public Baked(ModelPipe m, TextureAtlasSprite p, ModelCallback c)
 		{
 			particle = p;
-			base = new ArrayList<>(m.skinTextures.length);
+			base = new HashMap<>(PipeSkin.MAP.size());
 
-			for (int i = 0; i < m.skinTextures.length; i++)
+			for (PipeSkin skin : PipeSkin.MAP.values())
 			{
-				AbstractMap.SimpleEntry entry = new AbstractMap.SimpleEntry("material", m.skinTextures[i]);
+				AbstractMap.SimpleEntry entry = new AbstractMap.SimpleEntry("material", skin.texture);
 				List<List<BakedQuad>> base1 = new ArrayList<>(4);
 				base1.add(c.get(m.modelBase, ModelRotation.X0_Y0, entry));
 				base1.add(c.get(m.modelVertical, ModelRotation.X90_Y90, entry));
 				base1.add(c.get(m.modelVertical, ModelRotation.X0_Y0, entry));
 				base1.add(c.get(m.modelVertical, ModelRotation.X90_Y0, entry));
-				base.add(base1);
+				base.put(skin, base1);
 			}
 
 			glassBase = new ArrayList<>(4);
@@ -267,13 +253,12 @@ public class ModelPipe extends DefaultStateMapper implements IModel
 			glassBase.add(c.get(m.modelGlassVertical, ModelRotation.X0_Y0));
 			glassBase.add(c.get(m.modelGlassVertical, ModelRotation.X90_Y0));
 
-			connection = new ArrayList<>(m.skinTextures.length);
+			connection = new HashMap<>(PipeSkin.MAP.size());
 			glassConnection = new ArrayList<>(6);
-			colors = new ArrayList<>(6);
 
-			for (int col = 0; col < m.skinTextures.length; col++)
+			for (PipeSkin skin : PipeSkin.MAP.values())
 			{
-				AbstractMap.SimpleEntry entry = new AbstractMap.SimpleEntry("material", m.skinTextures[col]);
+				AbstractMap.SimpleEntry entry = new AbstractMap.SimpleEntry("material", skin.texture);
 				List<List<BakedQuad>> connection1 = new ArrayList<>(6);
 
 				for (int i = 0; i < 6; i++)
@@ -281,13 +266,12 @@ public class ModelPipe extends DefaultStateMapper implements IModel
 					connection1.add(c.get(m.modelConnection, FACE_ROTATIONS[i], entry));
 				}
 
-				connection.add(connection1);
+				connection.put(skin, connection1);
 			}
 
 			for (int i = 0; i < 6; i++)
 			{
 				glassConnection.add(c.get(m.modelGlassConnection, FACE_ROTATIONS[i]));
-				colors.add(c.get(m.modelColor, FACE_ROTATIONS[i], new AbstractMap.SimpleEntry("color", m.colorTextures[i])));
 			}
 
 			overlay = new ArrayList<>(EnumMK.VALUES.length);
@@ -297,7 +281,7 @@ public class ModelPipe extends DefaultStateMapper implements IModel
 				overlay.add(c.get(m.modelOverlay, ModelRotation.X0_Y0, new AbstractMap.SimpleEntry("overlay", m.overlayTextures[i])));
 			}
 
-			cache = new Int2ObjectOpenHashMap<>();
+			cache = new HashMap<>();
 			bakedItem = new BakedItem(null);
 			bakedItemWithOverlay = new BakedItem[EnumMK.VALUES.length];
 
@@ -332,12 +316,24 @@ public class ModelPipe extends DefaultStateMapper implements IModel
 				pipe = ((IExtendedBlockState) state).getValue(BlockPipeBase.PIPE);
 			}
 
-			if (pipe == null)
+			if (pipe == null || pipe.invisible)
 			{
 				return Collections.emptyList();
 			}
 
 			BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
+
+			if (layer == BlockRenderLayer.TRANSLUCENT)
+			{
+				if (pipe instanceof TilePipeModularMK1)
+				{
+					return overlay.get(((TilePipeModularMK1) pipe).getMK().ordinal());
+				}
+				else
+				{
+					return Collections.emptyList();
+				}
+			}
 
 			int connections = 0;
 
@@ -364,21 +360,17 @@ public class ModelPipe extends DefaultStateMapper implements IModel
 					break;
 			}
 
-			if (layer == BlockRenderLayer.TRANSLUCENT)
+			Int2ObjectOpenHashMap<List<BakedQuad>> cacheMap = cache.get(pipe.skin);
+
+			if (cacheMap == null)
 			{
-				if (pipe instanceof TilePipeModularMK1)
-				{
-					return overlay.get(((TilePipeModularMK1) pipe).getMK().ordinal());
-				}
-				else
-				{
-					return Collections.emptyList();
-				}
+				cacheMap = new Int2ObjectOpenHashMap<>();
+				cache.put(pipe.skin, cacheMap);
 			}
 
-			int cacheIndex = connections | ((layer == BlockRenderLayer.CUTOUT ? 1 : 0) << 7) | ((pipe instanceof TilePipeModularMK1 ? 1 : 0) << 8) | (pipe.skin.ordinal() << 16);
+			int cacheIndex = connections | ((layer == BlockRenderLayer.CUTOUT ? 1 : 0) << 6);
 
-			List<BakedQuad> quads = cache.get(cacheIndex);
+			List<BakedQuad> quads = cacheMap.get(cacheIndex);
 
 			if (quads != null)
 			{
@@ -389,7 +381,7 @@ public class ModelPipe extends DefaultStateMapper implements IModel
 
 			if (layer == BlockRenderLayer.SOLID)
 			{
-				quads.addAll(base.get(pipe.skin.ordinal()).get(baseIndex));
+				quads.addAll(base.get(pipe.skin).get(baseIndex));
 
 				if (baseIndex == 0)
 				{
@@ -397,18 +389,7 @@ public class ModelPipe extends DefaultStateMapper implements IModel
 					{
 						if ((connections & (1 << i)) != 0)
 						{
-							quads.addAll(connection.get(pipe.skin.ordinal()).get(i));
-						}
-					}
-				}
-
-				if (pipe instanceof TilePipeModularMK1)
-				{
-					for (int i = 0; i < 6; i++)
-					{
-						if ((connections & (1 << i)) != 0)
-						{
-							quads.addAll(colors.get(i));
+							quads.addAll(connection.get(pipe.skin).get(i));
 						}
 					}
 				}
@@ -431,7 +412,7 @@ public class ModelPipe extends DefaultStateMapper implements IModel
 			}
 
 			quads = Collections.unmodifiableList(Arrays.asList(quads.toArray(new BakedQuad[0])));
-			cache.put(cacheIndex, quads);
+			cacheMap.put(cacheIndex, quads);
 			return quads;
 		}
 
