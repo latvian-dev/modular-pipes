@@ -41,7 +41,7 @@ repositories {
 }
 
 dependencies {
-	//deobfCompile "com.latmod.mods:ItemFilters:${itemfilters_version}"
+	deobfCompile "com.latmod.mods:ItemFilters:${itemfilters_version}"
 }
 
 processResources {
