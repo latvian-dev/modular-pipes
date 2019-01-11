@@ -26,7 +26,7 @@ public class ModularPipesConfig
 
 	public static class Pipes
 	{
-		@Config.RangeDouble(min = 0, max = 100)
+		@Config.RangeDouble(min = 0, max = 1)
 		@Config.Comment("Base speed")
 		public double base_speed = 0.05;
 	}

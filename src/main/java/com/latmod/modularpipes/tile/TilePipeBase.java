@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.tile;
 
+import com.latmod.modularpipes.ModularPipesConfig;
 import com.latmod.modularpipes.block.PipeSkin;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.inventory.InventoryHelper;
@@ -222,12 +223,12 @@ public class TilePipeBase extends TileBase
 
 	public void moveItem(PipeItem item)
 	{
-		item.pos += item.speed;
-		float pipeSpeed = 0.05F;
+		item.pos += Math.min(item.speed, 0.99F);
+		float pipeSpeed = (float) ModularPipesConfig.pipes.base_speed;
 
 		if (item.speed > pipeSpeed)
 		{
-			item.speed *= 0.98F;
+			item.speed *= 0.99F;
 
 			if (item.speed < pipeSpeed)
 			{

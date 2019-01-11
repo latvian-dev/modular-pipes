@@ -66,7 +66,7 @@ public class PipeNetwork implements ICapabilityProvider
 
 	public final World world;
 	public final List<TilePipeBase> pipes = new ArrayList<>();
-	public boolean refresh = true;
+	private boolean refresh = true;
 
 	public PipeNetwork(World w)
 	{

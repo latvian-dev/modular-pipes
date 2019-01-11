@@ -30,7 +30,7 @@ public interface IPipeItemHandler extends IItemHandler
 	{
 		PipeItem item = new PipeItem();
 		item.stack = stack;
-		item.speed = 0.1F;
+		item.speed = 0.2F;
 
 		if (insertPipeItem(item, simulate))
 		{
