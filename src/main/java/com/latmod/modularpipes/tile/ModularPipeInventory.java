@@ -52,7 +52,7 @@ public class ModularPipeInventory implements IPipeItemHandler
 			{
 				TileEntity tileEntity = pipe.getWorld().getTileEntity(pipe.getPos().offset(EnumFacing.VALUES[i]));
 
-				if (tileEntity instanceof TilePipeTransport && !pipe.canPipesConnect(((TilePipeTransport) tileEntity).skin))
+				if (tileEntity instanceof TilePipeBase && !pipe.canPipesConnect(((TilePipeBase) tileEntity).skin))
 				{
 					continue;
 				}
@@ -78,7 +78,7 @@ public class ModularPipeInventory implements IPipeItemHandler
 			{
 				TileEntity tileEntity = pipe.getWorld().getTileEntity(pipe.getPos().offset(EnumFacing.VALUES[i]));
 
-				if (tileEntity instanceof TilePipeTransport && !pipe.canPipesConnect(((TilePipeTransport) tileEntity).skin))
+				if (tileEntity instanceof TilePipeBase && !pipe.canPipesConnect(((TilePipeBase) tileEntity).skin))
 				{
 					continue;
 				}

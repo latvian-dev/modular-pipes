@@ -17,6 +17,7 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import org.apache.logging.log4j.LogManager;
@@ -40,6 +41,9 @@ public class ModularPipes
 
 	@Mod.Instance(MOD_ID)
 	public static ModularPipes INSTANCE;
+
+	@SidedProxy(serverSide = "com.latmod.modularpipes.ModularPipesCommon", clientSide = "com.latmod.modularpipes.client.ModularPipesClient")
+	public static ModularPipesCommon PROXY;
 
 	public static final CreativeTabs TAB = new CreativeTabs(MOD_ID)
 	{

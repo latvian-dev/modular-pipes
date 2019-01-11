@@ -146,7 +146,7 @@ public class ModelPipe extends DefaultStateMapper implements IModel
 
 			for (Map.Entry entry : retextures)
 			{
-				builder.put(new AbstractMap.SimpleEntry(entry.getKey().toString(), new ResourceLocation(entry.getValue().toString()).toString()));
+				builder.put(new AbstractMap.SimpleEntry<>(entry.getKey().toString(), new ResourceLocation(entry.getValue().toString()).toString()));
 			}
 
 			IModel model = ModelLoaderRegistry.getModelOrMissing(id).uvlock(true).retexture(builder.build());//.smoothLighting(false);
@@ -238,7 +238,7 @@ public class ModelPipe extends DefaultStateMapper implements IModel
 
 			for (PipeSkin skin : PipeSkin.MAP.values())
 			{
-				AbstractMap.SimpleEntry entry = new AbstractMap.SimpleEntry("material", skin.texture);
+				AbstractMap.SimpleEntry<String, ResourceLocation> entry = new AbstractMap.SimpleEntry<>("material", skin.texture);
 				List<List<BakedQuad>> base1 = new ArrayList<>(4);
 				base1.add(c.get(m.modelBase, ModelRotation.X0_Y0, entry));
 				base1.add(c.get(m.modelVertical, ModelRotation.X90_Y90, entry));
@@ -258,7 +258,7 @@ public class ModelPipe extends DefaultStateMapper implements IModel
 
 			for (PipeSkin skin : PipeSkin.MAP.values())
 			{
-				AbstractMap.SimpleEntry entry = new AbstractMap.SimpleEntry("material", skin.texture);
+				AbstractMap.SimpleEntry<String, ResourceLocation> entry = new AbstractMap.SimpleEntry<>("material", skin.texture);
 				List<List<BakedQuad>> connection1 = new ArrayList<>(6);
 
 				for (int i = 0; i < 6; i++)
@@ -278,7 +278,7 @@ public class ModelPipe extends DefaultStateMapper implements IModel
 
 			for (int i = 0; i < EnumMK.VALUES.length; i++)
 			{
-				overlay.add(c.get(m.modelOverlay, ModelRotation.X0_Y0, new AbstractMap.SimpleEntry("overlay", m.overlayTextures[i])));
+				overlay.add(c.get(m.modelOverlay, ModelRotation.X0_Y0, new AbstractMap.SimpleEntry<>("overlay", m.overlayTextures[i])));
 			}
 
 			cache = new HashMap<>();

@@ -48,7 +48,7 @@ public class BlockPipeModular extends BlockPipeBase
 	@Override
 	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos)
 	{
-		return MinecraftForgeClient.getRenderLayer() == BlockRenderLayer.TRANSLUCENT ? 15 : 0;
+		return ModularPipes.PROXY.getPipeLightValue();
 	}
 
 	@Override

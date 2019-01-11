@@ -85,7 +85,7 @@ public class BlockPipeBase extends Block
 	{
 		super(Material.ROCK, color);
 		setHardness(0.35F);
-		setSoundType(SoundType.STONE);
+		setSoundType(SoundType.METAL);
 		setDefaultState(blockState.getBaseState());
 	}
 

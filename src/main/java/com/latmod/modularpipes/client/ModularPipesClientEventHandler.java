@@ -39,7 +39,7 @@ public class ModularPipesClientEventHandler
 	{
 		ModelLoaderRegistry.registerLoader(ModelPipeLoader.INSTANCE);
 
-		addModel(ModularPipesItems.CONTROLLER, "error=false");
+		//addModel(ModularPipesItems.CONTROLLER, "error=false");
 		addPipeModel(ModularPipesBlocks.PIPE_TRANSPORT, ModularPipesItems.PIPE_TRANSPORT);
 		addPipeModel(ModularPipesBlocks.PIPE_MODULAR_MK1, ModularPipesItems.PIPE_MODULAR_MK1);
 		addPipeModel(ModularPipesBlocks.PIPE_MODULAR_MK2, ModularPipesItems.PIPE_MODULAR_MK2);
