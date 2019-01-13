@@ -9,7 +9,6 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ModelRotation;
-import net.minecraft.client.renderer.block.statemap.DefaultStateMapper;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.ResourceLocation;
@@ -31,7 +30,7 @@ import java.util.function.Function;
 /**
  * @author LatvianModder
  */
-public class ModelPipe extends DefaultStateMapper implements IModel
+public class ModelPipe implements IModel
 {
 	public static final ModelRotation[] FACE_ROTATIONS = {
 			ModelRotation.X0_Y0,
