@@ -1,7 +1,6 @@
 package com.latmod.modularpipes.block;
 
 import com.latmod.modularpipes.item.ModularPipesItems;
-import com.latmod.modularpipes.tile.IPipeItemHandler;
 import com.latmod.modularpipes.tile.TilePipeBase;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
@@ -24,7 +23,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
-import net.minecraftforge.items.CapabilityItemHandler;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -36,6 +34,7 @@ public class BlockPipeBase extends Block
 {
 	public static final float SIZE = 4F;
 	public static final AxisAlignedBB[] BOXES_64 = new AxisAlignedBB[1 << 6];
+	public static final AxisAlignedBB[] BOXES = new AxisAlignedBB[7];
 
 	static
 	{
@@ -52,6 +51,14 @@ public class BlockPipeBase extends Block
 			boolean z1 = (i & (1 << EnumFacing.SOUTH.getIndex())) != 0;
 			BOXES_64[i] = new AxisAlignedBB(x0 ? 0D : d0, y0 ? 0D : d0, z0 ? 0D : d0, x1 ? 1D : d1, y1 ? 1D : d1, z1 ? 1D : d1);
 		}
+
+		BOXES[0] = new AxisAlignedBB(d0, 0D, d0, d1, d0, d1);
+		BOXES[1] = new AxisAlignedBB(d0, d1, d0, d1, 1D, d1);
+		BOXES[2] = new AxisAlignedBB(d0, d0, 0D, d1, d1, d0);
+		BOXES[3] = new AxisAlignedBB(d0, d0, d1, d1, d1, 1D);
+		BOXES[4] = new AxisAlignedBB(0D, d0, d0, d0, d1, d1);
+		BOXES[5] = new AxisAlignedBB(d1, d0, d0, 1D, d1, d1);
+		BOXES[6] = new AxisAlignedBB(d0, d0, d0, d1, d1, d1);
 	}
 
 	public static final IUnlistedProperty<TilePipeBase> PIPE = new IUnlistedProperty<TilePipeBase>()
@@ -202,11 +209,16 @@ public class BlockPipeBase extends Block
 	@Deprecated
 	public boolean shouldSideBeRendered(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side)
 	{
-		TileEntity tileEntity = world.getTileEntity(pos.offset(side));
+		TileEntity tileEntity0 = world.getTileEntity(pos);
 
-		if (tileEntity != null && tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite()) instanceof IPipeItemHandler)
+		if (tileEntity0 instanceof TilePipeBase)
 		{
-			return false;
+			TileEntity tileEntity = world.getTileEntity(pos.offset(side));
+
+			if (tileEntity instanceof TilePipeBase && ((TilePipeBase) tileEntity0).canPipesConnect(((TilePipeBase) tileEntity).skin))
+			{
+				return false;
+			}
 		}
 
 		return super.shouldSideBeRendered(state, world, pos, side);
@@ -252,21 +264,5 @@ public class BlockPipeBase extends Block
 		}
 
 		return state;
-	}
-
-	@Override
-	public void breakBlock(World world, BlockPos pos, IBlockState state)
-	{
-		if (!world.isRemote)
-		{
-			TileEntity tileEntity = world.getTileEntity(pos);
-
-			if (tileEntity instanceof TilePipeBase)
-			{
-				((TilePipeBase) tileEntity).dropItems();
-			}
-		}
-
-		super.breakBlock(world, pos, state);
 	}
 }

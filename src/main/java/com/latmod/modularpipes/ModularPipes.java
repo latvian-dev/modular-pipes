@@ -1,9 +1,9 @@
 package com.latmod.modularpipes;
 
 import com.latmod.modularpipes.block.PipeSkin;
-import com.latmod.modularpipes.data.IModule;
 import com.latmod.modularpipes.gui.ModularPipesGuiHandler;
 import com.latmod.modularpipes.item.ModularPipesItems;
+import com.latmod.modularpipes.item.module.PipeModule;
 import com.latmod.modularpipes.net.ModularPipesNet;
 import com.latmod.modularpipes.tile.PipeNetwork;
 import net.minecraft.creativetab.CreativeTabs;
@@ -12,7 +12,6 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.common.Mod;
@@ -54,25 +53,22 @@ public class ModularPipes
 		}
 	};
 
-	@CapabilityInject(IModule.class)
-	public static Capability<IModule> MODULE_CAP;
-
 	@EventHandler
 	public void onPreInit(FMLPreInitializationEvent event)
 	{
 		ModularPipesConfig.sync();
 
-		CapabilityManager.INSTANCE.register(IModule.class, new Capability.IStorage<IModule>()
+		CapabilityManager.INSTANCE.register(PipeModule.class, new Capability.IStorage<PipeModule>()
 		{
 			@Nullable
 			@Override
-			public NBTBase writeNBT(Capability<IModule> capability, IModule instance, EnumFacing side)
+			public NBTBase writeNBT(Capability<PipeModule> capability, PipeModule instance, EnumFacing side)
 			{
 				return instance instanceof INBTSerializable ? ((INBTSerializable) instance).serializeNBT() : null;
 			}
 
 			@Override
-			public void readNBT(Capability<IModule> capability, IModule instance, EnumFacing side, NBTBase nbt)
+			public void readNBT(Capability<PipeModule> capability, PipeModule instance, EnumFacing side, NBTBase nbt)
 			{
 				if (nbt != null && instance instanceof INBTSerializable)
 				{

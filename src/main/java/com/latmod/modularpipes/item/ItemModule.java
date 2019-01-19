@@ -1,46 +1,38 @@
 package com.latmod.modularpipes.item;
 
-import com.latmod.modularpipes.data.IModule;
+import com.latmod.modularpipes.item.module.PipeModule;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * @author LatvianModder
  */
-public class ItemModule extends Item implements IModule
+public class ItemModule extends Item
 {
-	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
+	public final Supplier<PipeModule> supplier;
+
+	public ItemModule(Supplier<PipeModule> s)
 	{
-		ItemStack stack = player.getHeldItem(hand);
+		supplier = s;
+	}
 
-		if (player.isSneaking() && (stack.hasTagCompound() && stack.getTagCompound().hasKey("Module")))
-		{
-			stack.getTagCompound().removeTag("Module");
-
-			if (stack.getTagCompound().isEmpty())
-			{
-				stack.setTagCompound(null);
-			}
-
-			player.sendMessage(new TextComponentTranslation("item.modularpipes.module.cleared_data"));
-			return new ActionResult<>(EnumActionResult.SUCCESS, stack);
-		}
-
-		return new ActionResult<>(EnumActionResult.PASS, stack);
+	@Override
+	@Nullable
+	public PipeModule initCapabilities(ItemStack stack, @Nullable NBTTagCompound nbt)
+	{
+		PipeModule module = supplier.get();
+		module.stack = stack;
+		return module;
 	}
 
 	@Override

@@ -1,13 +1,10 @@
 package com.latmod.modularpipes.gui;
 
-import com.latmod.mods.itemfilters.api.ItemFiltersAPI;
 import com.latmod.modularpipes.tile.TilePipeModularMK1;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.items.ItemHandlerHelper;
 
 /**
  * @author LatvianModder
@@ -53,35 +50,6 @@ public class ContainerPipeModular extends Container
 	@Override
 	public boolean enchantItem(EntityPlayer player, int id)
 	{
-		if (id >= 0 && id <= 5)
-		{
-			if (player.inventory.getItemStack().isEmpty())
-			{
-				if (pipe.inventories[id].module.isEmpty())
-				{
-					pipe.inventories[id].module = new ItemStack(ItemFiltersAPI.NULL_ITEM);
-				}
-				else
-				{
-					pipe.inventories[id].module = ItemStack.EMPTY;
-				}
-			}
-			else
-			{
-				pipe.inventories[id].module = ItemHandlerHelper.copyStackWithSize(player.inventory.getItemStack(), 1);
-			}
-
-			pipe.markDirty();
-
-			if (player.world.isRemote)
-			{
-				IBlockState state = player.world.getBlockState(pipe.getPos());
-				player.world.notifyBlockUpdate(pipe.getPos(), state, state, 11);
-			}
-
-			return true;
-		}
-
 		return false;
 	}
 }

@@ -65,7 +65,7 @@ public class PipeNetwork implements ICapabilityProvider
 	}
 
 	public final World world;
-	public final List<TilePipeBase> pipes = new ArrayList<>();
+	public final List<TilePipeModularMK1> pipes = new ArrayList<>();
 	private boolean refresh = true;
 
 	public PipeNetwork(World w)
@@ -99,9 +99,9 @@ public class PipeNetwork implements ICapabilityProvider
 
 			for (TileEntity tileEntity : world.loadedTileEntityList)
 			{
-				if (!tileEntity.isInvalid() && tileEntity instanceof TilePipeBase)
+				if (!tileEntity.isInvalid() && tileEntity instanceof TilePipeModularMK1)
 				{
-					pipes.add((TilePipeBase) tileEntity);
+					pipes.add((TilePipeModularMK1) tileEntity);
 				}
 			}
 
@@ -113,7 +113,7 @@ public class PipeNetwork implements ICapabilityProvider
 			refresh = false;
 		}
 
-		for (TilePipeBase pipe : pipes)
+		for (TilePipeModularMK1 pipe : pipes)
 		{
 			for (PipeItem item : pipe.items)
 			{
@@ -122,7 +122,7 @@ public class PipeNetwork implements ICapabilityProvider
 			}
 		}
 
-		for (TilePipeBase pipe : pipes)
+		for (TilePipeModularMK1 pipe : pipes)
 		{
 			pipe.tickPipe();
 			pipe.sendUpdates();
@@ -147,7 +147,7 @@ public class PipeNetwork implements ICapabilityProvider
 		GlStateManager.disableLighting();
 		RenderHelper.enableStandardItemLighting();
 
-		for (TilePipeBase pipe : pipes)
+		for (TilePipeModularMK1 pipe : pipes)
 		{
 			if (pipe.items.isEmpty())
 			{

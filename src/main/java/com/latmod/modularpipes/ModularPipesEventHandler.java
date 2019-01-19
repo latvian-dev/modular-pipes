@@ -5,12 +5,13 @@ import com.latmod.modularpipes.block.BlockPipeTransport;
 import com.latmod.modularpipes.block.EnumMK;
 import com.latmod.modularpipes.block.ModularPipesBlocks;
 import com.latmod.modularpipes.item.ItemBlockPipe;
+import com.latmod.modularpipes.item.ItemModule;
 import com.latmod.modularpipes.item.ItemPainter;
-import com.latmod.modularpipes.item.module.ItemModuleCrafting;
-import com.latmod.modularpipes.item.module.ItemModuleExtract;
-import com.latmod.modularpipes.item.module.ItemModuleFluidStorage;
-import com.latmod.modularpipes.item.module.ItemModuleItemStorage;
-import com.latmod.modularpipes.item.module.ItemModuleRightClickExtract;
+import com.latmod.modularpipes.item.module.ModuleCrafting;
+import com.latmod.modularpipes.item.module.ModuleExtract;
+import com.latmod.modularpipes.item.module.ModuleFluidStorage;
+import com.latmod.modularpipes.item.module.ModuleItemStorage;
+import com.latmod.modularpipes.item.module.ModuleRightClickExtract;
 import com.latmod.modularpipes.tile.PipeNetwork;
 import com.latmod.modularpipes.tile.TilePipeModularMK1;
 import com.latmod.modularpipes.tile.TilePipeModularMK2;
@@ -81,11 +82,11 @@ public class ModularPipesEventHandler
 
 		r.register(withName(new ItemPainter(), "painter"));
 		r.register(withName(new Item(), "module"));
-		r.register(withName(new ItemModuleExtract(), "module_extract"));
-		r.register(withName(new ItemModuleRightClickExtract(), "module_rightclick_extract"));
-		r.register(withName(new ItemModuleCrafting(), "module_crafting"));
-		r.register(withName(new ItemModuleItemStorage(), "module_item_storage"));
-		r.register(withName(new ItemModuleFluidStorage(), "module_fluid_storage"));
+		r.register(withName(new ItemModule(ModuleExtract::new), "module_extract"));
+		r.register(withName(new ItemModule(ModuleRightClickExtract::new), "module_rightclick_extract"));
+		r.register(withName(new ItemModule(ModuleCrafting::new), "module_crafting"));
+		r.register(withName(new ItemModule(ModuleItemStorage::new), "module_item_storage"));
+		r.register(withName(new ItemModule(ModuleFluidStorage::new), "module_fluid_storage"));
 	}
 
 	@SubscribeEvent

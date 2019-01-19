@@ -1,7 +1,6 @@
 package com.latmod.modularpipes.item;
 
 import com.latmod.modularpipes.block.PipeSkin;
-import com.latmod.modularpipes.data.IModule;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
@@ -23,7 +22,7 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public class ItemPainter extends Item implements IModule
+public class ItemPainter extends Item
 {
 	public ItemPainter()
 	{
