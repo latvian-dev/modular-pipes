@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"group": "modularpipes:pipe",
+	"result": {"item": "pipe_modular_mk2", "count": 6},
+	"pattern": [
+		"PPP",
+		"GEG",
+		"PPP"
+	],
+	"key": {
+		"P": {"item": "pipe_modular_mk1"},
+		"E": {"type": "forge:ore_dict", "ore": "enderpearl"},
+		"G": {"type": "forge:ore_dict", "ore": "dustGlowstone"}
+	}
+}
