@@ -19,9 +19,4 @@ public class CachedTileEntity
 		tile = t;
 		distance = d;
 	}
-
-	public boolean hasTile()
-	{
-		return tile != null;
-	}
 }

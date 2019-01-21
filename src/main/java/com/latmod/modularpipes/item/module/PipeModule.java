@@ -1,5 +1,6 @@
 package com.latmod.modularpipes.item.module;
 
+import com.latmod.modularpipes.tile.PipeNetwork;
 import com.latmod.modularpipes.tile.TilePipeModularMK1;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -55,10 +56,14 @@ public class PipeModule implements ICapabilityProvider
 
 	public boolean canUpdate()
 	{
-		return true;
+		return false;
 	}
 
 	public void updateModule()
+	{
+	}
+
+	public void clearCache()
 	{
 	}
 
@@ -83,5 +88,20 @@ public class PipeModule implements ICapabilityProvider
 	public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing)
 	{
 		return capability == CAP ? (T) this : null;
+	}
+
+	public final void refreshNetwork()
+	{
+		if (pipe != null && pipe.hasWorld())
+		{
+			PipeNetwork.get(pipe.getWorld()).refresh();
+		}
+	}
+
+	public String toString()
+	{
+		NBTTagCompound nbt = new NBTTagCompound();
+		writeData(nbt);
+		return stack.getItem().getRegistryName() + (nbt.isEmpty() ? "" : ("+" + nbt));
 	}
 }

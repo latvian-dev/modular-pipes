@@ -45,6 +45,6 @@ public class SidePipeModule extends PipeModule
 	@Nullable
 	public TileEntity getFacingTile()
 	{
-		return pipe.getWorld().getTileEntity(pipe.getPos().offset(side));
+		return pipe == null || side == null || !pipe.hasWorld() ? null : pipe.getWorld().getTileEntity(pipe.getPos().offset(side));
 	}
 }

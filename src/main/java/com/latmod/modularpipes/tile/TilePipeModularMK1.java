@@ -1,7 +1,9 @@
 package com.latmod.modularpipes.tile;
 
 import com.latmod.modularpipes.block.EnumMK;
+import com.latmod.modularpipes.item.ItemKey;
 import com.latmod.modularpipes.item.module.PipeModule;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author LatvianModder
@@ -26,6 +29,7 @@ public class TilePipeModularMK1 extends TilePipeBase
 	public List<PipeItem> items = new ArrayList<>(0);
 	public List<PipeModule> modules = new ArrayList<>(0);
 	public final CachedTileEntity[] cachedTiles = new CachedTileEntity[6];
+	public Object2IntOpenHashMap<ItemKey> itemDirections = new Object2IntOpenHashMap<>(0);
 
 	@Override
 	public void writeData(NBTTagCompound nbt)
@@ -148,11 +152,14 @@ public class TilePipeModularMK1 extends TilePipeBase
 
 	public void tickPipe()
 	{
-		for (PipeModule module : modules)
+		if (!modules.isEmpty())
 		{
-			if (module.canUpdate())
+			for (PipeModule module : modules)
 			{
-				module.updateModule();
+				if (module.canUpdate())
+				{
+					module.updateModule();
+				}
 			}
 		}
 
@@ -225,6 +232,12 @@ public class TilePipeModularMK1 extends TilePipeBase
 	{
 		super.updateContainingBlockInfo();
 		Arrays.fill(cachedTiles, null);
+		itemDirections = new Object2IntOpenHashMap<>(0);
+
+		for (PipeModule module : modules)
+		{
+			module.clearCache();
+		}
 	}
 
 	public CachedTileEntity getTile(EnumFacing facing)
@@ -240,15 +253,21 @@ public class TilePipeModularMK1 extends TilePipeBase
 
 			if (tileEntity instanceof TilePipeModularMK1)
 			{
-				cachedTiles[f] = new CachedTileEntity(tileEntity, 1);
+				if (canPipesConnect(((TilePipeModularMK1) tileEntity).skin))
+				{
+					cachedTiles[f] = new CachedTileEntity(tileEntity, 1);
+				}
 			}
 			else if (tileEntity instanceof TilePipeTransport)
 			{
-				cachedTiles[f] = ((TilePipeTransport) tileEntity).findNextOne(facing.getOpposite(), 1);
-
-				if (cachedTiles[f].tile == this)
+				if (canPipesConnect(((TilePipeTransport) tileEntity).skin))
 				{
-					cachedTiles[f] = CachedTileEntity.NONE;
+					cachedTiles[f] = ((TilePipeTransport) tileEntity).findNextOne(facing.getOpposite(), 1);
+
+					if (cachedTiles[f].tile == this)
+					{
+						cachedTiles[f] = CachedTileEntity.NONE;
+					}
 				}
 			}
 			else if (tileEntity != null)
@@ -256,7 +275,7 @@ public class TilePipeModularMK1 extends TilePipeBase
 				cachedTiles[f] = new CachedTileEntity(tileEntity, 1);
 			}
 
-			if (cachedTiles[f].hasTile())
+			if (cachedTiles[f].tile != null)
 			{
 				for (int i = 0; i < 6; i++)
 				{
@@ -407,4 +426,18 @@ public class TilePipeModularMK1 extends TilePipeBase
 		return pos == 0 ? facing.getIndex() : dirs[pipe.getWorld().rand.nextInt(pos)];
 	}
 	*/
+
+	public void getNetwork(Set<TilePipeModularMK1> set)
+	{
+		for (EnumFacing facing : EnumFacing.VALUES)
+		{
+			TileEntity tileEntity = getTile(facing).tile;
+
+			if (tileEntity instanceof TilePipeModularMK1 && !set.contains(tileEntity))
+			{
+				set.add((TilePipeModularMK1) tileEntity);
+				((TilePipeModularMK1) tileEntity).getNetwork(set);
+			}
+		}
+	}
 }

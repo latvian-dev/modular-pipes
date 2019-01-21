@@ -4,6 +4,7 @@ import com.latmod.modularpipes.ModularPipes;
 import com.latmod.modularpipes.item.ItemBlockPipe;
 import com.latmod.modularpipes.item.module.PipeModule;
 import com.latmod.modularpipes.tile.CachedTileEntity;
+import com.latmod.modularpipes.tile.PipeNetwork;
 import com.latmod.modularpipes.tile.TilePipeBase;
 import com.latmod.modularpipes.tile.TilePipeModularMK1;
 import net.minecraft.block.Block;
@@ -30,6 +31,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nullable;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -134,13 +136,14 @@ public class BlockPipeModular extends BlockPipeBase
 				{
 					if (!world.isRemote)
 					{
-						ItemHandlerHelper.giveItemToPlayer(player, module.stack, player.inventory.currentItem);
+						ItemHandlerHelper.giveItemToPlayer(player, module.stack);
 					}
 
 					module.onRemoved(player);
 					iterator.remove();
 					tileEntity.markDirty();
 					world.notifyBlockUpdate(pos, state, state, 11);
+					PipeNetwork.get(world).refresh();
 					return true;
 				}
 			}
@@ -170,6 +173,7 @@ public class BlockPipeModular extends BlockPipeBase
 
 						tileEntity.markDirty();
 						world.notifyBlockUpdate(pos, state, state, 11);
+						PipeNetwork.get(world).refresh();
 						return true;
 					}
 				}
@@ -181,7 +185,7 @@ public class BlockPipeModular extends BlockPipeBase
 
 		for (PipeModule module : pipe.modules)
 		{
-			if (module.onModuleRightClick(player, hand))
+			if (module.isConnected(side) && module.onModuleRightClick(player, hand))
 			{
 				return true;
 			}
@@ -189,17 +193,33 @@ public class BlockPipeModular extends BlockPipeBase
 
 		if (!world.isRemote)
 		{
-			player.sendMessage(new TextComponentString("Network: " + world.getTotalWorldTime()));
-
-			for (EnumFacing facing1 : EnumFacing.VALUES)
+			if (player.isSneaking())
 			{
-				CachedTileEntity t = pipe.getTile(facing1);
+				HashSet<TilePipeModularMK1> set = new HashSet<>();
+				pipe.getNetwork(set);
 
-				if (t.hasTile())
+				player.sendMessage(new TextComponentString("Network: " + world.getTotalWorldTime() + " [" + set.size() + "]"));
+
+				for (TilePipeModularMK1 pipe1 : set)
 				{
-					player.sendMessage(new TextComponentString(String.format("- %s#%08X [%d, %s]", t.tile.getClass().getSimpleName(), t.tile.hashCode(), t.distance, facing1.getName())));
+					player.sendMessage(new TextComponentString(String.format("- %s#%08X", pipe1.getClass().getSimpleName(), pipe1.hashCode())));
 				}
 			}
+			else
+			{
+				player.sendMessage(new TextComponentString("Network: " + world.getTotalWorldTime()));
+
+				for (EnumFacing facing1 : EnumFacing.VALUES)
+				{
+					CachedTileEntity t = pipe.getTile(facing1);
+
+					if (t.tile != null)
+					{
+						player.sendMessage(new TextComponentString(String.format("- %s#%08X [%d, %s]", t.tile.getClass().getSimpleName(), t.tile.hashCode(), t.distance, facing1.getName())));
+					}
+				}
+			}
+
 			//player.openGui(ModularPipes.INSTANCE, facing.getIndex(), world, pos.getX(), pos.getY(), pos.getZ());
 		}
 
