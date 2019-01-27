@@ -70,7 +70,7 @@ public class ModelPipe implements IModel
 
 	public final Collection<ResourceLocation> models;
 	public final ResourceLocation modelBase, modelConnection, modelVertical;
-	public final ResourceLocation modelOverlay;
+	public final ResourceLocation modelOverlay, modelModule;
 	public final ResourceLocation modelGlassBase, modelGlassConnection, modelGlassVertical;
 
 	public final Collection<ResourceLocation> textures;
@@ -84,6 +84,7 @@ public class ModelPipe implements IModel
 		models0.add(modelConnection = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/connection"));
 		models0.add(modelVertical = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/vertical"));
 		models0.add(modelOverlay = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/overlay"));
+		models0.add(modelModule = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/module"));
 		models0.add(modelGlassBase = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass_base"));
 		models0.add(modelGlassConnection = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass_connection"));
 		models0.add(modelGlassVertical = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass_vertical"));
@@ -121,7 +122,7 @@ public class ModelPipe implements IModel
 	@Override
 	public IBakedModel bake(IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> tex)
 	{
-		return new ModelPipeBaked(this, tex.apply(textureParticle), (id, rotation, retextures) ->
+		return new ModelPipeBaked(this, tex.apply(textureParticle), (id, rotation, uvlock, retextures) ->
 		{
 			ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
 
@@ -130,7 +131,7 @@ public class ModelPipe implements IModel
 				builder.put(new AbstractMap.SimpleEntry<>(entry.getKey().toString(), new ResourceLocation(entry.getValue().toString()).toString()));
 			}
 
-			IModel model = ModelLoaderRegistry.getModelOrMissing(id).uvlock(true).retexture(builder.build());//.smoothLighting(false);
+			IModel model = ModelLoaderRegistry.getModelOrMissing(id).uvlock(uvlock).retexture(builder.build());//.smoothLighting(false);
 			IBakedModel bakedModel = model.bake(rotation, format, tex);
 			return Arrays.asList(bakedModel.getQuads(null, null, 0L).toArray(new BakedQuad[0]));
 		});
@@ -138,6 +139,11 @@ public class ModelPipe implements IModel
 
 	public interface ModelCallback
 	{
-		List<BakedQuad> get(ResourceLocation id, ModelRotation rotation, Map.Entry... retextures);
+		List<BakedQuad> get(ResourceLocation id, ModelRotation rotation, boolean uvlock, Map.Entry... retextures);
+
+		default List<BakedQuad> get(ResourceLocation id, ModelRotation rotation, Map.Entry... retextures)
+		{
+			return get(id, rotation, true, retextures);
+		}
 	}
 }

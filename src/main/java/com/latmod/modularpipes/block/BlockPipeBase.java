@@ -209,19 +209,7 @@ public class BlockPipeBase extends Block
 	@Deprecated
 	public boolean shouldSideBeRendered(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side)
 	{
-		TileEntity tileEntity0 = world.getTileEntity(pos);
-
-		if (tileEntity0 instanceof TilePipeBase)
-		{
-			TileEntity tileEntity = world.getTileEntity(pos.offset(side));
-
-			if (tileEntity instanceof TilePipeBase && ((TilePipeBase) tileEntity0).canPipesConnect(((TilePipeBase) tileEntity).skin))
-			{
-				return false;
-			}
-		}
-
-		return super.shouldSideBeRendered(state, world, pos, side);
+		return false;
 	}
 
 	@Override

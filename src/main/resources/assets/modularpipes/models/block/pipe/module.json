@@ -1,0 +1,22 @@
+{
+	"parent": "block/block",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"module": "modularpipes:blocks/pipe/module",
+		"particle": "modularpipes:blocks/pipe/module"
+	},
+	"elements": [
+		{
+			"from": [3, 0, 3],
+			"to": [13, 2, 13],
+			"faces": {
+				"north": {"uv": [3, 14, 13, 16], "texture": "#module"},
+				"east": {"uv": [13, 16, 3, 14], "texture": "#module"},
+				"south": {"uv": [3, 14, 13, 16], "texture": "#module"},
+				"west": {"uv": [3, 14, 13, 16], "texture": "#module"},
+				"up": {"uv": [3, 3, 13, 13], "texture": "#module"},
+				"down": {"uv": [3, 3, 13, 13], "texture": "#module"}
+			}
+		}
+	]
+}

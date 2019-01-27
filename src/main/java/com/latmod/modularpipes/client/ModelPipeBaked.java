@@ -4,6 +4,7 @@ import com.latmod.modularpipes.block.BlockPipeBase;
 import com.latmod.modularpipes.block.BlockPipeModular;
 import com.latmod.modularpipes.block.EnumMK;
 import com.latmod.modularpipes.block.PipeSkin;
+import com.latmod.modularpipes.item.module.PipeModule;
 import com.latmod.modularpipes.tile.TilePipeBase;
 import com.latmod.modularpipes.tile.TilePipeModularMK1;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -40,7 +41,7 @@ public class ModelPipeBaked implements IBakedModel
 {
 	public final TextureAtlasSprite particle;
 	public final Map<PipeSkin, List<List<BakedQuad>>> base, connection;
-	public final List<List<BakedQuad>> glassBase, glassConnection, overlay;
+	public final List<List<BakedQuad>> glassBase, glassConnection, overlay, module;
 	private final Map<PipeSkin, Int2ObjectOpenHashMap<List<BakedQuad>>> cache;
 	private final IBakedModel bakedItem;
 	private final IBakedModel[] bakedItemWithOverlay;
@@ -94,6 +95,13 @@ public class ModelPipeBaked implements IBakedModel
 		for (int i = 0; i < EnumMK.VALUES.length; i++)
 		{
 			overlay.add(c.get(m.modelOverlay, ModelRotation.X0_Y0, new AbstractMap.SimpleEntry<>("overlay", m.overlayTextures[i])));
+		}
+
+		module = new ArrayList<>(6);
+
+		for (int i = 0; i < 6; i++)
+		{
+			module.add(c.get(m.modelModule, ModelPipe.FACE_ROTATIONS[i], false));
 		}
 
 		cache = new HashMap<>();
@@ -175,6 +183,37 @@ public class ModelPipeBaked implements IBakedModel
 				break;
 		}
 
+		List<BakedQuad> extraQuads = null;
+
+		if (pipe instanceof TilePipeModularMK1)
+		{
+			int[] modules = new int[6];
+
+			for (PipeModule module : ((TilePipeModularMK1) pipe).modules)
+			{
+				for (int i = 0; i < 6; i++)
+				{
+					if (module.isConnected(EnumFacing.VALUES[i]))
+					{
+						modules[i]++;
+					}
+				}
+			}
+
+			for (int i = 0; i < 6; i++)
+			{
+				if (modules[i] > 0)
+				{
+					if (extraQuads == null)
+					{
+						extraQuads = new ArrayList<>();
+					}
+
+					extraQuads.addAll(module.get(i));
+				}
+			}
+		}
+
 		Int2ObjectOpenHashMap<List<BakedQuad>> cacheMap = cache.get(pipe.skin);
 
 		if (cacheMap == null)
@@ -189,6 +228,14 @@ public class ModelPipeBaked implements IBakedModel
 
 		if (quads != null)
 		{
+			if (extraQuads != null)
+			{
+				ArrayList<BakedQuad> combined = new ArrayList<>(extraQuads.size() + quads.size());
+				combined.addAll(quads);
+				combined.addAll(extraQuads);
+				return combined;
+			}
+
 			return quads;
 		}
 
@@ -228,6 +275,15 @@ public class ModelPipeBaked implements IBakedModel
 
 		quads = Collections.unmodifiableList(Arrays.asList(quads.toArray(new BakedQuad[0])));
 		cacheMap.put(cacheIndex, quads);
+
+		if (extraQuads != null)
+		{
+			ArrayList<BakedQuad> combined = new ArrayList<>(extraQuads.size() + quads.size());
+			combined.addAll(quads);
+			combined.addAll(extraQuads);
+			return combined;
+		}
+
 		return quads;
 	}
 
