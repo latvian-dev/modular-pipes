@@ -39,19 +39,25 @@ public class ModularPipesClientEventHandler
 	{
 		ModelLoaderRegistry.registerLoader(ModelPipeLoader.INSTANCE);
 
-		//addModel(ModularPipesItems.CONTROLLER, "error=false");
 		addPipeModel(ModularPipesBlocks.PIPE_TRANSPORT, ModularPipesItems.PIPE_TRANSPORT);
 		addPipeModel(ModularPipesBlocks.PIPE_MODULAR_MK1, ModularPipesItems.PIPE_MODULAR_MK1);
 		addPipeModel(ModularPipesBlocks.PIPE_MODULAR_MK2, ModularPipesItems.PIPE_MODULAR_MK2);
 		addPipeModel(ModularPipesBlocks.PIPE_MODULAR_MK3, ModularPipesItems.PIPE_MODULAR_MK3);
+		addModel(ModularPipesItems.TANK, "normal");
+		addModel(ModularPipesItems.MODULAR_STORAGE, "normal");
+		addModel(ModularPipesItems.MODULAR_TANK, "normal");
 
 		addModel(ModularPipesItems.PAINTER, "inventory");
 		addModel(ModularPipesItems.MODULE, "inventory");
-		addModel(ModularPipesItems.MODULE_EXTRACT, "inventory");
-		addModel(ModularPipesItems.MODULE_RIGHTCLICK_EXTRACT, "inventory");
-		addModel(ModularPipesItems.MODULE_CRAFTING, "inventory");
 		addModel(ModularPipesItems.MODULE_ITEM_STORAGE, "inventory");
+		addModel(ModularPipesItems.MODULE_ITEM_BASE, "inventory");
+		addModel(ModularPipesItems.MODULE_ITEM_EXTRACT, "inventory");
+		addModel(ModularPipesItems.MODULE_ITEM_INSERT, "inventory");
 		addModel(ModularPipesItems.MODULE_FLUID_STORAGE, "inventory");
+		addModel(ModularPipesItems.MODULE_FLUID_BASE, "inventory");
+		addModel(ModularPipesItems.MODULE_FLUID_EXTRACT, "inventory");
+		addModel(ModularPipesItems.MODULE_FLUID_INSERT, "inventory");
+		addModel(ModularPipesItems.MODULE_CRAFTING, "inventory");
 	}
 
 	@SubscribeEvent

@@ -1,0 +1,8 @@
+{
+	"parent": "modularpipes:item/module_base",
+	"textures": {
+		"tex": "modularpipes:items/modules/item/base",
+		"layer2": "modularpipes:items/modules/extract_center",
+		"layer3": "modularpipes:items/modules/extract_sides"
+	}
+}

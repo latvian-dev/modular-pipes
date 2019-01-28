@@ -12,12 +12,25 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nullable;
+import java.util.Comparator;
 
 /**
  * @author LatvianModder
  */
 public class ModuleItemStorage extends SidePipeModule
 {
+	public static final Comparator<ModuleItemStorage> COMPARATOR = (o1, o2) ->
+	{
+		int i = Integer.compare(o2.priority, o1.priority);
+
+		if (i == 0)
+		{
+			return Boolean.compare(o1.filter.isEmpty(), o2.filter.isEmpty());
+		}
+
+		return i;
+	};
+
 	public ItemStack filter = ItemStack.EMPTY;
 	public int priority = 0;
 	private TileEntity tileEntity = null;

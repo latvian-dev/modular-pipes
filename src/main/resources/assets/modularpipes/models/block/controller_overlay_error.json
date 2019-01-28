@@ -1,6 +1,0 @@
-{
-	"parent": "modularpipes:block/controller_overlay",
-	"textures": {
-		"overlay": "modularpipes:blocks/controller_error"
-	}
-}

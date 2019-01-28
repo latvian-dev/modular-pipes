@@ -12,11 +12,18 @@ import java.util.Objects;
  */
 public final class ItemKey
 {
+	public static final ItemKey EMPTY = new ItemKey(ItemStack.EMPTY);
+
+	public static ItemKey of(ItemStack stack)
+	{
+		return stack.isEmpty() ? EMPTY : new ItemKey(stack);
+	}
+
 	public final Item item;
 	public final int metadata;
 	public final NBTTagCompound nbt;
 
-	public ItemKey(ItemStack stack)
+	private ItemKey(ItemStack stack)
 	{
 		item = stack.getItem();
 		metadata = stack.getHasSubtypes() ? stack.getMetadata() : OreDictionary.WILDCARD_VALUE;

@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"group": "modularpipes:storage",
+	"result": {"item": "modular_storage"},
+	"pattern": [
+		" C ",
+		"CPC",
+		" C "
+	],
+	"key": {
+		"P": {"item": "module"},
+		"C": {"type": "forge:ore_dict", "ore": "chest"}
+	}
+}

@@ -7,6 +7,9 @@ tile.modularpipes.pipe_transport.name=Transport Pipe
 tile.modularpipes.pipe_modular_mk1.name=Modular Pipe MK1
 tile.modularpipes.pipe_modular_mk2.name=Modular Pipe MK2
 tile.modularpipes.pipe_modular_mk3.name=Modular Pipe MK3
+tile.modularpipes.tank.name=Tank
+tile.modularpipes.modular_storage.name=Modular Storage
+tile.modularpipes.modular_tank.name=Modular Tank
 
 # Items
 item.modularpipes.tool.name=Pipe Tool Base
@@ -17,11 +20,15 @@ item.modularpipes.module.name=Pipe Module
 item.modularpipes.module.cleared_data=Cleared Module Data
 item.modularpipes.module.cant_insert=Can't insert any more modules!
 
-item.modularpipes.module_extract.name=Extract
-item.modularpipes.module_rightclick_extract.name=Extract On Right-click
-item.modularpipes.module_crafting.name=Crafting
 item.modularpipes.module_item_storage.name=Item Storage
+item.modularpipes.module_item_base.name=Item Base
+item.modularpipes.module_item_extract.name=Extract Item
+item.modularpipes.module_item_insert.name=Insert Item
 item.modularpipes.module_fluid_storage.name=Fluid Storage
+item.modularpipes.module_fluid_base.name=Fluid Base
+item.modularpipes.module_fluid_extract.name=Extract Fluid
+item.modularpipes.module_fluid_insert.name=Insert Fluid
+item.modularpipes.module_crafting.name=Crafting
 
 # Config
 modularpipes.general.dev_mode=Dev Mode

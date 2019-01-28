@@ -1,1 +1,1 @@
-{"parent": "modularpipes:item/module_base", "textures": {"tex": "modularpipes:items/modules/fluid_storage"}}
+{"parent": "modularpipes:item/module_base", "textures": {"tex": "modularpipes:items/modules/fluid/storage"}}
