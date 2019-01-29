@@ -1,7 +1,7 @@
 package com.latmod.mods.modularpipes;
 
-import com.latmod.mods.modularpipes.gui.ModularPipesGuiHandler;
 import com.latmod.mods.modularpipes.block.PipeSkin;
+import com.latmod.mods.modularpipes.gui.ModularPipesGuiHandler;
 import com.latmod.mods.modularpipes.item.ModularPipesItems;
 import com.latmod.mods.modularpipes.item.module.PipeModule;
 import com.latmod.mods.modularpipes.net.ModularPipesNet;
@@ -41,7 +41,7 @@ public class ModularPipes
 	@Mod.Instance(MOD_ID)
 	public static ModularPipes INSTANCE;
 
-	@SidedProxy(serverSide = "ModularPipesCommon", clientSide = "ModularPipesClient")
+	@SidedProxy(serverSide = "com.latmod.mods.modularpipes.ModularPipesCommon", clientSide = "com.latmod.mods.modularpipes.client.ModularPipesClient")
 	public static ModularPipesCommon PROXY;
 
 	public static final CreativeTabs TAB = new CreativeTabs(MOD_ID)

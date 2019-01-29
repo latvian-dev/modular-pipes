@@ -1,12 +1,12 @@
 package com.latmod.mods.modularpipes.block;
 
 import com.latmod.mods.modularpipes.ModularPipes;
-import com.latmod.mods.modularpipes.item.module.PipeModule;
-import com.latmod.mods.modularpipes.tile.PipeNetwork;
-import com.latmod.mods.modularpipes.tile.TilePipeModularMK1;
 import com.latmod.mods.modularpipes.item.ItemBlockPipe;
+import com.latmod.mods.modularpipes.item.module.PipeModule;
 import com.latmod.mods.modularpipes.tile.CachedTileEntity;
+import com.latmod.mods.modularpipes.tile.PipeNetwork;
 import com.latmod.mods.modularpipes.tile.TilePipeBase;
+import com.latmod.mods.modularpipes.tile.TilePipeModularMK1;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.state.IBlockState;
@@ -76,7 +76,7 @@ public class BlockPipeModular extends BlockPipeBase
 	@Deprecated
 	public int getPackedLightmapCoords(IBlockState state, IBlockAccess source, BlockPos pos)
 	{
-		if (MinecraftForgeClient.getRenderLayer() == BlockRenderLayer.TRANSLUCENT)
+		if (MinecraftForgeClient.getRenderLayer() == BlockRenderLayer.CUTOUT)
 		{
 			int result = source.getCombinedLight(pos, 15);
 			int skylight = (result >> 16) & 0xFFFF;
