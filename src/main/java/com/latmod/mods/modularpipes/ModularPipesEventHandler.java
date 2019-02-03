@@ -1,6 +1,5 @@
 package com.latmod.mods.modularpipes;
 
-import com.latmod.mods.modularpipes.item.ItemPainter;
 import com.latmod.mods.modularpipes.block.BlockModularStorage;
 import com.latmod.mods.modularpipes.block.BlockModularTank;
 import com.latmod.mods.modularpipes.block.BlockPipeModular;
@@ -9,7 +8,9 @@ import com.latmod.mods.modularpipes.block.BlockTank;
 import com.latmod.mods.modularpipes.block.EnumMK;
 import com.latmod.mods.modularpipes.block.ModularPipesBlocks;
 import com.latmod.mods.modularpipes.item.ItemBlockPipe;
+import com.latmod.mods.modularpipes.item.ItemBlockTank;
 import com.latmod.mods.modularpipes.item.ItemModule;
+import com.latmod.mods.modularpipes.item.ItemPainter;
 import com.latmod.mods.modularpipes.item.module.ModuleCrafting;
 import com.latmod.mods.modularpipes.item.module.fluid.ModuleFluidExtract;
 import com.latmod.mods.modularpipes.item.module.fluid.ModuleFluidHandler;
@@ -97,7 +98,7 @@ public class ModularPipesEventHandler
 		r.register(new ItemBlockPipe(ModularPipesBlocks.PIPE_MODULAR_MK1).setRegistryName("pipe_modular_mk1"));
 		r.register(new ItemBlockPipe(ModularPipesBlocks.PIPE_MODULAR_MK2).setRegistryName("pipe_modular_mk2"));
 		r.register(new ItemBlockPipe(ModularPipesBlocks.PIPE_MODULAR_MK3).setRegistryName("pipe_modular_mk3"));
-		r.register(new ItemBlock(ModularPipesBlocks.TANK).setRegistryName("tank"));
+		r.register(new ItemBlockTank(ModularPipesBlocks.TANK).setRegistryName("tank"));
 		r.register(new ItemBlock(ModularPipesBlocks.MODULAR_STORAGE).setRegistryName("modular_storage"));
 		r.register(new ItemBlock(ModularPipesBlocks.MODULAR_TANK).setRegistryName("modular_tank"));
 

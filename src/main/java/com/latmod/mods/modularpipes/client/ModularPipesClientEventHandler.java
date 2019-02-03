@@ -4,6 +4,7 @@ import com.latmod.mods.modularpipes.ModularPipes;
 import com.latmod.mods.modularpipes.block.ModularPipesBlocks;
 import com.latmod.mods.modularpipes.item.ModularPipesItems;
 import com.latmod.mods.modularpipes.tile.PipeNetwork;
+import com.latmod.mods.modularpipes.tile.TileTank;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -12,6 +13,7 @@ import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -43,7 +45,7 @@ public class ModularPipesClientEventHandler
 		addPipeModel(ModularPipesBlocks.PIPE_MODULAR_MK1, ModularPipesItems.PIPE_MODULAR_MK1);
 		addPipeModel(ModularPipesBlocks.PIPE_MODULAR_MK2, ModularPipesItems.PIPE_MODULAR_MK2);
 		addPipeModel(ModularPipesBlocks.PIPE_MODULAR_MK3, ModularPipesItems.PIPE_MODULAR_MK3);
-		addModel(ModularPipesItems.TANK, "normal");
+		addModel(ModularPipesItems.TANK, "down=false,up=false");
 		addModel(ModularPipesItems.MODULAR_STORAGE, "normal");
 		addModel(ModularPipesItems.MODULAR_TANK, "normal");
 
@@ -58,6 +60,8 @@ public class ModularPipesClientEventHandler
 		addModel(ModularPipesItems.MODULE_FLUID_EXTRACT, "inventory");
 		addModel(ModularPipesItems.MODULE_FLUID_INSERT, "inventory");
 		addModel(ModularPipesItems.MODULE_CRAFTING, "inventory");
+
+		ClientRegistry.bindTileEntitySpecialRenderer(TileTank.class, new RenderTank());
 	}
 
 	@SubscribeEvent

@@ -1,5 +1,8 @@
 {
 	"variants": {
-		"normal": [{"model": "modularpipes:tank"}]
+		"down=false,up=false": {"model": "modularpipes:tank_single"},
+		"down=true,up=false": {"model": "modularpipes:tank_top"},
+		"down=false,up=true": {"model": "modularpipes:tank_bottom"},
+		"down=true,up=true": {"model": "modularpipes:tank_middle"}
 	}
 }
