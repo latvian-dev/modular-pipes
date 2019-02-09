@@ -1,16 +1,26 @@
 package com.latmod.mods.modularpipes.client;
 
+import com.latmod.mods.modularpipes.block.ModularPipesBlocks;
+import com.latmod.mods.modularpipes.item.ItemBlockTank;
 import com.latmod.mods.modularpipes.tile.TileTank;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.lwjgl.opengl.GL11;
 
 /**
@@ -18,6 +28,8 @@ import org.lwjgl.opengl.GL11;
  */
 public class RenderTank extends TileEntitySpecialRenderer<TileTank>
 {
+	private static final TileTank DUMMY = new TileTank();
+
 	@Override
 	public void render(TileTank tile, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
 	{
@@ -28,7 +40,7 @@ public class RenderTank extends TileEntitySpecialRenderer<TileTank>
 			return;
 		}
 
-		RenderHelper.disableStandardItemLighting();
+		Minecraft mc = Minecraft.getMinecraft();
 		GlStateManager.enableBlend();
 		GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
@@ -39,19 +51,22 @@ public class RenderTank extends TileEntitySpecialRenderer<TileTank>
 		double y11 = o1;
 		boolean upEmpty = false;
 
-		TileEntity other = tile.getWorld().getTileEntity(tile.getPos().down());
-
-		if (other instanceof TileTank)
+		if (tile != DUMMY)
 		{
-			y0 = 0D;
-		}
+			TileEntity other = tile.getWorld().getTileEntity(tile.getPos().down());
 
-		other = tile.getWorld().getTileEntity(tile.getPos().up());
+			if (other instanceof TileTank)
+			{
+				y0 = 0D;
+			}
 
-		if (other instanceof TileTank)
-		{
-			y11 = 1D;
-			upEmpty = ((TileTank) other).tank.getFluidAmount() <= 0;
+			other = tile.getWorld().getTileEntity(tile.getPos().up());
+
+			if (other instanceof TileTank)
+			{
+				y11 = 1D;
+				upEmpty = ((TileTank) other).tank.getFluidAmount() <= 0;
+			}
 		}
 
 		double y1 = y0 + ((y11 - y0) * amount / (double) tile.tank.getCapacity());
@@ -63,11 +78,12 @@ public class RenderTank extends TileEntitySpecialRenderer<TileTank>
 		GlStateManager.rotate(180F, 0F, 0F, 1F);
 		GlStateManager.rotate(180F, 1F, 0F, 0F);
 		GlStateManager.translate(-0.5F, -0.5F, -0.5F);
-		Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(tile.tank.getFluid().getFluid().getStill(tile.tank.getFluid()).toString());
+		mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+		TextureAtlasSprite sprite = mc.getTextureMapBlocks().getAtlasSprite(tile.tank.getFluid().getFluid().getStill(tile.tank.getFluid()).toString());
 
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder buffer = tessellator.getBuffer();
+		RenderHelper.disableStandardItemLighting();
 		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 
 		double u0 = sprite.getMinU();
@@ -126,5 +142,47 @@ public class RenderTank extends TileEntitySpecialRenderer<TileTank>
 		tessellator.draw();
 		GlStateManager.popMatrix();
 		RenderHelper.enableStandardItemLighting();
+	}
+
+	public static class TankTEISR extends TileEntityItemStackRenderer
+	{
+		@Override
+		public void renderByItem(ItemStack stack, float partialTicks)
+		{
+			Minecraft mc = Minecraft.getMinecraft();
+
+			if (mc.world != null && mc.player != null)
+			{
+				try
+				{
+					GlStateManager.disableLighting();
+					RenderHelper.enableStandardItemLighting();
+					IBlockState state = ModularPipesBlocks.TANK.getDefaultState();
+					BlockPos pos = new BlockPos(mc.player.posX, 255, mc.player.posZ);
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(-pos.getX(), -pos.getY(), -pos.getZ());
+					Tessellator tessellator = Tessellator.getInstance();
+					BufferBuilder buffer = tessellator.getBuffer();
+					buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
+					BlockRendererDispatcher rendererDispatcher = mc.getBlockRendererDispatcher();
+					rendererDispatcher.getBlockModelRenderer().renderModelSmooth(mc.world, rendererDispatcher.getModelForState(state), state, pos, buffer, false, 0L);
+					tessellator.draw();
+					GlStateManager.popMatrix();
+					GlStateManager.enableLighting();
+				}
+				catch (Exception ex)
+				{
+				}
+			}
+
+			IFluidHandler handler = stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
+
+			if (handler instanceof ItemBlockTank.TankCapProvider)
+			{
+				DUMMY.tank.setFluid(((ItemBlockTank.TankCapProvider) handler).tank.getFluid());
+			}
+
+			TileEntityRendererDispatcher.instance.render(DUMMY, 0D, 0D, 0D, partialTicks);
+		}
 	}
 }

@@ -45,7 +45,7 @@ public class ModularPipesClientEventHandler
 		addPipeModel(ModularPipesBlocks.PIPE_MODULAR_MK1, ModularPipesItems.PIPE_MODULAR_MK1);
 		addPipeModel(ModularPipesBlocks.PIPE_MODULAR_MK2, ModularPipesItems.PIPE_MODULAR_MK2);
 		addPipeModel(ModularPipesBlocks.PIPE_MODULAR_MK3, ModularPipesItems.PIPE_MODULAR_MK3);
-		addModel(ModularPipesItems.TANK, "down=false,up=false");
+		addModel(ModularPipesItems.TANK, "inventory");
 		addModel(ModularPipesItems.MODULAR_STORAGE, "normal");
 		addModel(ModularPipesItems.MODULAR_TANK, "normal");
 
@@ -62,6 +62,7 @@ public class ModularPipesClientEventHandler
 		addModel(ModularPipesItems.MODULE_CRAFTING, "inventory");
 
 		ClientRegistry.bindTileEntitySpecialRenderer(TileTank.class, new RenderTank());
+		ModularPipesItems.TANK.setTileEntityItemStackRenderer(new RenderTank.TankTEISR());
 	}
 
 	@SubscribeEvent
