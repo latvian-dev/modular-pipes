@@ -1,9 +1,0 @@
-{
-	"type": "minecraft:crafting_shapeless",
-	"group": "modularpipes:module",
-	"result": {"item": "module_rightclick_extract"},
-	"ingredients": [
-		{"item": "module"},
-		{"item": "minecraft:clock"}
-	]
-}
