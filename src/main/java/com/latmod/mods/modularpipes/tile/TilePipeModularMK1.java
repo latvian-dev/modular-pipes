@@ -1,8 +1,9 @@
 package com.latmod.mods.modularpipes.tile;
 
-import com.latmod.mods.modularpipes.item.module.PipeModule;
+import com.latmod.mods.modularpipes.ModularPipesConfig;
 import com.latmod.mods.modularpipes.block.EnumMK;
 import com.latmod.mods.modularpipes.item.ItemKey;
+import com.latmod.mods.modularpipes.item.module.PipeModule;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
@@ -13,6 +14,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.IEnergyStorage;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -24,12 +27,14 @@ import java.util.Set;
 /**
  * @author LatvianModder
  */
-public class TilePipeModularMK1 extends TilePipeBase
+public class TilePipeModularMK1 extends TilePipeBase implements IEnergyStorage
 {
 	public List<PipeItem> items = new ArrayList<>(0);
 	public List<PipeModule> modules = new ArrayList<>(0);
 	public final CachedTileEntity[] cachedTiles = new CachedTileEntity[6];
 	public Object2IntOpenHashMap<ItemKey> itemDirections = new Object2IntOpenHashMap<>(0);
+	public int storedPower = 0;
+	private int powerOutputIndex = -1;
 
 	@Override
 	public void writeData(NBTTagCompound nbt)
@@ -67,6 +72,11 @@ public class TilePipeModularMK1 extends TilePipeBase
 			}
 
 			nbt.setTag("items", list);
+		}
+
+		if (storedPower > 0)
+		{
+			nbt.setInteger("power", storedPower);
 		}
 	}
 
@@ -107,11 +117,18 @@ public class TilePipeModularMK1 extends TilePipeBase
 				items.add(item);
 			}
 		}
+
+		storedPower = nbt.getInteger("power");
 	}
 
 	@Override
 	public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing side)
 	{
+		if (capability == CapabilityEnergy.ENERGY && side == null)
+		{
+			return true;
+		}
+
 		for (PipeModule module : modules)
 		{
 			if (module.hasCapability(capability, side))
@@ -126,6 +143,11 @@ public class TilePipeModularMK1 extends TilePipeBase
 	@Override
 	public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing side)
 	{
+		if (capability == CapabilityEnergy.ENERGY && side == null)
+		{
+			return (T) this;
+		}
+
 		for (PipeModule module : modules)
 		{
 			T t = module.getCapability(capability, side);
@@ -161,6 +183,41 @@ public class TilePipeModularMK1 extends TilePipeBase
 					module.updateModule();
 				}
 			}
+		}
+
+		if (!world.isRemote && world.getTotalWorldTime() % 5L == 0L)
+		{
+			if (powerOutputIndex == -1)
+			{
+				powerOutputIndex = hashCode() % 6;
+
+				if (powerOutputIndex < 0)
+				{
+					powerOutputIndex = 6 - powerOutputIndex;
+				}
+			}
+
+			CachedTileEntity tileEntity = getTile(EnumFacing.byIndex(powerOutputIndex));
+
+			if (tileEntity.tile instanceof TilePipeModularMK1)
+			{
+				TilePipeModularMK1 pipe = (TilePipeModularMK1) tileEntity.tile;
+
+				if (Math.abs(storedPower - pipe.storedPower) > 1)
+				{
+					int a = (storedPower + pipe.storedPower) / 2;
+
+					storedPower = a;
+					markDirty();
+					sync = false;
+
+					pipe.storedPower = a;
+					pipe.markDirty();
+					pipe.sync = false;
+				}
+			}
+
+			powerOutputIndex++;
 		}
 
 		if (items.isEmpty())
@@ -439,5 +496,41 @@ public class TilePipeModularMK1 extends TilePipeBase
 				((TilePipeModularMK1) tileEntity).getNetwork(set);
 			}
 		}
+	}
+
+	@Override
+	public int receiveEnergy(int maxReceive, boolean simulate)
+	{
+		return 0;
+	}
+
+	@Override
+	public int extractEnergy(int maxExtract, boolean simulate)
+	{
+		return 0;
+	}
+
+	@Override
+	public int getEnergyStored()
+	{
+		return storedPower;
+	}
+
+	@Override
+	public int getMaxEnergyStored()
+	{
+		return ModularPipesConfig.pipes.max_energy_stored;
+	}
+
+	@Override
+	public boolean canExtract()
+	{
+		return false;
+	}
+
+	@Override
+	public boolean canReceive()
+	{
+		return false;
 	}
 }

@@ -12,6 +12,8 @@ import com.latmod.mods.modularpipes.item.ItemBlockTank;
 import com.latmod.mods.modularpipes.item.ItemModule;
 import com.latmod.mods.modularpipes.item.ItemPainter;
 import com.latmod.mods.modularpipes.item.module.ModuleCrafting;
+import com.latmod.mods.modularpipes.item.module.energy.ModuleEnergyInput;
+import com.latmod.mods.modularpipes.item.module.energy.ModuleEnergyOutput;
 import com.latmod.mods.modularpipes.item.module.fluid.ModuleFluidExtract;
 import com.latmod.mods.modularpipes.item.module.fluid.ModuleFluidHandler;
 import com.latmod.mods.modularpipes.item.module.fluid.ModuleFluidInsert;
@@ -113,6 +115,8 @@ public class ModularPipesEventHandler
 		r.register(withName(new ItemModule(ModuleFluidExtract::new), "module_fluid_extract"));
 		r.register(withName(new ItemModule(ModuleFluidInsert::new), "module_fluid_insert"));
 		r.register(withName(new ItemModule(ModuleCrafting::new), "module_crafting"));
+		r.register(withName(new ItemModule(ModuleEnergyInput::new), "module_energy_input"));
+		r.register(withName(new ItemModule(ModuleEnergyOutput::new), "module_energy_output"));
 	}
 
 	@SubscribeEvent

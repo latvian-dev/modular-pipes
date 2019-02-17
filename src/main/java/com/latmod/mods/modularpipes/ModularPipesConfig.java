@@ -29,6 +29,9 @@ public class ModularPipesConfig
 		@Config.RangeDouble(min = 0, max = 1)
 		@Config.Comment("Base speed")
 		public double base_speed = 0.05;
+
+		@Config.RangeInt(min = 1)
+		public int max_energy_stored = 24000;
 	}
 
 	public static void sync()

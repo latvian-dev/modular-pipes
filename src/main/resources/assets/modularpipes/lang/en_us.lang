@@ -10,6 +10,7 @@ tile.modularpipes.pipe_modular_mk3.name=Modular Pipe MK3
 tile.modularpipes.tank.name=Tank
 tile.modularpipes.modular_storage.name=Modular Storage
 tile.modularpipes.modular_tank.name=Modular Tank
+tile.modularpipes.dirtmond.name=Dirtmond
 
 # Items
 item.modularpipes.tool.name=Pipe Tool Base
@@ -29,6 +30,8 @@ item.modularpipes.module_fluid_base.name=Fluid Base
 item.modularpipes.module_fluid_extract.name=Extract Fluid
 item.modularpipes.module_fluid_insert.name=Insert Fluid
 item.modularpipes.module_crafting.name=Crafting
+item.modularpipes.module_energy_input.name=Energy Input
+item.modularpipes.module_energy_output.name=Energy Output
 
 # Config
 modularpipes.general.dev_mode=Dev Mode

@@ -32,4 +32,6 @@ public class ModularPipesItems
 	public static final Item MODULE_FLUID_EXTRACT = Items.AIR;
 	public static final Item MODULE_FLUID_INSERT = Items.AIR;
 	public static final Item MODULE_CRAFTING = Items.AIR;
+	public static final Item MODULE_ENERGY_INPUT = Items.AIR;
+	public static final Item MODULE_ENERGY_OUTPUT = Items.AIR;
 }

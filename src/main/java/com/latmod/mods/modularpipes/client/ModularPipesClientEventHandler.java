@@ -60,6 +60,8 @@ public class ModularPipesClientEventHandler
 		addModel(ModularPipesItems.MODULE_FLUID_EXTRACT, "inventory");
 		addModel(ModularPipesItems.MODULE_FLUID_INSERT, "inventory");
 		addModel(ModularPipesItems.MODULE_CRAFTING, "inventory");
+		addModel(ModularPipesItems.MODULE_ENERGY_INPUT, "inventory");
+		addModel(ModularPipesItems.MODULE_ENERGY_OUTPUT, "inventory");
 
 		ClientRegistry.bindTileEntitySpecialRenderer(TileTank.class, new RenderTank());
 		ModularPipesItems.TANK.setTileEntityItemStackRenderer(new RenderTank.TankTEISR());
