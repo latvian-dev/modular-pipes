@@ -9,6 +9,6 @@
 	],
 	"key": {
 		"S": [{"type": "forge:ore_dict", "ore": "cobblestone"}, {"type": "forge:ore_dict", "ore": "stone"}],
-		"G": {"type": "forge:ore_dict", "ore": "blockGlass"}
+		"G": {"type": "forge:ore_dict", "ore": "paneGlass"}
 	}
 }
