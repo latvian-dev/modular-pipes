@@ -46,7 +46,7 @@ public class ModuleItemExtract extends ModuleItemHandler
 	{
 		tick++;
 
-		if (tick >= 5)
+		if (tick >= 7)
 		{
 			World w = pipe.getWorld();
 

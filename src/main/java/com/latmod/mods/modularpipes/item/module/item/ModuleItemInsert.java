@@ -50,6 +50,13 @@ public class ModuleItemInsert extends SidePipeModule
 	{
 		super.readData(nbt);
 		tick = nbt.getByte("tick");
+
+		filter = new ItemStack(nbt.getCompoundTag("filter"));
+
+		if (filter.isEmpty())
+		{
+			filter = ItemStack.EMPTY;
+		}
 	}
 
 	public List<ModuleItemStorage> getStorageModules()
@@ -101,7 +108,7 @@ public class ModuleItemInsert extends SidePipeModule
 
 		tick++;
 
-		if (tick >= 5)
+		if (tick >= 7)
 		{
 			World w = pipe.getWorld();
 
@@ -170,6 +177,7 @@ public class ModuleItemInsert extends SidePipeModule
 		else
 		{
 			filter = ItemHandlerHelper.copyStackWithSize(stack, 1);
+			pipe.markDirty();
 
 			if (!player.world.isRemote)
 			{

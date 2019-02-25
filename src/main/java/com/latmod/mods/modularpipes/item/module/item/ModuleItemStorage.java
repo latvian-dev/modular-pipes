@@ -80,6 +80,7 @@ public class ModuleItemStorage extends SidePipeModule
 		else
 		{
 			filter = ItemHandlerHelper.copyStackWithSize(stack, 1);
+			pipe.markDirty();
 
 			if (!player.world.isRemote)
 			{
