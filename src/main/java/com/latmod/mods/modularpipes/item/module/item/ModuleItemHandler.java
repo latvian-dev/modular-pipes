@@ -1,8 +1,9 @@
 package com.latmod.mods.modularpipes.item.module.item;
 
-import com.latmod.mods.modularpipes.item.ItemKey;
+import com.latmod.mods.itemfilters.api.ItemFiltersAPI;
+import com.latmod.mods.modularpipes.item.module.PipeModule;
 import com.latmod.mods.modularpipes.item.module.SidePipeModule;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import com.latmod.mods.modularpipes.tile.TilePipeModularMK1;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -16,10 +17,7 @@ import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author LatvianModder
@@ -27,8 +25,7 @@ import java.util.Optional;
 public class ModuleItemHandler extends SidePipeModule implements IItemHandler
 {
 	public ItemStack filter = ItemStack.EMPTY;
-	private Map<ItemKey, Optional<ModuleItemStorage>> lastDestinationInsert = null;
-	private Map<ItemKey, Optional<ModuleItemStorage>> lastDestinationExtract = null;
+	private List<ModuleItemStorage> storageModules = null;
 
 	@Override
 	public void writeData(NBTTagCompound nbt)
@@ -66,54 +63,43 @@ public class ModuleItemHandler extends SidePipeModule implements IItemHandler
 		return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && facing == side ? (T) this : super.getCapability(capability, facing);
 	}
 
-	public List<ModuleItemStorage> getStorageModules(ItemStack stack)
+	public List<ModuleItemStorage> getStorageModules()
 	{
-		/*
 		if (storageModules == null)
 		{
-			storageModules = new HashMap<>();
-		}
+			storageModules = new ArrayList<>(2);
 
-		ItemKey key = ItemKey.of(stack);
-		List<ModuleItemStorage> list = storageModules.get(key);
-
-		if (list == null)
-		{
-			list = new ArrayList<>(2);
-			HashSet<TilePipeModularMK1> set = new HashSet<>();
-			pipe.getNetwork(set);
-
-			for (TilePipeModularMK1 pipe1 : set)
+			for (TilePipeModularMK1 pipe1 : pipe.getPipeNetwork())
 			{
 				for (PipeModule module : pipe1.modules)
 				{
-					if (module instanceof ModuleItemStorage && (stack.isEmpty() || ItemFiltersAPI.filter(((ModuleItemStorage) module).filter, stack)))
+					if (module instanceof ModuleItemStorage)
 					{
-						list.add((ModuleItemStorage) module);
+						storageModules.add((ModuleItemStorage) module);
 					}
 				}
 			}
 
-			storageModules.put(key, list);
+			if (storageModules.size() > 1)
+			{
+				storageModules.sort(ModuleItemStorage.COMPARATOR);
+			}
 		}
 
-		return list;
-		*/
-		return Collections.emptyList();
+		return storageModules;
 	}
 
 	@Override
 	public void clearCache()
 	{
 		super.clearCache();
-		lastDestinationInsert = null;
-		lastDestinationExtract = null;
+		storageModules = null;
 	}
 
 	@Override
 	public int getSlots()
 	{
-		return 2;
+		return 1;
 	}
 
 	@Override
@@ -125,41 +111,20 @@ public class ModuleItemHandler extends SidePipeModule implements IItemHandler
 	@Override
 	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
 	{
-		if (slot == 1)
+		for (ModuleItemStorage module : getStorageModules())
 		{
-			return stack;
-		}
-
-		List<ModuleItemStorage> list = getStorageModules(stack);
-
-		if (list.size() > 1)
-		{
-			Object2IntOpenHashMap<ModuleItemStorage> map = new Object2IntOpenHashMap<>();
-
-			for (ModuleItemStorage module : list)
+			if (ItemFiltersAPI.filter(module.filter, stack))
 			{
-			}
+				IItemHandler handler1 = module.getItemHandler();
 
-			list = new ArrayList<>(list);
-
-			list.sort((o1, o2) -> {
-
-
-				return ModuleItemStorage.COMPARATOR.compare(o1, o2);
-			});
-		}
-
-		for (ModuleItemStorage module : getStorageModules(stack))
-		{
-			IItemHandler handler1 = module.getItemHandler();
-
-			if (handler1 != null)
-			{
-				stack = ItemHandlerHelper.insertItem(handler1, stack, simulate);
-
-				if (stack.isEmpty())
+				if (handler1 != null)
 				{
-					return ItemStack.EMPTY;
+					stack = ItemHandlerHelper.insertItem(handler1, stack, simulate);
+
+					if (stack.isEmpty())
+					{
+						return ItemStack.EMPTY;
+					}
 				}
 			}
 		}
@@ -170,11 +135,6 @@ public class ModuleItemHandler extends SidePipeModule implements IItemHandler
 	@Override
 	public ItemStack extractItem(int slot, int amount, boolean simulate)
 	{
-		if (slot == 0)
-		{
-			return ItemStack.EMPTY;
-		}
-
 		return ItemStack.EMPTY;
 	}
 

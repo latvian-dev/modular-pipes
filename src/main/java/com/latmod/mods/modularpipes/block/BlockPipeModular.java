@@ -31,7 +31,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nullable;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -136,7 +135,7 @@ public class BlockPipeModular extends BlockPipeBase
 				{
 					if (!world.isRemote)
 					{
-						ItemHandlerHelper.giveItemToPlayer(player, module.stack);
+						ItemHandlerHelper.giveItemToPlayer(player, module.moduleItem);
 					}
 
 					module.onRemoved(player);
@@ -159,7 +158,7 @@ public class BlockPipeModular extends BlockPipeBase
 				if (module != null)
 				{
 					module.pipe = pipe;
-					module.stack = stack1;
+					module.moduleItem = stack1;
 
 					if (module.canInsert(player, side))
 					{
@@ -195,12 +194,11 @@ public class BlockPipeModular extends BlockPipeBase
 		{
 			if (player.isSneaking())
 			{
-				HashSet<TilePipeModularMK1> set = new HashSet<>();
-				pipe.getNetwork(set);
+				List<TilePipeModularMK1> network = pipe.getPipeNetwork();
 
-				player.sendMessage(new TextComponentString("Network: " + world.getTotalWorldTime() + " [" + set.size() + "]"));
+				player.sendMessage(new TextComponentString("Network: " + world.getTotalWorldTime() + " [" + network.size() + "]"));
 
-				for (TilePipeModularMK1 pipe1 : set)
+				for (TilePipeModularMK1 pipe1 : network)
 				{
 					player.sendMessage(new TextComponentString(String.format("- %s#%08X", pipe1.getClass().getSimpleName(), pipe1.hashCode())));
 				}

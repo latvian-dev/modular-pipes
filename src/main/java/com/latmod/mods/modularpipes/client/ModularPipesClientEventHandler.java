@@ -51,6 +51,8 @@ public class ModularPipesClientEventHandler
 
 		addModel(ModularPipesItems.PAINTER, "inventory");
 		addModel(ModularPipesItems.MODULE, "inventory");
+		addModel(ModularPipesItems.INPUT_PART, "inventory");
+		addModel(ModularPipesItems.OUTPUT_PART, "inventory");
 		addModel(ModularPipesItems.MODULE_ITEM_STORAGE, "inventory");
 		addModel(ModularPipesItems.MODULE_ITEM_BASE, "inventory");
 		addModel(ModularPipesItems.MODULE_ITEM_EXTRACT, "inventory");

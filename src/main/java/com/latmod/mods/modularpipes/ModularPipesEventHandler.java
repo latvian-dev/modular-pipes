@@ -106,6 +106,8 @@ public class ModularPipesEventHandler
 
 		r.register(withName(new ItemPainter(), "painter"));
 		r.register(withName(new Item(), "module"));
+		r.register(withName(new Item(), "input_part"));
+		r.register(withName(new Item(), "output_part"));
 		r.register(withName(new ItemModule(ModuleItemStorage::new), "module_item_storage"));
 		r.register(withName(new ItemModule(ModuleItemHandler::new), "module_item_base"));
 		r.register(withName(new ItemModule(ModuleItemExtract::new), "module_item_extract"));

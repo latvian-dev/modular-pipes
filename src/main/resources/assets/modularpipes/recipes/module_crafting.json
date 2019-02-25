@@ -3,8 +3,8 @@
 	"group": "modularpipes:module",
 	"result": {"item": "module_crafting"},
 	"ingredients": [
-		{"type": "forge:ore_dict", "ore": "gemDiamond"},
 		{"item": "module"},
+		{"type": "forge:ore_dict", "ore": "gemDiamond"},
 		{"type": "forge:ore_dict", "ore": "workbench"}
 	]
 }

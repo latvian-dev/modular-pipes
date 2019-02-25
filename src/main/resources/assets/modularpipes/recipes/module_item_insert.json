@@ -1,9 +1,9 @@
 {
 	"type": "minecraft:crafting_shapeless",
 	"group": "modularpipes:module",
-	"result": {"item": "module_item_storage"},
+	"result": {"item": "module_item_insert"},
 	"ingredients": [
 		{"item": "module_item_base"},
-		{"type": "forge:ore_dict", "ore": "ingotIron"}
+		{"item": "output_part"}
 	]
 }

@@ -1,7 +1,5 @@
 package com.latmod.mods.modularpipes.item.module.energy;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 
 /**
@@ -23,8 +21,7 @@ public class ModuleEnergyOutput extends ModuleEnergy
 			return;
 		}
 
-		TileEntity tileEntity = getFacingTile();
-		IEnergyStorage storage = tileEntity != null ? tileEntity.getCapability(CapabilityEnergy.ENERGY, side.getOpposite()) : null;
+		IEnergyStorage storage = getFacingEnergyStorage();
 
 		if (storage != null)
 		{

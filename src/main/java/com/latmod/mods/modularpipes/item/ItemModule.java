@@ -31,7 +31,7 @@ public class ItemModule extends Item
 	public PipeModule initCapabilities(ItemStack stack, @Nullable NBTTagCompound nbt)
 	{
 		PipeModule module = supplier.get();
-		module.stack = stack;
+		module.moduleItem = stack;
 		return module;
 	}
 

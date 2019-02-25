@@ -3,6 +3,7 @@ package com.latmod.mods.modularpipes.client;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.latmod.mods.modularpipes.ModularPipes;
+import com.latmod.mods.modularpipes.ModularPipesUtils;
 import com.latmod.mods.modularpipes.block.EnumMK;
 import com.latmod.mods.modularpipes.block.PipeSkin;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -19,7 +20,6 @@ import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
 
 import java.util.AbstractMap;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -133,7 +133,7 @@ public class ModelPipe implements IModel
 
 			IModel model = ModelLoaderRegistry.getModelOrMissing(id).uvlock(uvlock).retexture(builder.build());//.smoothLighting(false);
 			IBakedModel bakedModel = model.bake(rotation, format, tex);
-			return Arrays.asList(bakedModel.getQuads(null, null, 0L).toArray(new BakedQuad[0]));
+			return ModularPipesUtils.optimize(bakedModel.getQuads(null, null, 0L));
 		});
 	}
 

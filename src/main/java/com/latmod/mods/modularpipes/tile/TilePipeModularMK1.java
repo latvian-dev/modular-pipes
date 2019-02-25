@@ -1,6 +1,7 @@
 package com.latmod.mods.modularpipes.tile;
 
 import com.latmod.mods.modularpipes.ModularPipesConfig;
+import com.latmod.mods.modularpipes.ModularPipesUtils;
 import com.latmod.mods.modularpipes.block.EnumMK;
 import com.latmod.mods.modularpipes.item.ItemKey;
 import com.latmod.mods.modularpipes.item.module.PipeModule;
@@ -21,8 +22,9 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author LatvianModder
@@ -35,6 +37,7 @@ public class TilePipeModularMK1 extends TilePipeBase implements IEnergyStorage
 	public Object2IntOpenHashMap<ItemKey> itemDirections = new Object2IntOpenHashMap<>(0);
 	public int storedPower = 0;
 	private int powerOutputIndex = -1;
+	private List<TilePipeModularMK1> cachedNetwork = null;
 
 	@Override
 	public void writeData(NBTTagCompound nbt)
@@ -47,7 +50,7 @@ public class TilePipeModularMK1 extends TilePipeBase implements IEnergyStorage
 
 			for (PipeModule module : modules)
 			{
-				NBTTagCompound nbt1 = module.stack.serializeNBT();
+				NBTTagCompound nbt1 = module.moduleItem.serializeNBT();
 				NBTTagCompound nbt2 = new NBTTagCompound();
 				module.writeData(nbt2);
 
@@ -97,7 +100,7 @@ public class TilePipeModularMK1 extends TilePipeBase implements IEnergyStorage
 			if (module != null)
 			{
 				module.pipe = this;
-				module.stack = stack;
+				module.moduleItem = stack;
 				module.readData(nbt1.getCompoundTag("module"));
 				modules.add(module);
 			}
@@ -295,6 +298,8 @@ public class TilePipeModularMK1 extends TilePipeBase implements IEnergyStorage
 		{
 			module.clearCache();
 		}
+
+		cachedNetwork = null;
 	}
 
 	public CachedTileEntity getTile(EnumFacing facing)
@@ -387,104 +392,30 @@ public class TilePipeModularMK1 extends TilePipeBase implements IEnergyStorage
 		for (PipeModule module : modules)
 		{
 			module.onPipeBroken();
-			InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), module.stack);
+			InventoryHelper.spawnItemStack(world, pos.getX(), pos.getY(), pos.getZ(), module.moduleItem);
 		}
 	}
-	
-	/*
-	@Override
-	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
-	{
-		PipeItem item = new PipeItem();
-		item.stack = stack;
-		item.speed = 0.2F;
 
-		if (insertPipeItem(item, simulate))
+	public List<TilePipeModularMK1> getPipeNetwork()
+	{
+		if (cachedNetwork == null)
 		{
-			if (!simulate)
+			HashSet<TilePipeModularMK1> set = new HashSet<>();
+			getNetwork(set);
+			cachedNetwork = new ArrayList<>(set);
+
+			if (cachedNetwork.size() > 1)
 			{
-				pipe.markDirty();
+				cachedNetwork.sort(Comparator.comparingDouble(value -> getDistanceSq(value.pos.getX() + 0.5D, value.pos.getY() + 0.5D, value.pos.getZ() + 0.5D)));
 			}
 
-			return ItemStack.EMPTY;
+			cachedNetwork = ModularPipesUtils.optimize(cachedNetwork);
 		}
 
-		return stack;
+		return cachedNetwork;
 	}
 
-	public boolean insertPipeItem(PipeItem item, boolean simulate)
-	{
-		if (simulate)
-		{
-			return true;
-		}
-
-		item.from = facing.getIndex();
-		item.to = getDirection(item);
-		item.lifespan = item.stack.getItem().getEntityLifespan(item.stack, pipe.getWorld());
-		pipe.items.add(item);
-		pipe.markDirty();
-		pipe.sync = false;
-		return true;
-	}
-
-	private int getDirection(PipeItem item)
-	{
-		int[] dirs = new int[6];
-		int pos = 0;
-
-		for (int i = 0; i < 6; i++)
-		{
-			if (i != facing.getIndex() && !pipe.inventories[i].module.isEmpty() && pipe.inventories[i].module.getItem() != ItemFiltersAPI.NULL_ITEM && ItemFiltersAPI.filter(pipe.inventories[i].module, item.stack))
-			{
-				TileEntity tileEntity = pipe.getWorld().getTileEntity(pipe.getPos().offset(EnumFacing.VALUES[i]));
-
-				if (tileEntity instanceof TilePipeBase && !pipe.canPipesConnect(((TilePipeBase) tileEntity).skin))
-				{
-					continue;
-				}
-
-				IItemHandler handler = tileEntity == null ? null : tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.VALUES[i].getOpposite());
-
-				if (handler != null && (handler instanceof ModularPipeInventory || !ItemFiltersAPI.areItemStacksEqual(item.stack, ItemHandlerHelper.insertItem(handler, item.stack.getCount() == 1 ? item.stack : ItemHandlerHelper.copyStackWithSize(item.stack, 1), true))))
-				{
-					dirs[pos] = i;
-					pos++;
-				}
-			}
-		}
-
-		if (pos > 0)
-		{
-			return dirs[pipe.getWorld().rand.nextInt(pos)];
-		}
-
-		for (int i = 0; i < 6; i++)
-		{
-			if (i != facing.getIndex() && pipe.inventories[i].module.isEmpty())
-			{
-				TileEntity tileEntity = pipe.getWorld().getTileEntity(pipe.getPos().offset(EnumFacing.VALUES[i]));
-
-				if (tileEntity instanceof TilePipeBase && !pipe.canPipesConnect(((TilePipeBase) tileEntity).skin))
-				{
-					continue;
-				}
-
-				IItemHandler handler = tileEntity == null ? null : tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.VALUES[i].getOpposite());
-
-				if (handler != null && (handler instanceof ModularPipeInventory || !ItemFiltersAPI.areItemStacksEqual(item.stack, ItemHandlerHelper.insertItem(handler, item.stack.getCount() == 1 ? item.stack : ItemHandlerHelper.copyStackWithSize(item.stack, 1), true))))
-				{
-					dirs[pos] = i;
-					pos++;
-				}
-			}
-		}
-
-		return pos == 0 ? facing.getIndex() : dirs[pipe.getWorld().rand.nextInt(pos)];
-	}
-	*/
-
-	public void getNetwork(Set<TilePipeModularMK1> set)
+	private void getNetwork(HashSet<TilePipeModularMK1> set)
 	{
 		for (EnumFacing facing : EnumFacing.VALUES)
 		{

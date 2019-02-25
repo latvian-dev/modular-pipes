@@ -16,6 +16,8 @@ tile.modularpipes.dirtmond.name=Dirtmond
 item.modularpipes.tool.name=Pipe Tool Base
 item.modularpipes.painter.name=Pipe Painter
 item.modularpipes.visualizer.name=Pipe Network Visualizer
+item.modularpipes.input_part.name=Module Input Part
+item.modularpipes.output_part.name=Module Output Part
 
 item.modularpipes.module.name=Pipe Module
 item.modularpipes.module.cleared_data=Cleared Module Data

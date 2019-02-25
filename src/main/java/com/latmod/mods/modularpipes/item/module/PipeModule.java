@@ -22,7 +22,7 @@ public class PipeModule implements ICapabilityProvider
 	public static Capability<PipeModule> CAP;
 
 	public TilePipeModularMK1 pipe = null;
-	public ItemStack stack = ItemStack.EMPTY;
+	public ItemStack moduleItem = ItemStack.EMPTY;
 
 	public void writeData(NBTTagCompound nbt)
 	{
@@ -102,6 +102,6 @@ public class PipeModule implements ICapabilityProvider
 	{
 		NBTTagCompound nbt = new NBTTagCompound();
 		writeData(nbt);
-		return stack.getItem().getRegistryName() + (nbt.isEmpty() ? "" : ("+" + nbt));
+		return moduleItem.getItem().getRegistryName() + (nbt.isEmpty() ? "" : ("+" + nbt));
 	}
 }

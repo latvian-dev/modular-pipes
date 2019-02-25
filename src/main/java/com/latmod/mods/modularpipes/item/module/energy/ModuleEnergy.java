@@ -2,18 +2,22 @@ package com.latmod.mods.modularpipes.item.module.energy;
 
 import com.latmod.mods.modularpipes.ModularPipesConfig;
 import com.latmod.mods.modularpipes.item.module.SidePipeModule;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 /**
  * @author LatvianModder
  */
 public class ModuleEnergy extends SidePipeModule implements IEnergyStorage
 {
+	private Optional<IEnergyStorage> cachedEnergyStorage = null;
+
 	@Override
 	public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing)
 	{
@@ -25,6 +29,25 @@ public class ModuleEnergy extends SidePipeModule implements IEnergyStorage
 	public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing)
 	{
 		return capability == CapabilityEnergy.ENERGY && facing == side ? (T) this : super.getCapability(capability, facing);
+	}
+
+	@Override
+	public void clearCache()
+	{
+		super.clearCache();
+		cachedEnergyStorage = null;
+	}
+
+	@Nullable
+	public IEnergyStorage getFacingEnergyStorage()
+	{
+		if (cachedEnergyStorage == null)
+		{
+			TileEntity tileEntity = getFacingTile();
+			cachedEnergyStorage = Optional.ofNullable(tileEntity == null ? null : tileEntity.getCapability(CapabilityEnergy.ENERGY, side.getOpposite()));
+		}
+
+		return cachedEnergyStorage.orElse(null);
 	}
 
 	@Override

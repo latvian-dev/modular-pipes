@@ -7,6 +7,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 /**
  * @author LatvianModder
@@ -14,6 +15,7 @@ import javax.annotation.Nullable;
 public class SidePipeModule extends PipeModule
 {
 	public EnumFacing side = null;
+	private Optional<TileEntity> cachedEntity = null;
 
 	@Override
 	public void writeData(NBTTagCompound nbt)
@@ -42,9 +44,21 @@ public class SidePipeModule extends PipeModule
 		return facing == side;
 	}
 
+	@Override
+	public void clearCache()
+	{
+		super.clearCache();
+		cachedEntity = null;
+	}
+
 	@Nullable
 	public TileEntity getFacingTile()
 	{
-		return pipe == null || side == null || !pipe.hasWorld() ? null : pipe.getWorld().getTileEntity(pipe.getPos().offset(side));
+		if (cachedEntity == null)
+		{
+			cachedEntity = Optional.ofNullable(pipe == null || side == null || !pipe.hasWorld() ? null : pipe.getWorld().getTileEntity(pipe.getPos().offset(side)));
+		}
+
+		return cachedEntity.orElse(null);
 	}
 }

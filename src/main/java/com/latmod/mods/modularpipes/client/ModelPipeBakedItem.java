@@ -1,5 +1,6 @@
 package com.latmod.mods.modularpipes.client;
 
+import com.latmod.mods.modularpipes.ModularPipesUtils;
 import com.latmod.mods.modularpipes.block.EnumMK;
 import com.latmod.mods.modularpipes.block.PipeSkin;
 import net.minecraft.block.state.IBlockState;
@@ -12,7 +13,6 @@ import net.minecraft.util.EnumFacing;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,7 +36,7 @@ public class ModelPipeBakedItem implements IBakedModel
 			quads.addAll(parent.overlay.get(mk.ordinal()));
 		}
 
-		quads = Collections.unmodifiableList(Arrays.asList(quads.toArray(new BakedQuad[0])));
+		quads = Collections.unmodifiableList(ModularPipesUtils.optimize(quads));
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package com.latmod.mods.modularpipes.client;
 
+import com.latmod.mods.modularpipes.ModularPipesUtils;
 import com.latmod.mods.modularpipes.block.BlockPipeBase;
 import com.latmod.mods.modularpipes.block.BlockPipeModular;
 import com.latmod.mods.modularpipes.block.EnumMK;
@@ -28,7 +29,6 @@ import net.minecraftforge.common.property.IExtendedBlockState;
 import javax.annotation.Nullable;
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -230,10 +230,7 @@ public class ModelPipeBaked implements IBakedModel
 		{
 			if (extraQuads != null)
 			{
-				ArrayList<BakedQuad> combined = new ArrayList<>(extraQuads.size() + quads.size());
-				combined.addAll(quads);
-				combined.addAll(extraQuads);
-				return combined;
+				return ModularPipesUtils.combineAndOptimize(quads, extraQuads);
 			}
 
 			return quads;
@@ -273,15 +270,12 @@ public class ModelPipeBaked implements IBakedModel
 			}
 		}
 
-		quads = Collections.unmodifiableList(Arrays.asList(quads.toArray(new BakedQuad[0])));
+		quads = ModularPipesUtils.optimize(quads);
 		cacheMap.put(cacheIndex, quads);
 
 		if (extraQuads != null)
 		{
-			ArrayList<BakedQuad> combined = new ArrayList<>(extraQuads.size() + quads.size());
-			combined.addAll(quads);
-			combined.addAll(extraQuads);
-			return combined;
+			return ModularPipesUtils.combineAndOptimize(quads, extraQuads);
 		}
 
 		return quads;
