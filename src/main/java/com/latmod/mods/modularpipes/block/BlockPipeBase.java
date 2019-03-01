@@ -23,6 +23,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -150,6 +152,21 @@ public class BlockPipeBase extends Block
 	public boolean isFullCube(IBlockState state)
 	{
 		return false;
+	}
+
+	@Override
+	@Deprecated
+	public boolean isFullBlock(IBlockState state)
+	{
+		return false;
+	}
+
+	@Override
+	@Deprecated
+	@SideOnly(Side.CLIENT)
+	public float getAmbientOcclusionLightValue(IBlockState state)
+	{
+		return 1F;
 	}
 
 	@Override

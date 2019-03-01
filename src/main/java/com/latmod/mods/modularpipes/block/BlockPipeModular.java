@@ -25,7 +25,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -68,21 +67,7 @@ public class BlockPipeModular extends BlockPipeBase
 	@Override
 	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos)
 	{
-		return ModularPipes.PROXY.getPipeLightValue();
-	}
-
-	@Override
-	@Deprecated
-	public int getPackedLightmapCoords(IBlockState state, IBlockAccess source, BlockPos pos)
-	{
-		if (MinecraftForgeClient.getRenderLayer() == BlockRenderLayer.CUTOUT)
-		{
-			int result = source.getCombinedLight(pos, 15);
-			int skylight = (result >> 16) & 0xFFFF;
-			return (skylight << 16) | (15 << 4);
-		}
-
-		return super.getPackedLightmapCoords(state, source, pos);
+		return ModularPipes.PROXY.getPipeLightValue(world);
 	}
 
 	@Override
