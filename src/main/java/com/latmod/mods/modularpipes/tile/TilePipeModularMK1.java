@@ -188,7 +188,7 @@ public class TilePipeModularMK1 extends TilePipeBase implements IEnergyStorage
 			}
 		}
 
-		if (!world.isRemote && world.getTotalWorldTime() % 5L == 0L)
+		if (!world.isRemote && storedPower > 0 && world.getTotalWorldTime() % 5L == 0L)
 		{
 			if (powerOutputIndex == -1)
 			{
