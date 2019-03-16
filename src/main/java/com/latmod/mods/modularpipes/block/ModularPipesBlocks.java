@@ -13,7 +13,6 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 @Mod.EventBusSubscriber(modid = ModularPipes.MOD_ID)
 public class ModularPipesBlocks
 {
-	public static final Block CONTROLLER = Blocks.AIR;
 	public static final Block PIPE_TRANSPORT = Blocks.AIR;
 	public static final Block PIPE_MODULAR_MK1 = Blocks.AIR;
 	public static final Block PIPE_MODULAR_MK2 = Blocks.AIR;
