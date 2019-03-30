@@ -1,7 +1,5 @@
 package com.latmod.mods.modularpipes.block;
 
-import com.latmod.mods.modularpipes.item.ItemPainter;
-import com.latmod.mods.modularpipes.item.ModularPipesItems;
 import com.latmod.mods.modularpipes.tile.TilePipeBase;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
@@ -12,11 +10,9 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -226,32 +222,6 @@ public class BlockPipeBase extends Block
 	@Deprecated
 	public boolean shouldSideBeRendered(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side)
 	{
-		return false;
-	}
-
-	@Override
-	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
-	{
-		ItemStack stack = player.getHeldItem(hand);
-
-		if (stack.getItem() == ModularPipesItems.PAINTER)
-		{
-			TileEntity tileEntity = world.getTileEntity(pos);
-
-			if (tileEntity instanceof TilePipeBase)
-			{
-				((TilePipeBase) tileEntity).paint = ItemPainter.getBlockState(ItemPainter.getPaint(stack));
-				tileEntity.markDirty();
-
-				if (world.isRemote)
-				{
-					world.notifyBlockUpdate(pos, state, state, 11);
-				}
-			}
-
-			return true;
-		}
-
 		return false;
 	}
 

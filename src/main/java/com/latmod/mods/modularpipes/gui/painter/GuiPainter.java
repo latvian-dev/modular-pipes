@@ -1,11 +1,9 @@
 package com.latmod.mods.modularpipes.gui.painter;
 
 import com.latmod.mods.modularpipes.ModularPipes;
-import com.latmod.mods.modularpipes.item.ItemPainter;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
 /**
@@ -40,25 +38,6 @@ public class GuiPainter extends GuiContainer
 			if (container.enchantItem(container.player, 0))
 			{
 				mc.playerController.sendEnchantPacket(container.windowId, 0);
-			}
-		}
-	}
-
-	@Override
-	public void renderHoveredToolTip(int x, int y)
-	{
-		super.renderHoveredToolTip(x, y);
-
-		for (GuiButton button : buttonList)
-		{
-			if (button.isMouseOver() && button instanceof ButtonPaint)
-			{
-				ItemStack paint = ItemPainter.getPaint(container.stack);
-
-				if (!paint.isEmpty())
-				{
-					renderToolTip(paint, x, y);
-				}
 			}
 		}
 	}

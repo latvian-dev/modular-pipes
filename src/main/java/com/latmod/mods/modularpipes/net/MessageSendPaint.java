@@ -1,13 +1,10 @@
 package com.latmod.mods.modularpipes.net;
 
+import com.latmod.mods.modularpipes.gui.painter.ContainerPainter;
 import com.latmod.mods.modularpipes.item.ItemPainter;
-import com.latmod.mods.modularpipes.item.ModularPipesItems;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -17,27 +14,27 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
  */
 public class MessageSendPaint implements IMessage
 {
-	public ItemStack stack;
+	public int paint;
 
 	public MessageSendPaint()
 	{
 	}
 
-	public MessageSendPaint(ItemStack is)
+	public MessageSendPaint(int p)
 	{
-		stack = is;
+		paint = p;
 	}
 
 	@Override
 	public void fromBytes(ByteBuf buf)
 	{
-		stack = ByteBufUtils.readItemStack(buf);
+		paint = buf.readInt();
 	}
 
 	@Override
 	public void toBytes(ByteBuf buf)
 	{
-		ByteBufUtils.writeItemStack(buf, stack);
+		buf.writeInt(paint);
 	}
 
 	public static class Handler implements IMessageHandler<MessageSendPaint, IMessage>
@@ -48,11 +45,9 @@ public class MessageSendPaint implements IMessage
 			EntityPlayerMP player = ctx.getServerHandler().player;
 
 			FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
-				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-
-				if (stack.getItem() == ModularPipesItems.PAINTER)
+				if (player.openContainer instanceof ContainerPainter)
 				{
-					ItemPainter.setPaint(stack, message.stack);
+					ItemPainter.setPaint(((ContainerPainter) player.openContainer).stack, message.paint);
 				}
 			});
 

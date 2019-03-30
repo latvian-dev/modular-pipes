@@ -3,11 +3,9 @@ package com.latmod.mods.modularpipes.gui.painter;
 import com.latmod.mods.modularpipes.item.ItemPainter;
 import com.latmod.mods.modularpipes.net.MessageSendPaint;
 import com.latmod.mods.modularpipes.net.ModularPipesNet;
-import mezz.jei.api.gui.IAdvancedGuiHandler;
 import mezz.jei.api.gui.IGhostIngredientHandler;
 import net.minecraft.item.ItemStack;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.Collections;
 import java.util.List;
@@ -15,7 +13,7 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public enum GuiPainterJEI implements IGhostIngredientHandler<GuiPainter>, IAdvancedGuiHandler<GuiPainter>
+public enum GuiPainterJEI implements IGhostIngredientHandler<GuiPainter>
 {
 	INSTANCE;
 
@@ -37,7 +35,7 @@ public enum GuiPainterJEI implements IGhostIngredientHandler<GuiPainter>, IAdvan
 				{
 					if (ItemPainter.setPaint(gui.container.stack, (ItemStack) i))
 					{
-						ModularPipesNet.NET.sendToServer(new MessageSendPaint((ItemStack) ingredient));
+						ModularPipesNet.NET.sendToServer(new MessageSendPaint(ItemPainter.getPaint(gui.container.stack)));
 					}
 				}
 			});
@@ -49,28 +47,5 @@ public enum GuiPainterJEI implements IGhostIngredientHandler<GuiPainter>, IAdvan
 	@Override
 	public void onComplete()
 	{
-	}
-
-	@Override
-	public Class<GuiPainter> getGuiContainerClass()
-	{
-		return GuiPainter.class;
-	}
-
-	@Override
-	@Nullable
-	public Object getIngredientUnderMouse(GuiPainter gui, int x, int y)
-	{
-		if (x >= gui.buttonPaint.x && x < gui.buttonPaint.x + gui.buttonPaint.width && y >= gui.buttonPaint.y && y < gui.buttonPaint.y + gui.buttonPaint.height)
-		{
-			ItemStack stack = ItemPainter.getPaint(gui.container.stack);
-
-			if (!stack.isEmpty())
-			{
-				return stack;
-			}
-		}
-
-		return null;
 	}
 }

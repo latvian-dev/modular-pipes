@@ -18,7 +18,6 @@ import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
@@ -31,9 +30,7 @@ import javax.annotation.Nullable;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author LatvianModder
@@ -43,9 +40,9 @@ public class ModelPipeBaked implements IBakedModel
 	public final ModelPipe modelPipe;
 	public final TextureAtlasSprite particle;
 	public final ModelPipe.ModelCallback modelCallback;
-	public final Map<IBlockState, List<List<BakedQuad>>> base, connection;
+	public final Int2ObjectOpenHashMap<List<List<BakedQuad>>> base, connection;
 	public final List<List<BakedQuad>> glassBase, glassConnection, overlay, module;
-	private final Map<IBlockState, Int2ObjectOpenHashMap<List<BakedQuad>>> cache;
+	private final Int2ObjectOpenHashMap<Int2ObjectOpenHashMap<List<BakedQuad>>> cache;
 	private final IBakedModel bakedItem;
 	private final IBakedModel[] bakedItemWithOverlay;
 	private final ItemOverrideList itemOverrideList;
@@ -55,14 +52,14 @@ public class ModelPipeBaked implements IBakedModel
 		modelPipe = m;
 		particle = p;
 		modelCallback = c;
-		base = new HashMap<>();
+		base = new Int2ObjectOpenHashMap<>();
 		glassBase = new ArrayList<>(4);
 		glassBase.add(c.get(m.modelGlassBase, ModelRotation.X0_Y0));
 		glassBase.add(c.get(m.modelGlassVertical, ModelRotation.X90_Y90));
 		glassBase.add(c.get(m.modelGlassVertical, ModelRotation.X0_Y0));
 		glassBase.add(c.get(m.modelGlassVertical, ModelRotation.X90_Y0));
 
-		connection = new HashMap<>();
+		connection = new Int2ObjectOpenHashMap<>();
 		glassConnection = new ArrayList<>(6);
 
 		for (int i = 0; i < 6; i++)
@@ -84,7 +81,7 @@ public class ModelPipeBaked implements IBakedModel
 			module.add(c.get(m.modelModule, ModelPipe.FACE_ROTATIONS[i], false));
 		}
 
-		cache = new HashMap<>();
+		cache = new Int2ObjectOpenHashMap<>();
 		bakedItem = new ModelPipeBakedItem(this, null);
 		bakedItemWithOverlay = new ModelPipeBakedItem[EnumMK.VALUES.length];
 
@@ -203,9 +200,16 @@ public class ModelPipeBaked implements IBakedModel
 
 			TextureAtlasSprite sprite = null;
 
-			if (pipe.paint != Blocks.AIR.getDefaultState())
+			if (pipe.paint != 0)
 			{
-				sprite = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getTexture(pipe.paint);
+				try
+				{
+					sprite = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getTexture(Block.getStateById(pipe.paint));
+				}
+				catch (Exception ex)
+				{
+					ex.printStackTrace();
+				}
 			}
 
 			if (sprite == null)

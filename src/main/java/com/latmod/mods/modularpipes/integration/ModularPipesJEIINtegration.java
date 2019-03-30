@@ -16,6 +16,5 @@ public class ModularPipesJEIINtegration implements IModPlugin
 	public void register(IModRegistry registry)
 	{
 		registry.addGhostIngredientHandler(GuiPainter.class, GuiPainterJEI.INSTANCE);
-		registry.addAdvancedGuiHandlers(GuiPainterJEI.INSTANCE);
 	}
 }
