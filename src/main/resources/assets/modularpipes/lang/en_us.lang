@@ -10,7 +10,6 @@ tile.modularpipes.pipe_modular_mk3.name=Modular Pipe MK3
 tile.modularpipes.tank.name=Tank
 tile.modularpipes.modular_storage.name=Modular Storage
 tile.modularpipes.modular_tank.name=Modular Tank
-tile.modularpipes.dirtmond.name=Dirtmond
 
 # Items
 item.modularpipes.tool.name=Pipe Tool Base

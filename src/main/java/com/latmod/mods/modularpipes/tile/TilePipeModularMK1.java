@@ -315,14 +315,14 @@ public class TilePipeModularMK1 extends TilePipeBase implements IEnergyStorage
 
 			if (tileEntity instanceof TilePipeModularMK1)
 			{
-				if (canPipesConnect(((TilePipeModularMK1) tileEntity).skin))
+				if (canPipesConnect(((TilePipeModularMK1) tileEntity).paint))
 				{
 					cachedTiles[f] = new CachedTileEntity(tileEntity, 1);
 				}
 			}
 			else if (tileEntity instanceof TilePipeTransport)
 			{
-				if (canPipesConnect(((TilePipeTransport) tileEntity).skin))
+				if (canPipesConnect(((TilePipeTransport) tileEntity).paint))
 				{
 					cachedTiles[f] = ((TilePipeTransport) tileEntity).findNextOne(facing.getOpposite(), 1);
 
@@ -368,7 +368,7 @@ public class TilePipeModularMK1 extends TilePipeBase implements IEnergyStorage
 
 		if (tileEntity instanceof TilePipeBase)
 		{
-			return canPipesConnect(((TilePipeBase) tileEntity).skin);
+			return canPipesConnect(((TilePipeBase) tileEntity).paint);
 		}
 
 		for (PipeModule module : modules)

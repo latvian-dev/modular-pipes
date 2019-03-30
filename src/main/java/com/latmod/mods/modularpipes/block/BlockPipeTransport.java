@@ -1,7 +1,7 @@
 package com.latmod.mods.modularpipes.block;
 
-import com.latmod.mods.modularpipes.tile.TilePipeTransport;
 import com.latmod.mods.modularpipes.tile.TilePipeBase;
+import com.latmod.mods.modularpipes.tile.TilePipeTransport;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.state.IBlockState;
@@ -49,7 +49,7 @@ public class BlockPipeTransport extends BlockPipeBase
 			{
 				TileEntity tileEntity1 = world.getTileEntity(pos.offset(facing));
 
-				if (tileEntity1 instanceof TilePipeBase && pipe.canPipesConnect(((TilePipeBase) tileEntity1).skin))
+				if (tileEntity1 instanceof TilePipeBase && pipe.canPipesConnect(((TilePipeBase) tileEntity1).paint))
 				{
 					if (pipe.end1 == null)
 					{

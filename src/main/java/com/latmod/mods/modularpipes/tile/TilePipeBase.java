@@ -1,8 +1,9 @@
 package com.latmod.mods.modularpipes.tile;
 
 import com.latmod.mods.modularpipes.ModularPipesConfig;
-import com.latmod.mods.modularpipes.block.PipeSkin;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
@@ -14,15 +15,15 @@ public class TilePipeBase extends TileBase
 {
 	private boolean isDirty = false;
 	public boolean sync = false;
-	public PipeSkin skin = PipeSkin.NONE;
+	public IBlockState paint = Blocks.AIR.getDefaultState();
 	public boolean invisible = false;
 
 	@Override
 	public void writeData(NBTTagCompound nbt)
 	{
-		if (skin != PipeSkin.NONE)
+		if (paint != Blocks.AIR.getDefaultState())
 		{
-			nbt.setString("skin", skin.name);
+			nbt.setInteger("paint", Block.getStateId(paint));
 		}
 
 		if (invisible)
@@ -34,7 +35,8 @@ public class TilePipeBase extends TileBase
 	@Override
 	public void readData(NBTTagCompound nbt)
 	{
-		skin = PipeSkin.byName(nbt.getString("skin"));
+		int p = nbt.getInteger("paint");
+		paint = p == 0 ? Blocks.AIR.getDefaultState() : Block.getStateById(p);
 		invisible = nbt.getBoolean("invisible");
 	}
 
@@ -108,9 +110,9 @@ public class TilePipeBase extends TileBase
 		}
 	}
 
-	public boolean canPipesConnect(PipeSkin s)
+	public boolean canPipesConnect(IBlockState p)
 	{
-		return skin == s || skin == PipeSkin.NONE || s == PipeSkin.NONE;
+		return paint == p || paint == Blocks.AIR.getDefaultState() || p == Blocks.AIR.getDefaultState();
 	}
 
 	public boolean isConnected(EnumFacing facing)

@@ -4,13 +4,13 @@ import com.latmod.mods.modularpipes.ModularPipesUtils;
 import com.latmod.mods.modularpipes.block.BlockPipeBase;
 import com.latmod.mods.modularpipes.block.BlockPipeModular;
 import com.latmod.mods.modularpipes.block.EnumMK;
-import com.latmod.mods.modularpipes.block.PipeSkin;
 import com.latmod.mods.modularpipes.item.module.PipeModule;
 import com.latmod.mods.modularpipes.tile.TilePipeBase;
 import com.latmod.mods.modularpipes.tile.TilePipeModularMK1;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
@@ -39,51 +40,30 @@ import java.util.Map;
  */
 public class ModelPipeBaked implements IBakedModel
 {
+	public final ModelPipe modelPipe;
 	public final TextureAtlasSprite particle;
-	public final Map<PipeSkin, List<List<BakedQuad>>> base, connection;
+	public final ModelPipe.ModelCallback modelCallback;
+	public final Map<IBlockState, List<List<BakedQuad>>> base, connection;
 	public final List<List<BakedQuad>> glassBase, glassConnection, overlay, module;
-	private final Map<PipeSkin, Int2ObjectOpenHashMap<List<BakedQuad>>> cache;
+	private final Map<IBlockState, Int2ObjectOpenHashMap<List<BakedQuad>>> cache;
 	private final IBakedModel bakedItem;
 	private final IBakedModel[] bakedItemWithOverlay;
 	private final ItemOverrideList itemOverrideList;
 
 	public ModelPipeBaked(ModelPipe m, TextureAtlasSprite p, ModelPipe.ModelCallback c)
 	{
+		modelPipe = m;
 		particle = p;
-		base = new HashMap<>(PipeSkin.MAP.size());
-
-		for (PipeSkin skin : PipeSkin.MAP.values())
-		{
-			AbstractMap.SimpleEntry<String, ResourceLocation> entry = new AbstractMap.SimpleEntry<>("material", skin.texture);
-			List<List<BakedQuad>> base1 = new ArrayList<>(4);
-			base1.add(c.get(m.modelBase, ModelRotation.X0_Y0, entry));
-			base1.add(c.get(m.modelVertical, ModelRotation.X90_Y90, entry));
-			base1.add(c.get(m.modelVertical, ModelRotation.X0_Y0, entry));
-			base1.add(c.get(m.modelVertical, ModelRotation.X90_Y0, entry));
-			base.put(skin, base1);
-		}
-
+		modelCallback = c;
+		base = new HashMap<>();
 		glassBase = new ArrayList<>(4);
 		glassBase.add(c.get(m.modelGlassBase, ModelRotation.X0_Y0));
 		glassBase.add(c.get(m.modelGlassVertical, ModelRotation.X90_Y90));
 		glassBase.add(c.get(m.modelGlassVertical, ModelRotation.X0_Y0));
 		glassBase.add(c.get(m.modelGlassVertical, ModelRotation.X90_Y0));
 
-		connection = new HashMap<>(PipeSkin.MAP.size());
+		connection = new HashMap<>();
 		glassConnection = new ArrayList<>(6);
-
-		for (PipeSkin skin : PipeSkin.MAP.values())
-		{
-			AbstractMap.SimpleEntry<String, ResourceLocation> entry = new AbstractMap.SimpleEntry<>("material", skin.texture);
-			List<List<BakedQuad>> connection1 = new ArrayList<>(6);
-
-			for (int i = 0; i < 6; i++)
-			{
-				connection1.add(c.get(m.modelConnection, ModelPipe.FACE_ROTATIONS[i], entry));
-			}
-
-			connection.put(skin, connection1);
-		}
 
 		for (int i = 0; i < 6; i++)
 		{
@@ -214,12 +194,41 @@ public class ModelPipeBaked implements IBakedModel
 			}
 		}
 
-		Int2ObjectOpenHashMap<List<BakedQuad>> cacheMap = cache.get(pipe.skin);
+		Int2ObjectOpenHashMap<List<BakedQuad>> cacheMap = cache.get(pipe.paint);
 
 		if (cacheMap == null)
 		{
 			cacheMap = new Int2ObjectOpenHashMap<>();
-			cache.put(pipe.skin, cacheMap);
+			cache.put(pipe.paint, cacheMap);
+
+			TextureAtlasSprite sprite = null;
+
+			if (pipe.paint != Blocks.AIR.getDefaultState())
+			{
+				sprite = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getTexture(pipe.paint);
+			}
+
+			if (sprite == null)
+			{
+				sprite = particle;
+			}
+
+			AbstractMap.SimpleEntry<String, ResourceLocation> entry = new AbstractMap.SimpleEntry<>("material", new ResourceLocation(sprite.getIconName()));
+			List<List<BakedQuad>> base1 = new ArrayList<>(4);
+			base1.add(modelCallback.get(modelPipe.modelBase, ModelRotation.X0_Y0, entry));
+			base1.add(modelCallback.get(modelPipe.modelVertical, ModelRotation.X90_Y90, entry));
+			base1.add(modelCallback.get(modelPipe.modelVertical, ModelRotation.X0_Y0, entry));
+			base1.add(modelCallback.get(modelPipe.modelVertical, ModelRotation.X90_Y0, entry));
+			base.put(pipe.paint, base1);
+
+			List<List<BakedQuad>> connection1 = new ArrayList<>(6);
+
+			for (int i = 0; i < 6; i++)
+			{
+				connection1.add(modelCallback.get(modelPipe.modelConnection, ModelPipe.FACE_ROTATIONS[i], entry));
+			}
+
+			connection.put(pipe.paint, connection1);
 		}
 
 		int cacheIndex = connections | ((layer == BlockRenderLayer.CUTOUT ? 1 : 0) << 6);
@@ -240,7 +249,7 @@ public class ModelPipeBaked implements IBakedModel
 
 		if (layer == BlockRenderLayer.SOLID)
 		{
-			quads.addAll(base.get(pipe.skin).get(baseIndex));
+			quads.addAll(base.get(pipe.paint).get(baseIndex));
 
 			if (baseIndex == 0)
 			{
@@ -248,7 +257,7 @@ public class ModelPipeBaked implements IBakedModel
 				{
 					if ((connections & (1 << i)) != 0)
 					{
-						quads.addAll(connection.get(pipe.skin).get(i));
+						quads.addAll(connection.get(pipe.paint).get(i));
 					}
 				}
 			}

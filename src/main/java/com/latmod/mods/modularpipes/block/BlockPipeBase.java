@@ -1,5 +1,6 @@
 package com.latmod.mods.modularpipes.block;
 
+import com.latmod.mods.modularpipes.item.ItemPainter;
 import com.latmod.mods.modularpipes.item.ModularPipesItems;
 import com.latmod.mods.modularpipes.tile.TilePipeBase;
 import net.minecraft.block.Block;
@@ -95,7 +96,6 @@ public class BlockPipeBase extends Block
 		super(Material.ROCK, color);
 		setHardness(0.35F);
 		setSoundType(SoundType.METAL);
-		setDefaultState(blockState.getBaseState());
 	}
 
 	public boolean isModular()
@@ -240,7 +240,7 @@ public class BlockPipeBase extends Block
 
 			if (tileEntity instanceof TilePipeBase)
 			{
-				((TilePipeBase) tileEntity).skin = stack.hasTagCompound() ? PipeSkin.byName(stack.getTagCompound().getString("skin")) : PipeSkin.NONE;
+				((TilePipeBase) tileEntity).paint = ItemPainter.getBlockState(ItemPainter.getPaint(stack));
 				tileEntity.markDirty();
 
 				if (world.isRemote)

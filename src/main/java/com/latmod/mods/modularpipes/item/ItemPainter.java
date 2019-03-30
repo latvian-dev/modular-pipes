@@ -1,6 +1,5 @@
 package com.latmod.mods.modularpipes.item;
 
-import com.latmod.mods.modularpipes.block.PipeSkin;
 import com.latmod.mods.modularpipes.gui.ModularPipesGuiHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
@@ -11,7 +10,9 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
@@ -21,7 +22,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -32,28 +32,33 @@ import java.util.List;
 public class ItemPainter extends Item
 {
 	@SuppressWarnings("deprecation")
-	public static IBlockState getBlockState(@Nullable ItemStack item)
+	public static IBlockState getBlockState(ItemStack item)
 	{
-		if (item == null)
-		{
-			return Blocks.AIR.getDefaultState();
-		}
-
 		Block block = Block.getBlockFromItem(item.getItem());
 
-		if (block == Blocks.AIR)
+		if (block instanceof BlockAir)
 		{
 			return Blocks.AIR.getDefaultState();
 		}
 
-		try
+		return block.getStateFromMeta(item.getItem().getMetadata(item));
+	}
+
+	public static ItemStack getItemStack(IBlockState state)
+	{
+		if (state.getBlock() instanceof BlockAir)
 		{
-			return block.getStateFromMeta(item.getItem().getMetadata(item));
+			return ItemStack.EMPTY;
 		}
-		catch (Exception e)
+
+		Item item = Item.getItemFromBlock(state.getBlock());
+
+		if (item != Items.AIR)
 		{
-			return Blocks.AIR.getDefaultState();
+			return new ItemStack(item, 1, state.getBlock().damageDropped(state));
 		}
+
+		return ItemStack.EMPTY;
 	}
 
 	@SuppressWarnings("deprecation")
@@ -68,15 +73,40 @@ public class ItemPainter extends Item
 		return b instanceof BlockGlass || b instanceof BlockStainedGlass || (!(s instanceof IExtendedBlockState) && !b.getTickRandomly() && b.isTopSolid(s) && s.getRenderType() == EnumBlockRenderType.MODEL);
 	}
 
-	public static boolean isValidPaint(ItemStack stack)
+	@Nullable
+	public static ItemStack getValidPaint(ItemStack paint)
 	{
+		if (paint.isEmpty())
+		{
+			return ItemStack.EMPTY;
+		}
+
+		if (!(paint.getItem() instanceof ItemBlock) || paint.isItemStackDamageable())
+		{
+			return null;
+		}
+
 		try
 		{
-			return isValidPaint(getBlockState(stack));
+			IBlockState state = getBlockState(paint);
+
+			if (!isValidPaint(state))
+			{
+				return null;
+			}
+
+			ItemStack stack = getItemStack(state);
+
+			if (stack.getItem() != paint.getItem() || stack.getMetadata() != paint.getMetadata())
+			{
+				return null;
+			}
+
+			return stack;
 		}
 		catch (Exception ex)
 		{
-			return false;
+			return null;
 		}
 	}
 
@@ -93,12 +123,14 @@ public class ItemPainter extends Item
 
 	public static boolean setPaint(ItemStack stack, ItemStack paint)
 	{
-		if (stack.isEmpty() || !isValidPaint(paint))
+		ItemStack stack1 = getValidPaint(paint);
+
+		if (stack1 == null)
 		{
 			return false;
 		}
 
-		stack.setTagInfo("paint", ItemHandlerHelper.copyStackWithSize(paint, 1).serializeNBT());
+		stack.setTagInfo("paint", stack1.serializeNBT());
 		return true;
 	}
 
@@ -133,7 +165,7 @@ public class ItemPainter extends Item
 
 		if (paint.isEmpty())
 		{
-			tooltip.add(I18n.format(PipeSkin.NONE.translationKey));
+			tooltip.add(I18n.format("gui.none"));
 		}
 		else
 		{

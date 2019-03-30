@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.latmod.mods.modularpipes.ModularPipes;
 import com.latmod.mods.modularpipes.ModularPipesUtils;
 import com.latmod.mods.modularpipes.block.EnumMK;
-import com.latmod.mods.modularpipes.block.PipeSkin;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
@@ -100,11 +99,6 @@ public class ModelPipe implements IModel
 		}
 
 		textures.add(textureParticle = new ResourceLocation("minecraft:blocks/concrete_gray"));
-
-		for (PipeSkin skin : PipeSkin.MAP.values())
-		{
-			textures.add(skin.texture);
-		}
 	}
 
 	@Override

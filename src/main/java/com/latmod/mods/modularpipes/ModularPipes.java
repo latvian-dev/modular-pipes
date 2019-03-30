@@ -1,6 +1,5 @@
 package com.latmod.mods.modularpipes;
 
-import com.latmod.mods.modularpipes.block.PipeSkin;
 import com.latmod.mods.modularpipes.gui.ModularPipesGuiHandler;
 import com.latmod.mods.modularpipes.item.ModularPipesItems;
 import com.latmod.mods.modularpipes.item.module.PipeModule;
@@ -10,7 +9,6 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.util.INBTSerializable;
@@ -94,25 +92,5 @@ public class ModularPipes
 
 		NetworkRegistry.INSTANCE.registerGuiHandler(this, ModularPipesGuiHandler.INSTANCE);
 		ModularPipesNet.init();
-
-		PipeSkin.register("white", "item.fireworksCharge.white", new ResourceLocation("minecraft:blocks/concrete_powder_white"));
-		PipeSkin.register("orange", "item.fireworksCharge.orange", new ResourceLocation("minecraft:blocks/concrete_powder_orange"));
-		PipeSkin.register("magenta", "item.fireworksCharge.magenta", new ResourceLocation("minecraft:blocks/concrete_powder_magenta"));
-		PipeSkin.register("light_blue", "item.fireworksCharge.lightBlue", new ResourceLocation("minecraft:blocks/concrete_powder_light_blue"));
-		PipeSkin.register("yellow", "item.fireworksCharge.yellow", new ResourceLocation("minecraft:blocks/concrete_powder_yellow"));
-		PipeSkin.register("lime", "item.fireworksCharge.lime", new ResourceLocation("minecraft:blocks/concrete_powder_lime"));
-		PipeSkin.register("pink", "item.fireworksCharge.pink", new ResourceLocation("minecraft:blocks/concrete_powder_pink"));
-		PipeSkin.register("gray", "item.fireworksCharge.gray", new ResourceLocation("minecraft:blocks/concrete_powder_gray"));
-		PipeSkin.register("silver", "item.fireworksCharge.silver", new ResourceLocation("minecraft:blocks/concrete_powder_silver"));
-		PipeSkin.register("cyan", "item.fireworksCharge.cyan", new ResourceLocation("minecraft:blocks/concrete_powder_cyan"));
-		PipeSkin.register("purple", "item.fireworksCharge.purple", new ResourceLocation("minecraft:blocks/concrete_powder_purple"));
-		PipeSkin.register("blue", "item.fireworksCharge.blue", new ResourceLocation("minecraft:blocks/concrete_powder_blue"));
-		PipeSkin.register("brown", "item.fireworksCharge.brown", new ResourceLocation("minecraft:blocks/concrete_powder_brown"));
-		PipeSkin.register("green", "item.fireworksCharge.green", new ResourceLocation("minecraft:blocks/concrete_powder_green"));
-		PipeSkin.register("red", "item.fireworksCharge.red", new ResourceLocation("minecraft:blocks/concrete_powder_red"));
-		PipeSkin.register("black", "item.fireworksCharge.black", new ResourceLocation("minecraft:blocks/concrete_powder_black"));
-		PipeSkin.register("brick", "tile.brick.name", new ResourceLocation("minecraft:blocks/brick"));
-		PipeSkin.register("ice", "tile.ice.name", new ResourceLocation("minecraft:blocks/ice_packed"));
-		PipeSkin.register("melon", "tile.melon.name", new ResourceLocation("minecraft:blocks/melon_top"));
 	}
 }

@@ -2,16 +2,18 @@ package com.latmod.mods.modularpipes.client;
 
 import com.latmod.mods.modularpipes.ModularPipesUtils;
 import com.latmod.mods.modularpipes.block.EnumMK;
-import com.latmod.mods.modularpipes.block.PipeSkin;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
+import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +30,7 @@ public class ModelPipeBakedItem implements IBakedModel
 	{
 		parent = p;
 		quads = new ArrayList<>();
-		quads.addAll(parent.base.get(PipeSkin.NONE).get(0));
+		quads.addAll(parent.modelCallback.get(parent.modelPipe.modelBase, ModelRotation.X0_Y0, new AbstractMap.SimpleEntry<>("material", new ResourceLocation(parent.particle.getIconName()))));
 		quads.addAll(parent.glassBase.get(0));
 
 		if (mk != null)
