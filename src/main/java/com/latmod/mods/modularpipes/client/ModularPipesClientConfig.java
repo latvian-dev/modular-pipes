@@ -24,6 +24,8 @@ public class ModularPipesClientConfig
 		public double item_render_distance = 90D;
 
 		public boolean item_particles = true;
+
+		public boolean add_all_tanks = false;
 	}
 
 	public static void sync()

@@ -1,5 +1,6 @@
 package com.latmod.mods.modularpipes.block;
 
+import com.latmod.mods.modularpipes.client.ModularPipesClientConfig;
 import com.latmod.mods.modularpipes.item.ItemBlockTank;
 import com.latmod.mods.modularpipes.item.ModularPipesItems;
 import com.latmod.mods.modularpipes.tile.TileTank;
@@ -7,9 +8,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -17,10 +17,14 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidActionResult;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -30,34 +34,11 @@ import net.minecraftforge.items.IItemHandler;
  */
 public class BlockTank extends Block
 {
-	public static final PropertyBool TANK_DOWN = PropertyBool.create("down");
-	public static final PropertyBool TANK_UP = PropertyBool.create("up");
-
 	public BlockTank()
 	{
 		super(Material.GLASS, MapColor.BLACK);
 		setHardness(0.4F);
 		setSoundType(SoundType.GLASS);
-		setDefaultState(blockState.getBaseState().withProperty(TANK_DOWN, false).withProperty(TANK_UP, false));
-	}
-
-	@Override
-	protected BlockStateContainer createBlockState()
-	{
-		return new BlockStateContainer(this, TANK_DOWN, TANK_UP);
-	}
-
-	@Override
-	@Deprecated
-	public IBlockState getStateFromMeta(int meta)
-	{
-		return getDefaultState();
-	}
-
-	@Override
-	public int getMetaFromState(IBlockState state)
-	{
-		return 0;
 	}
 
 	@Override
@@ -103,6 +84,22 @@ public class BlockTank extends Block
 	public boolean canHarvestBlock(IBlockAccess world, BlockPos pos, EntityPlayer player)
 	{
 		return true;
+	}
+
+	@Override
+	public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items)
+	{
+		items.add(new ItemStack(ModularPipesItems.TANK));
+
+		if (ModularPipesClientConfig.general.add_all_tanks)
+		{
+			for (Fluid fluid : FluidRegistry.getRegisteredFluids().values())
+			{
+				ItemBlockTank.TankCapProvider data = ItemBlockTank.getData(new ItemStack(ModularPipesItems.TANK));
+				data.tank.setFluid(new FluidStack(fluid, 16 * Fluid.BUCKET_VOLUME));
+				items.add(data.stack);
+			}
+		}
 	}
 
 	@Override
@@ -178,23 +175,6 @@ public class BlockTank extends Block
 		}
 
 		return false;
-	}
-
-	@Override
-	@Deprecated
-	public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos)
-	{
-		if (world.getBlockState(pos.down()).getBlock() == this)
-		{
-			state = state.withProperty(TANK_DOWN, true);
-		}
-
-		if (world.getBlockState(pos.up()).getBlock() == this)
-		{
-			state = state.withProperty(TANK_UP, true);
-		}
-
-		return state;
 	}
 
 	@Override

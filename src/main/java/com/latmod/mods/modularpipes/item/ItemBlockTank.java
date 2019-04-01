@@ -29,10 +29,17 @@ import java.util.List;
  */
 public class ItemBlockTank extends ItemBlock
 {
-	@Nullable
 	public static TankCapProvider getData(ItemStack stack)
 	{
-		return (TankCapProvider) stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null);
+		TankCapProvider tank = (TankCapProvider) stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null);
+
+		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("BlockEntityTag"))
+		{
+			tank.deserializeNBT(stack.getTagCompound().getCompoundTag("BlockEntityTag"));
+			stack.setTagCompound(null);
+		}
+
+		return tank;
 	}
 
 	public static class TankCapProvider implements ICapabilityProvider, IFluidHandlerItem, INBTSerializable<NBTTagCompound>
@@ -148,17 +155,8 @@ public class ItemBlockTank extends ItemBlock
 	@Override
 	public void readNBTShareTag(ItemStack stack, @Nullable NBTTagCompound nbt)
 	{
-		if (nbt != null)
-		{
-			stack.setTagCompound((NBTTagCompound) nbt.getTag("nbt"));
-
-			TankCapProvider data = getData(stack);
-
-			if (data != null)
-			{
-				data.tank.setFluid(FluidStack.loadFluidStackFromNBT((NBTTagCompound) nbt.getTag("fluid")));
-			}
-		}
+		stack.setTagCompound(nbt == null ? null : (NBTTagCompound) nbt.getTag("nbt"));
+		getData(stack).tank.setFluid(FluidStack.loadFluidStackFromNBT(nbt == null ? null : (NBTTagCompound) nbt.getTag("fluid")));
 	}
 
 	@Override
