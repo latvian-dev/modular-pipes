@@ -42,7 +42,7 @@ configurations.all {
 repositories {
 	mavenLocal()
 	maven { url "https://maven.latmod.com/" } //Item Filters
-	maven { url "http://dvs1.progwml6.com/files/maven" } //JEI
+	maven { url "https://dvs1.progwml6.com/files/maven" } //JEI
 }
 
 dependencies {
