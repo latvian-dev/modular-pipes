@@ -1,14 +1,14 @@
 package com.latmod.mods.modularpipes.item;
 
+import com.latmod.mods.itemfilters.api.IPaintable;
+import com.latmod.mods.itemfilters.api.PaintAPI;
 import com.latmod.mods.modularpipes.gui.ModularPipesGuiHandler;
-import com.latmod.mods.modularpipes.tile.TilePipeBase;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagInt;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
@@ -81,11 +81,11 @@ public class ItemPainter extends Item
 	@Override
 	public EnumActionResult onItemUseFirst(EntityPlayer player, World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, EnumHand hand)
 	{
-		TileEntity tileEntity = world.getTileEntity(pos);
+		IPaintable paintable = PaintAPI.get(world.getTileEntity(pos));
 
-		if (tileEntity instanceof TilePipeBase)
+		if (paintable != null)
 		{
-			((TilePipeBase) tileEntity).paint(getPaint(player.getHeldItem(hand)), player.isSneaking());
+			paintable.paint(Block.getStateById(getPaint(player.getHeldItem(hand))), facing, player.isSneaking());
 			return EnumActionResult.SUCCESS;
 		}
 		else if (player.isSneaking())

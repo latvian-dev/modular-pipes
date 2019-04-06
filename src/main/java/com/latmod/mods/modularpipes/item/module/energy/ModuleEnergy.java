@@ -1,7 +1,7 @@
 package com.latmod.mods.modularpipes.item.module.energy;
 
 import com.latmod.mods.modularpipes.ModularPipesConfig;
-import com.latmod.mods.modularpipes.item.module.SidePipeModule;
+import com.latmod.mods.modularpipes.item.module.SidedPipeModule;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
@@ -14,7 +14,7 @@ import java.util.Optional;
 /**
  * @author LatvianModder
  */
-public class ModuleEnergy extends SidePipeModule implements IEnergyStorage
+public class ModuleEnergy extends SidedPipeModule implements IEnergyStorage
 {
 	private Optional<IEnergyStorage> cachedEnergyStorage = null;
 

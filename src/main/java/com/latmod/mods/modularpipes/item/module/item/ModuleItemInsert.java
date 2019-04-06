@@ -1,18 +1,16 @@
 package com.latmod.mods.modularpipes.item.module.item;
 
 import com.latmod.mods.itemfilters.api.ItemFiltersAPI;
+import com.latmod.mods.modularpipes.ModularPipesCommon;
 import com.latmod.mods.modularpipes.item.module.PipeModule;
-import com.latmod.mods.modularpipes.item.module.SidePipeModule;
+import com.latmod.mods.modularpipes.item.module.SidedPipeModule;
 import com.latmod.mods.modularpipes.tile.TilePipeModularMK1;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -23,7 +21,7 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public class ModuleItemInsert extends SidePipeModule
+public class ModuleItemInsert extends SidedPipeModule
 {
 	public ItemStack filter = ItemStack.EMPTY;
 	public int tick = 0;
@@ -110,26 +108,16 @@ public class ModuleItemInsert extends SidePipeModule
 
 		if (tick >= 7)
 		{
-			World w = pipe.getWorld();
-
-			if (w.isRemote)
+			if (insertItem())
 			{
-				BlockPos p = pipe.getPos();
-				double x = p.getX() + 0.5D + side.getXOffset() * 0.35D;
-				double y = p.getY() + 0.5D + side.getYOffset() * 0.35D;
-				double z = p.getZ() + 0.5D + side.getZOffset() * 0.35D;
-				w.spawnParticle(EnumParticleTypes.EXPLOSION_NORMAL, x, y, z, 0D, 0D, 0D);
-			}
-			else
-			{
-				insertItem();
+				spawnParticle(ModularPipesCommon.EXPLOSION);
 			}
 
 			tick = 0;
 		}
 	}
 
-	private void insertItem()
+	private boolean insertItem()
 	{
 		TileEntity tile = getFacingTile();
 		IItemHandler handler = tile == null ? null : tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite());
@@ -153,13 +141,15 @@ public class ModuleItemInsert extends SidePipeModule
 							if (stack.getCount() != stack1.getCount())
 							{
 								handler1.extractItem(i, stack.getCount() - stack1.getCount(), false);
-								return;
+								return true;
 							}
 						}
 					}
 				}
 			}
 		}
+
+		return false;
 	}
 
 	@Override

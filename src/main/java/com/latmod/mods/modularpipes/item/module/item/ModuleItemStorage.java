@@ -1,6 +1,6 @@
 package com.latmod.mods.modularpipes.item.module.item;
 
-import com.latmod.mods.modularpipes.item.module.SidePipeModule;
+import com.latmod.mods.modularpipes.item.module.SidedPipeModule;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -17,7 +17,7 @@ import java.util.Comparator;
 /**
  * @author LatvianModder
  */
-public class ModuleItemStorage extends SidePipeModule
+public class ModuleItemStorage extends SidedPipeModule
 {
 	public static final Comparator<ModuleItemStorage> COMPARATOR = (o1, o2) ->
 	{

@@ -2,7 +2,7 @@ package com.latmod.mods.modularpipes.item.module.item;
 
 import com.latmod.mods.itemfilters.api.ItemFiltersAPI;
 import com.latmod.mods.modularpipes.item.module.PipeModule;
-import com.latmod.mods.modularpipes.item.module.SidePipeModule;
+import com.latmod.mods.modularpipes.item.module.SidedPipeModule;
 import com.latmod.mods.modularpipes.tile.TilePipeModularMK1;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public class ModuleItemHandler extends SidePipeModule implements IItemHandler
+public class ModuleItemHandler extends SidedPipeModule implements IItemHandler
 {
 	public ItemStack filter = ItemStack.EMPTY;
 	private List<ModuleItemStorage> storageModules = null;

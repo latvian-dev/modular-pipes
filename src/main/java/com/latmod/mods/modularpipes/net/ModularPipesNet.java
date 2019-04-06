@@ -14,5 +14,6 @@ public class ModularPipesNet
 	public static void init()
 	{
 		NET.registerMessage(new MessageSendPaint.Handler(), MessageSendPaint.class, 1, Side.SERVER);
+		NET.registerMessage(new MessageParticle.Handler(), MessageParticle.class, 2, Side.CLIENT);
 	}
 }

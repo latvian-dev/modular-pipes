@@ -1,12 +1,10 @@
 package com.latmod.mods.modularpipes.item.module.item;
 
 import com.latmod.mods.itemfilters.api.ItemFiltersAPI;
+import com.latmod.mods.modularpipes.ModularPipesCommon;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
@@ -48,26 +46,16 @@ public class ModuleItemExtract extends ModuleItemHandler
 
 		if (tick >= 7)
 		{
-			World w = pipe.getWorld();
-
-			if (w.isRemote)
+			if (extractItem())
 			{
-				BlockPos p = pipe.getPos();
-				double x = p.getX() + 0.5D + side.getXOffset() * 0.35D;
-				double y = p.getY() + 0.5D + side.getYOffset() * 0.35D;
-				double z = p.getZ() + 0.5D + side.getZOffset() * 0.35D;
-				w.spawnParticle(EnumParticleTypes.EXPLOSION_NORMAL, x, y, z, 0D, 0D, 0D);
-			}
-			else
-			{
-				extractItem();
+				spawnParticle(ModularPipesCommon.EXPLOSION);
 			}
 
 			tick = 0;
 		}
 	}
 
-	private void extractItem()
+	private boolean extractItem()
 	{
 		TileEntity tile = getFacingTile();
 		IItemHandler handler = tile == null ? null : tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite());
@@ -85,10 +73,12 @@ public class ModuleItemExtract extends ModuleItemHandler
 					if (stack1.getCount() != stack.getCount())
 					{
 						handler.extractItem(slot, stack.getCount() - stack1.getCount(), false);
-						break;
+						return true;
 					}
 				}
 			}
 		}
+
+		return false;
 	}
 }

@@ -1,6 +1,6 @@
 package com.latmod.mods.modularpipes.item.module.fluid;
 
-import com.latmod.mods.modularpipes.item.module.SidePipeModule;
+import com.latmod.mods.modularpipes.item.module.SidedPipeModule;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 /**
  * @author LatvianModder
  */
-public class ModuleFluidHandler extends SidePipeModule implements IFluidHandler
+public class ModuleFluidHandler extends SidedPipeModule implements IFluidHandler
 {
 	@Override
 	public IFluidTankProperties[] getTankProperties()

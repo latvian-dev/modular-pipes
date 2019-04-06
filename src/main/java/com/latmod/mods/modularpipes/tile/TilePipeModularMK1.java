@@ -177,7 +177,7 @@ public class TilePipeModularMK1 extends TilePipeBase implements IEnergyStorage
 
 	public void tickPipe()
 	{
-		if (!modules.isEmpty())
+		if (!world.isRemote && !modules.isEmpty())
 		{
 			for (PipeModule module : modules)
 			{

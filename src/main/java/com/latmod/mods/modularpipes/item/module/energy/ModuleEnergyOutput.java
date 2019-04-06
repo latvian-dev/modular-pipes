@@ -1,5 +1,6 @@
 package com.latmod.mods.modularpipes.item.module.energy;
 
+import com.latmod.mods.modularpipes.ModularPipesCommon;
 import net.minecraftforge.energy.IEnergyStorage;
 
 /**
@@ -7,6 +8,9 @@ import net.minecraftforge.energy.IEnergyStorage;
  */
 public class ModuleEnergyOutput extends ModuleEnergy
 {
+	private boolean hasMovedEnergy = false;
+	private int tick = 0;
+
 	@Override
 	public boolean canUpdate()
 	{
@@ -16,23 +20,37 @@ public class ModuleEnergyOutput extends ModuleEnergy
 	@Override
 	public void updateModule()
 	{
-		if (pipe.getWorld().isRemote || pipe.storedPower <= 0)
+		if (pipe.storedPower > 0)
 		{
-			return;
+			IEnergyStorage storage = getFacingEnergyStorage();
+
+			if (storage != null)
+			{
+				int a = storage.receiveEnergy(Math.min(240, pipe.storedPower), false);
+
+				if (a > 0)
+				{
+					pipe.storedPower -= a;
+					pipe.markDirty();
+					pipe.sync = false;
+					hasMovedEnergy = true;
+				}
+			}
 		}
 
-		IEnergyStorage storage = getFacingEnergyStorage();
-
-		if (storage != null)
+		if (tick <= 0)
 		{
-			int a = storage.receiveEnergy(Math.min(240, pipe.storedPower), false);
+			tick = pipe.getWorld().rand.nextInt(40) + 8;
 
-			if (a > 0)
+			if (hasMovedEnergy)
 			{
-				pipe.storedPower -= a;
-				pipe.markDirty();
-				pipe.sync = false;
+				spawnParticle(ModularPipesCommon.SPARK);
+				hasMovedEnergy = false;
 			}
+		}
+		else
+		{
+			tick--;
 		}
 	}
 }

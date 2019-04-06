@@ -1,5 +1,7 @@
 package com.latmod.mods.modularpipes.item.module;
 
+import com.latmod.mods.modularpipes.net.MessageParticle;
+import com.latmod.mods.modularpipes.net.ModularPipesNet;
 import com.latmod.mods.modularpipes.tile.PipeNetwork;
 import com.latmod.mods.modularpipes.tile.TilePipeModularMK1;
 import net.minecraft.entity.player.EntityPlayer;
@@ -10,6 +12,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 import javax.annotation.Nullable;
 
@@ -103,5 +106,16 @@ public class PipeModule implements ICapabilityProvider
 		NBTTagCompound nbt = new NBTTagCompound();
 		writeData(nbt);
 		return moduleItem.getItem().getRegistryName() + (nbt.isEmpty() ? "" : ("+" + nbt));
+	}
+
+	public void spawnParticle(int type)
+	{
+		if (pipe.hasWorld() && !pipe.getWorld().isRemote)
+		{
+			double x = pipe.getPos().getX() + 0.5D;
+			double y = pipe.getPos().getY() + 0.5D;
+			double z = pipe.getPos().getZ() + 0.5D;
+			ModularPipesNet.NET.sendToAllAround(new MessageParticle(pipe.getPos(), null, type), new NetworkRegistry.TargetPoint(pipe.getWorld().provider.getDimension(), x, y, z, 24D));
+		}
 	}
 }

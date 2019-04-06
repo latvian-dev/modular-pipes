@@ -1,18 +1,23 @@
 package com.latmod.mods.modularpipes.tile;
 
+import com.latmod.mods.itemfilters.api.IPaintable;
+import com.latmod.mods.itemfilters.api.PaintAPI;
 import com.latmod.mods.modularpipes.ModularPipesConfig;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 
+import javax.annotation.Nullable;
 import java.util.HashSet;
 
 /**
  * @author LatvianModder
  */
-public class TilePipeBase extends TileBase
+public class TilePipeBase extends TileBase implements IPaintable
 {
 	private boolean isDirty = false;
 	public boolean sync = false;
@@ -31,6 +36,29 @@ public class TilePipeBase extends TileBase
 		{
 			nbt.setBoolean("invisible", true);
 		}
+	}
+
+	@Override
+	public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing)
+	{
+		if (capability == PaintAPI.CAPABILITY)
+		{
+			return true;
+		}
+
+		return super.hasCapability(capability, facing);
+	}
+
+	@Nullable
+	@Override
+	public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing)
+	{
+		if (capability == PaintAPI.CAPABILITY)
+		{
+			return (T) this;
+		}
+
+		return super.getCapability(capability, facing);
 	}
 
 	@Override
@@ -120,19 +148,20 @@ public class TilePipeBase extends TileBase
 		return false;
 	}
 
+	@Override
 	@SuppressWarnings("deprecation")
-	public void paint(int p, boolean all)
+	public void paint(IBlockState paintState, EnumFacing facing, boolean all)
 	{
 		if (all)
 		{
 			HashSet<TilePipeBase> pipes = new HashSet<>();
-			paintAll(this, paint, pipes, p);
+			paintAll(this, paint, pipes, Block.getStateId(paintState));
 
 			for (TilePipeBase pipe : pipes)
 			{
 				pipe.markDirty();
 				IBlockState state = world.getBlockState(pipe.getPos());
-				state.getBlock().neighborChanged(state, world, pipe.getPos(), state.getBlock(), pipe.getPos().up());
+				state.getBlock().neighborChanged(state, world, pipe.getPos(), state.getBlock(), pipe.getPos().offset(facing));
 
 				if (world.isRemote)
 				{
@@ -144,10 +173,10 @@ public class TilePipeBase extends TileBase
 			return;
 		}
 
-		paint = p;
+		paint = Block.getStateId(paintState);
 		markDirty();
 		IBlockState state = world.getBlockState(pos);
-		state.getBlock().neighborChanged(state, world, pos, state.getBlock(), pos.up());
+		state.getBlock().neighborChanged(state, world, pos, state.getBlock(), pos.offset(facing));
 		world.notifyNeighborsOfStateChange(pos, state.getBlock(), true);
 
 		if (world.isRemote)
@@ -156,6 +185,12 @@ public class TilePipeBase extends TileBase
 		}
 
 		PipeNetwork.get(world).refresh();
+	}
+
+	@Override
+	public IBlockState getPaint()
+	{
+		return Block.getStateById(paint);
 	}
 
 	private void paintAll(TilePipeBase pipe, int originalPaint, HashSet<TilePipeBase> visited, int paint)
