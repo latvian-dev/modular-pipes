@@ -132,7 +132,12 @@ public class ModularPipesEventHandler
 	{
 		if (event.phase == TickEvent.Phase.END)
 		{
-			PipeNetwork.get(event.world).tick();
+			PipeNetwork network = PipeNetwork.get(event.world);
+
+			if (network != null)
+			{
+				network.tick();
+			}
 		}
 	}
 }

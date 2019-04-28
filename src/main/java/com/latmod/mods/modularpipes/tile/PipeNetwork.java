@@ -26,9 +26,10 @@ public class PipeNetwork implements ICapabilityProvider
 	@CapabilityInject(PipeNetwork.class)
 	public static Capability<PipeNetwork> CAP;
 
-	public static PipeNetwork get(World world)
+	@Nullable
+	public static PipeNetwork get(@Nullable World world)
 	{
-		return world.getCapability(CAP, null);
+		return world == null ? null : world.getCapability(CAP, null);
 	}
 
 	public static final float[] POS_X = new float[6];
@@ -129,8 +130,31 @@ public class PipeNetwork implements ICapabilityProvider
 		}
 	}
 
+	private boolean shouldRender()
+	{
+		if (pipes.isEmpty())
+		{
+			return false;
+		}
+
+		for (TilePipeModularMK1 pipe : pipes)
+		{
+			if (!pipe.items.isEmpty())
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public void render(float partialTicks)
 	{
+		if (!shouldRender())
+		{
+			return;
+		}
+
 		Minecraft mc = Minecraft.getMinecraft();
 		RenderItem renderItem = mc.getRenderItem();
 		double renderDistanceSq = 64 * 64;
