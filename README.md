@@ -1,1 +1,1 @@
-# ModularPipes [![](http://cf.way2muchnoise.eu/modular-pipes.svg)](https://minecraft.curseforge.com/projects/modular-pipes) [![](http://cf.way2muchnoise.eu/versions/modular-pipes.svg)](https://minecraft.curseforge.com/projects/modular-pipes)
+# Modular Pipes [![](http://cf.way2muchnoise.eu/modular-pipes.svg) ![](https://cf.way2muchnoise.eu/packs/modular-pipes.svg) ![](http://cf.way2muchnoise.eu/versions/modular-pipes.svg)](https://www.curseforge.com/minecraft/mc-mods/modular-pipes)
