@@ -33,12 +33,14 @@ public class RenderTank extends TileEntitySpecialRenderer<TileTank>
 	@Override
 	public void render(TileTank tile, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
 	{
-		int amount = tile.tank.getFluidAmount();
+		int amount0 = tile.tank.getFluidAmount();
 
-		if (amount <= 0)
+		if (amount0 <= 0)
 		{
 			return;
 		}
+
+		double amount = amount0 / (double) tile.tank.getCapacity();
 
 		Minecraft mc = Minecraft.getMinecraft();
 		GlStateManager.enableBlend();
@@ -46,7 +48,7 @@ public class RenderTank extends TileEntitySpecialRenderer<TileTank>
 
 		double o0 = 1.01D / 16D;
 		double o1 = 14.99D / 16D;
-		double y1 = o0 + ((o1 - o0) * amount / (double) tile.tank.getCapacity());
+		double y1 = o0 + ((o1 - o0) * amount);
 
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);
@@ -88,7 +90,7 @@ public class RenderTank extends TileEntitySpecialRenderer<TileTank>
 		buffer.pos(o1, y1, o0).tex(u0 + uo, v1 - vo).color(r, g, b, a).endVertex();
 
 		double us0 = u0 + uo;
-		double vs0 = v0 + uo;
+		double vs0 = v0 + uo + (sprite.getMaxV() - sprite.getMinV()) * (1D - amount);
 		double us1 = u1 - uo;
 		double vs1 = v1 - uo;
 
