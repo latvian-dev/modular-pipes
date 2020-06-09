@@ -1,18 +1,19 @@
 package com.latmod.mods.modularpipes.tile;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -23,30 +24,24 @@ import java.util.List;
  */
 public class PipeNetwork implements ICapabilityProvider
 {
-	@CapabilityInject(PipeNetwork.class)
-	public static Capability<PipeNetwork> CAP;
-
-	@Nullable
-	public static PipeNetwork get(@Nullable World world)
-	{
-		return world == null ? null : world.getCapability(CAP, null);
-	}
-
 	public static final float[] POS_X = new float[6];
 	public static final float[] POS_Y = new float[6];
 	public static final float[] POS_Z = new float[6];
 	public static final float[] ROT_X = new float[6];
 	public static final float[] ROT_Y = new float[6];
 	public static final int[] OPPOSITE = new int[7];
+	@CapabilityInject(PipeNetwork.class)
+	public static Capability<PipeNetwork> CAP;
 
 	static
 	{
+		Direction[] directions = Direction.values();
 		for (int i = 0; i < 6; i++)
 		{
-			POS_X[i] = EnumFacing.VALUES[i].getXOffset();
-			POS_Y[i] = EnumFacing.VALUES[i].getYOffset();
-			POS_Z[i] = EnumFacing.VALUES[i].getZOffset();
-			OPPOSITE[i] = EnumFacing.VALUES[i].getOpposite().getIndex();
+			POS_X[i] = directions[i].getXOffset();
+			POS_Y[i] = directions[i].getYOffset();
+			POS_Z[i] = directions[i].getZOffset();
+			OPPOSITE[i] = directions[i].getOpposite().getIndex();
 		}
 
 		OPPOSITE[6] = 6;
@@ -67,6 +62,7 @@ public class PipeNetwork implements ICapabilityProvider
 
 	public final World world;
 	public final List<TilePipeModularMK1> pipes = new ArrayList<>();
+	protected LazyOptional<?> thisOptional = LazyOptional.of(() -> this);
 	private boolean refresh = true;
 
 	public PipeNetwork(World w)
@@ -74,17 +70,17 @@ public class PipeNetwork implements ICapabilityProvider
 		world = w;
 	}
 
-	@Override
-	public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing)
+	@Nullable
+	public static PipeNetwork get(@Nullable World world)
 	{
-		return capability == CAP;
+		return world == null ? null : world.getCapability(CAP, null).orElse(null);
 	}
 
 	@Nullable
 	@Override
-	public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing)
+	public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction facing)
 	{
-		return capability == CAP ? (T) this : null;
+		return capability == CAP ? thisOptional.cast() : LazyOptional.empty();
 	}
 
 	public void refresh()
@@ -100,7 +96,7 @@ public class PipeNetwork implements ICapabilityProvider
 
 			for (TileEntity tileEntity : world.loadedTileEntityList)
 			{
-				if (!tileEntity.isInvalid() && tileEntity instanceof TilePipeModularMK1)
+				if (!tileEntity.isRemoved() && tileEntity instanceof TilePipeModularMK1)
 				{
 					pipes.add((TilePipeModularMK1) tileEntity);
 				}
@@ -155,8 +151,8 @@ public class PipeNetwork implements ICapabilityProvider
 			return;
 		}
 
-		Minecraft mc = Minecraft.getMinecraft();
-		RenderItem renderItem = mc.getRenderItem();
+		Minecraft mc = Minecraft.getInstance();
+		ItemRenderer renderItem = mc.getItemRenderer();
 		double renderDistanceSq = 64 * 64;
 		float pos;
 		float rx, ry, rz;
@@ -167,7 +163,7 @@ public class PipeNetwork implements ICapabilityProvider
 		Frustum frustum = new Frustum();
 		frustum.setPosition(px, py, pz);
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(-px, -py, -pz);
+		GlStateManager.translated(-px, -py, -pz);
 		GlStateManager.disableLighting();
 		RenderHelper.enableStandardItemLighting();
 
@@ -180,13 +176,13 @@ public class PipeNetwork implements ICapabilityProvider
 
 			BlockPos p = pipe.getPos();
 
-			if (p.distanceSqToCenter(px, py, pz) > renderDistanceSq || !frustum.isBoxInFrustum(p.getX(), p.getY(), p.getZ(), p.getX() + 1, p.getY() + 1, p.getZ() + 1))
+			if (p.distanceSq(px, py, pz, true) > renderDistanceSq || !frustum.isBoxInFrustum(p.getX(), p.getY(), p.getZ(), p.getX() + 1, p.getY() + 1, p.getZ() + 1))
 			{
 				continue;
 			}
 
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(p.getX() + 0.5D, p.getY() + 0.5D, p.getZ() + 0.5D);
+			GlStateManager.translated(p.getX() + 0.5D, p.getY() + 0.5D, p.getZ() + 0.5D);
 
 			for (PipeItem item : pipe.items)
 			{
@@ -217,10 +213,10 @@ public class PipeNetwork implements ICapabilityProvider
 				scale = item.getScale(mc, renderItem);
 
 				GlStateManager.pushMatrix();
-				GlStateManager.translate(rx, ry, rz);
-				GlStateManager.rotate(rotY, 0F, 1F, 0F);
-				GlStateManager.rotate(rotX, 1F, 0F, 0F);
-				GlStateManager.scale(scale, scale, scale);
+				GlStateManager.translatef(rx, ry, rz);
+				GlStateManager.rotatef(rotY, 0F, 1F, 0F);
+				GlStateManager.rotatef(rotX, 1F, 0F, 0F);
+				GlStateManager.scalef(scale, scale, scale);
 				item.render(renderItem);
 				GlStateManager.popMatrix();
 			}

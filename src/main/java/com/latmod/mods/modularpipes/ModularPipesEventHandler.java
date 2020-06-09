@@ -7,6 +7,8 @@ import com.latmod.mods.modularpipes.block.BlockPipeTransport;
 import com.latmod.mods.modularpipes.block.BlockTank;
 import com.latmod.mods.modularpipes.block.EnumMK;
 import com.latmod.mods.modularpipes.block.ModularPipesBlocks;
+import com.latmod.mods.modularpipes.client.RenderTank;
+import com.latmod.mods.modularpipes.gui.painter.ContainerPainter;
 import com.latmod.mods.modularpipes.item.ItemBlockPipe;
 import com.latmod.mods.modularpipes.item.ItemBlockTank;
 import com.latmod.mods.modularpipes.item.ItemModule;
@@ -33,17 +35,23 @@ import com.latmod.mods.modularpipes.tile.TilePipeModularMK3;
 import com.latmod.mods.modularpipes.tile.TilePipeTransport;
 import com.latmod.mods.modularpipes.tile.TileTank;
 import net.minecraft.block.Block;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
+
+import java.util.function.Supplier;
 
 /**
  * @author LatvianModder
@@ -55,21 +63,21 @@ public class ModularPipesEventHandler
 
 	private static Block withName(Block block, String name)
 	{
-		block.setCreativeTab(ModularPipes.TAB);
 		block.setRegistryName(name);
-		block.setTranslationKey(ModularPipes.MOD_ID + "." + name);
 		return block;
+	}
+
+	private static Item.Properties ip()
+	{
+		return new Item.Properties().group(ModularPipes.TAB);
 	}
 
 	private static Item withName(Item item, String name)
 	{
-		item.setCreativeTab(ModularPipes.TAB);
 		item.setRegistryName(name);
-		item.setTranslationKey(ModularPipes.MOD_ID + "." + name);
 		return item;
 	}
 
-	@SubscribeEvent
 	public static void registerBlocks(RegistryEvent.Register<Block> event)
 	{
 		IForgeRegistry<Block> r = event.getRegistry();
@@ -81,44 +89,61 @@ public class ModularPipesEventHandler
 		r.register(withName(new BlockModularStorage(), "modular_storage"));
 		r.register(withName(new BlockModularTank(), "modular_tank"));
 
-		GameRegistry.registerTileEntity(TilePipeTransport.class, new ResourceLocation(ModularPipes.MOD_ID, "pipe_transport"));
-		GameRegistry.registerTileEntity(TilePipeModularMK1.class, new ResourceLocation(ModularPipes.MOD_ID, "pipe_modular_mk1"));
-		GameRegistry.registerTileEntity(TilePipeModularMK2.class, new ResourceLocation(ModularPipes.MOD_ID, "pipe_modular_mk2"));
-		GameRegistry.registerTileEntity(TilePipeModularMK3.class, new ResourceLocation(ModularPipes.MOD_ID, "pipe_modular_mk3"));
-		GameRegistry.registerTileEntity(TileTank.class, new ResourceLocation(ModularPipes.MOD_ID, "tank"));
-		GameRegistry.registerTileEntity(TileModularStoragePart.class, new ResourceLocation(ModularPipes.MOD_ID, "modular_storage_part"));
-		GameRegistry.registerTileEntity(TileModularStorageCore.class, new ResourceLocation(ModularPipes.MOD_ID, "modular_storage_core"));
-		GameRegistry.registerTileEntity(TileModularTankPart.class, new ResourceLocation(ModularPipes.MOD_ID, "modular_tank_part"));
-		GameRegistry.registerTileEntity(TileModularTankCore.class, new ResourceLocation(ModularPipes.MOD_ID, "modular_tank_core"));
 	}
 
-	@SubscribeEvent
+	public static void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
+//		event.getRegistry().register(new ContainerType<>((ContainerType.IFactory<Container>) (p_create_1_, p_create_2_) -> new ContainerPainter(p_create_1_, p_create_2_)));
+	}
+	public static void registerTiles(RegistryEvent.Register<TileEntityType<?>> event)
+	{
+		IForgeRegistry<TileEntityType<?>> r = event.getRegistry();
+		r.register(create(ModularPipesBlocks.PIPE_TRANSPORT, TilePipeTransport::new));
+		r.register(create(ModularPipesBlocks.PIPE_MODULAR_MK1, TilePipeModularMK1::new));
+		r.register(create(ModularPipesBlocks.PIPE_MODULAR_MK2, TilePipeModularMK2::new));
+		r.register(create(ModularPipesBlocks.PIPE_MODULAR_MK3, TilePipeModularMK3::new));
+		r.register(create(ModularPipesBlocks.TANK, TileTank::new));
+		r.register(create("modular_storage_part", TileModularStoragePart::new, ModularPipesBlocks.MODULAR_STORAGE));
+		r.register(create("modular_storage_core", TileModularStorageCore::new, ModularPipesBlocks.MODULAR_STORAGE));
+		r.register(create("modular_tank_part", TileModularTankPart::new, ModularPipesBlocks.MODULAR_TANK));
+		r.register(create("modular_tank_core", TileModularTankCore::new, ModularPipesBlocks.MODULAR_TANK));
+	}
+
+	public static TileEntityType<?> create(Block block, Supplier<TileEntity> t)
+	{
+		return TileEntityType.Builder.create(t, block).build(null).setRegistryName(block.getRegistryName());
+	}
+
+	public static TileEntityType<?> create(String name, Supplier<TileEntity> t, Block... blocks)
+	{
+		return TileEntityType.Builder.create(t, blocks).build(null).setRegistryName(new ResourceLocation(ModularPipes.MOD_ID, name));
+	}
+
 	public static void registerItems(RegistryEvent.Register<Item> event)
 	{
 		IForgeRegistry<Item> r = event.getRegistry();
-		r.register(new ItemBlockPipe(ModularPipesBlocks.PIPE_TRANSPORT).setRegistryName("pipe_transport"));
-		r.register(new ItemBlockPipe(ModularPipesBlocks.PIPE_MODULAR_MK1).setRegistryName("pipe_modular_mk1"));
-		r.register(new ItemBlockPipe(ModularPipesBlocks.PIPE_MODULAR_MK2).setRegistryName("pipe_modular_mk2"));
-		r.register(new ItemBlockPipe(ModularPipesBlocks.PIPE_MODULAR_MK3).setRegistryName("pipe_modular_mk3"));
-		r.register(new ItemBlockTank(ModularPipesBlocks.TANK).setRegistryName("tank"));
-		r.register(new ItemBlock(ModularPipesBlocks.MODULAR_STORAGE).setRegistryName("modular_storage"));
-		r.register(new ItemBlock(ModularPipesBlocks.MODULAR_TANK).setRegistryName("modular_tank"));
+		r.register(new ItemBlockPipe(ModularPipesBlocks.PIPE_TRANSPORT, ip()).setRegistryName("pipe_transport"));
+		r.register(new ItemBlockPipe(ModularPipesBlocks.PIPE_MODULAR_MK1, ip()).setRegistryName("pipe_modular_mk1"));
+		r.register(new ItemBlockPipe(ModularPipesBlocks.PIPE_MODULAR_MK2, ip()).setRegistryName("pipe_modular_mk2"));
+		r.register(new ItemBlockPipe(ModularPipesBlocks.PIPE_MODULAR_MK3, ip()).setRegistryName("pipe_modular_mk3"));
+		r.register(new ItemBlockTank(ModularPipesBlocks.TANK, ip().setTEISR(() -> RenderTank.TankTEISR::new)).setRegistryName("tank"));
+		r.register(new BlockItem(ModularPipesBlocks.MODULAR_STORAGE, ip()).setRegistryName("modular_storage"));
+		r.register(new BlockItem(ModularPipesBlocks.MODULAR_TANK, ip()).setRegistryName("modular_tank"));
 
-		r.register(withName(new ItemPainter(), "painter"));
-		r.register(withName(new Item(), "module"));
-		r.register(withName(new Item(), "input_part"));
-		r.register(withName(new Item(), "output_part"));
-		r.register(withName(new ItemModule(ModuleItemStorage::new), "module_item_storage"));
-		r.register(withName(new ItemModule(ModuleItemHandler::new), "module_item_base"));
-		r.register(withName(new ItemModule(ModuleItemExtract::new), "module_item_extract"));
-		r.register(withName(new ItemModule(ModuleItemInsert::new), "module_item_insert"));
-		r.register(withName(new ItemModule(ModuleFluidStorage::new), "module_fluid_storage"));
-		r.register(withName(new ItemModule(ModuleFluidHandler::new), "module_fluid_base"));
-		r.register(withName(new ItemModule(ModuleFluidExtract::new), "module_fluid_extract"));
-		r.register(withName(new ItemModule(ModuleFluidInsert::new), "module_fluid_insert"));
-		r.register(withName(new ItemModule(ModuleCrafting::new), "module_crafting"));
-		r.register(withName(new ItemModule(ModuleEnergyInput::new), "module_energy_input"));
-		r.register(withName(new ItemModule(ModuleEnergyOutput::new), "module_energy_output"));
+		r.register(withName(new ItemPainter(ip().maxStackSize(1)), "painter"));
+		r.register(withName(new Item(ip()), "module"));
+		r.register(withName(new Item(ip()), "input_part"));
+		r.register(withName(new Item(ip()), "output_part"));
+		r.register(withName(new ItemModule(ModuleItemStorage::new, ip()), "module_item_storage"));
+		r.register(withName(new ItemModule(ModuleItemHandler::new, ip()), "module_item_base"));
+		r.register(withName(new ItemModule(ModuleItemExtract::new, ip()), "module_item_extract"));
+		r.register(withName(new ItemModule(ModuleItemInsert::new, ip()), "module_item_insert"));
+		r.register(withName(new ItemModule(ModuleFluidStorage::new, ip()), "module_fluid_storage"));
+		r.register(withName(new ItemModule(ModuleFluidHandler::new, ip()), "module_fluid_base"));
+		r.register(withName(new ItemModule(ModuleFluidExtract::new, ip()), "module_fluid_extract"));
+		r.register(withName(new ItemModule(ModuleFluidInsert::new, ip()), "module_fluid_insert"));
+		r.register(withName(new ItemModule(ModuleCrafting::new, ip()), "module_crafting"));
+		r.register(withName(new ItemModule(ModuleEnergyInput::new, ip()), "module_energy_input"));
+		r.register(withName(new ItemModule(ModuleEnergyOutput::new, ip()), "module_energy_output"));
 	}
 
 	@SubscribeEvent

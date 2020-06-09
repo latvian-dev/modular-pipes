@@ -8,28 +8,28 @@ import com.latmod.mods.modularpipes.tile.PipeNetwork;
 import com.latmod.mods.modularpipes.tile.TilePipeBase;
 import com.latmod.mods.modularpipes.tile.TilePipeModularMK1;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.MapColor;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.SoundType;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.material.MaterialColor;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IEnviromentBlockReader;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.ItemHandlerHelper;
 
-import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -42,7 +42,7 @@ public class BlockPipeModular extends BlockPipeBase
 
 	public BlockPipeModular(EnumMK t)
 	{
-		super(MapColor.LIGHT_BLUE);
+		super(Block.Properties.create(Material.IRON, MaterialColor.LIGHT_BLUE).hardnessAndResistance(0.6f).sound(SoundType.METAL));
 		tier = t;
 	}
 
@@ -53,25 +53,25 @@ public class BlockPipeModular extends BlockPipeBase
 	}
 
 	@Override
-	public TilePipeBase createTileEntity(World world, IBlockState state)
+	public TilePipeBase createTileEntity(BlockState state, IBlockReader world)
 	{
 		return tier.tileEntity.get();
 	}
 
 	@Override
-	public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer)
+	public boolean canRenderInLayer(BlockState state, BlockRenderLayer layer)
 	{
 		return layer == BlockRenderLayer.TRANSLUCENT || super.canRenderInLayer(state, layer);
 	}
 
 	@Override
-	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos)
+	public int getLightValue(BlockState state, IEnviromentBlockReader world, BlockPos pos)
 	{
 		return ModularPipes.PROXY.getPipeLightValue(world);
 	}
 
 	@Override
-	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+	public boolean onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit)
 	{
 		ItemStack stack = player.getHeldItem(hand);
 
@@ -79,7 +79,7 @@ public class BlockPipeModular extends BlockPipeBase
 		{
 			return false;
 		}
-		else if (super.onBlockActivated(world, pos, state, player, hand, facing, hitX, hitY, hitZ))
+		else if (super.onBlockActivated(state, world, pos, player, hand, hit))
 		{
 			return true;
 		}
@@ -91,16 +91,16 @@ public class BlockPipeModular extends BlockPipeBase
 			return true;
 		}
 		TilePipeModularMK1 pipe = (TilePipeModularMK1) tileEntity;
-		double dist = player.getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue();
-		Vec3d start = player.getPositionEyes(1F);
+		double dist = player.getAttribute(PlayerEntity.REACH_DISTANCE).getValue();
+		Vec3d start = player.getEyePosition(1F);
 		Vec3d look = player.getLookVec();
 		Vec3d end = start.add(look.x * dist, look.y * dist, look.z * dist);
-		RayTraceResult ray = player.world.rayTraceBlocks(start, end, false, true, false);
-		EnumFacing side = ray != null && ray.subHit >= 0 && ray.subHit < 6 ? EnumFacing.byIndex(ray.subHit) : null;
+		BlockRayTraceResult ray = player.world.rayTraceBlocks(new RayTraceContext(start, end, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, player));
+		Direction side = ray.getType() != RayTraceResult.Type.MISS && ray.subHit >= 0 && ray.subHit < 6 ? Direction.byIndex(ray.subHit) : null;
 
-		if (side == null && ray != null)
+		if (side == null && ray.getType() != RayTraceResult.Type.MISS)
 		{
-			side = ray.sideHit;
+			side = ray.getFace();
 		}
 
 		if (side == null)
@@ -132,38 +132,36 @@ public class BlockPipeModular extends BlockPipeBase
 				}
 			}
 		}
-		else if (stack.hasCapability(PipeModule.CAP, null))
+		LazyOptional<PipeModule> lazyOptional = stack.getCapability(PipeModule.CAP);
+		if (lazyOptional.isPresent())
 		{
 			if (pipe.modules.size() < tier.maxModules)
 			{
 				ItemStack stack1 = stack.copy();
 				stack1.setCount(1);
-				PipeModule module = stack1.getCapability(PipeModule.CAP, null);
+				PipeModule module = lazyOptional.orElseThrow(NullPointerException::new);
+				module.pipe = pipe;
+				module.moduleItem = stack1;
 
-				if (module != null)
+				if (module.canInsert(player, side))
 				{
-					module.pipe = pipe;
-					module.moduleItem = stack1;
+					pipe.modules.add(module);
+					module.onInserted(player, side);
 
-					if (module.canInsert(player, side))
+					if (!world.isRemote)
 					{
-						pipe.modules.add(module);
-						module.onInserted(player, side);
-
-						if (!world.isRemote)
-						{
-							stack.shrink(1);
-						}
-
-						tileEntity.markDirty();
-						world.notifyBlockUpdate(pos, state, state, 11);
-						PipeNetwork.get(world).refresh();
-						return true;
+						stack.shrink(1);
 					}
+
+					tileEntity.markDirty();
+					world.notifyBlockUpdate(pos, state, state, 11);
+					PipeNetwork.get(world).refresh();
+					return true;
 				}
+
 			}
 
-			player.sendStatusMessage(new TextComponentString("Can't insert any more modules!"), true); //LANG
+			player.sendStatusMessage(new StringTextComponent("Can't insert any more modules!"), true); //LANG
 			return true;
 		}
 
@@ -181,24 +179,24 @@ public class BlockPipeModular extends BlockPipeBase
 			{
 				List<TilePipeModularMK1> network = pipe.getPipeNetwork();
 
-				player.sendMessage(new TextComponentString("Network: " + world.getTotalWorldTime() + " [" + network.size() + "]"));
+				player.sendMessage(new StringTextComponent("Network: " + world.getWorldInfo().getGameTime() + " [" + network.size() + "]"));
 
 				for (TilePipeModularMK1 pipe1 : network)
 				{
-					player.sendMessage(new TextComponentString(String.format("- %s#%08X", pipe1.getClass().getSimpleName(), pipe1.hashCode())));
+					player.sendMessage(new StringTextComponent(String.format("- %s#%08X", pipe1.getClass().getSimpleName(), pipe1.hashCode())));
 				}
 			}
 			else
 			{
-				player.sendMessage(new TextComponentString("Network: " + world.getTotalWorldTime()));
+				player.sendMessage(new StringTextComponent("Network: " + world.getWorldInfo().getGameTime()));
 
-				for (EnumFacing facing1 : EnumFacing.VALUES)
+				for (Direction facing1 : Direction.values())
 				{
 					CachedTileEntity t = pipe.getTile(facing1);
 
 					if (t.tile != null)
 					{
-						player.sendMessage(new TextComponentString(String.format("- %s#%08X [%d, %s]", t.tile.getClass().getSimpleName(), t.tile.hashCode(), t.distance, facing1.getName())));
+						player.sendMessage(new StringTextComponent(String.format("- %s#%08X [%d, %s]", t.tile.getClass().getSimpleName(), t.tile.hashCode(), t.distance, facing1.getName())));
 					}
 				}
 			}
@@ -209,93 +207,93 @@ public class BlockPipeModular extends BlockPipeBase
 		return true;
 	}
 
+	//	@Override
+	//	public void breakBlock(World world, BlockPos pos, BlockState state)
+	//	{
+	//		if (!world.isRemote)
+	//		{
+	//			TileEntity tileEntity = world.getTileEntity(pos);
+	//
+	//			if (tileEntity instanceof TilePipeModularMK1)
+	//			{
+	//				((TilePipeModularMK1) tileEntity).dropItems();
+	//			}
+	//		}
+	//
+	//		super.breakBlock(world, pos, state);
+	//	}
+
+
+	//	@Override
+	//	@Nullable
+	//	@Deprecated
+	//	public RayTraceResult collisionRayTrace(BlockState state, World world, BlockPos pos, Vec3d start, Vec3d end)
+	//	{
+	//		TileEntity tileEntity = world.getTileEntity(pos);
+	//
+	//		if (!(tileEntity instanceof TilePipeModularMK1))
+	//		{
+	//			return super.collisionRayTrace(state, world, pos, start, end);
+	//		}
+	//
+	//		TilePipeModularMK1 tile = (TilePipeModularMK1) tileEntity;
+	//
+	//		Vec3d start1 = start.subtract(pos.getX(), pos.getY(), pos.getZ());
+	//		Vec3d end1 = end.subtract(pos.getX(), pos.getY(), pos.getZ());
+	//		RayTraceResult ray1 = null;
+	//		PlayerEntity player = world.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 5D, false);
+	//		boolean holdingModule = tile.modules.size() < tier.maxModules && player != null && (player.getHeldItem(Hand.MAIN_HAND).hasCapability(PipeModule.CAP, null) || player.getHeldItem(Hand.OFF_HAND).hasCapability(PipeModule.CAP, null));
+	//		double dist = Double.POSITIVE_INFINITY;
+	//
+	//		for (int i = 0; i < BlockPipeBase.BOXES.length; i++)
+	//		{
+	//			if (i < 6 && !(holdingModule || tile.isConnected(Direction.VALUES[i])))
+	//			{
+	//				continue;
+	//			}
+	//
+	//			RayTraceResult ray = BlockPipeBase.BOXES[i].calculateIntercept(start1, end1);
+	//
+	//			if (ray != null)
+	//			{
+	//				double dist1 = ray.hitVec.squareDistanceTo(start1);
+	//
+	//				if (dist >= dist1)
+	//				{
+	//					dist = dist1;
+	//					ray1 = ray;
+	//					ray1.subHit = i;
+	//				}
+	//			}
+	//		}
+	//
+	//		if (ray1 != null)
+	//		{
+	//			RayTraceResult ray2 = new RayTraceResult(ray1.hitVec.add(pos.getX(), pos.getY(), pos.getZ()), ray1.sideHit, pos);
+	//			ray2.subHit = ray1.subHit;
+	//			return ray2;
+	//		}
+	//
+	//		return null;
+	//	}
+
+	//	@Override
+	//	@Deprecated
+	//	@OnlyIn(Dist.CLIENT)
+	//	public AxisAlignedBB getSelectedBoundingBox(BlockState state, World worldIn, BlockPos pos)
+	//	{
+	//		RayTraceResult ray = Minecraft.getMinecraft().objectMouseOver;
+	//
+	//		if (ray != null && ray.subHit >= 0 && ray.subHit < BOXES.length)
+	//		{
+	//			return BOXES[ray.subHit].offset(pos);
+	//		}
+	//
+	//		return super.getSelectedBoundingBox(state, worldIn, pos);
+	//	}
+
 	@Override
-	public void breakBlock(World world, BlockPos pos, IBlockState state)
-	{
-		if (!world.isRemote)
-		{
-			TileEntity tileEntity = world.getTileEntity(pos);
-
-			if (tileEntity instanceof TilePipeModularMK1)
-			{
-				((TilePipeModularMK1) tileEntity).dropItems();
-			}
-		}
-
-		super.breakBlock(world, pos, state);
-	}
-
-	@Override
-	@Nullable
-	@Deprecated
-	public RayTraceResult collisionRayTrace(IBlockState state, World world, BlockPos pos, Vec3d start, Vec3d end)
-	{
-		TileEntity tileEntity = world.getTileEntity(pos);
-
-		if (!(tileEntity instanceof TilePipeModularMK1))
-		{
-			return super.collisionRayTrace(state, world, pos, start, end);
-		}
-
-		TilePipeModularMK1 tile = (TilePipeModularMK1) tileEntity;
-
-		Vec3d start1 = start.subtract(pos.getX(), pos.getY(), pos.getZ());
-		Vec3d end1 = end.subtract(pos.getX(), pos.getY(), pos.getZ());
-		RayTraceResult ray1 = null;
-		EntityPlayer player = world.getClosestPlayer(pos.getX(), pos.getY(), pos.getZ(), 5D, false);
-		boolean holdingModule = tile.modules.size() < tier.maxModules && player != null && (player.getHeldItem(EnumHand.MAIN_HAND).hasCapability(PipeModule.CAP, null) || player.getHeldItem(EnumHand.OFF_HAND).hasCapability(PipeModule.CAP, null));
-		double dist = Double.POSITIVE_INFINITY;
-
-		for (int i = 0; i < BlockPipeBase.BOXES.length; i++)
-		{
-			if (i < 6 && !(holdingModule || tile.isConnected(EnumFacing.VALUES[i])))
-			{
-				continue;
-			}
-
-			RayTraceResult ray = BlockPipeBase.BOXES[i].calculateIntercept(start1, end1);
-
-			if (ray != null)
-			{
-				double dist1 = ray.hitVec.squareDistanceTo(start1);
-
-				if (dist >= dist1)
-				{
-					dist = dist1;
-					ray1 = ray;
-					ray1.subHit = i;
-				}
-			}
-		}
-
-		if (ray1 != null)
-		{
-			RayTraceResult ray2 = new RayTraceResult(ray1.hitVec.add(pos.getX(), pos.getY(), pos.getZ()), ray1.sideHit, pos);
-			ray2.subHit = ray1.subHit;
-			return ray2;
-		}
-
-		return null;
-	}
-
-	@Override
-	@Deprecated
-	@SideOnly(Side.CLIENT)
-	public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos)
-	{
-		RayTraceResult ray = Minecraft.getMinecraft().objectMouseOver;
-
-		if (ray != null && ray.subHit >= 0 && ray.subHit < BOXES.length)
-		{
-			return BOXES[ray.subHit].offset(pos);
-		}
-
-		return super.getSelectedBoundingBox(state, worldIn, pos);
-	}
-
-	@Override
-	@Deprecated
-	public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block, BlockPos fromPos)
+	public void neighborChanged(BlockState state, World world, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving)
 	{
 		TileEntity tileEntity = world.getTileEntity(pos);
 
@@ -304,11 +302,10 @@ public class BlockPipeModular extends BlockPipeBase
 			tileEntity.updateContainingBlockInfo();
 		}
 	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag flag)
-	{
-		tooltip.add("Max modules: " + tier.maxModules); //LANG
-	}
+	//	@Override
+	//	@OnlyIn(Dist.CLIENT)
+	//	public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag flag)
+	//	{
+	//		tooltip.add("Max modules: " + tier.maxModules); //LANG
+	//	}
 }

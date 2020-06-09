@@ -1,27 +1,24 @@
 package com.latmod.mods.modularpipes.client;
 
 import com.latmod.mods.modularpipes.ModularPipes;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.block.statemap.DefaultStateMapper;
-import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.client.renderer.model.IUnbakedModel;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ICustomModelLoader;
-import net.minecraftforge.client.model.IModel;
+import net.minecraftforge.resource.IResourceType;
+import net.minecraftforge.resource.VanillaResourceType;
+
+import java.util.function.Predicate;
 
 /**
  * @author LatvianModder
  */
-public class ModelPipeLoader extends DefaultStateMapper implements ICustomModelLoader
+public class ModelPipeLoader implements ICustomModelLoader
 {
 	public static final ModelPipeLoader INSTANCE = new ModelPipeLoader();
-	public static final ModelResourceLocation ID = new ModelResourceLocation(ModularPipes.MOD_ID + ":pipe#normal");
-
-	@Override
-	protected ModelResourceLocation getModelResourceLocation(IBlockState state)
-	{
-		return ID;
-	}
+	public static final ModelResourceLocation ID = new ModelResourceLocation(ModularPipes.MOD_ID + ":pipe");
+	public ModelPipe model = new ModelPipe();
 
 	@Override
 	public boolean accepts(ResourceLocation id)
@@ -30,13 +27,23 @@ public class ModelPipeLoader extends DefaultStateMapper implements ICustomModelL
 	}
 
 	@Override
-	public IModel loadModel(ResourceLocation id)
+	public IUnbakedModel loadModel(ResourceLocation id)
 	{
-		return new ModelPipe();
+		return model;
 	}
 
 	@Override
 	public void onResourceManagerReload(IResourceManager resourceManager)
 	{
+		model = new ModelPipe();
+	}
+
+	@Override
+	public void onResourceManagerReload(IResourceManager resourceManager, Predicate<IResourceType> resourcePredicate)
+	{
+		if (resourcePredicate.test(VanillaResourceType.MODELS))
+		{
+			model = new ModelPipe();
+		}
 	}
 }

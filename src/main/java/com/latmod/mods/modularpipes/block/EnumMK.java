@@ -17,9 +17,8 @@ public enum EnumMK implements IStringSerializable
 	MK3("mk3", TilePipeModularMK3::new, 9);
 
 	public static final EnumMK[] VALUES = values();
-
-	private final String name;
 	public final Supplier<? extends TilePipeModularMK1> tileEntity;
+	private final String name;
 	public int maxModules;
 
 	EnumMK(String n, Supplier<? extends TilePipeModularMK1> te, int m)

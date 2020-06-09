@@ -3,14 +3,19 @@ package com.latmod.mods.modularpipes.block;
 import com.latmod.mods.modularpipes.tile.TilePipeBase;
 import com.latmod.mods.modularpipes.tile.TilePipeTransport;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.MapColor;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.SoundType;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.material.MaterialColor;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+
+import javax.annotation.Nullable;
 
 /**
  * @author LatvianModder
@@ -19,16 +24,17 @@ public class BlockPipeTransport extends BlockPipeBase
 {
 	public BlockPipeTransport()
 	{
-		super(MapColor.GRAY);
+		super(Block.Properties.create(Material.IRON, MaterialColor.GRAY).hardnessAndResistance(0.35f).sound(SoundType.METAL));
 	}
 
+	@Nullable
 	@Override
-	public TilePipeBase createTileEntity(World world, IBlockState state)
+	public TileEntity createTileEntity(BlockState state, IBlockReader world)
 	{
 		return new TilePipeTransport();
 	}
 
-	private void updatePipe(IBlockState state, World world, BlockPos pos, int loop)
+	private void updatePipe(BlockState state, World world, BlockPos pos, int loop)
 	{
 		if (loop > 1)
 		{
@@ -45,7 +51,7 @@ public class BlockPipeTransport extends BlockPipeBase
 
 			int count = 0;
 
-			for (EnumFacing facing : EnumFacing.VALUES)
+			for (Direction facing : Direction.values())
 			{
 				TileEntity tileEntity1 = world.getTileEntity(pos.offset(facing));
 
@@ -74,10 +80,10 @@ public class BlockPipeTransport extends BlockPipeBase
 
 			if (count > 2)
 			{
-				for (EnumFacing facing : EnumFacing.VALUES)
+				for (Direction facing : Direction.values())
 				{
 					BlockPos pos1 = pos.offset(facing);
-					IBlockState state1 = world.getBlockState(pos1);
+					BlockState state1 = world.getBlockState(pos1);
 
 					if (state1.getBlock() instanceof BlockPipeTransport)
 					{
@@ -103,14 +109,13 @@ public class BlockPipeTransport extends BlockPipeBase
 	}
 
 	@Override
-	@Deprecated
-	public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block, BlockPos fromPos)
+	public void neighborChanged(BlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving)
 	{
-		updatePipe(state, world, pos, 0);
+		updatePipe(state, worldIn, pos, 0);
 	}
 
 	@Override
-	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
+	public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack)
 	{
 		updatePipe(state, world, pos, 0);
 	}

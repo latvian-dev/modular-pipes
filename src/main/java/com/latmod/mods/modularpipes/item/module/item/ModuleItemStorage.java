@@ -1,12 +1,12 @@
 package com.latmod.mods.modularpipes.item.module.item;
 
 import com.latmod.mods.modularpipes.item.module.SidedPipeModule;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.Hand;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -36,37 +36,37 @@ public class ModuleItemStorage extends SidedPipeModule
 	private TileEntity tileEntity = null;
 
 	@Override
-	public void writeData(NBTTagCompound nbt)
+	public void writeData(CompoundNBT nbt)
 	{
 		super.writeData(nbt);
 
 		if (!filter.isEmpty())
 		{
-			nbt.setTag("filter", filter.serializeNBT());
+			nbt.put("filter", filter.serializeNBT());
 		}
 
 		if (priority != 0)
 		{
-			nbt.setInteger("priority", priority);
+			nbt.putInt("priority", priority);
 		}
 	}
 
 	@Override
-	public void readData(NBTTagCompound nbt)
+	public void readData(CompoundNBT nbt)
 	{
 		super.readData(nbt);
-		filter = new ItemStack(nbt.getCompoundTag("filter"));
+		filter = ItemStack.read(nbt.getCompound("filter"));
 
 		if (filter.isEmpty())
 		{
 			filter = ItemStack.EMPTY;
 		}
 
-		priority = nbt.getInteger("priority");
+		priority = nbt.getInt("priority");
 	}
 
 	@Override
-	public boolean onModuleRightClick(EntityPlayer player, EnumHand hand)
+	public boolean onModuleRightClick(PlayerEntity player, Hand hand)
 	{
 		ItemStack stack = player.getHeldItem(hand);
 
@@ -74,7 +74,7 @@ public class ModuleItemStorage extends SidedPipeModule
 		{
 			if (!player.world.isRemote)
 			{
-				player.sendStatusMessage(new TextComponentString("Filter: " + filter.getDisplayName()), true); //LANG
+				player.sendStatusMessage(new StringTextComponent("Filter: " + filter.getDisplayName()), true); //LANG
 			}
 		}
 		else
@@ -84,7 +84,7 @@ public class ModuleItemStorage extends SidedPipeModule
 
 			if (!player.world.isRemote)
 			{
-				player.sendStatusMessage(new TextComponentString("Filter changed to " + filter.getDisplayName()), true); //LANG
+				player.sendStatusMessage(new StringTextComponent("Filter changed to " + filter.getDisplayName()), true); //LANG
 				refreshNetwork();
 			}
 		}
@@ -101,11 +101,11 @@ public class ModuleItemStorage extends SidedPipeModule
 	@Nullable
 	public IItemHandler getItemHandler()
 	{
-		if (tileEntity == null || tileEntity.isInvalid())
+		if (tileEntity == null || tileEntity.isRemoved())
 		{
 			tileEntity = getFacingTile();
 		}
 
-		return tileEntity == null ? null : tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite());
+		return tileEntity == null ? null : tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite()).orElse(null);
 	}
 }

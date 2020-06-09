@@ -1,55 +1,61 @@
 package com.latmod.mods.modularpipes.tile;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import com.latmod.mods.modularpipes.block.ModularPipesTiles;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 /**
  * @author LatvianModder
  */
 public class TilePipeTransport extends TilePipeBase
 {
-	public EnumFacing end1 = null, end2 = null;
+	public Direction end1 = null, end2 = null;
+
+	public TilePipeTransport()
+	{
+		super(ModularPipesTiles.PIPE_TRANSPORT);
+	}
 
 	@Override
-	public void writeData(NBTTagCompound nbt)
+	public void writeData(CompoundNBT nbt)
 	{
 		super.writeData(nbt);
 
 		if (end1 != null)
 		{
-			nbt.setByte("end_1", (byte) end1.getIndex());
+			nbt.putByte("end_1", (byte) end1.getIndex());
 		}
 
 		if (end2 != null)
 		{
-			nbt.setByte("end_2", (byte) end2.getIndex());
+			nbt.putByte("end_2", (byte) end2.getIndex());
 		}
 	}
 
 	@Override
-	public void readData(NBTTagCompound nbt)
+	public void readData(CompoundNBT nbt)
 	{
 		super.readData(nbt);
-		end1 = nbt.hasKey("end_1") ? EnumFacing.byIndex(nbt.getByte("end_1")) : null;
-		end2 = nbt.hasKey("end_2") ? EnumFacing.byIndex(nbt.getByte("end_2")) : null;
+		end1 = nbt.contains("end_1") ? Direction.byIndex(nbt.getByte("end_1")) : null;
+		end2 = nbt.contains("end_2") ? Direction.byIndex(nbt.getByte("end_2")) : null;
 	}
 
 	@Override
-	public void onDataPacket(net.minecraft.network.NetworkManager net, SPacketUpdateTileEntity packet)
+	public void onDataPacket(net.minecraft.network.NetworkManager net, SUpdateTileEntityPacket packet)
 	{
 		super.onDataPacket(net, packet);
 		world.notifyBlockUpdate(pos, world.getBlockState(pos), world.getBlockState(pos), 11);
 	}
 
 	@Override
-	public boolean isConnected(EnumFacing facing)
+	public boolean isConnected(Direction facing)
 	{
 		return facing == end1 || facing == end2;
 	}
 
-	public CachedTileEntity findNextOne(EnumFacing from, int d)
+	public CachedTileEntity findNextOne(Direction from, int d)
 	{
 		if (end1 == null || end2 == null || end1 == end2)
 		{

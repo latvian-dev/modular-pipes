@@ -1,9 +1,11 @@
 package com.latmod.mods.modularpipes.tile;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.nbt.NBTTagCompound;
+import com.latmod.mods.modularpipes.block.ModularPipesTiles;
+import net.minecraft.block.BlockState;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ITickable;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
@@ -14,13 +16,12 @@ import javax.annotation.Nullable;
 /**
  * @author LatvianModder
  */
-public class TileTank extends TileBase implements ITickable
+public class TileTank extends TileBase implements ITickableTileEntity
 {
 	public boolean brokenByCreative = false;
 	private Fluid prevFluid = null;
 	private int prevAmountPart = 0;
 	private boolean isDirty = false;
-
 	public final FluidTank tank = new FluidTank(16 * Fluid.BUCKET_VOLUME)
 	{
 		@Override
@@ -30,8 +31,13 @@ public class TileTank extends TileBase implements ITickable
 		}
 	};
 
+	public TileTank()
+	{
+		super(ModularPipesTiles.TANK);
+	}
+
 	@Override
-	public void writeData(NBTTagCompound nbt)
+	public void writeData(CompoundNBT nbt)
 	{
 		if (tank.getFluid() != null)
 		{
@@ -40,7 +46,7 @@ public class TileTank extends TileBase implements ITickable
 	}
 
 	@Override
-	public void readData(NBTTagCompound nbt)
+	public void readData(CompoundNBT nbt)
 	{
 		tank.setFluid(FluidStack.loadFluidStackFromNBT(nbt));
 		prevAmountPart = tank.getFluidAmount() * 255 / tank.getCapacity();
@@ -48,16 +54,9 @@ public class TileTank extends TileBase implements ITickable
 	}
 
 	@Override
-	public boolean hasCapability(net.minecraftforge.common.capabilities.Capability<?> capability, @Nullable net.minecraft.util.EnumFacing facing)
+	public <T> LazyOptional<T> getCapability(net.minecraftforge.common.capabilities.Capability<T> capability, @Nullable net.minecraft.util.Direction facing)
 	{
-		return capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY || super.hasCapability(capability, facing);
-	}
-
-	@Override
-	@Nullable
-	public <T> T getCapability(net.minecraftforge.common.capabilities.Capability<T> capability, @Nullable net.minecraft.util.EnumFacing facing)
-	{
-		return capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY ? (T) tank : super.getCapability(capability, facing);
+		return capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY ? thisOptional.cast() : super.getCapability(capability, facing);
 	}
 
 	@Override
@@ -67,14 +66,14 @@ public class TileTank extends TileBase implements ITickable
 	}
 
 	@Override
-	public void update()
+	public void tick()
 	{
 		if (!world.isRemote)
 		{
 			int amount = tank.getFluidAmount() * 255 / tank.getCapacity();
 			Fluid fluid = amount > 0 ? tank.getFluid().getFluid() : null;
 
-			if (amount > 0 && (prevFluid != fluid || prevAmountPart != amount || world.getTotalWorldTime() % 25L == 3L))
+			if (amount > 0 && (prevFluid != fluid || prevAmountPart != amount || world.getWorldInfo().getGameTime() % 25L == 3L))
 			{
 				TileEntity tileEntity = world.getTileEntity(pos.down());
 
@@ -101,12 +100,12 @@ public class TileTank extends TileBase implements ITickable
 
 			if (fluid != prevFluid)
 			{
-				IBlockState state = world.getBlockState(pos);
+				BlockState state = world.getBlockState(pos);
 				world.notifyBlockUpdate(pos, state, state, 11);
 			}
 			else if (amount != prevAmountPart)
 			{
-				world.addBlockEvent(pos, getBlockType(), 0, amount);
+				world.addBlockEvent(pos, getBlockState().getBlock(), 0, amount);
 			}
 
 			prevFluid = fluid;

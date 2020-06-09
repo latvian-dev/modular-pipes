@@ -2,17 +2,17 @@ package com.latmod.mods.modularpipes.item;
 
 import com.latmod.mods.itemfilters.api.IPaintable;
 import com.latmod.mods.itemfilters.api.PaintAPI;
-import com.latmod.mods.modularpipes.gui.ModularPipesGuiHandler;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockAir;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.block.Blocks;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagInt;
+import net.minecraft.item.ItemUseContext;
+import net.minecraft.nbt.IntNBT;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -21,28 +21,33 @@ import net.minecraft.world.World;
  */
 public class ItemPainter extends Item
 {
+	public ItemPainter(Properties properties)
+	{
+		super(properties);
+	}
+
 	public static int getPaint(ItemStack stack)
 	{
-		return stack.hasTagCompound() ? stack.getTagCompound().getInteger("paint") : 0;
+		return stack.hasTag() ? stack.getTag().getInt("paint") : 0;
 	}
 
 	public static void setPaint(ItemStack stack, int paint)
 	{
 		if (paint == 0)
 		{
-			if (stack.hasTagCompound())
+			if (stack.hasTag())
 			{
-				stack.getTagCompound().removeTag("paint");
+				stack.getTag().remove("paint");
 
-				if (stack.getTagCompound().isEmpty())
+				if (stack.getTag().isEmpty())
 				{
-					stack.setTagCompound(null);
+					stack.setTag(null);
 				}
 			}
 		}
 		else
 		{
-			stack.setTagInfo("paint", new NBTTagInt(paint));
+			stack.setTagInfo("paint", new IntNBT(paint));
 		}
 	}
 
@@ -59,12 +64,12 @@ public class ItemPainter extends Item
 		{
 			Block block = Block.getBlockFromItem(paint.getItem());
 
-			if (block instanceof BlockAir)
+			if (block == Blocks.AIR)
 			{
 				return false;
 			}
 
-			setPaint(stack, Block.getStateId(block.getStateFromMeta(paint.getItem().getMetadata(paint))));
+			setPaint(stack, Block.getStateId(block.getDefaultState()));
 			return true;
 		}
 		catch (Exception ex)
@@ -73,40 +78,40 @@ public class ItemPainter extends Item
 		}
 	}
 
-	public ItemPainter()
-	{
-		setMaxStackSize(1);
-	}
-
 	@Override
-	public EnumActionResult onItemUseFirst(EntityPlayer player, World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, EnumHand hand)
+	public ActionResultType onItemUseFirst(ItemStack stack, ItemUseContext context)
 	{
+		World world = context.getWorld();
+		BlockPos pos = context.getPos();
+		Direction facing = context.getFace();
+		PlayerEntity player = context.getPlayer();
+		Hand hand = context.getHand();
 		IPaintable paintable = PaintAPI.get(world.getTileEntity(pos));
 
 		if (paintable != null)
 		{
 			paintable.paint(Block.getStateById(getPaint(player.getHeldItem(hand))), facing, player.isSneaking());
-			return EnumActionResult.SUCCESS;
+			return ActionResultType.SUCCESS;
 		}
 		else if (player.isSneaking())
 		{
 			setPaint(player.getHeldItem(hand), Block.getStateId(world.getBlockState(pos)));
-			return EnumActionResult.SUCCESS;
+			return ActionResultType.SUCCESS;
 		}
 
-		return EnumActionResult.PASS;
+		return ActionResultType.PASS;
 	}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
+	public ActionResult<ItemStack> onItemRightClick(World world, PlayerEntity player, Hand hand)
 	{
 		ItemStack stack = player.getHeldItem(hand);
 
 		if (!world.isRemote)
 		{
-			ModularPipesGuiHandler.open(ModularPipesGuiHandler.PAINTER, player, 0, 0, 0);
+			//			ModularPipesGuiHandler.open(ModularPipesGuiHandler.PAINTER, player, 0, 0, 0);
 		}
 
-		return new ActionResult<>(EnumActionResult.SUCCESS, stack);
+		return new ActionResult<>(ActionResultType.SUCCESS, stack);
 	}
 }

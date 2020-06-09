@@ -5,29 +5,28 @@ import com.latmod.mods.modularpipes.item.ItemBlockTank;
 import com.latmod.mods.modularpipes.item.ModularPipesItems;
 import com.latmod.mods.modularpipes.tile.TileTank;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.SoundType;
-import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.block.material.MaterialColor;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Hand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidActionResult;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+
+import javax.annotation.Nullable;
 
 /**
  * @author LatvianModder
@@ -36,35 +35,20 @@ public class BlockTank extends Block
 {
 	public BlockTank()
 	{
-		super(Material.GLASS, MapColor.BLACK);
-		setHardness(0.4F);
-		setSoundType(SoundType.GLASS);
+		super(Block.Properties.create(Material.GLASS, MaterialColor.BLACK).hardnessAndResistance(0.4f).sound(SoundType.GLASS));
 	}
 
 	@Override
-	public boolean hasTileEntity(IBlockState state)
+	public boolean hasTileEntity(BlockState state)
 	{
 		return true;
 	}
 
+	@Nullable
 	@Override
-	public TileEntity createTileEntity(World world, IBlockState state)
+	public TileEntity createTileEntity(BlockState state, IBlockReader world)
 	{
 		return new TileTank();
-	}
-
-	@Override
-	@Deprecated
-	public boolean isOpaqueCube(IBlockState state)
-	{
-		return false;
-	}
-
-	@Override
-	@Deprecated
-	public boolean isFullCube(IBlockState state)
-	{
-		return false;
 	}
 
 	@Override
@@ -74,36 +58,23 @@ public class BlockTank extends Block
 	}
 
 	@Override
-	@Deprecated
-	public boolean shouldSideBeRendered(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side)
-	{
-		return false;
-	}
-
-	@Override
-	public boolean canHarvestBlock(IBlockAccess world, BlockPos pos, EntityPlayer player)
-	{
-		return true;
-	}
-
-	@Override
-	public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items)
+	public void fillItemGroup(ItemGroup tab, NonNullList<ItemStack> items)
 	{
 		items.add(new ItemStack(ModularPipesItems.TANK));
 
 		if (ModularPipesClientConfig.general.add_all_tanks)
 		{
-			for (Fluid fluid : FluidRegistry.getRegisteredFluids().values())
-			{
-				ItemBlockTank.TankCapProvider data = ItemBlockTank.getData(new ItemStack(ModularPipesItems.TANK));
-				data.tank.setFluid(new FluidStack(fluid, 16 * Fluid.BUCKET_VOLUME));
-				items.add(data.stack);
-			}
+			//			for (Fluid fluid : FluidRegistry.getRegisteredFluids().values())
+			//			{
+			//				ItemBlockTank.TankCapProvider data = ItemBlockTank.getData(new ItemStack(ModularPipesItems.TANK));
+			//				data.tank.setFluid(new FluidStack(fluid, 16 * Fluid.BUCKET_VOLUME));
+			//				items.add(data.stack);
+			//			}
 		}
 	}
 
 	@Override
-	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+	public boolean onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit)
 	{
 		ItemStack stack = player.getHeldItem(hand);
 
@@ -123,7 +94,7 @@ public class BlockTank extends Block
 			return true;
 		}
 
-		IItemHandler inv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+		IItemHandler inv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).orElse(null);
 
 		if (inv == null)
 		{
@@ -148,7 +119,7 @@ public class BlockTank extends Block
 
 	@Override
 	@Deprecated
-	public boolean eventReceived(IBlockState state, World world, BlockPos pos, int id, int param)
+	public boolean eventReceived(BlockState state, World world, BlockPos pos, int id, int param)
 	{
 		TileEntity tileEntity = world.getTileEntity(pos);
 
@@ -178,7 +149,7 @@ public class BlockTank extends Block
 	}
 
 	@Override
-	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
+	public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack)
 	{
 		ItemBlockTank.TankCapProvider data = ItemBlockTank.getData(stack);
 
@@ -194,14 +165,9 @@ public class BlockTank extends Block
 	}
 
 	@Override
-	public void dropBlockAsItemWithChance(World world, BlockPos pos, IBlockState state, float chance, int fortune)
+	public void onBlockHarvested(World world, BlockPos pos, BlockState state, PlayerEntity player)
 	{
-	}
-
-	@Override
-	public void onBlockHarvested(World world, BlockPos pos, IBlockState state, EntityPlayer player)
-	{
-		if (player.capabilities.isCreativeMode)
+		if (player.abilities.isCreativeMode)
 		{
 			TileEntity tileEntity = world.getTileEntity(pos);
 
@@ -212,34 +178,34 @@ public class BlockTank extends Block
 		}
 	}
 
-	@Override
-	@SuppressWarnings("deprecation")
-	public void breakBlock(World world, BlockPos pos, IBlockState state)
-	{
-		TileEntity tileEntity = world.getTileEntity(pos);
-
-		if (tileEntity instanceof TileTank)
-		{
-			TileTank tile = (TileTank) tileEntity;
-
-			if (!tile.brokenByCreative)
-			{
-				ItemStack stack = super.getItem(world, pos, state);
-
-				if (tile.tank.getFluidAmount() > 0)
-				{
-					ItemBlockTank.TankCapProvider data = ItemBlockTank.getData(stack);
-
-					if (data != null)
-					{
-						data.tank.setFluid(tile.tank.getFluid().copy());
-					}
-				}
-
-				spawnAsEntity(world, pos, stack);
-			}
-		}
-
-		super.breakBlock(world, pos, state);
-	}
+	//	@Override
+	//	@SuppressWarnings("deprecation")
+	//	public void breakBlock(World world, BlockPos pos, BlockState state)
+	//	{
+	//		TileEntity tileEntity = world.getTileEntity(pos);
+	//
+	//		if (tileEntity instanceof TileTank)
+	//		{
+	//			TileTank tile = (TileTank) tileEntity;
+	//
+	//			if (!tile.brokenByCreative)
+	//			{
+	//				ItemStack stack = super.getItem(world, pos, state);
+	//
+	//				if (tile.tank.getFluidAmount() > 0)
+	//				{
+	//					ItemBlockTank.TankCapProvider data = ItemBlockTank.getData(stack);
+	//
+	//					if (data != null)
+	//					{
+	//						data.tank.setFluid(tile.tank.getFluid().copy());
+	//					}
+	//				}
+	//
+	//				spawnAsEntity(world, pos, stack);
+	//			}
+	//		}
+	//
+	//		super.breakBlock(world, pos, state);
+	//	}
 }

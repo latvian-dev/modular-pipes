@@ -2,8 +2,8 @@
 	"parent": "block/block",
 	"credit": "Made with Blockbench",
 	"textures": {
-		"module": "modularpipes:blocks/pipe/module",
-		"particle": "modularpipes:blocks/pipe/module"
+		"module": "modularpipes:block/pipe/module",
+		"particle": "modularpipes:block/pipe/module"
 	},
 	"elements": [
 		{

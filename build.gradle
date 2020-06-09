@@ -1,16 +1,17 @@
 buildscript {
 	repositories {
+		maven { url = 'https://files.minecraftforge.net/maven' }
 		jcenter()
-		maven { url = "http://files.minecraftforge.net/maven" }
+		mavenCentral()
 		maven { url "https://plugins.gradle.org/m2/" }
 	}
 	dependencies {
-		classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+		classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
 		classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.1.0'
 	}
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'com.matthewprenger.cursegradle'
 apply plugin: 'maven'
 
@@ -27,36 +28,57 @@ compileJava {
 }
 
 minecraft {
-	version = "${mc_version}-${forge_version}"
-	runDir = "run"
-	mappings = "${mappings_version}"
-
-	replace "0.0.0.modularpipes", project.version
-	replaceIn "${mod_reference}"
-}
-
-configurations.all {
-	transitive = false
+    mappings channel: 'snapshot', version: "${mappings_version}-${mc_version}"
+    runs {
+        client = {
+			properties 'forge.logging.markers': 'SCAN,REGISTRIES,REGISTRYDUMP'
+            properties 'forge.logging.console.level': 'debug'
+            workingDirectory project.file('run').canonicalPath
+			mods {
+				ModularPipes {
+					source sourceSets.main
+				}
+				ItemFilters {
+					source project(':Item-Filters').sourceSets.main
+				}
+			}
+        }
+        server = {
+			properties 'forge.logging.markers': 'SCAN,REGISTRIES,REGISTRYDUMP'
+            properties 'forge.logging.console.level': 'debug'
+            workingDirectory project.file('run').canonicalPath
+			mods {
+				ModularPipes {
+					source sourceSets.main
+				}
+				ItemFilters {
+					source project(':Item-Filters').sourceSets.main
+				}
+			}
+        }
+    }
 }
 
 repositories {
 	mavenLocal()
-	maven { url "https://maven.latmod.com/" } //Item Filters
 	maven { url "https://dvs1.progwml6.com/files/maven" } //JEI
+	maven { url "https://minecraft.curseforge.com/api/maven/" } //Forestry
 }
 
 dependencies {
-	deobfCompile "com.latmod.mods:ItemFilters:${itemfilters_version}"
-	compile "mezz.jei:jei_${mc_version}:${jei_version}:api"
+	minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
+  	compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api")
+  	runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}")
+	compile project(":Item-Filters")
 }
 
 processResources {
 	inputs.property "version", project.version
-	inputs.property "mcversion", project.minecraft.version
+	inputs.property "mcversion", mc_version
 
 	from(sourceSets.main.resources.srcDirs) {
 		include 'mcmod.info'
-		expand 'version': project.version, 'mcversion': project.minecraft.version
+		expand 'version': project.version, 'mcversion': mc_version
 	}
 
 	from(sourceSets.main.resources.srcDirs) {
@@ -64,8 +86,25 @@ processResources {
 	}
 }
 
+task sourcesJar(type: Jar, dependsOn: classes) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+	classifier = 'javadoc'
+	from javadoc.destinationDir
+}
+
+task deobfJar(type:Jar) {
+	from sourceSets.main.output
+	classifier 'deobf'
+}
+
 artifacts {
-	archives sourceJar
+	archives sourcesJar
+	archives javadocJar
+	archives deobfJar
 }
 
 if (ENV.LOCAL_MAVEN) {
@@ -85,12 +124,10 @@ if (ENV.CURSEFORGE_KEY) {
 			id = "${curseforge_id}"
 			releaseType = "release"
 			addGameVersion "${mc_version}"
-			relations {
-				requiredDependency 'item-filters'
-			}
 			changelog = getGitChangelog
 			changelogType = 'markdown'
 			addArtifact(sourceJar)
+			addArtifact(javadocJar)
 		}
 	}
 }

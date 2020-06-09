@@ -1,48 +1,32 @@
 package com.latmod.mods.modularpipes;
 
-import com.latmod.mods.modularpipes.gui.ModularPipesGuiHandler;
+import com.latmod.mods.modularpipes.client.ModularPipesClient;
 import com.latmod.mods.modularpipes.item.ModularPipesItems;
 import com.latmod.mods.modularpipes.item.module.PipeModule;
 import com.latmod.mods.modularpipes.net.ModularPipesNet;
 import com.latmod.mods.modularpipes.tile.PipeNetwork;
-import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.INBT;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import javax.annotation.Nullable;
 
-@Mod(
-		modid = ModularPipes.MOD_ID,
-		name = ModularPipes.MOD_NAME,
-		version = ModularPipes.VERSION,
-		acceptedMinecraftVersions = "[1.12,)",
-		dependencies = "required-after:itemfilters"
-)
+@Mod(ModularPipes.MOD_ID)
 public class ModularPipes
 {
 	public static final String MOD_ID = "modularpipes";
-	public static final String MOD_NAME = "Modular Pipes";
-	public static final String VERSION = "0.0.0.modularpipes";
-	public static final Logger LOGGER = LogManager.getLogger(MOD_NAME);
-
-	@Mod.Instance(MOD_ID)
-	public static ModularPipes INSTANCE;
-
-	@SidedProxy(serverSide = "com.latmod.mods.modularpipes.ModularPipesCommon", clientSide = "com.latmod.mods.modularpipes.client.ModularPipesClient")
-	public static ModularPipesCommon PROXY;
-
-	public static final CreativeTabs TAB = new CreativeTabs(MOD_ID)
+	public static final ItemGroup TAB = new ItemGroup(MOD_ID)
 	{
 		@Override
 		public ItemStack createIcon()
@@ -50,23 +34,31 @@ public class ModularPipes
 			return new ItemStack(ModularPipesItems.PIPE_MODULAR_MK1);
 		}
 	};
+	//	@SidedProxy(serverSide = "com.latmod.mods.modularpipes.ModularPipesCommon", clientSide = "com.latmod.mods.modularpipes.client.ModularPipesClient")
+	public static ModularPipesCommon PROXY;
 
-	@EventHandler
-	public void onPreInit(FMLPreInitializationEvent event)
+	public ModularPipes()
 	{
-		ModularPipesConfig.sync();
+		PROXY = DistExecutor.runForDist(() -> ModularPipesClient::new, () -> ModularPipesCommon::new);
+		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::loadComplete);
+		FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Block.class, ModularPipesEventHandler::registerBlocks);
+		FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Item.class, ModularPipesEventHandler::registerItems);
+		FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(TileEntityType.class, ModularPipesEventHandler::registerTiles);
+	}
 
+	public void loadComplete(FMLLoadCompleteEvent event)
+	{
 		CapabilityManager.INSTANCE.register(PipeModule.class, new Capability.IStorage<PipeModule>()
 		{
 			@Nullable
 			@Override
-			public NBTBase writeNBT(Capability<PipeModule> capability, PipeModule instance, EnumFacing side)
+			public INBT writeNBT(Capability<PipeModule> capability, PipeModule instance, Direction side)
 			{
 				return instance instanceof INBTSerializable ? ((INBTSerializable) instance).serializeNBT() : null;
 			}
 
 			@Override
-			public void readNBT(Capability<PipeModule> capability, PipeModule instance, EnumFacing side, NBTBase nbt)
+			public void readNBT(Capability<PipeModule> capability, PipeModule instance, Direction side, INBT nbt)
 			{
 				if (nbt != null && instance instanceof INBTSerializable)
 				{
@@ -79,18 +71,17 @@ public class ModularPipes
 		{
 			@Nullable
 			@Override
-			public NBTBase writeNBT(Capability<PipeNetwork> capability, PipeNetwork instance, EnumFacing side)
+			public INBT writeNBT(Capability<PipeNetwork> capability, PipeNetwork instance, Direction side)
 			{
 				return null;
 			}
 
 			@Override
-			public void readNBT(Capability<PipeNetwork> capability, PipeNetwork instance, EnumFacing side, NBTBase nbt)
+			public void readNBT(Capability<PipeNetwork> capability, PipeNetwork instance, Direction side, INBT nbt)
 			{
 			}
 		}, () -> null);
 
-		NetworkRegistry.INSTANCE.registerGuiHandler(this, ModularPipesGuiHandler.INSTANCE);
 		ModularPipesNet.init();
 	}
 }

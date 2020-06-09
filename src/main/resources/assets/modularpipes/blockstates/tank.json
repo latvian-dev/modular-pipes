@@ -1,6 +1,5 @@
 {
 	"variants": {
-		"inventory": [{"model": "modularpipes:tank_item"}],
-		"normal": {"model": "modularpipes:tank"}
+		"": {"model": "modularpipes:block/tank"}
 	}
 }

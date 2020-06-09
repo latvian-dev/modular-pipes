@@ -3,14 +3,20 @@ package com.latmod.mods.modularpipes.tile;
 import com.latmod.mods.itemfilters.api.IPaintable;
 import com.latmod.mods.itemfilters.api.PaintAPI;
 import com.latmod.mods.modularpipes.ModularPipesConfig;
+import com.latmod.mods.modularpipes.block.BlockPipeBase;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.block.BlockState;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.Direction;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelDataMap;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashSet;
 
@@ -19,64 +25,60 @@ import java.util.HashSet;
  */
 public class TilePipeBase extends TileBase implements IPaintable
 {
-	private boolean isDirty = false;
 	public boolean sync = false;
 	public int paint = 0;
 	public boolean invisible = false;
+	private boolean isDirty = false;
+
+	public TilePipeBase(TileEntityType<?> tileEntityTypeIn)
+	{
+		super(tileEntityTypeIn);
+	}
 
 	@Override
-	public void writeData(NBTTagCompound nbt)
+	public void writeData(CompoundNBT nbt)
 	{
 		if (paint != 0)
 		{
-			nbt.setInteger("paint", paint);
+			nbt.putInt("paint", paint);
 		}
 
 		if (invisible)
 		{
-			nbt.setBoolean("invisible", true);
+			nbt.putBoolean("invisible", true);
 		}
 	}
 
+	@Nonnull
 	@Override
-	public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing)
+	public IModelData getModelData()
 	{
-		if (capability == PaintAPI.CAPABILITY)
-		{
-			return true;
-		}
-
-		return super.hasCapability(capability, facing);
+		return new ModelDataMap.Builder().withInitial(BlockPipeBase.PIPE, this).build();
 	}
 
-	@Nullable
+	@Nonnull
 	@Override
-	public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing)
+	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side)
 	{
-		if (capability == PaintAPI.CAPABILITY)
-		{
-			return (T) this;
-		}
-
-		return super.getCapability(capability, facing);
+		return cap == PaintAPI.CAPABILITY ? thisOptional.cast() : super.getCapability(cap, side);
 	}
 
 	@Override
-	public void readData(NBTTagCompound nbt)
+	public void readData(CompoundNBT nbt)
 	{
-		paint = nbt.getInteger("paint");
+		paint = nbt.getInt("paint");
 		invisible = nbt.getBoolean("invisible");
 	}
 
 	@Override
-	public void invalidate()
+	public void remove()
 	{
 		if (hasWorld())
 		{
 			PipeNetwork.get(getWorld()).refresh();
 		}
 
-		super.invalidate();
+		super.remove();
 	}
 
 	@Override
@@ -130,7 +132,7 @@ public class TilePipeBase extends TileBase implements IPaintable
 
 			if (!world.isRemote && sync)
 			{
-				IBlockState state = world.getBlockState(pos);
+				BlockState state = world.getBlockState(pos);
 				world.notifyBlockUpdate(pos, state, state, 11);
 			}
 
@@ -143,14 +145,14 @@ public class TilePipeBase extends TileBase implements IPaintable
 		return paint == p || paint == 0 || p == 0;
 	}
 
-	public boolean isConnected(EnumFacing facing)
+	public boolean isConnected(Direction facing)
 	{
 		return false;
 	}
 
 	@Override
 	@SuppressWarnings("deprecation")
-	public void paint(IBlockState paintState, EnumFacing facing, boolean all)
+	public void paint(BlockState paintState, Direction facing, boolean all)
 	{
 		if (all)
 		{
@@ -160,8 +162,8 @@ public class TilePipeBase extends TileBase implements IPaintable
 			for (TilePipeBase pipe : pipes)
 			{
 				pipe.markDirty();
-				IBlockState state = world.getBlockState(pipe.getPos());
-				state.getBlock().neighborChanged(state, world, pipe.getPos(), state.getBlock(), pipe.getPos().offset(facing));
+				BlockState state = world.getBlockState(pipe.getPos());
+				state.getBlock().neighborChanged(state, world, pipe.getPos(), state.getBlock(), pipe.getPos().offset(facing), false);
 
 				if (world.isRemote)
 				{
@@ -175,9 +177,9 @@ public class TilePipeBase extends TileBase implements IPaintable
 
 		paint = Block.getStateId(paintState);
 		markDirty();
-		IBlockState state = world.getBlockState(pos);
-		state.getBlock().neighborChanged(state, world, pos, state.getBlock(), pos.offset(facing));
-		world.notifyNeighborsOfStateChange(pos, state.getBlock(), true);
+		BlockState state = world.getBlockState(pos);
+		state.getBlock().neighborChanged(state, world, pos, state.getBlock(), pos.offset(facing), false);
+		world.notifyNeighborsOfStateChange(pos, state.getBlock());
 
 		if (world.isRemote)
 		{
@@ -188,7 +190,7 @@ public class TilePipeBase extends TileBase implements IPaintable
 	}
 
 	@Override
-	public IBlockState getPaint()
+	public BlockState getPaint()
 	{
 		return Block.getStateById(paint);
 	}
@@ -200,7 +202,7 @@ public class TilePipeBase extends TileBase implements IPaintable
 			pipe.paint = paint;
 			visited.add(pipe);
 
-			for (EnumFacing facing : EnumFacing.VALUES)
+			for (Direction facing : Direction.values())
 			{
 				TileEntity tileEntity = pipe.getWorld().getTileEntity(pipe.getPos().offset(facing));
 

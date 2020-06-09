@@ -1,0 +1,8 @@
+modLoader="javafml"
+loaderVersion="[24,)"
+authors="LatvianModder, Coded"
+[[mods]] #mandatory
+modId="modularpipes"
+version="${file.jarVersion}"
+displayName="Modular Pipes"
+description='''sick pipes init' fam'''

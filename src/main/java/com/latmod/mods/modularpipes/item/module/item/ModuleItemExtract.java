@@ -3,7 +3,7 @@ package com.latmod.mods.modularpipes.item.module.item;
 import com.latmod.mods.itemfilters.api.ItemFiltersAPI;
 import com.latmod.mods.modularpipes.ModularPipesCommon;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -16,18 +16,18 @@ public class ModuleItemExtract extends ModuleItemHandler
 	public int tick = 0;
 
 	@Override
-	public void writeData(NBTTagCompound nbt)
+	public void writeData(CompoundNBT nbt)
 	{
 		super.writeData(nbt);
 
 		if (tick > 0)
 		{
-			nbt.setByte("tick", (byte) tick);
+			nbt.putByte("tick", (byte) tick);
 		}
 	}
 
 	@Override
-	public void readData(NBTTagCompound nbt)
+	public void readData(CompoundNBT nbt)
 	{
 		super.readData(nbt);
 		tick = nbt.getByte("tick");
@@ -58,7 +58,7 @@ public class ModuleItemExtract extends ModuleItemHandler
 	private boolean extractItem()
 	{
 		TileEntity tile = getFacingTile();
-		IItemHandler handler = tile == null ? null : tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite());
+		IItemHandler handler = tile == null ? null : tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite()).orElse(null);
 
 		if (handler != null)
 		{

@@ -3,19 +3,19 @@ package com.latmod.mods.modularpipes.client;
 import com.latmod.mods.modularpipes.block.ModularPipesBlocks;
 import com.latmod.mods.modularpipes.item.ItemBlockTank;
 import com.latmod.mods.modularpipes.tile.TileTank;
-import net.minecraft.block.state.IBlockState;
+import com.mojang.blaze3d.platform.GLX;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
+import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
@@ -26,12 +26,74 @@ import org.lwjgl.opengl.GL11;
 /**
  * @author LatvianModder
  */
-public class RenderTank extends TileEntitySpecialRenderer<TileTank>
+public class RenderTank extends TileEntityRenderer<TileTank>
 {
 	private static final TileTank DUMMY = new TileTank();
 
+	public static class TankTEISR extends ItemStackTileEntityRenderer
+	{
+		protected void setLightmapDisabled(boolean disabled)
+		{
+			GlStateManager.activeTexture(GLX.GL_TEXTURE1);
+			if (disabled)
+			{
+				GlStateManager.disableTexture();
+			}
+			else
+			{
+				GlStateManager.enableTexture();
+			}
+
+			GlStateManager.activeTexture(GLX.GL_TEXTURE0);
+		}
+
+		@Override
+		public void renderByItem(ItemStack stack)
+		{
+			Minecraft mc = Minecraft.getInstance();
+
+			if (mc.world != null && mc.player != null)
+			{
+				try
+				{
+					//RenderHelper.enableStandardItemLighting();
+					GlStateManager.disableLighting();
+					GlStateManager.color4f(1F, 1F, 1F, 1F);
+					GlStateManager.enableRescaleNormal();
+					setLightmapDisabled(true);
+					GlStateManager.color4f(1F, 1F, 1F, 1F);
+					BlockState state = ModularPipesBlocks.TANK.getDefaultState();
+					BlockPos pos = new BlockPos(mc.player.posX, 255, mc.player.posZ);
+					GlStateManager.pushMatrix();
+					GlStateManager.translated(-pos.getX(), -pos.getY(), -pos.getZ());
+					Tessellator tessellator = Tessellator.getInstance();
+					BufferBuilder buffer = tessellator.getBuffer();
+					buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
+					BlockRendererDispatcher rendererDispatcher = mc.getBlockRendererDispatcher();
+					rendererDispatcher.getBlockModelRenderer().renderModelSmooth(mc.world, rendererDispatcher.getModelForState(state), state, pos, buffer, false, mc.world.rand, 0);
+					tessellator.draw();
+					GlStateManager.popMatrix();
+					GlStateManager.enableLighting();
+					setLightmapDisabled(false);
+				}
+				catch (Exception ex)
+				{
+				}
+			}
+
+			IFluidHandler handler = stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY).orElse(null);
+
+			if (handler instanceof ItemBlockTank.TankCapProvider)
+			{
+				DUMMY.tank.setFluid(((ItemBlockTank.TankCapProvider) handler).tank.getFluid());
+			}
+
+			TileEntityRendererDispatcher.instance.render(DUMMY, 0D, 0D, 0D, 0f);
+		}
+	}
+
 	@Override
-	public void render(TileTank tile, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
+	public void render(TileTank tile, double x, double y, double z, float partialTicks, int destroyStage)
 	{
 		int amount0 = tile.tank.getFluidAmount();
 
@@ -42,7 +104,7 @@ public class RenderTank extends TileEntitySpecialRenderer<TileTank>
 
 		double amount = amount0 / (double) tile.tank.getCapacity();
 
-		Minecraft mc = Minecraft.getMinecraft();
+		Minecraft mc = Minecraft.getInstance();
 		GlStateManager.enableBlend();
 		GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
@@ -51,14 +113,14 @@ public class RenderTank extends TileEntitySpecialRenderer<TileTank>
 		double y1 = o0 + ((o1 - o0) * amount);
 
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(x, y, z);
-		GlStateManager.glNormal3f(0F, 1F, 0F);
-		GlStateManager.translate(0.5F, 0.5F, 0.5F);
-		GlStateManager.rotate(180F, 0F, 0F, 1F);
-		GlStateManager.rotate(180F, 1F, 0F, 0F);
-		GlStateManager.translate(-0.5F, -0.5F, -0.5F);
-		mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		TextureAtlasSprite sprite = mc.getTextureMapBlocks().getAtlasSprite(tile.tank.getFluid().getFluid().getStill(tile.tank.getFluid()).toString());
+		GlStateManager.translated(x, y, z);
+		GlStateManager.normal3f(0F, 1F, 0F);
+		GlStateManager.translatef(0.5F, 0.5F, 0.5F);
+		GlStateManager.rotatef(180F, 0F, 0F, 1F);
+		GlStateManager.rotatef(180F, 1F, 0F, 0F);
+		GlStateManager.translatef(-0.5F, -0.5F, -0.5F);
+		mc.getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+		TextureAtlasSprite sprite = mc.getTextureMap().getAtlasSprite(tile.tank.getFluid().getFluid().getStill(tile.tank.getFluid()).toString());
 
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder buffer = tessellator.getBuffer();
@@ -114,54 +176,5 @@ public class RenderTank extends TileEntitySpecialRenderer<TileTank>
 		tessellator.draw();
 		GlStateManager.popMatrix();
 		RenderHelper.enableStandardItemLighting();
-	}
-
-	public static class TankTEISR extends TileEntityItemStackRenderer
-	{
-		@Override
-		public void renderByItem(ItemStack stack, float partialTicks)
-		{
-			Minecraft mc = Minecraft.getMinecraft();
-
-			if (mc.world != null && mc.player != null)
-			{
-				try
-				{
-					//RenderHelper.enableStandardItemLighting();
-					GlStateManager.disableLighting();
-					GlStateManager.color(1F, 1F, 1F, 1F);
-					GlStateManager.enableRescaleNormal();
-					float lastBrightnessX = OpenGlHelper.lastBrightnessX;
-					float lastBrightnessY = OpenGlHelper.lastBrightnessY;
-					OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
-					GlStateManager.color(1F, 1F, 1F, 1F);
-					IBlockState state = ModularPipesBlocks.TANK.getDefaultState();
-					BlockPos pos = new BlockPos(mc.player.posX, 255, mc.player.posZ);
-					GlStateManager.pushMatrix();
-					GlStateManager.translate(-pos.getX(), -pos.getY(), -pos.getZ());
-					Tessellator tessellator = Tessellator.getInstance();
-					BufferBuilder buffer = tessellator.getBuffer();
-					buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
-					BlockRendererDispatcher rendererDispatcher = mc.getBlockRendererDispatcher();
-					rendererDispatcher.getBlockModelRenderer().renderModelSmooth(mc.world, rendererDispatcher.getModelForState(state), state, pos, buffer, false, 0L);
-					tessellator.draw();
-					GlStateManager.popMatrix();
-					GlStateManager.enableLighting();
-					OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lastBrightnessX, lastBrightnessY);
-				}
-				catch (Exception ex)
-				{
-				}
-			}
-
-			IFluidHandler handler = stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
-
-			if (handler instanceof ItemBlockTank.TankCapProvider)
-			{
-				DUMMY.tank.setFluid(((ItemBlockTank.TankCapProvider) handler).tank.getFluid());
-			}
-
-			TileEntityRendererDispatcher.instance.render(DUMMY, 0D, 0D, 0D, partialTicks);
-		}
 	}
 }

@@ -9,28 +9,30 @@ import com.latmod.mods.modularpipes.tile.TilePipeBase;
 import com.latmod.mods.modularpipes.tile.TilePipeModularMK1;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
-import net.minecraft.client.renderer.block.model.ModelRotation;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.model.ItemOverrideList;
+import net.minecraft.client.renderer.model.ModelRotation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
-import net.minecraftforge.common.property.IExtendedBlockState;
+import net.minecraftforge.client.model.data.IModelData;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 /**
  * @author LatvianModder
@@ -90,10 +92,10 @@ public class ModelPipeBaked implements IBakedModel
 			bakedItemWithOverlay[mk.ordinal()] = new ModelPipeBakedItem(this, mk);
 		}
 
-		itemOverrideList = new ItemOverrideList(Collections.emptyList())
+		itemOverrideList = new ItemOverrideList()
 		{
 			@Override
-			public IBakedModel handleItemState(IBakedModel originalModel, ItemStack stack, @Nullable World world, @Nullable EntityLivingBase entity)
+			public IBakedModel getModelWithOverrides(IBakedModel originalModel, ItemStack stack, @Nullable World world, @Nullable LivingEntity entity)
 			{
 				Block block = Block.getBlockFromItem(stack.getItem());
 				return block instanceof BlockPipeBase ? block instanceof BlockPipeModular ? bakedItemWithOverlay[((BlockPipeModular) block).tier.ordinal()] : bakedItem : originalModel;
@@ -102,7 +104,14 @@ public class ModelPipeBaked implements IBakedModel
 	}
 
 	@Override
-	public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand)
+	public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, Random rand)
+	{
+		return Collections.emptyList();
+	}
+
+	@Nonnull
+	@Override
+	public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData extraData)
 	{
 		if (state == null || side != null)
 		{
@@ -111,9 +120,9 @@ public class ModelPipeBaked implements IBakedModel
 
 		TilePipeBase pipe = null;
 
-		if (state instanceof IExtendedBlockState)
+		if (extraData.hasProperty(BlockPipeBase.PIPE))
 		{
-			pipe = ((IExtendedBlockState) state).getValue(BlockPipeBase.PIPE);
+			pipe = extraData.getData(BlockPipeBase.PIPE);
 		}
 
 		if (pipe == null || pipe.invisible)
@@ -137,7 +146,7 @@ public class ModelPipeBaked implements IBakedModel
 
 		int connections = 0;
 
-		for (EnumFacing facing : EnumFacing.VALUES)
+		for (Direction facing : Direction.values())
 		{
 			if (pipe.isConnected(facing))
 			{
@@ -170,7 +179,7 @@ public class ModelPipeBaked implements IBakedModel
 			{
 				for (int i = 0; i < 6; i++)
 				{
-					if (module.isConnected(EnumFacing.VALUES[i]))
+					if (module.isConnected(Direction.values()[i]))
 					{
 						modules[i]++;
 					}
@@ -204,7 +213,7 @@ public class ModelPipeBaked implements IBakedModel
 			{
 				try
 				{
-					sprite = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getTexture(Block.getStateById(pipe.paint));
+					sprite = Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes().getTexture(Block.getStateById(pipe.paint));
 				}
 				catch (Exception ex)
 				{
@@ -217,7 +226,7 @@ public class ModelPipeBaked implements IBakedModel
 				sprite = particle;
 			}
 
-			AbstractMap.SimpleEntry<String, ResourceLocation> entry = new AbstractMap.SimpleEntry<>("material", new ResourceLocation(sprite.getIconName()));
+			AbstractMap.SimpleEntry<String, ResourceLocation> entry = new AbstractMap.SimpleEntry<>("material", sprite.getName());
 			List<List<BakedQuad>> base1 = new ArrayList<>(4);
 			base1.add(modelCallback.get(modelPipe.modelBase, ModelRotation.X0_Y0, entry));
 			base1.add(modelCallback.get(modelPipe.modelVertical, ModelRotation.X90_Y90, entry));

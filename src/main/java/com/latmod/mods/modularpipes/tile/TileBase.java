@@ -1,68 +1,68 @@
 package com.latmod.mods.modularpipes.tile;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraftforge.common.util.LazyOptional;
 
 /**
  * @author LatvianModder
  */
 public class TileBase extends TileEntity
 {
-	public void writeData(NBTTagCompound nbt)
+	protected LazyOptional<?> thisOptional = LazyOptional.of(() -> this);
+
+	public TileBase(TileEntityType<?> tileEntityTypeIn)
+	{
+		super(tileEntityTypeIn);
+	}
+
+	public void writeData(CompoundNBT nbt)
 	{
 	}
 
-	public void readData(NBTTagCompound nbt)
+	public void readData(CompoundNBT nbt)
 	{
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
+	public CompoundNBT write(CompoundNBT nbt)
 	{
 		writeData(nbt);
-		return super.writeToNBT(nbt);
+		return super.write(nbt);
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbt)
+	public void read(CompoundNBT nbt)
 	{
-		super.readFromNBT(nbt);
+		super.read(nbt);
 		readData(nbt);
 	}
 
 	@Override
-	public NBTTagCompound getUpdateTag()
+	public CompoundNBT getUpdateTag()
 	{
-		return writeToNBT(new NBTTagCompound());
+		return write(new CompoundNBT());
 	}
 
 	@Override
-	public void handleUpdateTag(NBTTagCompound tag)
+	public void handleUpdateTag(CompoundNBT tag)
 	{
-		readFromNBT(tag);
+		read(tag);
 	}
 
 	@Override
-	public SPacketUpdateTileEntity getUpdatePacket()
+	public SUpdateTileEntityPacket getUpdatePacket()
 	{
-		NBTTagCompound nbt = new NBTTagCompound();
+		CompoundNBT nbt = new CompoundNBT();
 		writeData(nbt);
-		return new SPacketUpdateTileEntity(pos, 0, nbt);
+		return new SUpdateTileEntityPacket(pos, 0, nbt);
 	}
 
 	@Override
-	public void onDataPacket(net.minecraft.network.NetworkManager net, SPacketUpdateTileEntity packet)
+	public void onDataPacket(net.minecraft.network.NetworkManager net, SUpdateTileEntityPacket packet)
 	{
 		readData(packet.getNbtCompound());
-	}
-
-	@Override
-	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newSate)
-	{
-		return oldState.getBlock() != newSate.getBlock();
 	}
 }

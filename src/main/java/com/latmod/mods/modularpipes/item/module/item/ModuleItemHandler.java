@@ -4,17 +4,19 @@ import com.latmod.mods.itemfilters.api.ItemFiltersAPI;
 import com.latmod.mods.modularpipes.item.module.PipeModule;
 import com.latmod.mods.modularpipes.item.module.SidedPipeModule;
 import com.latmod.mods.modularpipes.tile.TilePipeModularMK1;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,21 +30,21 @@ public class ModuleItemHandler extends SidedPipeModule implements IItemHandler
 	private List<ModuleItemStorage> storageModules = null;
 
 	@Override
-	public void writeData(NBTTagCompound nbt)
+	public void writeData(CompoundNBT nbt)
 	{
 		super.writeData(nbt);
 
 		if (!filter.isEmpty())
 		{
-			nbt.setTag("filter", filter.serializeNBT());
+			nbt.put("filter", filter.serializeNBT());
 		}
 	}
 
 	@Override
-	public void readData(NBTTagCompound nbt)
+	public void readData(CompoundNBT nbt)
 	{
 		super.readData(nbt);
-		filter = new ItemStack(nbt.getCompoundTag("filter"));
+		filter = ItemStack.read(nbt.getCompound("filter"));
 
 		if (filter.isEmpty())
 		{
@@ -50,17 +52,11 @@ public class ModuleItemHandler extends SidedPipeModule implements IItemHandler
 		}
 	}
 
-	@Override
-	public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing)
-	{
-		return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && facing == side || super.hasCapability(capability, facing);
-	}
-
 	@Nullable
 	@Override
-	public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing)
+	public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction facing)
 	{
-		return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && facing == side ? (T) this : super.getCapability(capability, facing);
+		return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && facing == side ? thisOptional.cast() : super.getCapability(capability, facing);
 	}
 
 	public List<ModuleItemStorage> getStorageModules()
@@ -145,7 +141,20 @@ public class ModuleItemHandler extends SidedPipeModule implements IItemHandler
 	}
 
 	@Override
-	public boolean onModuleRightClick(EntityPlayer player, EnumHand hand)
+	public boolean isItemValid(int slot, @Nonnull ItemStack stack)
+	{
+		for (ModuleItemStorage module : getStorageModules())
+		{
+			if (ItemFiltersAPI.filter(module.filter, stack))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean onModuleRightClick(PlayerEntity player, Hand hand)
 	{
 		ItemStack stack = player.getHeldItem(hand);
 
@@ -153,7 +162,7 @@ public class ModuleItemHandler extends SidedPipeModule implements IItemHandler
 		{
 			if (!player.world.isRemote)
 			{
-				player.sendStatusMessage(new TextComponentString("Filter: " + filter.getDisplayName()), true); //LANG
+				player.sendStatusMessage(new StringTextComponent("Filter: " + filter.getDisplayName()), true); //LANG
 			}
 		}
 		else
@@ -162,7 +171,7 @@ public class ModuleItemHandler extends SidedPipeModule implements IItemHandler
 
 			if (!player.world.isRemote)
 			{
-				player.sendStatusMessage(new TextComponentString("Filter changed to " + filter.getDisplayName()), true); //LANG
+				player.sendStatusMessage(new StringTextComponent("Filter changed to " + filter.getDisplayName()), true); //LANG
 				refreshNetwork();
 			}
 		}

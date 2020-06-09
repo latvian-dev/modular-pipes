@@ -4,15 +4,16 @@ import com.latmod.mods.modularpipes.net.MessageParticle;
 import com.latmod.mods.modularpipes.net.ModularPipesNet;
 import com.latmod.mods.modularpipes.tile.PipeNetwork;
 import com.latmod.mods.modularpipes.tile.TilePipeModularMK1;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fml.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 
@@ -23,33 +24,33 @@ public class PipeModule implements ICapabilityProvider
 {
 	@CapabilityInject(PipeModule.class)
 	public static Capability<PipeModule> CAP;
-
 	public TilePipeModularMK1 pipe = null;
 	public ItemStack moduleItem = ItemStack.EMPTY;
+	protected LazyOptional<?> thisOptional = LazyOptional.of(() -> this);
 
-	public void writeData(NBTTagCompound nbt)
+	public void writeData(CompoundNBT nbt)
 	{
 	}
 
-	public void readData(NBTTagCompound nbt)
+	public void readData(CompoundNBT nbt)
 	{
 	}
 
-	public boolean canInsert(EntityPlayer player, @Nullable EnumFacing facing)
-	{
-		return true;
-	}
-
-	public void onInserted(EntityPlayer player, @Nullable EnumFacing facing)
-	{
-	}
-
-	public boolean canRemove(EntityPlayer player)
+	public boolean canInsert(PlayerEntity player, @Nullable Direction facing)
 	{
 		return true;
 	}
 
-	public void onRemoved(EntityPlayer player)
+	public void onInserted(PlayerEntity player, @Nullable Direction facing)
+	{
+	}
+
+	public boolean canRemove(PlayerEntity player)
+	{
+		return true;
+	}
+
+	public void onRemoved(PlayerEntity player)
 	{
 	}
 
@@ -70,27 +71,20 @@ public class PipeModule implements ICapabilityProvider
 	{
 	}
 
-	public boolean onModuleRightClick(EntityPlayer player, EnumHand hand)
+	public boolean onModuleRightClick(PlayerEntity player, Hand hand)
 	{
 		return false;
 	}
 
-	public boolean isConnected(EnumFacing facing)
+	public boolean isConnected(Direction facing)
 	{
 		return false;
 	}
 
 	@Override
-	public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing)
+	public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction facing)
 	{
-		return capability == CAP;
-	}
-
-	@Nullable
-	@Override
-	public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing)
-	{
-		return capability == CAP ? (T) this : null;
+		return capability == CAP ? thisOptional.cast() : LazyOptional.empty();
 	}
 
 	public final void refreshNetwork()
@@ -103,7 +97,7 @@ public class PipeModule implements ICapabilityProvider
 
 	public String toString()
 	{
-		NBTTagCompound nbt = new NBTTagCompound();
+		CompoundNBT nbt = new CompoundNBT();
 		writeData(nbt);
 		return moduleItem.getItem().getRegistryName() + (nbt.isEmpty() ? "" : ("+" + nbt));
 	}
@@ -115,7 +109,7 @@ public class PipeModule implements ICapabilityProvider
 			double x = pipe.getPos().getX() + 0.5D;
 			double y = pipe.getPos().getY() + 0.5D;
 			double z = pipe.getPos().getZ() + 0.5D;
-			ModularPipesNet.NET.sendToAllAround(new MessageParticle(pipe.getPos(), null, type), new NetworkRegistry.TargetPoint(pipe.getWorld().provider.getDimension(), x, y, z, 24D));
+			ModularPipesNet.NET.send(PacketDistributor.NEAR.with(PacketDistributor.TargetPoint.p(x, y, z, 24, pipe.getWorld().getDimension().getType())), new MessageParticle(pipe.getPos(), null, type));
 		}
 	}
 }

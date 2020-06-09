@@ -2,9 +2,9 @@
 	"parent": "block/block",
 	"credit": "Made with Blockbench",
 	"textures": {
-		"glass": "modularpipes:blocks/glass",
-		"texture": "modularpipes:blocks/tank",
-		"particle": "modularpipes:blocks/tank"
+		"glass": "modularpipes:block/glass",
+		"texture": "modularpipes:block/tank",
+		"particle": "modularpipes:block/tank"
 	},
 	"elements": [
 		{

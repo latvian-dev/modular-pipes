@@ -1,18 +1,13 @@
 package com.latmod.mods.modularpipes.net;
 
-import com.latmod.mods.modularpipes.gui.painter.ContainerPainter;
-import com.latmod.mods.modularpipes.item.ItemPainter;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 /**
  * @author LatvianModder
  */
-public class MessageSendPaint implements IMessage
+public class MessageSendPaint
 {
 	public int paint;
 
@@ -20,39 +15,36 @@ public class MessageSendPaint implements IMessage
 	{
 	}
 
+	public MessageSendPaint(PacketBuffer p)
+	{
+		fromBytes(p);
+	}
+
 	public MessageSendPaint(int p)
 	{
 		paint = p;
 	}
 
-	@Override
-	public void fromBytes(ByteBuf buf)
+	public void onMessage(NetworkEvent.Context ctx)
+	{
+		ServerPlayerEntity player = ctx.getSender();
+
+		//		FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
+		//			if (player.openContainer instanceof ContainerPainter)
+		//			{
+		//				ItemPainter.setPaint(((ContainerPainter) player.openContainer).stack, message.paint);
+		//			}
+		//		});
+	}
+
+	public void fromBytes(PacketBuffer buf)
 	{
 		paint = buf.readInt();
 	}
 
-	@Override
-	public void toBytes(ByteBuf buf)
+	public void toBytes(PacketBuffer buf)
 	{
 		buf.writeInt(paint);
-	}
-
-	public static class Handler implements IMessageHandler<MessageSendPaint, IMessage>
-	{
-		@Override
-		public IMessage onMessage(MessageSendPaint message, MessageContext ctx)
-		{
-			EntityPlayerMP player = ctx.getServerHandler().player;
-
-			FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
-				if (player.openContainer instanceof ContainerPainter)
-				{
-					ItemPainter.setPaint(((ContainerPainter) player.openContainer).stack, message.paint);
-				}
-			});
-
-			return null;
-		}
 	}
 
 }

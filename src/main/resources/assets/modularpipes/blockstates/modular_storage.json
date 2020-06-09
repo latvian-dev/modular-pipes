@@ -1,5 +1,5 @@
 {
 	"variants": {
-		"normal": [{"model": "modularpipes:modular_storage"}]
+		"": [{"model": "modularpipes:block/modular_storage"}]
 	}
 }

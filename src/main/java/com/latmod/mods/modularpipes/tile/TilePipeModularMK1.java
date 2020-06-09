@@ -3,18 +3,21 @@ package com.latmod.mods.modularpipes.tile;
 import com.latmod.mods.modularpipes.ModularPipesConfig;
 import com.latmod.mods.modularpipes.ModularPipesUtils;
 import com.latmod.mods.modularpipes.block.EnumMK;
+import com.latmod.mods.modularpipes.block.ModularPipesTiles;
 import com.latmod.mods.modularpipes.item.ItemKey;
 import com.latmod.mods.modularpipes.item.module.PipeModule;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 
@@ -31,87 +34,97 @@ import java.util.List;
  */
 public class TilePipeModularMK1 extends TilePipeBase implements IEnergyStorage
 {
+	public final CachedTileEntity[] cachedTiles = new CachedTileEntity[6];
 	public List<PipeItem> items = new ArrayList<>(0);
 	public List<PipeModule> modules = new ArrayList<>(0);
-	public final CachedTileEntity[] cachedTiles = new CachedTileEntity[6];
 	public Object2IntOpenHashMap<ItemKey> itemDirections = new Object2IntOpenHashMap<>(0);
 	public int storedPower = 0;
 	private int powerOutputIndex = -1;
 	private List<TilePipeModularMK1> cachedNetwork = null;
 
+	public TilePipeModularMK1()
+	{
+		super(ModularPipesTiles.PIPE_MODULAR_MK1);
+	}
+
+	public TilePipeModularMK1(TileEntityType<?> tileEntityTypeIn)
+	{
+		super(tileEntityTypeIn);
+	}
+
 	@Override
-	public void writeData(NBTTagCompound nbt)
+	public void writeData(CompoundNBT nbt)
 	{
 		super.writeData(nbt);
 
 		if (!modules.isEmpty())
 		{
-			NBTTagList list = new NBTTagList();
+			ListNBT list = new ListNBT();
 
 			for (PipeModule module : modules)
 			{
-				NBTTagCompound nbt1 = module.moduleItem.serializeNBT();
-				NBTTagCompound nbt2 = new NBTTagCompound();
+				CompoundNBT nbt1 = module.moduleItem.serializeNBT();
+				CompoundNBT nbt2 = new CompoundNBT();
 				module.writeData(nbt2);
 
 				if (!nbt2.isEmpty())
 				{
-					nbt1.setTag("module", nbt2);
+					nbt1.put("module", nbt2);
 				}
 
-				list.appendTag(nbt1);
+				list.add(nbt1);
 			}
 
-			nbt.setTag("modules", list);
+			nbt.put("modules", list);
 		}
 
 		if (!items.isEmpty())
 		{
-			NBTTagList list = new NBTTagList();
+			ListNBT list = new ListNBT();
 
 			for (PipeItem item : items)
 			{
-				list.appendTag(item.serializeNBT());
+				list.add(item.serializeNBT());
 			}
 
-			nbt.setTag("items", list);
+			nbt.put("items", list);
 		}
 
 		if (storedPower > 0)
 		{
-			nbt.setInteger("power", storedPower);
+			nbt.putInt("power", storedPower);
 		}
 	}
 
 	@Override
-	public void readData(NBTTagCompound nbt)
+	public void readData(CompoundNBT nbt)
 	{
 		super.readData(nbt);
 
-		NBTTagList list = nbt.getTagList("modules", Constants.NBT.TAG_COMPOUND);
-		modules = new ArrayList<>(list.tagCount());
+		ListNBT list = nbt.getList("modules", Constants.NBT.TAG_COMPOUND);
+		modules = new ArrayList<>(list.size());
 
-		for (int i = 0; i < list.tagCount(); i++)
+		for (int i = 0; i < list.size(); i++)
 		{
-			NBTTagCompound nbt1 = list.getCompoundTagAt(i);
-			ItemStack stack = new ItemStack(nbt1);
-			PipeModule module = stack.getCapability(PipeModule.CAP, null);
+			CompoundNBT nbt1 = list.getCompound(i);
+			ItemStack stack = ItemStack.read(nbt1);
+			PipeModule module = stack.getCapability(PipeModule.CAP, null).orElse(null);
 
 			if (module != null)
 			{
 				module.pipe = this;
 				module.moduleItem = stack;
-				module.readData(nbt1.getCompoundTag("module"));
+				module.readData(nbt1.getCompound("module"));
 				modules.add(module);
 			}
 		}
 
-		list = nbt.getTagList("items", Constants.NBT.TAG_COMPOUND);
-		items = new ArrayList<>(list.tagCount());
+		list = nbt.getList("items", Constants.NBT.TAG_COMPOUND);
+		items = new ArrayList<>(list.size());
 
-		for (int i = 0; i < list.tagCount(); i++)
+		for (int i = 0; i < list.size(); i++)
 		{
-			NBTTagCompound nbt1 = list.getCompoundTagAt(i);
+			CompoundNBT nbt1 = list.getCompound(i);
 			PipeItem item = new PipeItem();
 			item.deserializeNBT(nbt1);
 
@@ -121,43 +134,24 @@ public class TilePipeModularMK1 extends TilePipeBase implements IEnergyStorage
 			}
 		}
 
-		storedPower = nbt.getInteger("power");
+		storedPower = nbt.getInt("power");
 	}
 
 	@Override
-	public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing side)
+	public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction side)
 	{
 		if (capability == CapabilityEnergy.ENERGY && side == null)
 		{
-			return true;
+			return thisOptional.cast();
 		}
 
 		for (PipeModule module : modules)
 		{
-			if (module.hasCapability(capability, side))
+			LazyOptional<T> t = module.getCapability(capability, side);
+
+			if (t.isPresent())
 			{
-				return true;
-			}
-		}
-
-		return super.hasCapability(capability, side);
-	}
-
-	@Override
-	public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing side)
-	{
-		if (capability == CapabilityEnergy.ENERGY && side == null)
-		{
-			return (T) this;
-		}
-
-		for (PipeModule module : modules)
-		{
-			T t = module.getCapability(capability, side);
-
-			if (t != null)
-			{
-				return t;
+				return t.cast();
 			}
 		}
 
@@ -188,7 +182,7 @@ public class TilePipeModularMK1 extends TilePipeBase implements IEnergyStorage
 			}
 		}
 
-		if (!world.isRemote && storedPower > 0 && world.getTotalWorldTime() % 5L == 0L)
+		if (!world.isRemote && storedPower > 0 && world.getWorldInfo().getGameTime() % 5L == 0L)
 		{
 			if (powerOutputIndex == -1)
 			{
@@ -200,7 +194,7 @@ public class TilePipeModularMK1 extends TilePipeBase implements IEnergyStorage
 				}
 			}
 
-			CachedTileEntity tileEntity = getTile(EnumFacing.byIndex(powerOutputIndex));
+			CachedTileEntity tileEntity = getTile(Direction.byIndex(powerOutputIndex));
 
 			if (tileEntity.tile instanceof TilePipeModularMK1)
 			{
@@ -252,7 +246,7 @@ public class TilePipeModularMK1 extends TilePipeBase implements IEnergyStorage
 
 					if (!stack.isEmpty())
 					{
-						IPipeItemHandler opposite = getPipeItemHandler(EnumFacing.VALUES[item.to].getOpposite());
+						IPipeItemHandler opposite = getPipeItemHandler(Direction.VALUES[item.to].getOpposite());
 
 						if (opposite != null)
 						{
@@ -302,7 +296,7 @@ public class TilePipeModularMK1 extends TilePipeBase implements IEnergyStorage
 		cachedNetwork = null;
 	}
 
-	public CachedTileEntity getTile(EnumFacing facing)
+	public CachedTileEntity getTile(Direction facing)
 	{
 		int f = facing.getIndex();
 
@@ -362,7 +356,7 @@ public class TilePipeModularMK1 extends TilePipeBase implements IEnergyStorage
 	}
 
 	@Override
-	public boolean isConnected(EnumFacing facing)
+	public boolean isConnected(Direction facing)
 	{
 		TileEntity tileEntity = world.getTileEntity(pos.offset(facing));
 
@@ -417,7 +411,7 @@ public class TilePipeModularMK1 extends TilePipeBase implements IEnergyStorage
 
 	private void getNetwork(HashSet<TilePipeModularMK1> set)
 	{
-		for (EnumFacing facing : EnumFacing.VALUES)
+		for (Direction facing : Direction.values())
 		{
 			TileEntity tileEntity = getTile(facing).tile;
 

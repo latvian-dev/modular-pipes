@@ -1,14 +1,14 @@
 package com.latmod.mods.modularpipes.tile;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderItem;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
 import java.util.function.Predicate;
@@ -16,7 +16,7 @@ import java.util.function.Predicate;
 /**
  * @author LatvianModder
  */
-public class PipeItem implements INBTSerializable<NBTTagCompound>
+public class PipeItem implements INBTSerializable<CompoundNBT>
 {
 	public static final Predicate<PipeItem> IS_DEAD = item -> item.age == Integer.MAX_VALUE || item.age > item.lifespan;
 
@@ -45,49 +45,49 @@ public class PipeItem implements INBTSerializable<NBTTagCompound>
 	}
 
 	@Override
-	public NBTTagCompound serializeNBT()
+	public CompoundNBT serializeNBT()
 	{
-		NBTTagCompound nbt = stack.serializeNBT();
-		nbt.setInteger("age", age);
-		nbt.setFloat("pos", pos);
-		nbt.setFloat("prevpos", prevPos);
-		nbt.setByte("dir", (byte) (from | (to << 4)));
+		CompoundNBT nbt = stack.serializeNBT();
+		nbt.putInt("age", age);
+		nbt.putFloat("pos", pos);
+		nbt.putFloat("prevpos", prevPos);
+		nbt.putByte("dir", (byte) (from | (to << 4)));
 
 		if (speed != 0.05F)
 		{
-			nbt.setFloat("speed", speed);
+			nbt.putFloat("speed", speed);
 		}
 
 		if (lifespan != 6000)
 		{
-			nbt.setInteger("lifespan", 6000);
+			nbt.putInt("lifespan", 6000);
 		}
 
 		return nbt;
 	}
 
 	@Override
-	public void deserializeNBT(NBTTagCompound nbt)
+	public void deserializeNBT(CompoundNBT nbt)
 	{
-		stack = new ItemStack(nbt);
-		age = nbt.getInteger("age");
+		stack = ItemStack.read(nbt);
+		age = nbt.getInt("age");
 		pos = nbt.getFloat("pos");
 		prevPos = nbt.getFloat("prevpos");
 		int dir = nbt.getByte("dir") & 0xFF;
 		from = dir & 0xF;
 		to = (dir >> 4) & 0xF;
-		speed = nbt.hasKey("speed") ? MathHelper.clamp(nbt.getFloat("speed"), 0.01F, 1F) : 0.05F;
-		lifespan = nbt.hasKey("lifespan") ? nbt.getInteger("lifespan") : 6000;
+		speed = nbt.contains("speed") ? MathHelper.clamp(nbt.getFloat("speed"), 0.01F, 1F) : 0.05F;
+		lifespan = nbt.contains("lifespan") ? nbt.getInt("lifespan") : 6000;
 	}
 
-	@SideOnly(Side.CLIENT)
-	public void render(RenderItem renderItem)
+	@OnlyIn(Dist.CLIENT)
+	public void render(ItemRenderer renderItem)
 	{
 		renderItem.renderItem(stack, ItemCameraTransforms.TransformType.FIXED);
 	}
 
-	@SideOnly(Side.CLIENT)
-	public float getScale(Minecraft mc, RenderItem renderItem)
+	@OnlyIn(Dist.CLIENT)
+	public float getScale(Minecraft mc, ItemRenderer renderItem)
 	{
 		if (scale <= 0F)
 		{

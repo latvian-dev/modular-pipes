@@ -5,17 +5,19 @@ import com.google.common.collect.Maps;
 import com.latmod.mods.modularpipes.ModularPipes;
 import com.latmod.mods.modularpipes.ModularPipesUtils;
 import com.latmod.mods.modularpipes.block.EnumMK;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.block.model.ModelRotation;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.IUnbakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.model.ModelBakery;
+import net.minecraft.client.renderer.model.ModelRotation;
+import net.minecraft.client.renderer.texture.ISprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.client.model.PerspectiveMapWrapper;
-import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
 
 import java.util.AbstractMap;
@@ -24,12 +26,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
  * @author LatvianModder
  */
-public class ModelPipe implements IModel
+public class ModelPipe implements IUnbakedModel
 {
 	public static final ModelRotation[] FACE_ROTATIONS = {
 			ModelRotation.X0_Y0,
@@ -42,9 +46,14 @@ public class ModelPipe implements IModel
 
 	private static final ImmutableMap<ItemCameraTransforms.TransformType, TRSRTransformation> TRANSFORM_MAP;
 
-	private static TRSRTransformation get(float ty, float ax, float ay, float s)
+	public interface ModelCallback
 	{
-		return TRSRTransformation.blockCenterToCorner(new TRSRTransformation(new javax.vecmath.Vector3f(0F, ty / 16F, 0F), TRSRTransformation.quatFromXYZDegrees(new javax.vecmath.Vector3f(ax, ay, 0F)), new javax.vecmath.Vector3f(s, s, s), null));
+		List<BakedQuad> get(ResourceLocation id, ModelRotation rotation, boolean uvlock, Map.Entry... retextures);
+
+		default List<BakedQuad> get(ResourceLocation id, ModelRotation rotation, Map.Entry... retextures)
+		{
+			return get(id, rotation, true, retextures);
+		}
 	}
 
 	static
@@ -62,16 +71,10 @@ public class ModelPipe implements IModel
 		TRANSFORM_MAP = Maps.immutableEnumMap(builder.build());
 	}
 
-	public static org.apache.commons.lang3.tuple.Pair<? extends IBakedModel, javax.vecmath.Matrix4f> handleModelPerspective(IBakedModel model, ItemCameraTransforms.TransformType cameraTransformType)
-	{
-		return PerspectiveMapWrapper.handlePerspective(model, TRANSFORM_MAP, cameraTransformType);
-	}
-
 	public final Collection<ResourceLocation> models;
 	public final ResourceLocation modelBase, modelConnection, modelVertical;
 	public final ResourceLocation modelOverlay, modelModule;
 	public final ResourceLocation modelGlassBase, modelGlassConnection, modelGlassVertical;
-
 	public final Collection<ResourceLocation> textures;
 	public final ResourceLocation textureParticle;
 	public final ResourceLocation[] overlayTextures;
@@ -95,10 +98,22 @@ public class ModelPipe implements IModel
 
 		for (int i = 0; i < EnumMK.VALUES.length; i++)
 		{
-			textures.add(overlayTextures[i] = new ResourceLocation("modularpipes:blocks/pipe/overlay/" + EnumMK.VALUES[i].getName()));
+			textures.add(overlayTextures[i] = new ResourceLocation("modularpipes:block/pipe/overlay/" + EnumMK.VALUES[i].getName()));
 		}
 
-		textures.add(textureParticle = new ResourceLocation("minecraft:blocks/concrete_gray"));
+		textureParticle = new ResourceLocation("minecraft:block/concrete_gray");
+		textures.add(new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/module"));
+		//		textures.add(textureParticle = new ResourceLocation("minecraft:block/concrete_gray"));
+	}
+
+	private static TRSRTransformation get(float ty, float ax, float ay, float s)
+	{
+		return TRSRTransformation.blockCenterToCorner(new TRSRTransformation(new javax.vecmath.Vector3f(0F, ty / 16F, 0F), TRSRTransformation.quatFromXYZDegrees(new javax.vecmath.Vector3f(ax, ay, 0F)), new javax.vecmath.Vector3f(s, s, s), null));
+	}
+
+	public static org.apache.commons.lang3.tuple.Pair<? extends IBakedModel, javax.vecmath.Matrix4f> handleModelPerspective(IBakedModel model, ItemCameraTransforms.TransformType cameraTransformType)
+	{
+		return PerspectiveMapWrapper.handlePerspective(model, TRANSFORM_MAP, cameraTransformType);
 	}
 
 	@Override
@@ -108,15 +123,14 @@ public class ModelPipe implements IModel
 	}
 
 	@Override
-	public Collection<ResourceLocation> getTextures()
+	public Collection<ResourceLocation> getTextures(Function<ResourceLocation, IUnbakedModel> modelGetter, Set<String> missingTextureErrors)
 	{
 		return textures;
 	}
 
-	@Override
-	public IBakedModel bake(IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> tex)
+	public IBakedModel bake(ModelBakery bakery, Function<ResourceLocation, TextureAtlasSprite> spriteGetter, ISprite sprite, VertexFormat format)
 	{
-		return new ModelPipeBaked(this, tex.apply(textureParticle), (id, rotation, uvlock, retextures) ->
+		return new ModelPipeBaked(this, spriteGetter.apply(textureParticle), (id, rotation, uvlock, retextures) ->
 		{
 			ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
 
@@ -125,19 +139,9 @@ public class ModelPipe implements IModel
 				builder.put(new AbstractMap.SimpleEntry<>(entry.getKey().toString(), new ResourceLocation(entry.getValue().toString()).toString()));
 			}
 
-			IModel model = ModelLoaderRegistry.getModelOrMissing(id).uvlock(uvlock).retexture(builder.build());//.smoothLighting(false);
-			IBakedModel bakedModel = model.bake(rotation, format, tex);
-			return ModularPipesUtils.optimize(bakedModel.getQuads(null, null, 0L));
+			IModel model = ModelLoaderRegistry.getModelOrMissing(id).retexture(builder.build());//.smoothLighting(false);
+			IBakedModel bakedModel = model.bake(bakery, spriteGetter, sprite, format);
+			return ModularPipesUtils.optimize(bakedModel.getQuads(null, null, new Random()));
 		});
-	}
-
-	public interface ModelCallback
-	{
-		List<BakedQuad> get(ResourceLocation id, ModelRotation rotation, boolean uvlock, Map.Entry... retextures);
-
-		default List<BakedQuad> get(ResourceLocation id, ModelRotation rotation, Map.Entry... retextures)
-		{
-			return get(id, rotation, true, retextures);
-		}
 	}
 }

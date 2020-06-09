@@ -1,15 +1,15 @@
 package com.latmod.mods.modularpipes.item;
 
 import com.latmod.mods.modularpipes.ModularPipes;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.registries.ObjectHolder;
 
 /**
  * @author LatvianModder
  */
-@GameRegistry.ObjectHolder(ModularPipes.MOD_ID)
+@ObjectHolder(ModularPipes.MOD_ID)
 @Mod.EventBusSubscriber(modid = ModularPipes.MOD_ID)
 public class ModularPipesItems
 {

@@ -1,20 +1,17 @@
 package com.latmod.mods.modularpipes.net;
 
 import com.latmod.mods.modularpipes.ModularPipes;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nullable;
 
 /**
  * @author LatvianModder
  */
-public class MessageParticle implements IMessage
+public class MessageParticle
 {
 	public int x, y, z, facing, type;
 
@@ -22,7 +19,7 @@ public class MessageParticle implements IMessage
 	{
 	}
 
-	public MessageParticle(BlockPos pos, @Nullable EnumFacing f, int t)
+	public MessageParticle(BlockPos pos, @Nullable Direction f, int t)
 	{
 		x = pos.getX();
 		y = pos.getY();
@@ -31,8 +28,17 @@ public class MessageParticle implements IMessage
 		type = t;
 	}
 
-	@Override
-	public void fromBytes(ByteBuf buf)
+	public MessageParticle(PacketBuffer p)
+	{
+		fromBytes(p);
+	}
+
+	public void onMessage(NetworkEvent.Context ctx)
+	{
+		ctx.enqueueWork(() -> ModularPipes.PROXY.spawnParticle(new BlockPos(x, y, z), facing == 6 ? null : Direction.values()[facing], type));
+	}
+
+	public void fromBytes(PacketBuffer buf)
 	{
 		x = buf.readInt();
 		y = buf.readUnsignedByte();
@@ -41,23 +47,12 @@ public class MessageParticle implements IMessage
 		type = buf.readUnsignedByte();
 	}
 
-	@Override
-	public void toBytes(ByteBuf buf)
+	public void toBytes(PacketBuffer buf)
 	{
 		buf.writeInt(x);
 		buf.writeByte(y);
 		buf.writeInt(z);
 		buf.writeByte(facing);
 		buf.writeByte(type);
-	}
-
-	public static class Handler implements IMessageHandler<MessageParticle, IMessage>
-	{
-		@Override
-		public IMessage onMessage(MessageParticle message, MessageContext ctx)
-		{
-			FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> ModularPipes.PROXY.spawnParticle(new BlockPos(message.x, message.y, message.z), message.facing == 6 ? null : EnumFacing.VALUES[message.facing], message.type));
-			return null;
-		}
 	}
 }

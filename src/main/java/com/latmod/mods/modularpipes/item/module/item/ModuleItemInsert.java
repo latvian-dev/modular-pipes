@@ -5,12 +5,12 @@ import com.latmod.mods.modularpipes.ModularPipesCommon;
 import com.latmod.mods.modularpipes.item.module.PipeModule;
 import com.latmod.mods.modularpipes.item.module.SidedPipeModule;
 import com.latmod.mods.modularpipes.tile.TilePipeModularMK1;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.Hand;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -28,28 +28,28 @@ public class ModuleItemInsert extends SidedPipeModule
 	private List<ModuleItemStorage> storageModules = null;
 
 	@Override
-	public void writeData(NBTTagCompound nbt)
+	public void writeData(CompoundNBT nbt)
 	{
 		super.writeData(nbt);
 
 		if (tick > 0)
 		{
-			nbt.setByte("tick", (byte) tick);
+			nbt.putByte("tick", (byte) tick);
 		}
 
 		if (!filter.isEmpty())
 		{
-			nbt.setTag("filter", filter.serializeNBT());
+			nbt.put("filter", filter.serializeNBT());
 		}
 	}
 
 	@Override
-	public void readData(NBTTagCompound nbt)
+	public void readData(CompoundNBT nbt)
 	{
 		super.readData(nbt);
 		tick = nbt.getByte("tick");
 
-		filter = new ItemStack(nbt.getCompoundTag("filter"));
+		filter = ItemStack.read(nbt.getCompound("filter"));
 
 		if (filter.isEmpty())
 		{
@@ -120,7 +120,7 @@ public class ModuleItemInsert extends SidedPipeModule
 	private boolean insertItem()
 	{
 		TileEntity tile = getFacingTile();
-		IItemHandler handler = tile == null ? null : tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite());
+		IItemHandler handler = tile == null ? null : tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite()).orElse(null);
 
 		if (handler != null)
 		{
@@ -153,7 +153,7 @@ public class ModuleItemInsert extends SidedPipeModule
 	}
 
 	@Override
-	public boolean onModuleRightClick(EntityPlayer player, EnumHand hand)
+	public boolean onModuleRightClick(PlayerEntity player, Hand hand)
 	{
 		ItemStack stack = player.getHeldItem(hand);
 
@@ -161,7 +161,7 @@ public class ModuleItemInsert extends SidedPipeModule
 		{
 			if (!player.world.isRemote)
 			{
-				player.sendStatusMessage(new TextComponentString("Filter: " + filter.getDisplayName()), true); //LANG
+				player.sendStatusMessage(new StringTextComponent("Filter: " + filter.getDisplayName()), true); //LANG
 			}
 		}
 		else
@@ -171,7 +171,7 @@ public class ModuleItemInsert extends SidedPipeModule
 
 			if (!player.world.isRemote)
 			{
-				player.sendStatusMessage(new TextComponentString("Filter changed to " + filter.getDisplayName()), true); //LANG
+				player.sendStatusMessage(new StringTextComponent("Filter changed to " + filter.getDisplayName()), true); //LANG
 				refreshNetwork();
 			}
 		}

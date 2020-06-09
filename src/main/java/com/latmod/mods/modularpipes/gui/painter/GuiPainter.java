@@ -1,61 +1,59 @@
 package com.latmod.mods.modularpipes.gui.painter;
 
 import com.latmod.mods.modularpipes.ModularPipes;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.fml.client.config.GuiUtils;
 
 /**
  * @author LatvianModder
  */
-public class GuiPainter extends GuiContainer
+public class GuiPainter extends ContainerScreen<ContainerPainter>
 {
 	private static final ResourceLocation TEXTURE = new ResourceLocation(ModularPipes.MOD_ID, "textures/gui/painter.png");
 
 	public final ContainerPainter container;
 	public ButtonPaint buttonPaint;
 
-	public GuiPainter(ContainerPainter c)
+	public GuiPainter(ContainerPainter c, PlayerInventory inv, ITextComponent comp)
 	{
-		super(c);
+		super(c, inv, comp);
 		container = c;
 		ySize = 118;
 	}
 
 	@Override
-	public void initGui()
+	public void init()
 	{
-		super.initGui();
-		addButton(buttonPaint = new ButtonPaint(this, 0, guiLeft + 80, guiTop + 11));
-	}
-
-	@Override
-	protected void actionPerformed(GuiButton button)
-	{
-		if (button instanceof ButtonPaint)
-		{
+		super.init();
+		addButton(buttonPaint = new ButtonPaint(this, guiLeft + 80, guiTop + 11, p_onPress_1_ -> {
 			if (container.enchantItem(container.player, 0))
 			{
-				mc.playerController.sendEnchantPacket(container.windowId, 0);
+				minecraft.playerController.sendEnchantPacket(container.windowId, 0);
 			}
-		}
+		}));
 	}
 
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks)
+	public void render(int mouseX, int mouseY, float partialTicks)
 	{
-		drawDefaultBackground();
-		super.drawScreen(mouseX, mouseY, partialTicks);
+		renderBackground();
+		super.render(mouseX, mouseY, partialTicks);
 		renderHoveredToolTip(mouseX, mouseY);
 	}
 
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY)
 	{
-		GlStateManager.color(1F, 1F, 1F, 1F);
-		mc.getTextureManager().bindTexture(TEXTURE);
-		drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
+		GlStateManager.color4f(1F, 1F, 1F, 1F);
+		minecraft.getTextureManager().bindTexture(TEXTURE);
+		GuiUtils.drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize, 0);
 	}
 
 

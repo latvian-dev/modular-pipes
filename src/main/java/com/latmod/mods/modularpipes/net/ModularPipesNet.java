@@ -1,19 +1,25 @@
 package com.latmod.mods.modularpipes.net;
 
 import com.latmod.mods.modularpipes.ModularPipes;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.network.NetworkRegistry;
+import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 /**
  * @author LatvianModder
  */
 public class ModularPipesNet
 {
-	public static final SimpleNetworkWrapper NET = new SimpleNetworkWrapper(ModularPipes.MOD_ID);
+	public static final SimpleChannel NET = NetworkRegistry.newSimpleChannel(
+			new ResourceLocation(ModularPipes.MOD_ID, "channel"),
+			() -> "1.0.0",
+			s -> s.startsWith("1"),
+			s -> s.startsWith("1")
+	);
 
 	public static void init()
 	{
-		NET.registerMessage(new MessageSendPaint.Handler(), MessageSendPaint.class, 1, Side.SERVER);
-		NET.registerMessage(new MessageParticle.Handler(), MessageParticle.class, 2, Side.CLIENT);
+		NET.registerMessage(0, MessageSendPaint.class, MessageSendPaint::toBytes, MessageSendPaint::new, (msg, ctx) -> msg.onMessage(ctx.get()));
+		NET.registerMessage(1, MessageParticle.class, MessageParticle::toBytes, MessageParticle::new, (msg, ctx) -> msg.onMessage(ctx.get()));
 	}
 }

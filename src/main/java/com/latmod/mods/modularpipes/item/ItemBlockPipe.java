@@ -2,30 +2,32 @@ package com.latmod.mods.modularpipes.item;
 
 import com.latmod.mods.modularpipes.tile.TilePipeBase;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
+import net.minecraft.block.BlockState;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 /**
  * @author LatvianModder
  */
-public class ItemBlockPipe extends ItemBlock
+public class ItemBlockPipe extends BlockItem
 {
-	public ItemBlockPipe(Block block)
+	public ItemBlockPipe(Block block, Properties properties)
 	{
-		super(block);
+		super(block, properties);
 	}
 
 	@Override
-	public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, IBlockState newState)
+	protected boolean placeBlock(BlockItemUseContext context, BlockState state)
 	{
-		if (super.placeBlockAt(stack, player, world, pos, side, hitX, hitY, hitZ, newState))
+		if (super.placeBlock(context, state))
 		{
+			World world = context.getWorld();
+			BlockPos pos = context.getPos();
+			Direction side = context.getFace();
 			TileEntity tileEntity = world.getTileEntity(pos.offset(side.getOpposite()));
 
 			if (tileEntity instanceof TilePipeBase)

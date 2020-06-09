@@ -3,10 +3,10 @@ package com.latmod.mods.modularpipes.gui.painter;
 import com.latmod.mods.modularpipes.item.ItemPainter;
 import com.latmod.mods.modularpipes.net.MessageSendPaint;
 import com.latmod.mods.modularpipes.net.ModularPipesNet;
-import mezz.jei.api.gui.IGhostIngredientHandler;
+import mezz.jei.api.gui.handlers.IGhostIngredientHandler;
+import net.minecraft.client.renderer.Rectangle2d;
 import net.minecraft.item.ItemStack;
 
-import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,9 +25,9 @@ public enum GuiPainterJEI implements IGhostIngredientHandler<GuiPainter>
 			return Collections.singletonList(new Target<I>()
 			{
 				@Override
-				public Rectangle getArea()
+				public Rectangle2d getArea()
 				{
-					return new Rectangle(gui.buttonPaint.x, gui.buttonPaint.y, gui.buttonPaint.width, gui.buttonPaint.height);
+					return new Rectangle2d(gui.buttonPaint.x, gui.buttonPaint.y, gui.buttonPaint.getWidth(), gui.buttonPaint.getHeight());
 				}
 
 				@Override
