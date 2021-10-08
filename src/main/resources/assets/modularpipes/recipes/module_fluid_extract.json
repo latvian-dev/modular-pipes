@@ -1,9 +1,15 @@
 {
 	"type": "minecraft:crafting_shapeless",
 	"group": "modularpipes:module",
-	"result": {"item": "module_fluid_extract"},
+	"result": {
+		"item": "module_fluid_extract"
+	},
 	"ingredients": [
-		{"item": "module_fluid_base"},
-		{"item": "input_part"}
+		{
+			"item": "module_fluid_base"
+		},
+		{
+			"item": "input_part"
+		}
 	]
 }

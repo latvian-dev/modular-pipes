@@ -1,8 +1,8 @@
-modLoader="javafml"
-loaderVersion="[24,)"
-authors="LatvianModder, Coded"
+modLoader = "javafml"
+loaderVersion = "[24,)"
+authors = "LatvianModder"
 [[mods]] #mandatory
-modId="modularpipes"
-version="${file.jarVersion}"
-displayName="Modular Pipes"
-description='''sick pipes init' fam'''
+modId = "modularpipes"
+version = "${version}"
+displayName = "Modular Pipes"
+description = '''sick pipes init' fam'''

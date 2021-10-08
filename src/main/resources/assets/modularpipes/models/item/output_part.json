@@ -1,6 +1,6 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "modularpipes:items/output_part"
+		"layer0": "modularpipes:item/output_part"
 	}
 }

@@ -1,6 +1,6 @@
 {
 	"parent": "modularpipes:item/module_base",
 	"textures": {
-		"tex": "modularpipes:items/modules/energy_input"
+		"tex": "modularpipes:item/module/energy_input"
 	}
 }

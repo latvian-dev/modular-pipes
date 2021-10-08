@@ -1,9 +1,16 @@
 {
 	"type": "minecraft:crafting_shapeless",
 	"group": "modularpipes:module",
-	"result": {"item": "module_fluid_storage"},
+	"result": {
+		"item": "module_fluid_storage"
+	},
 	"ingredients": [
-		{"item": "module_fluid_base"},
-		{"type": "forge:ore_dict", "ore": "ingotIron"}
+		{
+			"item": "module_fluid_base"
+		},
+		{
+			"type": "forge:ore_dict",
+			"ore": "ingotIron"
+		}
 	]
 }

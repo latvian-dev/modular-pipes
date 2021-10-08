@@ -1,6 +1,6 @@
 {
 	"parent": "modularpipes:item/module_base",
 	"textures": {
-		"tex": "modularpipes:items/modules/fluid/storage"
+		"tex": "modularpipes:item/module/fluid/storage"
 	}
 }

@@ -1,6 +1,7 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "modularpipes:items/module", "layer1": "#tex"
+		"layer0": "modularpipes:item/module",
+		"layer1": "#tex"
 	}
 }

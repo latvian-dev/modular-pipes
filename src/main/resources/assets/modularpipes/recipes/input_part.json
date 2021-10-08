@@ -1,14 +1,22 @@
 {
 	"type": "minecraft:crafting_shaped",
 	"group": "modularpipes:storage",
-	"result": {"item": "input_part", "count": 8},
+	"result": {
+		"item": "modularpipes:input_part",
+		"count": 8
+	},
 	"pattern": [
 		" M ",
 		"MDM",
 		" M "
 	],
 	"key": {
-		"M": {"item": "module"},
-		"D": {"type": "forge:ore_dict", "ore": "dyeLightBlue"}
+		"M": {
+			"item": "modularpipes:module"
+		},
+		"D": {
+			"type": "forge:ore_dict",
+			"ore": "dyeLightBlue"
+		}
 	}
 }

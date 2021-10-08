@@ -1,14 +1,29 @@
 {
 	"type": "minecraft:crafting_shaped",
 	"group": "modularpipes:pipe",
-	"result": {"item": "pipe_transport", "count": 6},
+	"result": {
+		"item": "pipe_transport",
+		"count": 6
+	},
 	"pattern": [
 		"SSS",
 		" G ",
 		"SSS"
 	],
 	"key": {
-		"S": [{"type": "forge:ore_dict", "ore": "cobblestone"}, {"type": "forge:ore_dict", "ore": "stone"}],
-		"G": {"type": "forge:ore_dict", "ore": "paneGlass"}
+		"S": [
+			{
+				"type": "forge:ore_dict",
+				"ore": "cobblestone"
+			},
+			{
+				"type": "forge:ore_dict",
+				"ore": "stone"
+			}
+		],
+		"G": {
+			"type": "forge:ore_dict",
+			"ore": "paneGlass"
+		}
 	}
 }

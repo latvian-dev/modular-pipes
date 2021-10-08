@@ -1,5 +1,9 @@
 {
 	"variants": {
-		"": [{"model": "modularpipes:block/pipe"}]
+		"": [
+			{
+				"model": "modularpipes:block/pipe"
+			}
+		]
 	}
 }

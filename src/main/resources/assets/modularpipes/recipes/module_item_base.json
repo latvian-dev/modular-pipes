@@ -1,15 +1,25 @@
 {
 	"type": "minecraft:crafting_shaped",
 	"group": "modularpipes:module",
-	"result": {"item": "module_item_base", "count": 6},
+	"result": {
+		"item": "module_item_base",
+		"count": 6
+	},
 	"pattern": [
 		"MMM",
 		"HCH",
 		"MMM"
 	],
 	"key": {
-		"M": {"item": "module"},
-		"H": {"type": "forge:ore_dict", "ore": "plankWood"},
-		"C": {"item": "minecraft:repeater"}
+		"M": {
+			"item": "module"
+		},
+		"H": {
+			"type": "forge:ore_dict",
+			"ore": "plankWood"
+		},
+		"C": {
+			"item": "minecraft:repeater"
+		}
 	}
 }

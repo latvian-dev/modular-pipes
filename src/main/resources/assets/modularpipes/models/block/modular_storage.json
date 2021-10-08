@@ -1,7 +1,0 @@
-{
-	"parent": "block/cube_all",
-	"textures": {
-		"all": "modularpipes:block/modular_storage",
-		"particle": "modularpipes:block/modular_storage"
-	}
-}

@@ -1,15 +1,25 @@
 {
 	"type": "minecraft:crafting_shaped",
 	"group": "modularpipes:pipe",
-	"result": {"item": "pipe_modular_mk3", "count": 6},
+	"result": {
+		"item": "pipe_modular_mk3",
+		"count": 6
+	},
 	"pattern": [
 		"PPP",
 		"BDB",
 		"PPP"
 	],
 	"key": {
-		"P": {"item": "pipe_modular_mk2"},
-		"D": {"type": "forge:ore_dict", "ore": "gemDiamond"},
-		"B": {"item": "minecraft:blaze_powder"}
+		"P": {
+			"item": "pipe_modular_mk2"
+		},
+		"D": {
+			"type": "forge:ore_dict",
+			"ore": "gemDiamond"
+		},
+		"B": {
+			"item": "minecraft:blaze_powder"
+		}
 	}
 }

@@ -1,10 +1,19 @@
 {
 	"type": "minecraft:crafting_shapeless",
 	"group": "modularpipes:module",
-	"result": {"item": "module_energy_input"},
+	"result": {
+		"item": "module_energy_input"
+	},
 	"ingredients": [
-		{"item": "module"},
-		{"item": "input_part"},
-		{"type": "forge:ore_dict", "ore": "ingotGold"}
+		{
+			"item": "module"
+		},
+		{
+			"item": "input_part"
+		},
+		{
+			"type": "forge:ore_dict",
+			"ore": "ingotGold"
+		}
 	]
 }
