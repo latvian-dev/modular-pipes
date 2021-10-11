@@ -12,24 +12,24 @@ import net.minecraftforge.registries.ObjectHolder;
 @ObjectHolder(ModularPipes.MOD_ID)
 @Mod.EventBusSubscriber(modid = ModularPipes.MOD_ID)
 public class ModularPipesItems {
-	public static final Item PIPE_TRANSPORT = Items.AIR;
-	public static final Item PIPE_MODULAR_MK1 = Items.AIR;
-	public static final Item PIPE_MODULAR_MK2 = Items.AIR;
-	public static final Item PIPE_MODULAR_MK3 = Items.AIR;
+	public static final Item TRANSPORT_PIPE = Items.AIR;
+	public static final Item MODULAR_PIPE_MK1 = Items.AIR;
+	public static final Item MODULAR_PIPE_MK2 = Items.AIR;
+	public static final Item MODULAR_PIPE_MK3 = Items.AIR;
 
 	public static final Item PAINTER = Items.AIR;
 	public static final Item MODULE = Items.AIR;
 	public static final Item INPUT_PART = Items.AIR;
 	public static final Item OUTPUT_PART = Items.AIR;
-	public static final Item MODULE_ITEM_BASE = Items.AIR;
-	public static final Item MODULE_ITEM_STORAGE = Items.AIR;
-	public static final Item MODULE_ITEM_EXTRACT = Items.AIR;
-	public static final Item MODULE_ITEM_INSERT = Items.AIR;
-	public static final Item MODULE_FLUID_BASE = Items.AIR;
-	public static final Item MODULE_FLUID_STORAGE = Items.AIR;
-	public static final Item MODULE_FLUID_EXTRACT = Items.AIR;
-	public static final Item MODULE_FLUID_INSERT = Items.AIR;
-	public static final Item MODULE_CRAFTING = Items.AIR;
-	public static final Item MODULE_ENERGY_INPUT = Items.AIR;
-	public static final Item MODULE_ENERGY_OUTPUT = Items.AIR;
+	public static final Item ITEM_BASE_MODULE = Items.AIR;
+	public static final Item ITEM_STORAGE_MODULE = Items.AIR;
+	public static final Item ITEM_EXTRACT_MODULE = Items.AIR;
+	public static final Item ITEM_INSERT_MODULE = Items.AIR;
+	public static final Item FLUID_BASE_MODULE = Items.AIR;
+	public static final Item FLUID_STORAGE_MODULE = Items.AIR;
+	public static final Item FLUID_EXTRACT_MODULE = Items.AIR;
+	public static final Item FLUID_INSERT_MODULE = Items.AIR;
+	public static final Item CRAFTING_MODULE = Items.AIR;
+	public static final Item ENERGY_INPUT_MODULE = Items.AIR;
+	public static final Item ENERGY_OUTPUT_MODULE = Items.AIR;
 }

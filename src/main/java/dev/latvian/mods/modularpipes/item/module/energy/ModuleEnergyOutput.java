@@ -25,7 +25,7 @@ public class ModuleEnergyOutput extends ModuleEnergy {
 
 				if (a > 0) {
 					pipe.storedPower -= a;
-					pipe.markDirty();
+					pipe.setChanged();
 					pipe.sync = false;
 					hasMovedEnergy = true;
 				}
@@ -33,7 +33,7 @@ public class ModuleEnergyOutput extends ModuleEnergy {
 		}
 
 		if (tick <= 0) {
-			tick = pipe.getWorld().rand.nextInt(40) + 8;
+			tick = pipe.getLevel().random.nextInt(40) + 8;
 
 			if (hasMovedEnergy) {
 				spawnParticle(ModularPipesCommon.SPARK);

@@ -16,7 +16,7 @@ public class ModuleEnergyInput extends ModuleEnergy {
 
 		if (a > 0 && !simulate) {
 			pipe.storedPower += a;
-			pipe.markDirty();
+			pipe.setChanged();
 			pipe.sync = false;
 		}
 

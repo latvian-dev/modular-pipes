@@ -17,7 +17,7 @@ public class ModularPipesNet {
 	);
 
 	public static void init() {
-		NET.registerMessage(0, MessageSendPaint.class, MessageSendPaint::toBytes, MessageSendPaint::new, (msg, ctx) -> msg.onMessage(ctx.get()));
-		NET.registerMessage(1, MessageParticle.class, MessageParticle::toBytes, MessageParticle::new, (msg, ctx) -> msg.onMessage(ctx.get()));
+		NET.registerMessage(0, SendPaintMessage.class, SendPaintMessage::toBytes, SendPaintMessage::new, (msg, ctx) -> msg.onMessage(ctx.get()));
+		NET.registerMessage(1, ParticleMessage.class, ParticleMessage::toBytes, ParticleMessage::new, (msg, ctx) -> msg.onMessage(ctx.get()));
 	}
 }

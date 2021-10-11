@@ -8,6 +8,7 @@ import java.util.List;
  * @author LatvianModder
  */
 public class ModularPipesUtils {
+	@SuppressWarnings("unchecked")
 	public static <E> List<E> optimize(List<E> list) {
 		if (list.isEmpty()) {
 			return Collections.emptyList();
@@ -18,6 +19,7 @@ public class ModularPipesUtils {
 		return Arrays.asList(list.toArray((E[]) new Object[0]));
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <E> List<E> combineAndOptimize(List<E> a, List<E> b) {
 		if (a.isEmpty()) {
 			return optimize(b);

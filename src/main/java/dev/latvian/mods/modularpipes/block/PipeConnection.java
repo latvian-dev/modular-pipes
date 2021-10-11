@@ -1,11 +1,11 @@
 package dev.latvian.mods.modularpipes.block;
 
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.StringRepresentable;
 
 /**
  * @author LatvianModder
  */
-public enum PipeConnection implements IStringSerializable {
+public enum PipeConnection implements StringRepresentable {
 	NONE("none"),
 	PIPE("pipe"),
 	PIPE_MODULE("pipe_module");
@@ -25,7 +25,7 @@ public enum PipeConnection implements IStringSerializable {
 	}
 
 	@Override
-	public String getName() {
+	public String getSerializedName() {
 		return name;
 	}
 }

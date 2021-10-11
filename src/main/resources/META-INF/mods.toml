@@ -1,7 +1,8 @@
 modLoader = "javafml"
 loaderVersion = "[24,)"
+license = "All Rights Reserved"
 authors = "LatvianModder"
-[[mods]] #mandatory
+[[mods]]
 modId = "modularpipes"
 version = "${version}"
 displayName = "Modular Pipes"

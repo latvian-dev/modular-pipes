@@ -1,7 +1,5 @@
 package dev.latvian.mods.modularpipes;
 
-import net.minecraftforge.fml.client.event.ConfigChangedEvent;
-
 /**
  * @author LatvianModder
  */
@@ -25,12 +23,5 @@ public class ModularPipesConfig {
 
 		//		@Config.RangeInt(min = 1)
 		public int max_energy_stored = 24000;
-	}
-
-	//	@SubscribeEvent
-	public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
-		if (event.getModID().equals(ModularPipes.MOD_ID)) {
-			//			sync();
-		}
 	}
 }

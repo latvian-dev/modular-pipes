@@ -1,7 +1,7 @@
 package dev.latvian.mods.modularpipes.item.module;
 
-import dev.latvian.mods.modularpipes.net.MessageParticle;
 import dev.latvian.mods.modularpipes.net.ModularPipesNet;
+import dev.latvian.mods.modularpipes.net.ParticleMessage;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
@@ -50,7 +50,7 @@ public class SidedPipeModule extends PipeModule {
 	@Nullable
 	public BlockEntity getFacingTile() {
 		if (!cachedEntity.isPresent()) {
-			cachedEntity = Optional.ofNullable(pipe == null || side == null || !pipe.hasWorld() ? null : pipe.getWorld().getTileEntity(pipe.getPos().offset(side)));
+			cachedEntity = Optional.ofNullable(pipe == null || side == null || !pipe.hasLevel() ? null : pipe.getLevel().getBlockEntity(pipe.getBlockPos().relative(side)));
 		}
 
 		return cachedEntity.orElse(null);
@@ -58,11 +58,11 @@ public class SidedPipeModule extends PipeModule {
 
 	@Override
 	public void spawnParticle(int type) {
-		if (pipe.hasWorld() && !pipe.getWorld().isRemote) {
-			double x = pipe.getPos().getX() + 0.5D + (side == null ? 0D : side.getXOffset() * 0.3D);
-			double y = pipe.getPos().getY() + 0.5D + (side == null ? 0D : side.getYOffset() * 0.3D);
-			double z = pipe.getPos().getZ() + 0.5D + (side == null ? 0D : side.getZOffset() * 0.3D);
-			ModularPipesNet.NET.send(PacketDistributor.NEAR.with(PacketDistributor.TargetPoint.p(x, y, z, 24, pipe.getWorld().getDimension().getType())), new MessageParticle(pipe.getPos(), null, type));
+		if (pipe.hasLevel() && !pipe.getLevel().isClientSide()) {
+			double x = pipe.getBlockPos().getX() + 0.5D + (side == null ? 0D : side.getStepX() * 0.3D);
+			double y = pipe.getBlockPos().getY() + 0.5D + (side == null ? 0D : side.getStepY() * 0.3D);
+			double z = pipe.getBlockPos().getZ() + 0.5D + (side == null ? 0D : side.getStepZ() * 0.3D);
+			ModularPipesNet.NET.send(PacketDistributor.NEAR.with(PacketDistributor.TargetPoint.p(x, y, z, 24, pipe.getLevel().dimension())), new ParticleMessage(pipe.getBlockPos(), null, type));
 		}
 	}
 }

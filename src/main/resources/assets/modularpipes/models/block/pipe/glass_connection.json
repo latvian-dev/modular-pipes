@@ -19,39 +19,15 @@
 			],
 			"faces": {
 				"north": {
-					"uv": [
-						5,
-						5,
-						11,
-						11
-					],
 					"texture": "#glass"
 				},
 				"east": {
-					"uv": [
-						11,
-						11,
-						5,
-						5
-					],
 					"texture": "#glass"
 				},
 				"south": {
-					"uv": [
-						5,
-						5,
-						11,
-						11
-					],
 					"texture": "#glass"
 				},
 				"west": {
-					"uv": [
-						5,
-						5,
-						11,
-						11
-					],
 					"texture": "#glass"
 				}
 			}

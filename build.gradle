@@ -63,6 +63,7 @@ dependencies {
 	minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
 	mappings minecraft.officialMojangMappings()
 	forge "net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}"
+	modImplementation "me.shedaniel:architectury-forge:${rootProject.architectury_version}"
 	modImplementation "dev.latvian.mods:item-filters-forge:${rootProject.item_filters_version}"
 	modImplementation "curse.maven:jei-238222:${jei_file}"
 }

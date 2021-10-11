@@ -1,7 +1,5 @@
 package dev.latvian.mods.modularpipes.client;
 
-import net.minecraftforge.fml.client.event.ConfigChangedEvent;
-
 /**
  * @author LatvianModder
  */
@@ -22,12 +20,5 @@ public class ModularPipesClientConfig {
 
 	public static void sync() {
 		//		ConfigManager.sync("modularpipes_client", Config.Type.INSTANCE);
-	}
-
-	//	@SubscribeEvent
-	public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
-		if (event.getModID().equals("modularpipes_client")) {
-			sync();
-		}
 	}
 }

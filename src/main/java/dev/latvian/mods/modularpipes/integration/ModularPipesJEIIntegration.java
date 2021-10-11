@@ -11,9 +11,11 @@ import net.minecraft.resources.ResourceLocation;
  */
 @JeiPlugin
 public class ModularPipesJEIIntegration implements IModPlugin {
+	public static final ResourceLocation ID = new ResourceLocation(ModularPipes.MOD_ID, "jei");
+
 	@Override
 	public ResourceLocation getPluginUid() {
-		return new ResourceLocation(ModularPipes.MOD_ID, "jei");
+		return ID;
 	}
 
 	@Override

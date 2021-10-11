@@ -1,11 +1,13 @@
 package dev.latvian.mods.modularpipes.block.entity;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.INBTSerializable;
@@ -16,7 +18,7 @@ import java.util.function.Predicate;
 /**
  * @author LatvianModder
  */
-public class PipeItem implements INBTSerializable<CompoundNBT> {
+public class PipeItem implements INBTSerializable<CompoundTag> {
 	public static final Predicate<PipeItem> IS_DEAD = item -> item.age == Integer.MAX_VALUE || item.age > item.lifespan;
 
 	public ItemStack stack = ItemStack.EMPTY;
@@ -43,8 +45,8 @@ public class PipeItem implements INBTSerializable<CompoundNBT> {
 	}
 
 	@Override
-	public CompoundNBT serializeNBT() {
-		CompoundNBT nbt = stack.serializeNBT();
+	public CompoundTag serializeNBT() {
+		CompoundTag nbt = stack.serializeNBT();
 		nbt.putInt("age", age);
 		nbt.putFloat("pos", pos);
 		nbt.putFloat("prevpos", prevPos);
@@ -62,21 +64,21 @@ public class PipeItem implements INBTSerializable<CompoundNBT> {
 	}
 
 	@Override
-	public void deserializeNBT(CompoundNBT nbt) {
-		stack = ItemStack.read(nbt);
+	public void deserializeNBT(CompoundTag nbt) {
+		stack = ItemStack.of(nbt);
 		age = nbt.getInt("age");
 		pos = nbt.getFloat("pos");
 		prevPos = nbt.getFloat("prevpos");
 		int dir = nbt.getByte("dir") & 0xFF;
 		from = dir & 0xF;
 		to = (dir >> 4) & 0xF;
-		speed = nbt.contains("speed") ? MathHelper.clamp(nbt.getFloat("speed"), 0.01F, 1F) : 0.05F;
+		speed = nbt.contains("speed") ? Mth.clamp(nbt.getFloat("speed"), 0.01F, 1F) : 0.05F;
 		lifespan = nbt.contains("lifespan") ? nbt.getInt("lifespan") : 6000;
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	public void render(ItemRenderer renderItem) {
-		renderItem.renderItem(stack, ItemCameraTransforms.TransformType.FIXED);
+	public void render(PoseStack poseStack, ItemRenderer renderItem, MultiBufferSource multiBufferSource, int light, int overlay) {
+		renderItem.renderStatic(stack, ItemTransforms.TransformType.FIXED, light, overlay, poseStack, multiBufferSource);
 	}
 
 	@OnlyIn(Dist.CLIENT)
@@ -84,11 +86,11 @@ public class PipeItem implements INBTSerializable<CompoundNBT> {
 		if (scale <= 0F) {
 			scale = 0.4F;
 
-			if (renderItem.shouldRenderItemIn3D(stack)) {
-				scale = 0.72F;
-			}
+			// if (renderItem.shouldRenderItemIn3D(stack)) {
+			// 	scale = 0.72F;
+			// }
 
-			scale += mc.world.rand.nextFloat() * 0.01F;
+			scale += mc.level.random.nextFloat() * 0.01F;
 		}
 
 		return scale;

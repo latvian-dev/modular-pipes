@@ -2,7 +2,7 @@ package dev.latvian.mods.modularpipes;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.BlockGetter;
 
 import javax.annotation.Nullable;
 
@@ -16,7 +16,7 @@ public class ModularPipesCommon {
 	public void spawnParticle(BlockPos pos, @Nullable Direction facing, int type) {
 	}
 
-	public int getPipeLightValue(BlockAndTintGetter world) {
+	public int getPipeLightValue(BlockGetter level) {
 		return 0;
 	}
 }

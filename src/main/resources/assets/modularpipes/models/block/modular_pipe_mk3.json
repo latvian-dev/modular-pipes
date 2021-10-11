@@ -1,0 +1,6 @@
+{
+	"loader": "modularpipes:pipe",
+	"textures": {
+		"material": "modularpipes:block/pipe/modular_pipe_mk3"
+	}
+}

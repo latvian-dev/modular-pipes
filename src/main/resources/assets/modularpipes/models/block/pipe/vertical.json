@@ -16,39 +16,15 @@
 			"color": 4,
 			"faces": {
 				"north": {
-					"uv": [
-						11,
-						0,
-						12,
-						16
-					],
 					"texture": "#material"
 				},
 				"east": {
-					"uv": [
-						12,
-						16,
-						11,
-						0
-					],
 					"texture": "#material"
 				},
 				"south": {
-					"uv": [
-						4,
-						0,
-						5,
-						16
-					],
 					"texture": "#material"
 				},
 				"west": {
-					"uv": [
-						4,
-						0,
-						5,
-						16
-					],
 					"texture": "#material"
 				}
 			}
@@ -68,39 +44,15 @@
 			"color": 4,
 			"faces": {
 				"north": {
-					"uv": [
-						4,
-						0,
-						5,
-						16
-					],
 					"texture": "#material"
 				},
 				"east": {
-					"uv": [
-						12,
-						16,
-						11,
-						0
-					],
 					"texture": "#material"
 				},
 				"south": {
-					"uv": [
-						11,
-						0,
-						12,
-						16
-					],
 					"texture": "#material"
 				},
 				"west": {
-					"uv": [
-						4,
-						0,
-						5,
-						16
-					],
 					"texture": "#material"
 				}
 			}
@@ -120,39 +72,15 @@
 			"color": 4,
 			"faces": {
 				"north": {
-					"uv": [
-						11,
-						0,
-						12,
-						16
-					],
 					"texture": "#material"
 				},
 				"east": {
-					"uv": [
-						5,
-						16,
-						4,
-						0
-					],
 					"texture": "#material"
 				},
 				"south": {
-					"uv": [
-						4,
-						0,
-						5,
-						16
-					],
 					"texture": "#material"
 				},
 				"west": {
-					"uv": [
-						11,
-						0,
-						12,
-						16
-					],
 					"texture": "#material"
 				}
 			}
@@ -172,39 +100,15 @@
 			"color": 4,
 			"faces": {
 				"north": {
-					"uv": [
-						4,
-						0,
-						5,
-						16
-					],
 					"texture": "#material"
 				},
 				"east": {
-					"uv": [
-						5,
-						16,
-						4,
-						0
-					],
 					"texture": "#material"
 				},
 				"south": {
-					"uv": [
-						11,
-						0,
-						12,
-						16
-					],
 					"texture": "#material"
 				},
 				"west": {
-					"uv": [
-						11,
-						0,
-						12,
-						16
-					],
 					"texture": "#material"
 				}
 			}

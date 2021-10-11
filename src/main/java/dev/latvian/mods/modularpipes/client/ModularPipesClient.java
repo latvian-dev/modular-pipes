@@ -2,13 +2,10 @@ package dev.latvian.mods.modularpipes.client;
 
 import dev.latvian.mods.modularpipes.ModularPipesCommon;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
-import net.minecraftforge.client.MinecraftForgeClient;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelReader;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import javax.annotation.Nullable;
@@ -21,7 +18,6 @@ public class ModularPipesClient extends ModularPipesCommon {
 	//	private RedstoneParticle.Factory redstoneFactory = new RedstoneParticle.Factory();
 
 	public ModularPipesClient() {
-		ModelLoaderRegistry.registerLoader(ModelPipeLoader.INSTANCE);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(ModularPipesClientEventHandler::textureStitch);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(ModularPipesClientEventHandler::modelBake);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(ModularPipesClientEventHandler::registerModels);
@@ -32,9 +28,9 @@ public class ModularPipesClient extends ModularPipesCommon {
 	@Override
 	public void spawnParticle(BlockPos pos, @Nullable Direction facing, int type) {
 		Minecraft mc = Minecraft.getInstance();
-		double x = pos.getX() + 0.5D + (facing == null ? 0D : facing.getXOffset() * 0.3D);
-		double y = pos.getY() + 0.5D + (facing == null ? 0D : facing.getYOffset() * 0.3D);
-		double z = pos.getZ() + 0.5D + (facing == null ? 0D : facing.getZOffset() * 0.3D);
+		double x = pos.getX() + 0.5D + (facing == null ? 0D : facing.getStepX() * 0.3D);
+		double y = pos.getY() + 0.5D + (facing == null ? 0D : facing.getStepY() * 0.3D);
+		double z = pos.getZ() + 0.5D + (facing == null ? 0D : facing.getStepZ() * 0.3D);
 
 		//		if (type == EXPLOSION)
 		//		{
@@ -47,13 +43,12 @@ public class ModularPipesClient extends ModularPipesCommon {
 	}
 
 	@Override
-	public int getPipeLightValue(IBlockReader world) {
-		if (world instanceof World) {
-			if (!((World) world).isRemote) {
-				return 0;
-			}
+	public int getPipeLightValue(BlockGetter level) {
+		if (level instanceof LevelReader && !((LevelReader) level).isClientSide()) {
+			return 0;
 		}
 
-		return MinecraftForgeClient.getRenderLayer() == BlockRenderLayer.TRANSLUCENT ? 15 : 0;
+		//return MinecraftForgeClient.getRenderLayer() == BlockRenderLayer.TRANSLUCENT ? 15 : 0;
+		return 0;
 	}
 }
