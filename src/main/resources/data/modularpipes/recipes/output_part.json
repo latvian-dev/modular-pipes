@@ -2,7 +2,7 @@
 	"type": "minecraft:crafting_shaped",
 	"group": "modularpipes:storage",
 	"result": {
-		"item": "output_part",
+		"item": "modularpipes:output_part",
 		"count": 8
 	},
 	"pattern": [
@@ -12,11 +12,10 @@
 	],
 	"key": {
 		"M": {
-			"item": "module"
+			"item": "modularpipes:module"
 		},
 		"D": {
-			"type": "forge:ore_dict",
-			"ore": "dyeOrange"
+			"tag": "forge:dyes/orange"
 		}
 	}
 }

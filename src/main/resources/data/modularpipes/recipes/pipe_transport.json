@@ -2,7 +2,7 @@
 	"type": "minecraft:crafting_shaped",
 	"group": "modularpipes:pipe",
 	"result": {
-		"item": "pipe_transport",
+		"item": "modularpipes:transport_pipe",
 		"count": 6
 	},
 	"pattern": [
@@ -13,17 +13,14 @@
 	"key": {
 		"S": [
 			{
-				"type": "forge:ore_dict",
-				"ore": "cobblestone"
+				"tag": "forge:cobblestone"
 			},
 			{
-				"type": "forge:ore_dict",
-				"ore": "stone"
+				"tag": "forge:stone"
 			}
 		],
 		"G": {
-			"type": "forge:ore_dict",
-			"ore": "paneGlass"
+			"tag": "forge:glass_panes"
 		}
 	}
 }

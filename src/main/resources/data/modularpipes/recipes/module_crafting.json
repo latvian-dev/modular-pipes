@@ -1,0 +1,18 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"group": "modularpipes:module",
+	"result": {
+		"item": "modularpipes:crafting_module"
+	},
+	"ingredients": [
+		{
+			"item": "modularpipes:module"
+		},
+		{
+			"tag": "forge:gems/diamond"
+		},
+		{
+			"item": "minecraft:crafting_table"
+		}
+	]
+}

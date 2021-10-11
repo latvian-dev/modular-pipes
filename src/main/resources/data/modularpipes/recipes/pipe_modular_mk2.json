@@ -2,7 +2,7 @@
 	"type": "minecraft:crafting_shaped",
 	"group": "modularpipes:pipe",
 	"result": {
-		"item": "pipe_modular_mk2",
+		"item": "modularpipes:modular_pipe_mk2",
 		"count": 6
 	},
 	"pattern": [
@@ -12,15 +12,13 @@
 	],
 	"key": {
 		"P": {
-			"item": "pipe_modular_mk1"
+			"item": "modularpipes:modular_pipe_mk1"
 		},
 		"E": {
-			"type": "forge:ore_dict",
-			"ore": "enderpearl"
+			"item": "minecraft:ender_pearl"
 		},
 		"G": {
-			"type": "forge:ore_dict",
-			"ore": "dustGlowstone"
+			"tag": "forge:dusts/glowstone"
 		}
 	}
 }

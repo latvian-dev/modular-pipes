@@ -17,7 +17,8 @@ public class ModularPipesClient extends ModularPipesCommon {
 	//	private LargeExplosionParticle.Factory explosionFactory = new LargeExplosionParticle.Factory();
 	//	private RedstoneParticle.Factory redstoneFactory = new RedstoneParticle.Factory();
 
-	public ModularPipesClient() {
+	@Override
+	public void init() {
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(ModularPipesClientEventHandler::textureStitch);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(ModularPipesClientEventHandler::modelBake);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(ModularPipesClientEventHandler::registerModels);

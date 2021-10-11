@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
  */
 public class ModularPipeMK2BlockEntity extends ModularPipeMK1BlockEntity {
 	public ModularPipeMK2BlockEntity() {
-		super(ModularPipesBlockEntities.MODULAR_PIPE_MK2);
+		super(ModularPipesBlockEntities.MODULAR_PIPE_MK2.get());
 	}
 
 	public ModularPipeMK2BlockEntity(BlockEntityType<?> tileEntityTypeIn) {

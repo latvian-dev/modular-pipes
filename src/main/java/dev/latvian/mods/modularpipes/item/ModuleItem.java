@@ -1,5 +1,6 @@
 package dev.latvian.mods.modularpipes.item;
 
+import dev.latvian.mods.modularpipes.ModularPipes;
 import dev.latvian.mods.modularpipes.item.module.PipeModule;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
@@ -22,8 +23,8 @@ import java.util.function.Supplier;
 public class ModuleItem extends Item {
 	public final Supplier<PipeModule> supplier;
 
-	public ModuleItem(Supplier<PipeModule> s, Properties properties) {
-		super(properties);
+	public ModuleItem(Supplier<PipeModule> s) {
+		super(new Item.Properties().tab(ModularPipes.TAB));
 		supplier = s;
 	}
 

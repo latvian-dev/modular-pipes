@@ -12,36 +12,52 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.client.model.data.ModelProperty;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author LatvianModder
  */
 public abstract class BasePipeBlock extends Block {
 	public static final float SIZE = 4F;
 	public static final VoxelShape[] BOXES_64 = new VoxelShape[1 << 6];
-	public static final VoxelShape[] BOXES = new VoxelShape[7];
 	public static final ModelProperty<BasePipeBlockEntity> PIPE = new ModelProperty<>();
 
-	static {
-		double d0 = SIZE / 16D;
-		double d1 = 1D - d0;
+	public static VoxelShape getBox(int i) {
+		if (BOXES_64[i] == null) {
+			double d0 = SIZE / 16D;
+			double d1 = 1D - d0;
 
-		for (int i = 0; i < BOXES_64.length; i++) {
-			boolean x0 = (i & (1 << Direction.WEST.get3DDataValue())) != 0;
-			boolean x1 = (i & (1 << Direction.EAST.get3DDataValue())) != 0;
-			boolean y0 = (i & (1 << Direction.DOWN.get3DDataValue())) != 0;
-			boolean y1 = (i & (1 << Direction.UP.get3DDataValue())) != 0;
-			boolean z0 = (i & (1 << Direction.NORTH.get3DDataValue())) != 0;
-			boolean z1 = (i & (1 << Direction.SOUTH.get3DDataValue())) != 0;
-			BOXES_64[i] = Shapes.box(x0 ? 0D : d0, y0 ? 0D : d0, z0 ? 0D : d0, x1 ? 1D : d1, y1 ? 1D : d1, z1 ? 1D : d1);
+			List<VoxelShape> extra = new ArrayList<>();
+
+			if ((i & (1 << Direction.WEST.get3DDataValue())) != 0) {
+				extra.add(Shapes.box(0D, d0, d0, d0, d1, d1));
+			}
+
+			if ((i & (1 << Direction.EAST.get3DDataValue())) != 0) {
+				extra.add(Shapes.box(d1, d0, d0, 1D, d1, d1));
+			}
+
+			if ((i & (1 << Direction.DOWN.get3DDataValue())) != 0) {
+				extra.add(Shapes.box(d0, 0D, d0, d1, d0, d1));
+			}
+
+			if ((i & (1 << Direction.UP.get3DDataValue())) != 0) {
+				extra.add(Shapes.box(d0, d1, d0, d1, 1D, d1));
+			}
+
+			if ((i & (1 << Direction.NORTH.get3DDataValue())) != 0) {
+				extra.add(Shapes.box(d0, d0, 0D, d1, d1, d0));
+			}
+
+			if ((i & (1 << Direction.SOUTH.get3DDataValue())) != 0) {
+				extra.add(Shapes.box(d0, d0, d1, d1, d1, 1D));
+			}
+
+			BOXES_64[i] = Shapes.or(Shapes.box(d0, d0, d0, d1, d1, d1), extra.toArray(new VoxelShape[0]));
 		}
 
-		BOXES[0] = Shapes.box(d0, 0D, d0, d1, d0, d1);
-		BOXES[1] = Shapes.box(d0, d1, d0, d1, 1D, d1);
-		BOXES[2] = Shapes.box(d0, d0, 0D, d1, d1, d0);
-		BOXES[3] = Shapes.box(d0, d0, d1, d1, d1, 1D);
-		BOXES[4] = Shapes.box(0D, d0, d0, d0, d1, d1);
-		BOXES[5] = Shapes.box(d1, d0, d0, 1D, d1, d1);
-		BOXES[6] = Shapes.box(d0, d0, d0, d1, d1, d1);
+		return BOXES_64[i];
 	}
 
 	public BasePipeBlock(Block.Properties properties) {
@@ -78,10 +94,10 @@ public abstract class BasePipeBlock extends Block {
 				}
 			}
 
-			return BOXES_64[id];
+			return getBox(id);
 		}
 
-		return BOXES_64[0];
+		return getBox(0);
 	}
 	//	@Override
 	//	@Deprecated

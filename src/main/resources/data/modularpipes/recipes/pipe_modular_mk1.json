@@ -2,7 +2,7 @@
 	"type": "minecraft:crafting_shaped",
 	"group": "modularpipes:pipe",
 	"result": {
-		"item": "pipe_modular_mk1",
+		"item": "modularpipes:modular_pipe_mk1",
 		"count": 6
 	},
 	"pattern": [
@@ -12,15 +12,13 @@
 	],
 	"key": {
 		"P": {
-			"item": "pipe_transport"
+			"item": "modularpipes:transport_pipe"
 		},
 		"I": {
-			"type": "forge:ore_dict",
-			"ore": "ingotIron"
+			"tag": "forge:ingots/iron"
 		},
 		"R": {
-			"type": "forge:ore_dict",
-			"ore": "dustRedstone"
+			"tag": "forge:dusts/redstone"
 		}
 	}
 }

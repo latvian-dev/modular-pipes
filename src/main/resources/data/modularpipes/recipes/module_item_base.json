@@ -2,7 +2,7 @@
 	"type": "minecraft:crafting_shaped",
 	"group": "modularpipes:module",
 	"result": {
-		"item": "module_fluid_base",
+		"item": "modularpipes:item_base_module",
 		"count": 6
 	},
 	"pattern": [
@@ -12,10 +12,10 @@
 	],
 	"key": {
 		"M": {
-			"item": "module"
+			"item": "modularpipes:module"
 		},
 		"H": {
-			"item": "tank"
+			"tag": "minecraft:planks"
 		},
 		"C": {
 			"item": "minecraft:repeater"

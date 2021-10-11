@@ -2,7 +2,7 @@
 	"type": "minecraft:crafting_shaped",
 	"group": "modularpipes:module",
 	"result": {
-		"item": "module_item_base",
+		"item": "modularpipes:fluid_base_module",
 		"count": 6
 	},
 	"pattern": [
@@ -12,11 +12,10 @@
 	],
 	"key": {
 		"M": {
-			"item": "module"
+			"item": "modularpipes:module"
 		},
 		"H": {
-			"type": "forge:ore_dict",
-			"ore": "plankWood"
+			"tag": "forge:glass"
 		},
 		"C": {
 			"item": "minecraft:repeater"

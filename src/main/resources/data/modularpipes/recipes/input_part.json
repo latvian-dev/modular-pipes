@@ -15,8 +15,7 @@
 			"item": "modularpipes:module"
 		},
 		"D": {
-			"type": "forge:ore_dict",
-			"ore": "dyeLightBlue"
+			"tag": "forge:dyes/light_blue"
 		}
 	}
 }

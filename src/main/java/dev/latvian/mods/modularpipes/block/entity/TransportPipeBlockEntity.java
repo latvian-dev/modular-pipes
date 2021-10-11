@@ -13,7 +13,7 @@ public class TransportPipeBlockEntity extends BasePipeBlockEntity {
 	public Direction end1 = null, end2 = null;
 
 	public TransportPipeBlockEntity() {
-		super(ModularPipesBlockEntities.TRANSPORT_PIPE);
+		super(ModularPipesBlockEntities.TRANSPORT_PIPE.get());
 	}
 
 	@Override

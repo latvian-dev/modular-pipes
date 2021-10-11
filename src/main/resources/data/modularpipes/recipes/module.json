@@ -2,7 +2,7 @@
 	"type": "minecraft:crafting_shaped",
 	"group": "modularpipes:module",
 	"result": {
-		"item": "module",
+		"item": "modularpipes:module",
 		"count": 8
 	},
 	"pattern": [
@@ -12,11 +12,10 @@
 	],
 	"key": {
 		"P": {
-			"item": "pipe_transport"
+			"item": "modularpipes:transport_pipe"
 		},
 		"I": {
-			"type": "forge:ore_dict",
-			"ore": "ingotIron"
+			"tag": "forge:ingots/iron"
 		}
 	}
 }

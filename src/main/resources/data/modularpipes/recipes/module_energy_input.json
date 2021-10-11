@@ -1,0 +1,18 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"group": "modularpipes:module",
+	"result": {
+		"item": "modularpipes:energy_input_module"
+	},
+	"ingredients": [
+		{
+			"item": "modularpipes:module"
+		},
+		{
+			"item": "modularpipes:input_part"
+		},
+		{
+			"tag": "forge:ingots/gold"
+		}
+	]
+}

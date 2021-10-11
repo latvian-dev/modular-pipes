@@ -2,15 +2,14 @@
 	"type": "minecraft:crafting_shapeless",
 	"group": "modularpipes:module",
 	"result": {
-		"item": "module_fluid_storage"
+		"item": "modularpipes:item_storage_module"
 	},
 	"ingredients": [
 		{
-			"item": "module_fluid_base"
+			"item": "modularpipes:item_base_module"
 		},
 		{
-			"type": "forge:ore_dict",
-			"ore": "ingotIron"
+			"tag": "forge:ingots/iron"
 		}
 	]
 }

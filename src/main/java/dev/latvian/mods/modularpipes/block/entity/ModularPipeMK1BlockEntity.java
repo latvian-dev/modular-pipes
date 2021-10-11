@@ -41,7 +41,7 @@ public class ModularPipeMK1BlockEntity extends BasePipeBlockEntity implements IE
 	private List<ModularPipeMK1BlockEntity> cachedNetwork = null;
 
 	public ModularPipeMK1BlockEntity() {
-		super(ModularPipesBlockEntities.MODULAR_PIPE_MK1);
+		super(ModularPipesBlockEntities.MODULAR_PIPE_MK1.get());
 	}
 
 	public ModularPipeMK1BlockEntity(BlockEntityType<?> tileEntityTypeIn) {
