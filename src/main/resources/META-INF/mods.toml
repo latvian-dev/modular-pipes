@@ -1,6 +1,6 @@
 modLoader = "javafml"
 loaderVersion = "[24,)"
-license = "All Rights Reserved"
+license = "GNU LGPLv3"
 authors = "LatvianModder"
 [[mods]]
 modId = "modularpipes"
