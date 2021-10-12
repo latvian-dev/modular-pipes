@@ -1,6 +1,4 @@
 {
 	"loader": "modularpipes:pipe",
-	"textures": {
-		"material": "modularpipes:block/transport_pipe"
-	}
+	"material": "modularpipes:block/transport_pipe"
 }

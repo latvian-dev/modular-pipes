@@ -2,6 +2,7 @@ package dev.latvian.mods.modularpipes.client;
 
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
@@ -16,10 +17,12 @@ import java.util.Random;
  */
 public class BakedPipeItemModel implements BakedModel {
 	public final BakedPipeModel parent;
+	private final ItemTransforms itemTransforms;
 	private final List<BakedQuad> quads;
 
-	public BakedPipeItemModel(BakedPipeModel p, List<BakedQuad> q) {
+	public BakedPipeItemModel(BakedPipeModel p, ItemTransforms i, List<BakedQuad> q) {
 		parent = p;
+		itemTransforms = i;
 		quads = q;
 	}
 
@@ -56,5 +59,10 @@ public class BakedPipeItemModel implements BakedModel {
 	@Override
 	public ItemOverrides getOverrides() {
 		return ItemOverrides.EMPTY;
+	}
+
+	@Override
+	public ItemTransforms getTransforms() {
+		return itemTransforms;
 	}
 }

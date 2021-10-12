@@ -1,0 +1,7 @@
+{
+	"variants": {
+		"": {
+			"model": "modularpipes:block/fast_transport_pipe"
+		}
+	}
+}

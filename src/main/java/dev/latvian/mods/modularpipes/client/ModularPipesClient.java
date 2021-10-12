@@ -1,11 +1,23 @@
 package dev.latvian.mods.modularpipes.client;
 
+import dev.latvian.mods.modularpipes.ModularPipes;
 import dev.latvian.mods.modularpipes.ModularPipesCommon;
+import dev.latvian.mods.modularpipes.block.ModularPipesBlocks;
+import dev.latvian.mods.modularpipes.block.entity.PipeNetwork;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
+import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.client.model.ModelLoaderRegistry;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import javax.annotation.Nullable;
@@ -14,16 +26,11 @@ import javax.annotation.Nullable;
  * @author LatvianModder
  */
 public class ModularPipesClient extends ModularPipesCommon {
-	//	private LargeExplosionParticle.Factory explosionFactory = new LargeExplosionParticle.Factory();
-	//	private RedstoneParticle.Factory redstoneFactory = new RedstoneParticle.Factory();
-
 	@Override
 	public void init() {
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(ModularPipesClientEventHandler::textureStitch);
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(ModularPipesClientEventHandler::modelBake);
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(ModularPipesClientEventHandler::registerModels);
-//		ScreenManager.registerFactory(ModularPipesContainers.PAINTER, GuiPainter::new);
-//		ScreenManager.registerFactory(ModularPipesContainers.PIPE_MODULAR, GuiPipeModular::new);
+		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerModels);
+		MinecraftForge.EVENT_BUS.addListener(this::tickClientWorld);
+		MinecraftForge.EVENT_BUS.addListener(this::renderWorld);
 	}
 
 	@Override
@@ -49,7 +56,27 @@ public class ModularPipesClient extends ModularPipesCommon {
 			return 0;
 		}
 
-		//return MinecraftForgeClient.getRenderLayer() == BlockRenderLayer.TRANSLUCENT ? 15 : 0;
-		return 0;
+		return MinecraftForgeClient.getRenderLayer() == RenderType.cutout() ? 15 : 0;
+	}
+
+	public void registerModels(ModelRegistryEvent event) {
+		ItemBlockRenderTypes.setRenderLayer(ModularPipesBlocks.TRANSPORT_PIPE.get(), r -> r == RenderType.solid() || r == RenderType.cutoutMipped());
+		ItemBlockRenderTypes.setRenderLayer(ModularPipesBlocks.FAST_TRANSPORT_PIPE.get(), r -> r == RenderType.solid() || r == RenderType.cutoutMipped());
+		ItemBlockRenderTypes.setRenderLayer(ModularPipesBlocks.MODULAR_PIPE_MK1.get(), r -> r == RenderType.solid() || r == RenderType.cutoutMipped() || r == RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModularPipesBlocks.MODULAR_PIPE_MK2.get(), r -> r == RenderType.solid() || r == RenderType.cutoutMipped() || r == RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModularPipesBlocks.MODULAR_PIPE_MK3.get(), r -> r == RenderType.solid() || r == RenderType.cutoutMipped() || r == RenderType.cutout());
+		ModelLoaderRegistry.registerLoader(new ResourceLocation(ModularPipes.MOD_ID + ":pipe"), PipeModelLoader.INSTANCE);
+	}
+
+	public void tickClientWorld(TickEvent.ClientTickEvent event) {
+		Minecraft mc = Minecraft.getInstance();
+
+		if (event.phase == TickEvent.Phase.END && mc.level != null && !mc.isPaused()) {
+			PipeNetwork.get(mc.level).tick();
+		}
+	}
+
+	public void renderWorld(RenderWorldLastEvent event) {
+		PipeNetwork.get(Minecraft.getInstance().level).render(event);
 	}
 }

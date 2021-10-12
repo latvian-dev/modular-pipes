@@ -2,7 +2,7 @@ package dev.latvian.mods.modularpipes.item.module.item;
 
 import dev.latvian.mods.itemfilters.api.ItemFiltersAPI;
 import dev.latvian.mods.modularpipes.ModularPipesCommon;
-import dev.latvian.mods.modularpipes.block.entity.ModularPipeMK1BlockEntity;
+import dev.latvian.mods.modularpipes.block.entity.BaseModularPipeBlockEntity;
 import dev.latvian.mods.modularpipes.item.module.PipeModule;
 import dev.latvian.mods.modularpipes.item.module.SidedPipeModule;
 import net.minecraft.nbt.CompoundTag;
@@ -55,7 +55,7 @@ public class ItemInsertModule extends SidedPipeModule {
 		if (storageModules == null) {
 			storageModules = new ArrayList<>(2);
 
-			for (ModularPipeMK1BlockEntity pipe1 : pipe.getPipeNetwork()) {
+			for (BaseModularPipeBlockEntity pipe1 : pipe.getPipeNetwork()) {
 				for (PipeModule module : pipe1.modules) {
 					if (module instanceof ItemStorageModule) {
 						storageModules.add((ItemStorageModule) module);

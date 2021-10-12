@@ -64,7 +64,7 @@ public class PipeNetwork implements ICapabilityProvider {
 	}
 
 	public final Level world;
-	public final List<ModularPipeMK1BlockEntity> pipes = new ArrayList<>();
+	public final List<BaseModularPipeBlockEntity> pipes = new ArrayList<>();
 	protected LazyOptional<?> thisOptional = LazyOptional.of(() -> this);
 	private boolean refresh = true;
 
@@ -92,8 +92,8 @@ public class PipeNetwork implements ICapabilityProvider {
 			pipes.clear();
 
 			for (BlockEntity tileEntity : world.blockEntityList) {
-				if (!tileEntity.isRemoved() && tileEntity instanceof ModularPipeMK1BlockEntity) {
-					pipes.add((ModularPipeMK1BlockEntity) tileEntity);
+				if (!tileEntity.isRemoved() && tileEntity instanceof BaseModularPipeBlockEntity) {
+					pipes.add((BaseModularPipeBlockEntity) tileEntity);
 				}
 			}
 
@@ -104,14 +104,14 @@ public class PipeNetwork implements ICapabilityProvider {
 			refresh = false;
 		}
 
-		for (ModularPipeMK1BlockEntity pipe : pipes) {
+		for (BaseModularPipeBlockEntity pipe : pipes) {
 			for (PipeItem item : pipe.items) {
 				item.prevPos = item.pos;
 				pipe.moveItem(item);
 			}
 		}
 
-		for (ModularPipeMK1BlockEntity pipe : pipes) {
+		for (BaseModularPipeBlockEntity pipe : pipes) {
 			pipe.tickPipe();
 			pipe.sendUpdates();
 		}
@@ -122,7 +122,7 @@ public class PipeNetwork implements ICapabilityProvider {
 			return false;
 		}
 
-		for (ModularPipeMK1BlockEntity pipe : pipes) {
+		for (BaseModularPipeBlockEntity pipe : pipes) {
 			if (!pipe.items.isEmpty()) {
 				return true;
 			}
@@ -156,7 +156,7 @@ public class PipeNetwork implements ICapabilityProvider {
 		RenderSystem.disableLighting();
 		Lighting.setupFor3DItems();
 
-		for (ModularPipeMK1BlockEntity pipe : pipes) {
+		for (BaseModularPipeBlockEntity pipe : pipes) {
 			if (pipe.items.isEmpty()) {
 				continue;
 			}

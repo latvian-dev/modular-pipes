@@ -1,6 +1,6 @@
 package dev.latvian.mods.modularpipes.item.module;
 
-import dev.latvian.mods.modularpipes.block.entity.ModularPipeMK1BlockEntity;
+import dev.latvian.mods.modularpipes.block.entity.BaseModularPipeBlockEntity;
 import dev.latvian.mods.modularpipes.block.entity.PipeNetwork;
 import dev.latvian.mods.modularpipes.net.ModularPipesNet;
 import dev.latvian.mods.modularpipes.net.ParticleMessage;
@@ -24,7 +24,7 @@ public class PipeModule implements ICapabilityProvider {
 	@CapabilityInject(PipeModule.class)
 	public static Capability<PipeModule> CAP;
 
-	public ModularPipeMK1BlockEntity pipe = null;
+	public BaseModularPipeBlockEntity pipe = null;
 	public ItemStack moduleItem = ItemStack.EMPTY;
 	protected LazyOptional<?> thisOptional = LazyOptional.of(() -> this);
 

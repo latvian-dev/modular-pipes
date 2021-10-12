@@ -47,17 +47,17 @@ public class PipeItem implements INBTSerializable<CompoundTag> {
 	@Override
 	public CompoundTag serializeNBT() {
 		CompoundTag nbt = stack.serializeNBT();
-		nbt.putInt("age", age);
-		nbt.putFloat("pos", pos);
-		nbt.putFloat("prevpos", prevPos);
-		nbt.putByte("dir", (byte) (from | (to << 4)));
+		nbt.putInt("Age", age);
+		nbt.putFloat("Pos", pos);
+		nbt.putFloat("Prevpos", prevPos);
+		nbt.putByte("Dir", (byte) (from | (to << 4)));
 
 		if (speed != 0.05F) {
-			nbt.putFloat("speed", speed);
+			nbt.putFloat("Speed", speed);
 		}
 
 		if (lifespan != 6000) {
-			nbt.putInt("lifespan", 6000);
+			nbt.putInt("Lifespan", 6000);
 		}
 
 		return nbt;
@@ -66,14 +66,14 @@ public class PipeItem implements INBTSerializable<CompoundTag> {
 	@Override
 	public void deserializeNBT(CompoundTag nbt) {
 		stack = ItemStack.of(nbt);
-		age = nbt.getInt("age");
-		pos = nbt.getFloat("pos");
-		prevPos = nbt.getFloat("prevpos");
-		int dir = nbt.getByte("dir") & 0xFF;
+		age = nbt.getInt("Age");
+		pos = nbt.getFloat("Pos");
+		prevPos = nbt.getFloat("Prevpos");
+		int dir = nbt.getByte("Dir") & 0xFF;
 		from = dir & 0xF;
 		to = (dir >> 4) & 0xF;
-		speed = nbt.contains("speed") ? Mth.clamp(nbt.getFloat("speed"), 0.01F, 1F) : 0.05F;
-		lifespan = nbt.contains("lifespan") ? nbt.getInt("lifespan") : 6000;
+		speed = nbt.contains("Speed") ? Mth.clamp(nbt.getFloat("Speed"), 0.01F, 1F) : 0.05F;
+		lifespan = nbt.contains("Lifespan") ? nbt.getInt("Lifespan") : 6000;
 	}
 
 	@OnlyIn(Dist.CLIENT)

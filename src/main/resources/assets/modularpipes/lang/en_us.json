@@ -1,11 +1,11 @@
 {
 	"itemGroup.modularpipes": "Modular Pipes",
 	"block.modularpipes.transport_pipe": "Transport Pipe",
+	"block.modularpipes.fast_transport_pipe": "Fast Transport Pipe",
 	"block.modularpipes.modular_pipe_mk1": "Modular Pipe MK1",
 	"block.modularpipes.modular_pipe_mk2": "Modular Pipe MK2",
 	"block.modularpipes.modular_pipe_mk3": "Modular Pipe MK3",
 	"item.modularpipes.tool": "Pipe Tool Base",
-	"item.modularpipes.painter": "Pipe Painter",
 	"item.modularpipes.visualizer": "Pipe Network Visualizer",
 	"item.modularpipes.input_part": "Module Input Part",
 	"item.modularpipes.output_part": "Module Output Part",

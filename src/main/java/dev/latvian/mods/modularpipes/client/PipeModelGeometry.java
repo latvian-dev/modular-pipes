@@ -1,12 +1,9 @@
 package dev.latvian.mods.modularpipes.client;
 
+import com.google.common.collect.Sets;
 import com.mojang.datafixers.util.Pair;
-import dev.latvian.mods.modularpipes.ModularPipes;
-import dev.latvian.mods.modularpipes.ModularPipesUtils;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
-import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.BlockModelRotation;
@@ -16,10 +13,11 @@ import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.model.IModelConfiguration;
+import net.minecraftforge.client.model.ModelTransformComposition;
 import net.minecraftforge.client.model.geometry.IModelGeometry;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -39,81 +37,54 @@ public class PipeModelGeometry implements IModelGeometry<PipeModelGeometry> {
 	};
 
 	public interface ModelCallback {
-		List<BakedQuad> get(ResourceLocation id, BlockModelRotation rotation, boolean uvlock);
+		BakedModel getModel(UnbakedModel model, ModelState rotation, boolean uvlock);
 
-		default List<BakedQuad> get(ResourceLocation id, BlockModelRotation rotation) {
-			return get(id, rotation, true);
+		default List<BakedQuad> get(UnbakedModel model, ModelState rotation, boolean uvlock) {
+			return getModel(model, rotation, uvlock).getQuads(null, null, new Random());
 		}
 	}
 
-	public final ResourceLocation modelBase, modelConnection, modelVertical;
-	public final ResourceLocation modelOverlay, modelModule;
-	public final ResourceLocation modelGlassBase, modelGlassConnection, modelGlassVertical;
-
-	public PipeModelGeometry() {
-		modelBase = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/base");
-		modelConnection = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/connection");
-		modelVertical = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/vertical");
-		modelOverlay = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/overlay");
-		modelModule = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/module");
-		modelGlassBase = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass_base");
-		modelGlassConnection = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass_connection");
-		modelGlassVertical = new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/glass_vertical");
-	}
+	public Material material;
+	public List<UnbakedModel> models = new ArrayList<>(7);
+	public UnbakedModel modelItem;
+	public UnbakedModel modelBase, modelConnection, modelVertical;
+	public UnbakedModel modelModule;
+	public UnbakedModel modelGlassBase, modelGlassConnection, modelGlassVertical;
+	public UnbakedModel modelOverlay;
 
 	@Override
 	public Collection<Material> getTextures(IModelConfiguration owner, Function<ResourceLocation, UnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors) {
-		Collection<Material> textures = new HashSet<>();
-		textures.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(ModularPipes.MOD_ID, "block/glass")));
-		textures.add(new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(ModularPipes.MOD_ID, "block/pipe/module")));
-		textures.add(owner.resolveTexture("material"));
-		return textures;
+		Set<Material> materials = Sets.newHashSet();
+		materials.add(material);
+
+		for (UnbakedModel m : models) {
+			materials.addAll(m.getMaterials(modelGetter, missingTextureErrors));
+		}
+
+		return materials;
 	}
 
 	@Override
 	public BakedModel bake(IModelConfiguration owner, ModelBakery bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelTransform, ItemOverrides overrides, ResourceLocation modelLocation) {
-		TextureAtlasSprite base = spriteGetter.apply(owner.resolveTexture("material"));
-		return new BakedPipeModel(this, base, new ModelCallbackImpl(bakery, spriteGetter, base));
+		return new BakedPipeModel(this, spriteGetter.apply(material), new ModelCallbackImpl(bakery, spriteGetter, modelTransform, modelLocation));
 	}
 
-	private static class ModelCallbackImpl implements ModelCallback, Function<Material, TextureAtlasSprite> {
+	private static class ModelCallbackImpl implements ModelCallback {
 		private final ModelBakery bakery;
 		private final Function<Material, TextureAtlasSprite> spriteGetter;
-		private final TextureAtlasSprite base;
+		private final ModelState modelState;
+		private final ResourceLocation modelLocation;
 
-		public ModelCallbackImpl(ModelBakery b, Function<Material, TextureAtlasSprite> s, TextureAtlasSprite ba) {
+		public ModelCallbackImpl(ModelBakery b, Function<Material, TextureAtlasSprite> s, ModelState ms, ResourceLocation ml) {
 			bakery = b;
 			spriteGetter = s;
-			base = ba;
+			modelState = ms;
+			modelLocation = ml;
 		}
 
 		@Override
-		public List<BakedQuad> get(ResourceLocation id, BlockModelRotation rotation, boolean uvlock) {
-			/*
-			ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
-
-			for (Map.Entry entry : retextures) {
-				builder.put(new AbstractMap.SimpleEntry<>(entry.getKey().toString(), new ResourceLocation(entry.getValue().toString()).toString()));
-			}
-
-			bakery.getModel()
-
-			IModel model = bakery.getModel(id).retexture(builder.build());//.smoothLighting(false);
-			BakedModel bakedModel = model.bake(bakery, spriteGetter, sprite, format);
-			return ModularPipesUtils.optimize(bakedModel.getQuads(null, null, new Random()));
-			 */
-
-			return ModularPipesUtils.optimize(bakery.getBakedModel(id, rotation, this).getQuads(null, null, new Random()));
-		}
-
-		@Override
-		public TextureAtlasSprite apply(Material material) {
-			// This is terrible implementation but its the best I can find for now
-			if (material.texture().equals(MissingTextureAtlasSprite.getLocation())) {
-				return base;
-			}
-
-			return spriteGetter.apply(material);
+		public BakedModel getModel(UnbakedModel model, ModelState rotation, boolean uvlock) {
+			return model.bake(bakery, spriteGetter, new ModelTransformComposition(modelState, rotation, uvlock), modelLocation);
 		}
 	}
 }

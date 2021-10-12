@@ -1,16 +1,31 @@
 package dev.latvian.mods.modularpipes.block;
 
+import dev.latvian.mods.modularpipes.ModularPipes;
 import dev.latvian.mods.modularpipes.block.entity.BasePipeBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.client.model.data.ModelProperty;
+import net.minecraftforge.common.ToolType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,9 +33,9 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public abstract class BasePipeBlock extends Block {
-	public static final float SIZE = 4F;
-	public static final VoxelShape[] BOXES_64 = new VoxelShape[1 << 6];
+public class BasePipeBlock extends Block implements SimpleWaterloggedBlock {
+	public static final double SIZE = 4D - 1D / 32D;
+	private static final VoxelShape[] BOXES_64 = new VoxelShape[1 << 6];
 	public static final ModelProperty<BasePipeBlockEntity> PIPE = new ModelProperty<>();
 
 	public static VoxelShape getBox(int i) {
@@ -60,12 +75,12 @@ public abstract class BasePipeBlock extends Block {
 		return BOXES_64[i];
 	}
 
-	public BasePipeBlock(Block.Properties properties) {
-		super(properties);
-	}
+	public final PipeTier tier;
 
-	public boolean isModular() {
-		return false;
+	public BasePipeBlock(PipeTier t) {
+		super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).strength(0.6F).sound(SoundType.METAL).noOcclusion().harvestTool(ToolType.PICKAXE));
+		registerDefaultState(getStateDefinition().any().setValue(BlockStateProperties.WATERLOGGED, false));
+		tier = t;
 	}
 
 	@Override
@@ -73,10 +88,21 @@ public abstract class BasePipeBlock extends Block {
 		return true;
 	}
 
-	// @Override
-	// public boolean canRenderInLayer(BlockState state, BlockRenderLayer layer) {
-	// 	return layer == BlockRenderLayer.SOLID || layer == BlockRenderLayer.CUTOUT;
-	// }
+	@Nullable
+	@Override
+	public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
+		return tier.blockEntity.get();
+	}
+
+	@Override
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> def) {
+		def.add(BlockStateProperties.WATERLOGGED);
+	}
+
+	@Override
+	public int getLightValue(BlockState state, BlockGetter level, BlockPos pos) {
+		return ModularPipes.PROXY.getPipeLightValue(level);
+	}
 
 	@Override
 	@Deprecated
@@ -99,50 +125,45 @@ public abstract class BasePipeBlock extends Block {
 
 		return getBox(0);
 	}
-	//	@Override
-	//	@Deprecated
-	//	public AxisAlignedBB getBoundingBox(BlockState state, IBlockReader world, BlockPos pos)
-	//	{
-	//		TileEntity tileEntity = world.getTileEntity(pos);
-	//
-	//		if (tileEntity instanceof TilePipeBase)
-	//		{
-	//			TilePipeBase pipe = (TilePipeBase) tileEntity;
-	//
-	//			int id = 0;
-	//
-	//			for (int i = 0; i < 6; i++)
-	//			{
-	//				if (pipe.isConnected(Direction.values()[i]))
-	//				{
-	//					id |= 1 << i;
-	//				}
-	//			}
-	//
-	//			return BOXES_64[id];
-	//		}
-	//
-	//		return BOXES_64[0];
-	//	}
-	//
-	//	@Override
-	//	@Deprecated
-	//	public void addCollisionBoxToList(BlockState state, World world, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entity, boolean isActualState)
-	//	{
-	//		addCollisionBoxToList(pos, entityBox, collidingBoxes, BOXES_64[0]);
-	//		TileEntity tileEntity = world.getTileEntity(pos);
-	//
-	//		if (tileEntity instanceof TilePipeBase)
-	//		{
-	//			TilePipeBase pipe = (TilePipeBase) tileEntity;
-	//
-	//			for (int i = 0; i < 6; i++)
-	//			{
-	//				if (pipe.isConnected(Direction.VALUES[i]))
-	//				{
-	//					addCollisionBoxToList(pos, entityBox, collidingBoxes, BOXES_64[1 << i]);
-	//				}
-	//			}
-	//		}
-	//	}
+
+	@Override
+	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+		return super.getStateForPlacement(ctx).setValue(BlockStateProperties.WATERLOGGED, ctx.getLevel().getFluidState(ctx.getClickedPos()).getType() == Fluids.WATER);
+	}
+
+	@Override
+	@Deprecated
+	public BlockState updateShape(BlockState state, Direction face, BlockState nstate, LevelAccessor level, BlockPos pos, BlockPos npos) {
+		if (state.getValue(BlockStateProperties.WATERLOGGED)) {
+			level.getLiquidTicks().scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+		}
+
+		return super.updateShape(state, face, nstate, level, pos, npos);
+	}
+
+	@Override
+	@Deprecated
+	public FluidState getFluidState(BlockState state) {
+		return state.getValue(BlockStateProperties.WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+	}
+
+	@Override
+	@Deprecated
+	public boolean isPathfindable(BlockState arg, BlockGetter arg2, BlockPos arg3, PathComputationType arg4) {
+		return false;
+	}
+
+	@Override
+	@Deprecated
+	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState state1, boolean b) {
+		super.onRemove(state, level, pos, state1, b);
+
+		if (!level.isClientSide()) {
+			BlockEntity blockEntity = level.getBlockEntity(pos);
+
+			if (blockEntity instanceof BasePipeBlockEntity) {
+				((BasePipeBlockEntity) blockEntity).dropItems();
+			}
+		}
+	}
 }

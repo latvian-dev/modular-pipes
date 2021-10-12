@@ -2,7 +2,8 @@
 	"parent": "block/block",
 	"credit": "Made with Blockbench",
 	"textures": {
-		"particle": "#material"
+		"particle": "#material",
+		"glass": "modularpipes:block/glass"
 	},
 	"elements": [
 		{
@@ -350,6 +351,39 @@
 				},
 				"west": {
 					"texture": "#material"
+				}
+			}
+		},
+		{
+			"name": "glass",
+			"from": [
+				5,
+				5,
+				5
+			],
+			"to": [
+				11,
+				11,
+				11
+			],
+			"faces": {
+				"north": {
+					"texture": "#glass"
+				},
+				"east": {
+					"texture": "#glass"
+				},
+				"south": {
+					"texture": "#glass"
+				},
+				"west": {
+					"texture": "#glass"
+				},
+				"up": {
+					"texture": "#glass"
+				},
+				"down": {
+					"texture": "#glass"
 				}
 			}
 		}

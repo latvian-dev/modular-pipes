@@ -1,0 +1,4 @@
+{
+	"loader": "modularpipes:pipe",
+	"material": "modularpipes:block/fast_transport_pipe"
+}
