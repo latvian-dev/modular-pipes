@@ -19,14 +19,14 @@ public class ItemExtractModule extends ItemHandlerModule {
 		super.writeData(nbt);
 
 		if (tick > 0) {
-			nbt.putByte("tick", (byte) tick);
+			nbt.putByte("Tick", (byte) tick);
 		}
 	}
 
 	@Override
 	public void readData(CompoundTag nbt) {
 		super.readData(nbt);
-		tick = nbt.getByte("tick");
+		tick = nbt.getByte("Tick");
 	}
 
 	@Override

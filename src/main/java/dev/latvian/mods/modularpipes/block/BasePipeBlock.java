@@ -2,8 +2,12 @@ package dev.latvian.mods.modularpipes.block;
 
 import dev.latvian.mods.modularpipes.ModularPipes;
 import dev.latvian.mods.modularpipes.block.entity.BasePipeBlockEntity;
+import dev.latvian.mods.modularpipes.block.entity.ModularPipeBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -20,6 +24,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -115,7 +120,7 @@ public class BasePipeBlock extends Block implements SimpleWaterloggedBlock {
 			int id = 0;
 
 			for (int i = 0; i < 6; i++) {
-				if (pipe.isConnected(Direction.values()[i])) {
+				if (pipe.getConnection(i) > 0) {
 					id |= 1 << i;
 				}
 			}
@@ -136,6 +141,12 @@ public class BasePipeBlock extends Block implements SimpleWaterloggedBlock {
 	public BlockState updateShape(BlockState state, Direction face, BlockState nstate, LevelAccessor level, BlockPos pos, BlockPos npos) {
 		if (state.getValue(BlockStateProperties.WATERLOGGED)) {
 			level.getLiquidTicks().scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+		}
+
+		BlockEntity blockEntity = level.getBlockEntity(pos);
+
+		if (blockEntity instanceof BasePipeBlockEntity) {
+			blockEntity.clearCache();
 		}
 
 		return super.updateShape(state, face, nstate, level, pos, npos);
@@ -165,5 +176,17 @@ public class BasePipeBlock extends Block implements SimpleWaterloggedBlock {
 				((BasePipeBlockEntity) blockEntity).dropItems();
 			}
 		}
+	}
+
+	@Override
+	@Deprecated
+	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+		BlockEntity blockEntity = level.getBlockEntity(pos);
+
+		if (blockEntity instanceof ModularPipeBlockEntity) {
+			return ((ModularPipeBlockEntity) blockEntity).rightClick(player, hand, hit);
+		}
+
+		return InteractionResult.PASS;
 	}
 }

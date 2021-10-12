@@ -1,9 +1,8 @@
 package dev.latvian.mods.modularpipes.item.module.item;
 
 import dev.latvian.mods.itemfilters.api.ItemFiltersAPI;
-import dev.latvian.mods.modularpipes.block.entity.BaseModularPipeBlockEntity;
+import dev.latvian.mods.modularpipes.block.entity.ModularPipeBlockEntity;
 import dev.latvian.mods.modularpipes.item.module.PipeModule;
-import dev.latvian.mods.modularpipes.item.module.SidedPipeModule;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.InteractionHand;
@@ -19,7 +18,7 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public class ItemHandlerModule extends SidedPipeModule implements IItemHandler {
+public class ItemHandlerModule extends PipeModule implements IItemHandler {
 	public ItemStack filter = ItemStack.EMPTY;
 	private List<ItemStorageModule> storageModules = null;
 
@@ -28,14 +27,14 @@ public class ItemHandlerModule extends SidedPipeModule implements IItemHandler {
 		super.writeData(nbt);
 
 		if (!filter.isEmpty()) {
-			nbt.put("filter", filter.serializeNBT());
+			nbt.put("Filter", filter.serializeNBT());
 		}
 	}
 
 	@Override
 	public void readData(CompoundTag nbt) {
 		super.readData(nbt);
-		filter = ItemStack.of(nbt.getCompound("filter"));
+		filter = ItemStack.of(nbt.getCompound("Filter"));
 
 		if (filter.isEmpty()) {
 			filter = ItemStack.EMPTY;
@@ -46,7 +45,7 @@ public class ItemHandlerModule extends SidedPipeModule implements IItemHandler {
 		if (storageModules == null) {
 			storageModules = new ArrayList<>(2);
 
-			for (BaseModularPipeBlockEntity pipe1 : pipe.getPipeNetwork()) {
+			for (ModularPipeBlockEntity pipe1 : pipe.getPipeNetwork()) {
 				for (PipeModule module : pipe1.modules) {
 					if (module instanceof ItemStorageModule) {
 						storageModules.add((ItemStorageModule) module);

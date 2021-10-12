@@ -7,6 +7,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -26,21 +28,25 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public abstract class BasePipeBlockEntity extends TileBase {
+public abstract class BasePipeBlockEntity extends BlockEntity {
 	public boolean sync = false;
 	public boolean invisible = false;
 	private boolean changed = false;
 	public List<PipeItem> items = new ArrayList<>(0);
 	private PipeTier cachedTier;
+	private int connections = -1;
 
 	public BasePipeBlockEntity(BlockEntityType<?> tileEntityTypeIn) {
 		super(tileEntityTypeIn);
 	}
 
-	@Override
 	public void writeData(CompoundTag nbt) {
 		if (invisible) {
 			nbt.putBoolean("Invisible", true);
+		}
+
+		if (connections != -1) {
+			nbt.putInt("Connections", connections);
 		}
 
 		if (!items.isEmpty()) {
@@ -54,9 +60,9 @@ public abstract class BasePipeBlockEntity extends TileBase {
 		}
 	}
 
-	@Override
 	public void readData(CompoundTag nbt) {
 		invisible = nbt.getBoolean("Invisible");
+		connections = nbt.contains("Connections") ? nbt.getInt("Connections") : -1;
 
 		ListTag list = nbt.getList("Items", Constants.NBT.TAG_COMPOUND);
 		items = new ArrayList<>(list.size());
@@ -70,6 +76,46 @@ public abstract class BasePipeBlockEntity extends TileBase {
 				items.add(item);
 			}
 		}
+	}
+
+	@Override
+	public void clearCache() {
+		super.clearCache();
+		connections = -1;
+	}
+
+	@Override
+	public CompoundTag save(CompoundTag nbt) {
+		writeData(nbt);
+		return super.save(nbt);
+	}
+
+	@Override
+	public void load(BlockState state, CompoundTag nbt) {
+		super.load(state, nbt);
+		readData(nbt);
+	}
+
+	@Override
+	public CompoundTag getUpdateTag() {
+		return save(new CompoundTag());
+	}
+
+	@Override
+	public void handleUpdateTag(BlockState state, CompoundTag tag) {
+		load(state, tag);
+	}
+
+	@Override
+	public ClientboundBlockEntityDataPacket getUpdatePacket() {
+		CompoundTag nbt = new CompoundTag();
+		writeData(nbt);
+		return new ClientboundBlockEntityDataPacket(worldPosition, 0, nbt);
+	}
+
+	@Override
+	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
+		readData(packet.getTag());
 	}
 
 	@Nonnull
@@ -103,6 +149,11 @@ public abstract class BasePipeBlockEntity extends TileBase {
 	}
 
 	public void moveItem(PipeItem item) {
+		if (getTier() != PipeTier.BASIC) {
+			item.pos += item.speed;
+			return;
+		}
+
 		item.pos += Math.min(item.speed, 0.99F);
 		float pipeSpeed = (float) ModularPipesConfig.pipes.base_speed;
 
@@ -129,7 +180,7 @@ public abstract class BasePipeBlockEntity extends TileBase {
 
 	public final void sendUpdates() {
 		if (changed) {
-			super.setChanged();
+			level.blockEntityChanged(worldPosition, this);
 
 			if (!level.isClientSide() && sync) {
 				BlockState state = level.getBlockState(worldPosition);
@@ -144,16 +195,6 @@ public abstract class BasePipeBlockEntity extends TileBase {
 		return true;
 	}
 
-	public boolean isConnected(Direction facing) {
-		BlockEntity tileEntity = level.getBlockEntity(worldPosition.relative(facing));
-
-		if (tileEntity instanceof BasePipeBlockEntity) {
-			return canPipesConnect();
-		}
-
-		return false;
-	}
-
 	public void dropItems() {
 		for (PipeItem item : items) {
 			Block.popResource(level, worldPosition, item.stack);
@@ -166,5 +207,33 @@ public abstract class BasePipeBlockEntity extends TileBase {
 		}
 
 		return cachedTier;
+	}
+
+	public int getConnections() {
+		if (connections == -1) {
+			connections = 0;
+
+			for (int face = 0; face < 6; face++) {
+				connections |= (updateConnection(face) & 3) << (face * 2);
+			}
+
+			setChanged();
+		}
+
+		return connections;
+	}
+
+	public int updateConnection(int face) {
+		BlockEntity tileEntity = level.getBlockEntity(worldPosition.relative(Direction.from3DDataValue(face)));
+
+		if (tileEntity instanceof BasePipeBlockEntity) {
+			return canPipesConnect() ? 1 : 0;
+		}
+
+		return 0;
+	}
+
+	public int getConnection(int face) {
+		return (getConnections() >> (face * 2)) & 3;
 	}
 }

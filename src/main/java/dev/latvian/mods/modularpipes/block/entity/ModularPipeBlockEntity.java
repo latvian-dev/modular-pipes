@@ -1,23 +1,27 @@
 package dev.latvian.mods.modularpipes.block.entity;
 
-import dev.latvian.mods.modularpipes.ModularPipesConfig;
 import dev.latvian.mods.modularpipes.ModularPipesUtils;
 import dev.latvian.mods.modularpipes.item.ItemKey;
+import dev.latvian.mods.modularpipes.item.ModuleItem;
 import dev.latvian.mods.modularpipes.item.module.PipeModule;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -30,15 +34,15 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public class BaseModularPipeBlockEntity extends BasePipeBlockEntity implements IEnergyStorage {
+public class ModularPipeBlockEntity extends BasePipeBlockEntity {
 	public final CachedBlockEntity[] cachedTiles = new CachedBlockEntity[6];
-	public List<PipeModule> modules = new ArrayList<>(0);
+	public PipeModule[] modules = new PipeModule[6];
 	public Object2IntOpenHashMap<ItemKey> itemDirections = new Object2IntOpenHashMap<>(0);
-	public int storedPower = 0;
+	public int storedEnergy = 0;
 	private int powerOutputIndex = -1;
-	private List<BaseModularPipeBlockEntity> cachedNetwork = null;
+	private List<ModularPipeBlockEntity> cachedNetwork = null;
 
-	public BaseModularPipeBlockEntity(BlockEntityType<?> type) {
+	public ModularPipeBlockEntity(BlockEntityType<?> type) {
 		super(type);
 	}
 
@@ -46,10 +50,10 @@ public class BaseModularPipeBlockEntity extends BasePipeBlockEntity implements I
 	public void writeData(CompoundTag nbt) {
 		super.writeData(nbt);
 
-		if (!modules.isEmpty()) {
-			ListTag list = new ListTag();
+		ListTag list = new ListTag();
 
-			for (PipeModule module : modules) {
+		for (PipeModule module : modules) {
+			if (module != null) {
 				CompoundTag nbt1 = module.moduleItem.serializeNBT();
 				CompoundTag nbt2 = new CompoundTag();
 				module.writeData(nbt2);
@@ -60,12 +64,14 @@ public class BaseModularPipeBlockEntity extends BasePipeBlockEntity implements I
 
 				list.add(nbt1);
 			}
+		}
 
+		if (!list.isEmpty()) {
 			nbt.put("Modules", list);
 		}
 
-		if (storedPower > 0) {
-			nbt.putInt("Power", storedPower);
+		if (storedEnergy > 0) {
+			nbt.putInt("Energy", storedEnergy);
 		}
 	}
 
@@ -74,7 +80,7 @@ public class BaseModularPipeBlockEntity extends BasePipeBlockEntity implements I
 		super.readData(nbt);
 
 		ListTag list = nbt.getList("Modules", Constants.NBT.TAG_COMPOUND);
-		modules = new ArrayList<>(list.size());
+		Arrays.fill(modules, null);
 
 		for (int i = 0; i < list.size(); i++) {
 			CompoundTag nbt1 = list.getCompound(i);
@@ -85,19 +91,15 @@ public class BaseModularPipeBlockEntity extends BasePipeBlockEntity implements I
 				module.pipe = this;
 				module.moduleItem = stack;
 				module.readData(nbt1.getCompound("Module"));
-				modules.add(module);
+				modules[module.side.get3DDataValue()] = module;
 			}
 		}
 
-		storedPower = nbt.getInt("Power");
+		storedEnergy = nbt.getInt("Energy");
 	}
 
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction side) {
-		if (capability == CapabilityEnergy.ENERGY && side == null) {
-			return thisOptional.cast();
-		}
-
 		for (PipeModule module : modules) {
 			LazyOptional<T> t = module.getCapability(capability, side);
 
@@ -109,21 +111,16 @@ public class BaseModularPipeBlockEntity extends BasePipeBlockEntity implements I
 		return super.getCapability(capability, side);
 	}
 
-	@Override
-	public void moveItem(PipeItem item) {
-		item.pos += item.speed;
-	}
-
 	public void tickPipe() {
-		if (!level.isClientSide() && !modules.isEmpty()) {
+		if (!level.isClientSide()) {
 			for (PipeModule module : modules) {
-				if (module.canUpdate()) {
+				if (module != null && module.canUpdate()) {
 					module.updateModule();
 				}
 			}
 		}
 
-		if (!level.isClientSide() && storedPower > 0 && level.getGameTime() % 5L == 0L) {
+		if (!level.isClientSide() && storedEnergy > 0 && level.getGameTime() % 5L == 0L) {
 			if (powerOutputIndex == -1) {
 				powerOutputIndex = hashCode() % 6;
 
@@ -134,17 +131,17 @@ public class BaseModularPipeBlockEntity extends BasePipeBlockEntity implements I
 
 			CachedBlockEntity tileEntity = getBlockEntity(Direction.from3DDataValue(powerOutputIndex));
 
-			if (tileEntity.blockEntity instanceof BaseModularPipeBlockEntity) {
-				BaseModularPipeBlockEntity pipe = (BaseModularPipeBlockEntity) tileEntity.blockEntity;
+			if (tileEntity.blockEntity instanceof ModularPipeBlockEntity) {
+				ModularPipeBlockEntity pipe = (ModularPipeBlockEntity) tileEntity.blockEntity;
 
-				if (Math.abs(storedPower - pipe.storedPower) > 1) {
-					int a = (storedPower + pipe.storedPower) / 2;
+				if (Math.abs(storedEnergy - pipe.storedEnergy) > 1) {
+					int a = (storedEnergy + pipe.storedEnergy) / 2;
 
-					storedPower = a;
+					storedEnergy = a;
 					setChanged();
 					sync = false;
 
-					pipe.storedPower = a;
+					pipe.storedEnergy = a;
 					pipe.setChanged();
 					pipe.sync = false;
 				}
@@ -218,7 +215,9 @@ public class BaseModularPipeBlockEntity extends BasePipeBlockEntity implements I
 		itemDirections = new Object2IntOpenHashMap<>(0);
 
 		for (PipeModule module : modules) {
-			module.clearCache();
+			if (module != null) {
+				module.clearCache();
+			}
 		}
 
 		cachedNetwork = null;
@@ -260,20 +259,14 @@ public class BaseModularPipeBlockEntity extends BasePipeBlockEntity implements I
 	}
 
 	@Override
-	public boolean isConnected(Direction facing) {
-		BlockEntity tileEntity = level.getBlockEntity(worldPosition.relative(facing));
-
-		if (tileEntity instanceof BasePipeBlockEntity) {
-			return canPipesConnect();
+	public int updateConnection(int face) {
+		if (modules[face] != null) {
+			return 2;
 		}
 
-		for (PipeModule module : modules) {
-			if (module.isConnected(facing)) {
-				return true;
-			}
-		}
+		// Check for covers and return 3
 
-		return false;
+		return super.updateConnection(face);
 	}
 
 	@Override
@@ -281,14 +274,16 @@ public class BaseModularPipeBlockEntity extends BasePipeBlockEntity implements I
 		super.dropItems();
 
 		for (PipeModule module : modules) {
-			module.onPipeBroken();
-			Block.popResource(level, worldPosition, module.moduleItem);
+			if (module != null) {
+				module.onPipeBroken();
+				Block.popResource(level, worldPosition, module.moduleItem);
+			}
 		}
 	}
 
-	public List<BaseModularPipeBlockEntity> getPipeNetwork() {
+	public List<ModularPipeBlockEntity> getPipeNetwork() {
 		if (cachedNetwork == null) {
-			HashSet<BaseModularPipeBlockEntity> set = new HashSet<>();
+			HashSet<ModularPipeBlockEntity> set = new HashSet<>();
 			getNetwork(set);
 			cachedNetwork = new ArrayList<>(set);
 
@@ -302,44 +297,66 @@ public class BaseModularPipeBlockEntity extends BasePipeBlockEntity implements I
 		return cachedNetwork;
 	}
 
-	private void getNetwork(HashSet<BaseModularPipeBlockEntity> set) {
+	private void getNetwork(HashSet<ModularPipeBlockEntity> set) {
 		for (Direction facing : Direction.values()) {
 			BlockEntity tileEntity = getBlockEntity(facing).blockEntity;
 
-			if (tileEntity instanceof BaseModularPipeBlockEntity && !set.contains(tileEntity)) {
-				set.add((BaseModularPipeBlockEntity) tileEntity);
-				((BaseModularPipeBlockEntity) tileEntity).getNetwork(set);
+			if (tileEntity instanceof ModularPipeBlockEntity && !set.contains(tileEntity)) {
+				set.add((ModularPipeBlockEntity) tileEntity);
+				((ModularPipeBlockEntity) tileEntity).getNetwork(set);
 			}
 		}
 	}
 
-	@Override
-	public int receiveEnergy(int maxReceive, boolean simulate) {
-		return 0;
-	}
+	public InteractionResult rightClick(Player player, InteractionHand hand, BlockHitResult hit) {
+		ItemStack stack = player.getItemInHand(hand);
 
-	@Override
-	public int extractEnergy(int maxExtract, boolean simulate) {
-		return 0;
-	}
+		if (stack.isEmpty()) {
+			return InteractionResult.SUCCESS;
+		} else if (stack.getItem() instanceof ModuleItem) {
+			if (level.isClientSide()) {
+				return InteractionResult.SUCCESS;
+			}
 
-	@Override
-	public int getEnergyStored() {
-		return storedPower;
-	}
+			Direction side = hit.getDirection();
 
-	@Override
-	public int getMaxEnergyStored() {
-		return ModularPipesConfig.pipes.max_energy_stored;
-	}
+			if (modules[side.get3DDataValue()] != null) {
+				player.displayClientMessage(new TextComponent("Module slot already occupied!"), true);
+				return InteractionResult.SUCCESS;
+			} else {
+				int currentModuleCount = 0;
 
-	@Override
-	public boolean canExtract() {
-		return false;
-	}
+				for (int i = 0; i < 6; i++) {
+					if (modules[i] != null) {
+						currentModuleCount++;
+					}
+				}
 
-	@Override
-	public boolean canReceive() {
-		return false;
+				if (currentModuleCount >= getTier().maxModules) {
+					player.displayClientMessage(new TextComponent("All module slots occupied!"), true);
+					return InteractionResult.SUCCESS;
+				}
+			}
+
+			PipeModule module = new PipeModule();
+			module.pipe = this;
+			module.moduleItem = ItemHandlerHelper.copyStackWithSize(stack, 1);
+			module.side = side;
+
+			if (!module.canInsert(player, hand)) {
+				player.displayClientMessage(new TextComponent("Module slot already occupied!"), true);
+				return InteractionResult.SUCCESS;
+			}
+
+			modules[module.side.get3DDataValue()] = module;
+			module.onInserted(player, hand);
+			stack.shrink(1);
+			clearCache();
+			getConnections();
+			setChanged();
+			return InteractionResult.SUCCESS;
+		}
+
+		return InteractionResult.PASS;
 	}
 }

@@ -17,14 +17,14 @@ public class ModuleEnergyOutput extends ModuleEnergy {
 
 	@Override
 	public void updateModule() {
-		if (pipe.storedPower > 0) {
+		if (pipe.storedEnergy > 0) {
 			IEnergyStorage storage = getFacingEnergyStorage();
 
 			if (storage != null) {
-				int a = storage.receiveEnergy(Math.min(240, pipe.storedPower), false);
+				int a = storage.receiveEnergy(Math.min(240, pipe.storedEnergy), false);
 
 				if (a > 0) {
-					pipe.storedPower -= a;
+					pipe.storedEnergy -= a;
 					pipe.setChanged();
 					pipe.sync = false;
 					hasMovedEnergy = true;

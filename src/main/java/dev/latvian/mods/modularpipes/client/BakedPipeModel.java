@@ -2,9 +2,7 @@ package dev.latvian.mods.modularpipes.client;
 
 import dev.latvian.mods.modularpipes.ModularPipesUtils;
 import dev.latvian.mods.modularpipes.block.BasePipeBlock;
-import dev.latvian.mods.modularpipes.block.entity.BaseModularPipeBlockEntity;
 import dev.latvian.mods.modularpipes.block.entity.BasePipeBlockEntity;
-import dev.latvian.mods.modularpipes.item.module.PipeModule;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.RenderType;
@@ -107,17 +105,28 @@ public class BakedPipeModel implements IDynamicBakedModel {
 			return Collections.emptyList();
 		}
 
+		List<BakedQuad> extraQuads = null;
 		int connections = 0;
 
-		for (Direction facing : Direction.values()) {
-			if (pipe.isConnected(facing)) {
-				connections |= 1 << facing.get3DDataValue();
+		for (int i = 0; i < 6; i++) {
+			int c = pipe.getConnection(i);
+
+			if (c > 0) {
+				connections |= 1 << i;
+
+				if (c == 2) {
+					if (extraQuads == null) {
+						extraQuads = new ArrayList<>();
+					}
+
+					extraQuads.addAll(module.get(i));
+				}
 			}
 		}
 
 		int baseIndex = 0;
 
-		if (pipe.getTier().maxModules == 0) {
+		if (extraQuads == null && pipe.getTier().maxModules == 0) {
 			switch (connections) {
 				case 0b110000:
 					baseIndex = 1;
@@ -128,30 +137,6 @@ public class BakedPipeModel implements IDynamicBakedModel {
 				case 0b001100:
 					baseIndex = 3;
 					break;
-			}
-		}
-
-		List<BakedQuad> extraQuads = null;
-
-		if (pipe instanceof BaseModularPipeBlockEntity) {
-			int[] modules = new int[6];
-
-			for (PipeModule module : ((BaseModularPipeBlockEntity) pipe).modules) {
-				for (int i = 0; i < 6; i++) {
-					if (module.isConnected(Direction.values()[i])) {
-						modules[i]++;
-					}
-				}
-			}
-
-			for (int i = 0; i < 6; i++) {
-				if (modules[i] > 0) {
-					if (extraQuads == null) {
-						extraQuads = new ArrayList<>();
-					}
-
-					extraQuads.addAll(module.get(i));
-				}
 			}
 		}
 

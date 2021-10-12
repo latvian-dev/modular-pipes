@@ -1,6 +1,6 @@
 package dev.latvian.mods.modularpipes.item.module.fluid;
 
-import dev.latvian.mods.modularpipes.item.module.SidedPipeModule;
+import dev.latvian.mods.modularpipes.item.module.PipeModule;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @author LatvianModder
  */
-public class FluidHandlerModule extends SidedPipeModule implements IFluidHandler {
+public class FluidHandlerModule extends PipeModule implements IFluidHandler {
 	@Override
 	public int getTanks() {
 		return 1;

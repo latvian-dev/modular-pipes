@@ -1,7 +1,7 @@
 package dev.latvian.mods.modularpipes.item.module.energy;
 
 import dev.latvian.mods.modularpipes.ModularPipesConfig;
-import dev.latvian.mods.modularpipes.item.module.SidedPipeModule;
+import dev.latvian.mods.modularpipes.item.module.PipeModule;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.Capability;
@@ -15,7 +15,7 @@ import java.util.Optional;
 /**
  * @author LatvianModder
  */
-public class ModuleEnergy extends SidedPipeModule implements IEnergyStorage {
+public class ModuleEnergy extends PipeModule implements IEnergyStorage {
 	private Optional<IEnergyStorage> cachedEnergyStorage = null;
 
 	@Override
@@ -51,7 +51,7 @@ public class ModuleEnergy extends SidedPipeModule implements IEnergyStorage {
 
 	@Override
 	public int getEnergyStored() {
-		return pipe == null ? 0 : pipe.storedPower;
+		return pipe == null ? 0 : pipe.storedEnergy;
 	}
 
 	@Override

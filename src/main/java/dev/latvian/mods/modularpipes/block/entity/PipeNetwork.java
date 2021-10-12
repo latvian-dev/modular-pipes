@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
@@ -64,7 +65,7 @@ public class PipeNetwork implements ICapabilityProvider {
 	}
 
 	public final Level world;
-	public final List<BaseModularPipeBlockEntity> pipes = new ArrayList<>();
+	public final List<ModularPipeBlockEntity> pipes = new ArrayList<>();
 	protected LazyOptional<?> thisOptional = LazyOptional.of(() -> this);
 	private boolean refresh = true;
 
@@ -88,12 +89,15 @@ public class PipeNetwork implements ICapabilityProvider {
 	}
 
 	public void tick() {
+		ProfilerFiller profiler = world.getProfiler();
+		profiler.push("ModularPipes");
+
 		if (refresh) {
 			pipes.clear();
 
 			for (BlockEntity tileEntity : world.blockEntityList) {
-				if (!tileEntity.isRemoved() && tileEntity instanceof BaseModularPipeBlockEntity) {
-					pipes.add((BaseModularPipeBlockEntity) tileEntity);
+				if (!tileEntity.isRemoved() && tileEntity instanceof ModularPipeBlockEntity) {
+					pipes.add((ModularPipeBlockEntity) tileEntity);
 				}
 			}
 
@@ -104,17 +108,29 @@ public class PipeNetwork implements ICapabilityProvider {
 			refresh = false;
 		}
 
-		for (BaseModularPipeBlockEntity pipe : pipes) {
-			for (PipeItem item : pipe.items) {
-				item.prevPos = item.pos;
-				pipe.moveItem(item);
+		if (!pipes.isEmpty()) {
+			profiler.push("ItemMoving");
+
+			for (ModularPipeBlockEntity pipe : pipes) {
+				if (!pipe.items.isEmpty()) {
+					for (PipeItem item : pipe.items) {
+						item.prevPos = item.pos;
+						pipe.moveItem(item);
+					}
+				}
 			}
+
+			profiler.popPush("PipeTick");
+
+			for (ModularPipeBlockEntity pipe : pipes) {
+				pipe.tickPipe();
+				pipe.sendUpdates();
+			}
+
+			profiler.pop();
 		}
 
-		for (BaseModularPipeBlockEntity pipe : pipes) {
-			pipe.tickPipe();
-			pipe.sendUpdates();
-		}
+		profiler.pop();
 	}
 
 	private boolean shouldRender() {
@@ -122,7 +138,7 @@ public class PipeNetwork implements ICapabilityProvider {
 			return false;
 		}
 
-		for (BaseModularPipeBlockEntity pipe : pipes) {
+		for (ModularPipeBlockEntity pipe : pipes) {
 			if (!pipe.items.isEmpty()) {
 				return true;
 			}
@@ -156,7 +172,7 @@ public class PipeNetwork implements ICapabilityProvider {
 		RenderSystem.disableLighting();
 		Lighting.setupFor3DItems();
 
-		for (BaseModularPipeBlockEntity pipe : pipes) {
+		for (ModularPipeBlockEntity pipe : pipes) {
 			if (pipe.items.isEmpty()) {
 				continue;
 			}

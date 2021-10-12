@@ -1,6 +1,6 @@
 package dev.latvian.mods.modularpipes.item.module.item;
 
-import dev.latvian.mods.modularpipes.item.module.SidedPipeModule;
+import dev.latvian.mods.modularpipes.item.module.PipeModule;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.InteractionHand;
@@ -17,7 +17,7 @@ import java.util.Comparator;
 /**
  * @author LatvianModder
  */
-public class ItemStorageModule extends SidedPipeModule {
+public class ItemStorageModule extends PipeModule {
 	public static final Comparator<ItemStorageModule> COMPARATOR = (o1, o2) ->
 	{
 		int i = Integer.compare(o2.priority, o1.priority);
@@ -38,24 +38,24 @@ public class ItemStorageModule extends SidedPipeModule {
 		super.writeData(nbt);
 
 		if (!filter.isEmpty()) {
-			nbt.put("filter", filter.serializeNBT());
+			nbt.put("Filter", filter.serializeNBT());
 		}
 
 		if (priority != 0) {
-			nbt.putInt("priority", priority);
+			nbt.putInt("Priority", priority);
 		}
 	}
 
 	@Override
 	public void readData(CompoundTag nbt) {
 		super.readData(nbt);
-		filter = ItemStack.of(nbt.getCompound("filter"));
+		filter = ItemStack.of(nbt.getCompound("Filter"));
 
 		if (filter.isEmpty()) {
 			filter = ItemStack.EMPTY;
 		}
 
-		priority = nbt.getInt("priority");
+		priority = nbt.getInt("Priority");
 	}
 
 	@Override

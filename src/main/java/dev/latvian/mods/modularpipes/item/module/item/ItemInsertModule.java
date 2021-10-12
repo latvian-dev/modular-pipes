@@ -2,13 +2,9 @@ package dev.latvian.mods.modularpipes.item.module.item;
 
 import dev.latvian.mods.itemfilters.api.ItemFiltersAPI;
 import dev.latvian.mods.modularpipes.ModularPipesCommon;
-import dev.latvian.mods.modularpipes.block.entity.BaseModularPipeBlockEntity;
+import dev.latvian.mods.modularpipes.block.entity.ModularPipeBlockEntity;
 import dev.latvian.mods.modularpipes.item.module.PipeModule;
-import dev.latvian.mods.modularpipes.item.module.SidedPipeModule;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -21,8 +17,7 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public class ItemInsertModule extends SidedPipeModule {
-	public ItemStack filter = ItemStack.EMPTY;
+public class ItemInsertModule extends ItemHandlerModule {
 	public int tick = 0;
 	private List<ItemStorageModule> storageModules = null;
 
@@ -31,31 +26,22 @@ public class ItemInsertModule extends SidedPipeModule {
 		super.writeData(nbt);
 
 		if (tick > 0) {
-			nbt.putByte("tick", (byte) tick);
-		}
-
-		if (!filter.isEmpty()) {
-			nbt.put("filter", filter.serializeNBT());
+			nbt.putByte("Tick", (byte) tick);
 		}
 	}
 
 	@Override
 	public void readData(CompoundTag nbt) {
 		super.readData(nbt);
-		tick = nbt.getByte("tick");
-
-		filter = ItemStack.of(nbt.getCompound("filter"));
-
-		if (filter.isEmpty()) {
-			filter = ItemStack.EMPTY;
-		}
+		tick = nbt.getByte("Tick");
 	}
 
+	@Override
 	public List<ItemStorageModule> getStorageModules() {
 		if (storageModules == null) {
 			storageModules = new ArrayList<>(2);
 
-			for (BaseModularPipeBlockEntity pipe1 : pipe.getPipeNetwork()) {
+			for (ModularPipeBlockEntity pipe1 : pipe.getPipeNetwork()) {
 				for (PipeModule module : pipe1.modules) {
 					if (module instanceof ItemStorageModule) {
 						storageModules.add((ItemStorageModule) module);
@@ -125,26 +111,5 @@ public class ItemInsertModule extends SidedPipeModule {
 		}
 
 		return false;
-	}
-
-	@Override
-	public boolean onModuleRightClick(Player player, InteractionHand hand) {
-		ItemStack stack = player.getItemInHand(hand);
-
-		if (stack.isEmpty()) {
-			if (!player.level.isClientSide()) {
-				player.displayClientMessage(new TextComponent("Filter: " + filter.getDisplayName()), true); //LANG
-			}
-		} else {
-			filter = ItemHandlerHelper.copyStackWithSize(stack, 1);
-			pipe.setChanged();
-
-			if (!player.level.isClientSide()) {
-				player.displayClientMessage(new TextComponent("Filter changed to " + filter.getDisplayName()), true); //LANG
-				refreshNetwork();
-			}
-		}
-
-		return true;
 	}
 }

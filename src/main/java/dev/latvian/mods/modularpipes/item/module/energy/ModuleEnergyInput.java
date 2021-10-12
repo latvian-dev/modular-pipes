@@ -12,10 +12,10 @@ public class ModuleEnergyInput extends ModuleEnergy {
 			return 0;
 		}
 
-		int a = Math.min(Math.min(maxReceive, 80), ModularPipesConfig.pipes.max_energy_stored - pipe.storedPower);
+		int a = Math.min(Math.min(maxReceive, 80), ModularPipesConfig.pipes.max_energy_stored - pipe.storedEnergy);
 
 		if (a > 0 && !simulate) {
-			pipe.storedPower += a;
+			pipe.storedEnergy += a;
 			pipe.setChanged();
 			pipe.sync = false;
 		}

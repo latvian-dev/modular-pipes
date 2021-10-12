@@ -1,6 +1,6 @@
 package dev.latvian.mods.modularpipes.item.module;
 
-import dev.latvian.mods.modularpipes.block.entity.BaseModularPipeBlockEntity;
+import dev.latvian.mods.modularpipes.block.entity.ModularPipeBlockEntity;
 import dev.latvian.mods.modularpipes.block.entity.PipeNetwork;
 import dev.latvian.mods.modularpipes.net.ModularPipesNet;
 import dev.latvian.mods.modularpipes.net.ParticleMessage;
@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -16,6 +17,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.network.PacketDistributor;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 /**
  * @author LatvianModder
@@ -24,21 +26,26 @@ public class PipeModule implements ICapabilityProvider {
 	@CapabilityInject(PipeModule.class)
 	public static Capability<PipeModule> CAP;
 
-	public BaseModularPipeBlockEntity pipe = null;
+	public ModularPipeBlockEntity pipe = null;
 	public ItemStack moduleItem = ItemStack.EMPTY;
+	public Direction side = Direction.DOWN;
+
+	private Optional<BlockEntity> cachedEntity = Optional.empty();
 	protected LazyOptional<?> thisOptional = LazyOptional.of(() -> this);
 
 	public void writeData(CompoundTag nbt) {
+		nbt.putByte("Side", (byte) side.get3DDataValue());
 	}
 
 	public void readData(CompoundTag nbt) {
+		side = Direction.from3DDataValue(nbt.getByte("Side"));
 	}
 
-	public boolean canInsert(Player player, @Nullable Direction facing) {
+	public boolean canInsert(Player player, InteractionHand hand) {
 		return true;
 	}
 
-	public void onInserted(Player player, @Nullable Direction facing) {
+	public void onInserted(Player player, InteractionHand hand) {
 	}
 
 	public boolean canRemove(Player player) {
@@ -59,13 +66,10 @@ public class PipeModule implements ICapabilityProvider {
 	}
 
 	public void clearCache() {
+		cachedEntity = Optional.empty();
 	}
 
 	public boolean onModuleRightClick(Player player, InteractionHand hand) {
-		return false;
-	}
-
-	public boolean isConnected(Direction facing) {
 		return false;
 	}
 
@@ -86,11 +90,20 @@ public class PipeModule implements ICapabilityProvider {
 		return moduleItem.getItem().getRegistryName() + (nbt.isEmpty() ? "" : ("+" + nbt));
 	}
 
+	@Nullable
+	public BlockEntity getFacingTile() {
+		if (!cachedEntity.isPresent()) {
+			cachedEntity = Optional.ofNullable(pipe == null || side == null || !pipe.hasLevel() ? null : pipe.getLevel().getBlockEntity(pipe.getBlockPos().relative(side)));
+		}
+
+		return cachedEntity.orElse(null);
+	}
+
 	public void spawnParticle(int type) {
 		if (pipe.hasLevel() && !pipe.getLevel().isClientSide()) {
-			double x = pipe.getBlockPos().getX() + 0.5D;
-			double y = pipe.getBlockPos().getY() + 0.5D;
-			double z = pipe.getBlockPos().getZ() + 0.5D;
+			double x = pipe.getBlockPos().getX() + 0.5D + (side == null ? 0D : side.getStepX() * 0.3D);
+			double y = pipe.getBlockPos().getY() + 0.5D + (side == null ? 0D : side.getStepY() * 0.3D);
+			double z = pipe.getBlockPos().getZ() + 0.5D + (side == null ? 0D : side.getStepZ() * 0.3D);
 			ModularPipesNet.NET.send(PacketDistributor.NEAR.with(PacketDistributor.TargetPoint.p(x, y, z, 24, pipe.getLevel().dimension())), new ParticleMessage(pipe.getBlockPos(), null, type));
 		}
 	}
