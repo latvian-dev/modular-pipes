@@ -30,30 +30,40 @@ import java.util.Random;
  * @author LatvianModder
  */
 public class BakedPipeModel implements IDynamicBakedModel {
-	public final PipeModelGeometry pipeModelGeometry;
+	public final PipeModelGeometry geometry;
 	public final TextureAtlasSprite particle;
 	public final PipeModelGeometry.ModelCallback modelCallback;
-	public final Int2ObjectOpenHashMap<List<List<BakedQuad>>> base, connection;
-	public final List<List<BakedQuad>> glassBase, glassConnection, module;
+	public final List<List<BakedQuad>> base, connection, glassBase, glassConnection, module;
 	public final List<BakedQuad> overlay;
-	private final Int2ObjectOpenHashMap<Int2ObjectOpenHashMap<List<BakedQuad>>> cache;
+	private final Int2ObjectOpenHashMap<List<BakedQuad>> solidCache;
+	private final Int2ObjectOpenHashMap<List<BakedQuad>> cutoutCache;
 	private final BakedModel bakedItem;
 	private final ItemOverrides itemOverrideList;
 
 	public BakedPipeModel(PipeModelGeometry m, TextureAtlasSprite p, PipeModelGeometry.ModelCallback c) {
-		pipeModelGeometry = m;
+		geometry = m;
 		particle = p;
 		modelCallback = c;
 		BakedModel itemModel = c.getModel(m.modelItem, BlockModelRotation.X0_Y0, true);
 
-		base = new Int2ObjectOpenHashMap<>();
+		base = new ArrayList<>(4);
+		base.add(modelCallback.get(geometry.modelBase, BlockModelRotation.X0_Y0, true));
+		base.add(modelCallback.get(geometry.modelVertical, BlockModelRotation.X90_Y90, true));
+		base.add(modelCallback.get(geometry.modelVertical, BlockModelRotation.X0_Y0, true));
+		base.add(modelCallback.get(geometry.modelVertical, BlockModelRotation.X90_Y0, true));
+
+		connection = new ArrayList<>(6);
+
+		for (int i = 0; i < 6; i++) {
+			connection.add(modelCallback.get(geometry.modelConnection, PipeModelGeometry.FACE_ROTATIONS[i], true));
+		}
+
 		glassBase = new ArrayList<>(4);
 		glassBase.add(c.get(m.modelGlassBase, BlockModelRotation.X0_Y0, true));
 		glassBase.add(c.get(m.modelGlassVertical, BlockModelRotation.X90_Y90, true));
 		glassBase.add(c.get(m.modelGlassVertical, BlockModelRotation.X0_Y0, true));
 		glassBase.add(c.get(m.modelGlassVertical, BlockModelRotation.X90_Y0, true));
 
-		connection = new Int2ObjectOpenHashMap<>();
 		glassConnection = new ArrayList<>(6);
 
 		for (int i = 0; i < 6; i++) {
@@ -68,7 +78,8 @@ public class BakedPipeModel implements IDynamicBakedModel {
 
 		overlay = m.modelOverlay == null ? Collections.emptyList() : c.get(m.modelOverlay, BlockModelRotation.X0_Y0, true);
 
-		cache = new Int2ObjectOpenHashMap<>();
+		solidCache = new Int2ObjectOpenHashMap<>();
+		cutoutCache = new Int2ObjectOpenHashMap<>();
 
 		bakedItem = new BakedPipeItemModel(this, itemModel.getTransforms(), ModularPipesUtils.combineAndOptimize(itemModel.getQuads(null, null, new Random()), overlay));
 
@@ -95,6 +106,12 @@ public class BakedPipeModel implements IDynamicBakedModel {
 			return Collections.emptyList();
 		}
 
+		boolean fancy = geometry.fancyModel;
+
+		if (cutout == 1 && ModularPipesClientConfig.removePipeGlass && fancy) {
+			return Collections.emptyList();
+		}
+
 		BasePipeBlockEntity pipe = null;
 
 		if (extraData.hasProperty(BasePipeBlock.PIPE)) {
@@ -105,16 +122,33 @@ public class BakedPipeModel implements IDynamicBakedModel {
 			return Collections.emptyList();
 		}
 
+		if (!fancy && cutout == 0) {
+			return Collections.emptyList();
+		}
+
+		// check for cover block here and return it in future
+
+		int connections = pipe.getConnections();
+		List<BakedQuad> quads = (cutout == 1 ? cutoutCache : solidCache).get(connections);
+
+		if (quads != null) {
+			return quads;
+		}
+
+		quads = new ArrayList<>();
+
+		int baseIndex = 0;
+
 		List<BakedQuad> extraQuads = null;
-		int connections = 0;
+		int nconnections = 0;
 
 		for (int i = 0; i < 6; i++) {
 			int c = pipe.getConnection(i);
 
 			if (c > 0) {
-				connections |= 1 << i;
+				nconnections |= 1 << i;
 
-				if (c == 2) {
+				if (c == 2 && cutout == 1) {
 					if (extraQuads == null) {
 						extraQuads = new ArrayList<>();
 					}
@@ -124,10 +158,8 @@ public class BakedPipeModel implements IDynamicBakedModel {
 			}
 		}
 
-		int baseIndex = 0;
-
-		if (extraQuads == null && pipe.getTier().maxModules == 0) {
-			switch (connections) {
+		if (pipe.getTier().maxModules == 0) {
+			switch (nconnections) {
 				case 0b110000:
 					baseIndex = 1;
 					break;
@@ -140,50 +172,13 @@ public class BakedPipeModel implements IDynamicBakedModel {
 			}
 		}
 
-		int paint = 0; // TODO: Remove
-
-		Int2ObjectOpenHashMap<List<BakedQuad>> cacheMap = cache.get(paint);
-
-		if (cacheMap == null) {
-			cacheMap = new Int2ObjectOpenHashMap<>();
-			cache.put(paint, cacheMap);
-			List<List<BakedQuad>> base1 = new ArrayList<>(4);
-			base1.add(modelCallback.get(pipeModelGeometry.modelBase, BlockModelRotation.X0_Y0, true));
-			base1.add(modelCallback.get(pipeModelGeometry.modelVertical, BlockModelRotation.X90_Y90, true));
-			base1.add(modelCallback.get(pipeModelGeometry.modelVertical, BlockModelRotation.X0_Y0, true));
-			base1.add(modelCallback.get(pipeModelGeometry.modelVertical, BlockModelRotation.X90_Y0, true));
-			base.put(paint, base1);
-
-			List<List<BakedQuad>> connection1 = new ArrayList<>(6);
-
-			for (int i = 0; i < 6; i++) {
-				connection1.add(modelCallback.get(pipeModelGeometry.modelConnection, PipeModelGeometry.FACE_ROTATIONS[i], true));
-			}
-
-			connection.put(paint, connection1);
-		}
-
-		int cacheIndex = connections | ((cutout == 1 ? 1 : 0) << 6);
-
-		List<BakedQuad> quads = cacheMap.get(cacheIndex);
-
-		if (quads != null) {
-			if (extraQuads != null) {
-				return ModularPipesUtils.combineAndOptimize(quads, extraQuads);
-			}
-
-			return quads;
-		}
-
-		quads = new ArrayList<>();
-
-		if (cutout == 0) {
-			quads.addAll(base.get(paint).get(baseIndex));
+		if (cutout == 0 || !fancy) {
+			quads.addAll(base.get(baseIndex));
 
 			if (baseIndex == 0) {
 				for (int i = 0; i < 6; i++) {
-					if ((connections & (1 << i)) != 0) {
-						quads.addAll(connection.get(paint).get(i));
+					if ((nconnections & (1 << i)) != 0) {
+						quads.addAll(connection.get(i));
 					}
 				}
 			}
@@ -194,20 +189,15 @@ public class BakedPipeModel implements IDynamicBakedModel {
 
 			if (baseIndex == 0) {
 				for (int i = 0; i < 6; i++) {
-					if ((connections & (1 << i)) != 0) {
+					if ((nconnections & (1 << i)) != 0) {
 						quads.addAll(glassConnection.get(i));
 					}
 				}
 			}
 		}
 
-		quads = ModularPipesUtils.optimize(quads);
-		cacheMap.put(cacheIndex, quads);
-
-		if (extraQuads != null) {
-			return ModularPipesUtils.combineAndOptimize(quads, extraQuads);
-		}
-
+		quads = ModularPipesUtils.combineAndOptimize(quads, extraQuads);
+		(cutout == 1 ? cutoutCache : solidCache).put(connections, quads);
 		return quads;
 	}
 

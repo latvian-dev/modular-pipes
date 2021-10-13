@@ -29,7 +29,7 @@ import java.util.List;
  * @author LatvianModder
  */
 public abstract class BasePipeBlockEntity extends BlockEntity {
-	public boolean sync = false;
+	private boolean sync = false;
 	public boolean invisible = false;
 	private boolean changed = false;
 	public List<PipeItem> items = new ArrayList<>(0);
@@ -115,7 +115,12 @@ public abstract class BasePipeBlockEntity extends BlockEntity {
 
 	@Override
 	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
+		int c0 = connections;
 		readData(packet.getTag());
+
+		if (c0 != connections) {
+			sync();
+		}
 	}
 
 	@Nonnull
@@ -175,6 +180,10 @@ public abstract class BasePipeBlockEntity extends BlockEntity {
 	@Override
 	public void setChanged() {
 		changed = true;
+	}
+
+	public void sync() {
+		setChanged();
 		sync = true;
 	}
 
@@ -182,7 +191,7 @@ public abstract class BasePipeBlockEntity extends BlockEntity {
 		if (changed) {
 			level.blockEntityChanged(worldPosition, this);
 
-			if (!level.isClientSide() && sync) {
+			if (sync) {
 				BlockState state = level.getBlockState(worldPosition);
 				level.sendBlockUpdated(worldPosition, state, state, 11);
 			}
@@ -217,7 +226,7 @@ public abstract class BasePipeBlockEntity extends BlockEntity {
 				connections |= (updateConnection(face) & 3) << (face * 2);
 			}
 
-			setChanged();
+			sync();
 		}
 
 		return connections;

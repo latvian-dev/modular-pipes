@@ -1,0 +1,36 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "#material"
+	},
+	"elements": [
+		{
+			"name": "cube1",
+			"from": [
+				4,
+				0,
+				4
+			],
+			"to": [
+				12,
+				16,
+				12
+			],
+			"color": 4,
+			"faces": {
+				"north": {
+					"texture": "#material"
+				},
+				"east": {
+					"texture": "#material"
+				},
+				"south": {
+					"texture": "#material"
+				},
+				"west": {
+					"texture": "#material"
+				}
+			}
+		}
+	]
+}

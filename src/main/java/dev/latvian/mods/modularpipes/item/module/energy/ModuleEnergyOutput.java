@@ -26,7 +26,6 @@ public class ModuleEnergyOutput extends ModuleEnergy {
 				if (a > 0) {
 					pipe.storedEnergy -= a;
 					pipe.setChanged();
-					pipe.sync = false;
 					hasMovedEnergy = true;
 				}
 			}

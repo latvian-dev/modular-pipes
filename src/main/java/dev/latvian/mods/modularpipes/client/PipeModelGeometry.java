@@ -44,6 +44,7 @@ public class PipeModelGeometry implements IModelGeometry<PipeModelGeometry> {
 		}
 	}
 
+	public boolean fancyModel;
 	public Material material;
 	public List<UnbakedModel> models = new ArrayList<>(7);
 	public UnbakedModel modelItem;

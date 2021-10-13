@@ -139,11 +139,9 @@ public class ModularPipeBlockEntity extends BasePipeBlockEntity {
 
 					storedEnergy = a;
 					setChanged();
-					sync = false;
 
 					pipe.storedEnergy = a;
 					pipe.setChanged();
-					pipe.sync = false;
 				}
 			}
 
@@ -204,7 +202,6 @@ public class ModularPipeBlockEntity extends BasePipeBlockEntity {
 
 		if (items.removeIf(PipeItem.IS_DEAD)) {
 			setChanged();
-			sync = false;
 		}
 	}
 
@@ -353,7 +350,7 @@ public class ModularPipeBlockEntity extends BasePipeBlockEntity {
 			stack.shrink(1);
 			clearCache();
 			getConnections();
-			setChanged();
+			sync();
 			return InteractionResult.SUCCESS;
 		}
 

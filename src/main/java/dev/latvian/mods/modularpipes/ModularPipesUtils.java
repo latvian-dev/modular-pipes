@@ -1,5 +1,7 @@
 package dev.latvian.mods.modularpipes;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -9,8 +11,8 @@ import java.util.List;
  */
 public class ModularPipesUtils {
 	@SuppressWarnings("unchecked")
-	public static <E> List<E> optimize(List<E> list) {
-		if (list.isEmpty()) {
+	public static <E> List<E> optimize(@Nullable List<E> list) {
+		if (list == null || list.isEmpty()) {
 			return Collections.emptyList();
 		} else if (list.size() == 1) {
 			return Collections.singletonList(list.get(0));
@@ -20,10 +22,10 @@ public class ModularPipesUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <E> List<E> combineAndOptimize(List<E> a, List<E> b) {
-		if (a.isEmpty()) {
+	public static <E> List<E> combineAndOptimize(@Nullable List<E> a, @Nullable List<E> b) {
+		if (a == null || a.isEmpty()) {
 			return optimize(b);
-		} else if (b.isEmpty()) {
+		} else if (b == null || b.isEmpty()) {
 			return optimize(a);
 		}
 

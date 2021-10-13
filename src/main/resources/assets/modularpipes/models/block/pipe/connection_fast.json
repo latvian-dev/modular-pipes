@@ -1,0 +1,36 @@
+{
+	"parent": "block/block",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"particle": "#material"
+	},
+	"elements": [
+		{
+			"name": "pipe1",
+			"from": [
+				4,
+				0,
+				4
+			],
+			"to": [
+				12,
+				4,
+				12
+			],
+			"faces": {
+				"north": {
+					"texture": "#material"
+				},
+				"east": {
+					"texture": "#material"
+				},
+				"south": {
+					"texture": "#material"
+				},
+				"west": {
+					"texture": "#material"
+				}
+			}
+		}
+	]
+}
