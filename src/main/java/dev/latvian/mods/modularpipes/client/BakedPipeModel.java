@@ -106,11 +106,11 @@ public class BakedPipeModel implements IDynamicBakedModel {
 	public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData extraData) {
 		RenderType layer = MinecraftForgeClient.getRenderLayer();
 
-		if (layer == RenderType.cutout()) {
+		if (layer == RenderType.cutoutMipped()) {
 			return overlay;
 		}
 
-		if (state == null || side != null || layer != RenderType.cutoutMipped()) {
+		if (state == null || side != null || layer != RenderType.cutout()) {
 			return Collections.emptyList();
 		}
 

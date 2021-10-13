@@ -39,7 +39,7 @@ import java.util.List;
  * @author LatvianModder
  */
 public class BasePipeBlock extends Block implements SimpleWaterloggedBlock {
-	public static final double SIZE = 4D - 1D / 32D;
+	public static final double SIZE = 4D;
 	private static final VoxelShape[] BOXES_64 = new VoxelShape[1 << 6];
 	public static final ModelProperty<BasePipeBlockEntity> PIPE = new ModelProperty<>();
 
