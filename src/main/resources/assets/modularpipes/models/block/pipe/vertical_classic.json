@@ -1,12 +1,16 @@
 {
-	"parent": "block/block",
 	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"texture_size": [
+		32,
+		32
+	],
 	"textures": {
 		"particle": "#material"
 	},
 	"elements": [
 		{
-			"name": "pipe1",
+			"name": "core",
 			"from": [
 				4,
 				0,
@@ -14,20 +18,44 @@
 			],
 			"to": [
 				12,
-				4,
+				16,
 				12
 			],
 			"faces": {
 				"north": {
+					"uv": [
+						10,
+						0,
+						14,
+						8
+					],
 					"texture": "#material"
 				},
 				"east": {
+					"uv": [
+						10,
+						0,
+						14,
+						8
+					],
 					"texture": "#material"
 				},
 				"south": {
+					"uv": [
+						10,
+						0,
+						14,
+						8
+					],
 					"texture": "#material"
 				},
 				"west": {
+					"uv": [
+						10,
+						0,
+						14,
+						8
+					],
 					"texture": "#material"
 				}
 			}

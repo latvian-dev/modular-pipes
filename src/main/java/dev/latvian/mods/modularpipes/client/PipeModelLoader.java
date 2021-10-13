@@ -44,26 +44,28 @@ public class PipeModelLoader implements IModelLoader<PipeModelGeometry> {
 		return ModularPipes.MOD_ID + ":block/pipe/" + path;
 	}
 
-	private String pathOrFast(PipeModelGeometry m, String path) {
-		return m.fancyModel ? path(path) : path(path + "_fast");
+	private String pathFromType(PipeModelGeometry m, String path) {
+		return path(path + "_" + m.modelType.name);
 	}
 
 	@Override
 	public PipeModelGeometry read(JsonDeserializationContext context, JsonObject json) {
-		ModularPipesClientConfig.fancyModel = false;
-
 		String material = json.get("material").getAsString();
 		PipeModelGeometry m = new PipeModelGeometry();
-		m.fancyModel = ModularPipesClientConfig.fancyModel;
+		m.modelType = ModularPipesClientConfig.modelType;
+		m.pipeGlass = ModularPipesClientConfig.pipeGlass;
 		m.material = new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(material));
-		m.models.add(m.modelItem = createUnbakedModel(context, pathOrFast(m, "item"), material));
-		m.models.add(m.modelBase = createUnbakedModel(context, pathOrFast(m, "base"), material));
-		m.models.add(m.modelConnection = createUnbakedModel(context, pathOrFast(m, "connection"), material));
-		m.models.add(m.modelVertical = createUnbakedModel(context, pathOrFast(m, "vertical"), material));
+
+		m.models.add(m.modelBase = createUnbakedModel(context, pathFromType(m, "base"), material));
+		m.models.add(m.modelConnection = createUnbakedModel(context, pathFromType(m, "connection"), material));
+		m.models.add(m.modelVertical = createUnbakedModel(context, pathFromType(m, "vertical"), material));
 		m.models.add(m.modelModule = createUnbakedModel(context, path("module"), material));
-		m.models.add(m.modelGlassBase = createUnbakedModel(context, path("glass_base"), material));
-		m.models.add(m.modelGlassConnection = createUnbakedModel(context, path("glass_connection"), material));
-		m.models.add(m.modelGlassVertical = createUnbakedModel(context, path("glass_vertical"), material));
+
+		if (m.pipeGlass) {
+			m.models.add(m.modelGlassBase = createUnbakedModel(context, path("glass_base"), material));
+			m.models.add(m.modelGlassConnection = createUnbakedModel(context, path("glass_connection"), material));
+			m.models.add(m.modelGlassVertical = createUnbakedModel(context, path("glass_vertical"), material));
+		}
 
 		if (json.has("overlay")) {
 			m.models.add(m.modelOverlay = createUnbakedModel(context, path("overlay"), material, json.get("overlay").getAsString()));

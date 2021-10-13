@@ -10,7 +10,7 @@ public class ModularPipesClientConfig {
 
 	public static boolean addAllTanks = false;
 
-	public static boolean fancyModel = false;
+	public static PipeModelType modelType = PipeModelType.FANCY;
 
-	public static boolean removePipeGlass = false;
+	public static boolean pipeGlass = true;
 }

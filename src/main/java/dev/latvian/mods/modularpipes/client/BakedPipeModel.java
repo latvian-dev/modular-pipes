@@ -32,56 +32,66 @@ import java.util.Random;
 public class BakedPipeModel implements IDynamicBakedModel {
 	public final PipeModelGeometry geometry;
 	public final TextureAtlasSprite particle;
-	public final PipeModelGeometry.ModelCallback modelCallback;
 	public final List<List<BakedQuad>> base, connection, glassBase, glassConnection, module;
 	public final List<BakedQuad> overlay;
-	private final Int2ObjectOpenHashMap<List<BakedQuad>> solidCache;
-	private final Int2ObjectOpenHashMap<List<BakedQuad>> cutoutCache;
+	private final Int2ObjectOpenHashMap<List<BakedQuad>> cache;
 	private final BakedModel bakedItem;
 	private final ItemOverrides itemOverrideList;
 
-	public BakedPipeModel(PipeModelGeometry m, TextureAtlasSprite p, PipeModelGeometry.ModelCallback c) {
-		geometry = m;
+	public BakedPipeModel(PipeModelGeometry g, TextureAtlasSprite p, PipeModelGeometry.ModelCallback c) {
+		geometry = g;
 		particle = p;
-		modelCallback = c;
-		BakedModel itemModel = c.getModel(m.modelItem, BlockModelRotation.X0_Y0, true);
+		BakedModel baseModel = c.getModel(geometry.modelBase, BlockModelRotation.X0_Y0, false);
 
 		base = new ArrayList<>(4);
-		base.add(modelCallback.get(geometry.modelBase, BlockModelRotation.X0_Y0, true));
-		base.add(modelCallback.get(geometry.modelVertical, BlockModelRotation.X90_Y90, true));
-		base.add(modelCallback.get(geometry.modelVertical, BlockModelRotation.X0_Y0, true));
-		base.add(modelCallback.get(geometry.modelVertical, BlockModelRotation.X90_Y0, true));
+		base.add(c.get(geometry.modelBase, BlockModelRotation.X0_Y0, false));
+		base.add(c.get(geometry.modelVertical, BlockModelRotation.X90_Y90, false));
+		base.add(c.get(geometry.modelVertical, BlockModelRotation.X0_Y0, false));
+		base.add(c.get(geometry.modelVertical, BlockModelRotation.X90_Y0, false));
 
 		connection = new ArrayList<>(6);
 
 		for (int i = 0; i < 6; i++) {
-			connection.add(modelCallback.get(geometry.modelConnection, PipeModelGeometry.FACE_ROTATIONS[i], true));
+			connection.add(c.get(geometry.modelConnection, PipeModelGeometry.FACE_ROTATIONS[i], false));
 		}
 
-		glassBase = new ArrayList<>(4);
-		glassBase.add(c.get(m.modelGlassBase, BlockModelRotation.X0_Y0, true));
-		glassBase.add(c.get(m.modelGlassVertical, BlockModelRotation.X90_Y90, true));
-		glassBase.add(c.get(m.modelGlassVertical, BlockModelRotation.X0_Y0, true));
-		glassBase.add(c.get(m.modelGlassVertical, BlockModelRotation.X90_Y0, true));
+		if (geometry.pipeGlass) {
+			glassBase = new ArrayList<>(4);
+			glassBase.add(c.get(geometry.modelGlassBase, BlockModelRotation.X0_Y0, true));
+			glassBase.add(c.get(geometry.modelGlassVertical, BlockModelRotation.X90_Y90, true));
+			glassBase.add(c.get(geometry.modelGlassVertical, BlockModelRotation.X0_Y0, true));
+			glassBase.add(c.get(geometry.modelGlassVertical, BlockModelRotation.X90_Y0, true));
 
-		glassConnection = new ArrayList<>(6);
+			glassConnection = new ArrayList<>(6);
 
-		for (int i = 0; i < 6; i++) {
-			glassConnection.add(c.get(m.modelGlassConnection, PipeModelGeometry.FACE_ROTATIONS[i], true));
+			for (int i = 0; i < 6; i++) {
+				glassConnection.add(c.get(geometry.modelGlassConnection, PipeModelGeometry.FACE_ROTATIONS[i], true));
+			}
+		} else {
+			glassBase = Collections.emptyList();
+			glassConnection = Collections.emptyList();
 		}
 
 		module = new ArrayList<>(6);
 
 		for (int i = 0; i < 6; i++) {
-			module.add(c.get(m.modelModule, PipeModelGeometry.FACE_ROTATIONS[i], false));
+			module.add(c.get(geometry.modelModule, PipeModelGeometry.FACE_ROTATIONS[i], false));
 		}
 
-		overlay = m.modelOverlay == null ? Collections.emptyList() : c.get(m.modelOverlay, BlockModelRotation.X0_Y0, true);
+		overlay = geometry.modelOverlay == null ? Collections.emptyList() : c.get(geometry.modelOverlay, BlockModelRotation.X0_Y0, false);
 
-		solidCache = new Int2ObjectOpenHashMap<>();
-		cutoutCache = new Int2ObjectOpenHashMap<>();
+		cache = new Int2ObjectOpenHashMap<>();
 
-		bakedItem = new BakedPipeItemModel(this, itemModel.getTransforms(), ModularPipesUtils.combineAndOptimize(itemModel.getQuads(null, null, new Random()), overlay));
+		List<BakedQuad> bakedItemQuads = new ArrayList<>(base.get(0).size() + (geometry.pipeGlass ? glassBase.get(0).size() : 0) + overlay.size());
+		bakedItemQuads.addAll(base.get(0));
+
+		if (geometry.pipeGlass) {
+			bakedItemQuads.addAll(glassBase.get(0));
+		}
+
+		bakedItemQuads.addAll(overlay);
+
+		bakedItem = new BakedPipeItemModel(this, baseModel.getTransforms(), ModularPipesUtils.optimize(bakedItemQuads));
 
 		itemOverrideList = new ItemOverrides() {
 			@Override
@@ -100,15 +110,7 @@ public class BakedPipeModel implements IDynamicBakedModel {
 			return overlay;
 		}
 
-		int cutout = layer == RenderType.cutoutMipped() ? 1 : layer == RenderType.solid() ? 0 : -1;
-
-		if (state == null || side != null || cutout == -1) {
-			return Collections.emptyList();
-		}
-
-		boolean fancy = geometry.fancyModel;
-
-		if (cutout == 1 && ModularPipesClientConfig.removePipeGlass && fancy) {
+		if (state == null || side != null || layer != RenderType.cutoutMipped()) {
 			return Collections.emptyList();
 		}
 
@@ -122,14 +124,10 @@ public class BakedPipeModel implements IDynamicBakedModel {
 			return Collections.emptyList();
 		}
 
-		if (!fancy && cutout == 0) {
-			return Collections.emptyList();
-		}
-
 		// check for cover block here and return it in future
 
 		int connections = pipe.getConnections();
-		List<BakedQuad> quads = (cutout == 1 ? cutoutCache : solidCache).get(connections);
+		List<BakedQuad> quads = cache.get(connections);
 
 		if (quads != null) {
 			return quads;
@@ -137,10 +135,8 @@ public class BakedPipeModel implements IDynamicBakedModel {
 
 		quads = new ArrayList<>();
 
-		int baseIndex = 0;
-
-		List<BakedQuad> extraQuads = null;
 		int nconnections = 0;
+		int baseIndex = 0;
 
 		for (int i = 0; i < 6; i++) {
 			int c = pipe.getConnection(i);
@@ -148,12 +144,8 @@ public class BakedPipeModel implements IDynamicBakedModel {
 			if (c > 0) {
 				nconnections |= 1 << i;
 
-				if (c == 2 && cutout == 1) {
-					if (extraQuads == null) {
-						extraQuads = new ArrayList<>();
-					}
-
-					extraQuads.addAll(module.get(i));
+				if (c == 2) {
+					quads.addAll(module.get(i));
 				}
 			}
 		}
@@ -172,19 +164,17 @@ public class BakedPipeModel implements IDynamicBakedModel {
 			}
 		}
 
-		if (cutout == 0 || !fancy) {
-			quads.addAll(base.get(baseIndex));
+		quads.addAll(base.get(baseIndex));
 
-			if (baseIndex == 0) {
-				for (int i = 0; i < 6; i++) {
-					if ((nconnections & (1 << i)) != 0) {
-						quads.addAll(connection.get(i));
-					}
+		if (baseIndex == 0) {
+			for (int i = 0; i < 6; i++) {
+				if ((nconnections & (1 << i)) != 0) {
+					quads.addAll(connection.get(i));
 				}
 			}
 		}
 
-		if (cutout == 1) {
+		if (geometry.pipeGlass) {
 			quads.addAll(glassBase.get(baseIndex));
 
 			if (baseIndex == 0) {
@@ -196,8 +186,8 @@ public class BakedPipeModel implements IDynamicBakedModel {
 			}
 		}
 
-		quads = ModularPipesUtils.combineAndOptimize(quads, extraQuads);
-		(cutout == 1 ? cutoutCache : solidCache).put(connections, quads);
+		quads = ModularPipesUtils.optimize(quads);
+		cache.put(connections, quads);
 		return quads;
 	}
 

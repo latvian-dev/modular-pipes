@@ -60,11 +60,11 @@ public class ModularPipesClient extends ModularPipesCommon {
 	}
 
 	public void registerModels(ModelRegistryEvent event) {
-		ItemBlockRenderTypes.setRenderLayer(ModularPipesBlocks.TRANSPORT_PIPE.get(), r -> r == RenderType.solid() || r == RenderType.cutoutMipped());
-		ItemBlockRenderTypes.setRenderLayer(ModularPipesBlocks.FAST_TRANSPORT_PIPE.get(), r -> r == RenderType.solid() || r == RenderType.cutoutMipped());
-		ItemBlockRenderTypes.setRenderLayer(ModularPipesBlocks.MODULAR_PIPE_MK1.get(), r -> r == RenderType.solid() || r == RenderType.cutoutMipped() || r == RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModularPipesBlocks.MODULAR_PIPE_MK2.get(), r -> r == RenderType.solid() || r == RenderType.cutoutMipped() || r == RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModularPipesBlocks.MODULAR_PIPE_MK3.get(), r -> r == RenderType.solid() || r == RenderType.cutoutMipped() || r == RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModularPipesBlocks.TRANSPORT_PIPE.get(), r -> r == RenderType.cutoutMipped());
+		ItemBlockRenderTypes.setRenderLayer(ModularPipesBlocks.FAST_TRANSPORT_PIPE.get(), r -> r == RenderType.cutoutMipped());
+		ItemBlockRenderTypes.setRenderLayer(ModularPipesBlocks.MODULAR_PIPE_MK1.get(), r -> r == RenderType.cutoutMipped() || r == RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModularPipesBlocks.MODULAR_PIPE_MK2.get(), r -> r == RenderType.cutoutMipped() || r == RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModularPipesBlocks.MODULAR_PIPE_MK3.get(), r -> r == RenderType.cutoutMipped() || r == RenderType.cutout());
 		ModelLoaderRegistry.registerLoader(new ResourceLocation(ModularPipes.MOD_ID + ":pipe"), PipeModelLoader.INSTANCE);
 	}
 

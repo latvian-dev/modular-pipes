@@ -44,10 +44,10 @@ public class PipeModelGeometry implements IModelGeometry<PipeModelGeometry> {
 		}
 	}
 
-	public boolean fancyModel;
+	public PipeModelType modelType;
+	public boolean pipeGlass;
 	public Material material;
 	public List<UnbakedModel> models = new ArrayList<>(7);
-	public UnbakedModel modelItem;
 	public UnbakedModel modelBase, modelConnection, modelVertical;
 	public UnbakedModel modelModule;
 	public UnbakedModel modelGlassBase, modelGlassConnection, modelGlassVertical;
