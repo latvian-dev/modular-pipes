@@ -1,8 +1,8 @@
 package dev.latvian.mods.modularpipes.client;
 
 import dev.latvian.mods.modularpipes.ModularPipesUtils;
-import dev.latvian.mods.modularpipes.block.BasePipeBlock;
-import dev.latvian.mods.modularpipes.block.entity.BasePipeBlockEntity;
+import dev.latvian.mods.modularpipes.block.PipeBlock;
+import dev.latvian.mods.modularpipes.block.entity.PipeBlockEntity;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.RenderType;
@@ -32,7 +32,7 @@ import java.util.Random;
 public class BakedPipeModel implements IDynamicBakedModel {
 	public final PipeModelGeometry geometry;
 	public final TextureAtlasSprite particle;
-	public final List<List<BakedQuad>> base, connection, glassBase, glassConnection, module;
+	public final List<List<BakedQuad>> base, connection, glassBase, glassConnection, module, light;
 	public final List<BakedQuad> overlay;
 	private final Int2ObjectOpenHashMap<List<BakedQuad>> cache;
 	private final BakedModel bakedItem;
@@ -73,9 +73,11 @@ public class BakedPipeModel implements IDynamicBakedModel {
 		}
 
 		module = new ArrayList<>(6);
+		light = new ArrayList<>(6);
 
 		for (int i = 0; i < 6; i++) {
 			module.add(c.get(geometry.modelModule, PipeModelGeometry.FACE_ROTATIONS[i], false));
+			light.add(c.get(geometry.modelLight, PipeModelGeometry.FACE_ROTATIONS[i], false));
 		}
 
 		overlay = geometry.modelOverlay == null ? Collections.emptyList() : c.get(geometry.modelOverlay, BlockModelRotation.X0_Y0, false);
@@ -114,20 +116,20 @@ public class BakedPipeModel implements IDynamicBakedModel {
 			return Collections.emptyList();
 		}
 
-		BasePipeBlockEntity pipe = null;
+		PipeBlockEntity pipe = null;
 
-		if (extraData.hasProperty(BasePipeBlock.PIPE)) {
-			pipe = extraData.getData(BasePipeBlock.PIPE);
+		if (extraData.hasProperty(PipeBlock.PIPE)) {
+			pipe = extraData.getData(PipeBlock.PIPE);
 		}
 
-		if (pipe == null || pipe.invisible) {
+		if (pipe == null) {
 			return Collections.emptyList();
 		}
 
 		// check for cover block here and return it in future
 
-		int connections = pipe.getConnections();
-		List<BakedQuad> quads = cache.get(connections);
+		int modelIndex = pipe.getModelIndex();
+		List<BakedQuad> quads = cache.get(modelIndex);
 
 		if (quads != null) {
 			return quads;
@@ -139,14 +141,18 @@ public class BakedPipeModel implements IDynamicBakedModel {
 		int baseIndex = 0;
 
 		for (int i = 0; i < 6; i++) {
-			int c = pipe.getConnection(i);
+			int c = (modelIndex >> (i * 3)) & 7;
 
-			if (c > 0) {
+			if ((c & 1) != 0) {
 				nconnections |= 1 << i;
+			}
 
-				if (c == 2) {
-					quads.addAll(module.get(i));
-				}
+			if ((c & 2) != 0) {
+				quads.addAll(module.get(i));
+			}
+
+			if ((c & 4) != 0) {
+				quads.addAll(light.get(i));
 			}
 		}
 
@@ -187,7 +193,7 @@ public class BakedPipeModel implements IDynamicBakedModel {
 		}
 
 		quads = ModularPipesUtils.optimize(quads);
-		cache.put(connections, quads);
+		cache.put(modelIndex, quads);
 		return quads;
 	}
 

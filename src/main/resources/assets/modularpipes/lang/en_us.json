@@ -22,6 +22,7 @@
 	"item.modularpipes.crafting_module": "Crafting Module",
 	"item.modularpipes.energy_input_module": "Energy Input Module",
 	"item.modularpipes.energy_output_module": "Energy Output Module",
+	"item.modularpipes.light": "Pipe Light",
 	"modularpipes.general.dev_mode": "Dev Mode",
 	"modularpipes.pipes": "Pipes",
 	"modularpipes.pipes.base_speed": "Base Speed",

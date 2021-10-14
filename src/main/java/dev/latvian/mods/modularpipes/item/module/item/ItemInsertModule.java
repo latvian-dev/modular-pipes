@@ -3,7 +3,7 @@ package dev.latvian.mods.modularpipes.item.module.item;
 import dev.latvian.mods.itemfilters.api.ItemFiltersAPI;
 import dev.latvian.mods.modularpipes.ModularPipesCommon;
 import dev.latvian.mods.modularpipes.block.entity.ModularPipeBlockEntity;
-import dev.latvian.mods.modularpipes.item.module.PipeModule;
+import dev.latvian.mods.modularpipes.block.entity.PipeSideData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -41,10 +41,10 @@ public class ItemInsertModule extends ItemHandlerModule {
 		if (storageModules == null) {
 			storageModules = new ArrayList<>(2);
 
-			for (ModularPipeBlockEntity pipe1 : pipe.getPipeNetwork()) {
-				for (PipeModule module : pipe1.modules) {
-					if (module instanceof ItemStorageModule) {
-						storageModules.add((ItemStorageModule) module);
+			for (ModularPipeBlockEntity pipe1 : ((ModularPipeBlockEntity) sideData.entity).getPipeNetwork()) {
+				for (PipeSideData data : pipe1.sideData) {
+					if (data.module instanceof ItemStorageModule) {
+						storageModules.add((ItemStorageModule) data.module);
 					}
 				}
 			}
@@ -61,11 +61,6 @@ public class ItemInsertModule extends ItemHandlerModule {
 	public void clearCache() {
 		super.clearCache();
 		storageModules = null;
-	}
-
-	@Override
-	public boolean canUpdate() {
-		return true;
 	}
 
 	@Override
@@ -87,7 +82,7 @@ public class ItemInsertModule extends ItemHandlerModule {
 
 	private boolean insertItem() {
 		BlockEntity tile = getFacingTile();
-		IItemHandler handler = tile == null ? null : tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite()).orElse(null);
+		IItemHandler handler = tile == null ? null : tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, sideData.direction.getOpposite()).orElse(null);
 
 		if (handler != null) {
 			for (ItemStorageModule module : getStorageModules()) {

@@ -1,8 +1,7 @@
 package dev.latvian.mods.modularpipes.block;
 
 import dev.latvian.mods.modularpipes.ModularPipes;
-import dev.latvian.mods.modularpipes.block.entity.BasePipeBlockEntity;
-import dev.latvian.mods.modularpipes.block.entity.ModularPipeBlockEntity;
+import dev.latvian.mods.modularpipes.block.entity.PipeBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -19,6 +18,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.Material;
@@ -38,43 +38,43 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public class BasePipeBlock extends Block implements SimpleWaterloggedBlock {
+public class PipeBlock extends Block implements SimpleWaterloggedBlock {
 	public static final double SIZE = 4D;
+	public static final double S0 = SIZE / 16D;
+	public static final double S1 = 1D - S0;
 	private static final VoxelShape[] BOXES_64 = new VoxelShape[1 << 6];
-	public static final ModelProperty<BasePipeBlockEntity> PIPE = new ModelProperty<>();
+	public static final ModelProperty<PipeBlockEntity> PIPE = new ModelProperty<>();
+	public static final BooleanProperty LIGHT = BooleanProperty.create("light");
 
 	public static VoxelShape getBox(int i) {
 		if (BOXES_64[i] == null) {
-			double d0 = SIZE / 16D;
-			double d1 = 1D - d0;
-
 			List<VoxelShape> extra = new ArrayList<>();
 
 			if ((i & (1 << Direction.WEST.get3DDataValue())) != 0) {
-				extra.add(Shapes.box(0D, d0, d0, d0, d1, d1));
+				extra.add(Shapes.box(0D, S0, S0, S0, S1, S1));
 			}
 
 			if ((i & (1 << Direction.EAST.get3DDataValue())) != 0) {
-				extra.add(Shapes.box(d1, d0, d0, 1D, d1, d1));
+				extra.add(Shapes.box(S1, S0, S0, 1D, S1, S1));
 			}
 
 			if ((i & (1 << Direction.DOWN.get3DDataValue())) != 0) {
-				extra.add(Shapes.box(d0, 0D, d0, d1, d0, d1));
+				extra.add(Shapes.box(S0, 0D, S0, S1, S0, S1));
 			}
 
 			if ((i & (1 << Direction.UP.get3DDataValue())) != 0) {
-				extra.add(Shapes.box(d0, d1, d0, d1, 1D, d1));
+				extra.add(Shapes.box(S0, S1, S0, S1, 1D, S1));
 			}
 
 			if ((i & (1 << Direction.NORTH.get3DDataValue())) != 0) {
-				extra.add(Shapes.box(d0, d0, 0D, d1, d1, d0));
+				extra.add(Shapes.box(S0, S0, 0D, S1, S1, S0));
 			}
 
 			if ((i & (1 << Direction.SOUTH.get3DDataValue())) != 0) {
-				extra.add(Shapes.box(d0, d0, d1, d1, d1, 1D));
+				extra.add(Shapes.box(S0, S0, S1, S1, S1, 1D));
 			}
 
-			BOXES_64[i] = Shapes.or(Shapes.box(d0, d0, d0, d1, d1, d1), extra.toArray(new VoxelShape[0]));
+			BOXES_64[i] = Shapes.or(Shapes.box(S0, S0, S0, S1, S1, S1), extra.toArray(new VoxelShape[0]));
 		}
 
 		return BOXES_64[i];
@@ -82,9 +82,9 @@ public class BasePipeBlock extends Block implements SimpleWaterloggedBlock {
 
 	public final PipeTier tier;
 
-	public BasePipeBlock(PipeTier t) {
-		super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).strength(0.6F).sound(SoundType.METAL).noOcclusion().harvestTool(ToolType.PICKAXE));
-		registerDefaultState(getStateDefinition().any().setValue(BlockStateProperties.WATERLOGGED, false));
+	public PipeBlock(PipeTier t) {
+		super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).strength(0.6F).sound(SoundType.METAL).noOcclusion().harvestTool(ToolType.PICKAXE).lightLevel(value -> value.getValue(LIGHT) ? 15 : 0));
+		registerDefaultState(getStateDefinition().any().setValue(LIGHT, false).setValue(BlockStateProperties.WATERLOGGED, false));
 		tier = t;
 	}
 
@@ -101,12 +101,12 @@ public class BasePipeBlock extends Block implements SimpleWaterloggedBlock {
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> def) {
-		def.add(BlockStateProperties.WATERLOGGED);
+		def.add(LIGHT, BlockStateProperties.WATERLOGGED);
 	}
 
 	@Override
 	public int getLightValue(BlockState state, BlockGetter level, BlockPos pos) {
-		return ModularPipes.PROXY.getPipeLightValue(level);
+		return state.getValue(LIGHT) ? 15 : ModularPipes.PROXY.getPipeLightValue(level);
 	}
 
 	@Override
@@ -114,13 +114,13 @@ public class BasePipeBlock extends Block implements SimpleWaterloggedBlock {
 	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
 		BlockEntity tileEntity = level.getBlockEntity(pos);
 
-		if (tileEntity instanceof BasePipeBlockEntity) {
-			BasePipeBlockEntity pipe = (BasePipeBlockEntity) tileEntity;
+		if (tileEntity instanceof PipeBlockEntity) {
+			PipeBlockEntity pipe = (PipeBlockEntity) tileEntity;
 
 			int id = 0;
 
 			for (int i = 0; i < 6; i++) {
-				if (pipe.getConnection(i) > 0) {
+				if (pipe.sideData[i].extendShape()) {
 					id |= 1 << i;
 				}
 			}
@@ -138,6 +138,22 @@ public class BasePipeBlock extends Block implements SimpleWaterloggedBlock {
 
 	@Override
 	@Deprecated
+	public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean b) {
+		super.onPlace(state, level, pos, oldState, b);
+
+		if (!oldState.is(state.getBlock())) {
+			BlockEntity blockEntity = level.getBlockEntity(pos);
+
+			if (blockEntity instanceof PipeBlockEntity) {
+				for (int i = 0; i < 6; i++) {
+					((PipeBlockEntity) blockEntity).sideData[i].updateConnection();
+				}
+			}
+		}
+	}
+
+	@Override
+	@Deprecated
 	public BlockState updateShape(BlockState state, Direction face, BlockState nstate, LevelAccessor level, BlockPos pos, BlockPos npos) {
 		if (state.getValue(BlockStateProperties.WATERLOGGED)) {
 			level.getLiquidTicks().scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
@@ -145,8 +161,14 @@ public class BasePipeBlock extends Block implements SimpleWaterloggedBlock {
 
 		BlockEntity blockEntity = level.getBlockEntity(pos);
 
-		if (blockEntity instanceof BasePipeBlockEntity) {
-			blockEntity.clearCache();
+		if (blockEntity instanceof PipeBlockEntity) {
+			((PipeBlockEntity) blockEntity).sideData[face.get3DDataValue()].updateConnection();
+		}
+
+		BlockEntity blockEntity2 = level.getBlockEntity(npos);
+
+		if (blockEntity2 instanceof PipeBlockEntity) {
+			((PipeBlockEntity) blockEntity2).sideData[face.getOpposite().get3DDataValue()].updateConnection();
 		}
 
 		return super.updateShape(state, face, nstate, level, pos, npos);
@@ -166,16 +188,16 @@ public class BasePipeBlock extends Block implements SimpleWaterloggedBlock {
 
 	@Override
 	@Deprecated
-	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState state1, boolean b) {
-		if (!level.isClientSide()) {
+	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean b) {
+		if (!level.isClientSide() && !state.is(oldState.getBlock())) {
 			BlockEntity blockEntity = level.getBlockEntity(pos);
 
-			if (blockEntity instanceof BasePipeBlockEntity) {
-				((BasePipeBlockEntity) blockEntity).dropItems();
+			if (blockEntity instanceof PipeBlockEntity) {
+				((PipeBlockEntity) blockEntity).dropItems();
 			}
 		}
 
-		super.onRemove(state, level, pos, state1, b);
+		super.onRemove(state, level, pos, oldState, b);
 	}
 
 	@Override
@@ -183,8 +205,8 @@ public class BasePipeBlock extends Block implements SimpleWaterloggedBlock {
 	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 		BlockEntity blockEntity = level.getBlockEntity(pos);
 
-		if (blockEntity instanceof ModularPipeBlockEntity) {
-			return ((ModularPipeBlockEntity) blockEntity).rightClick(player, hand, hit);
+		if (blockEntity instanceof PipeBlockEntity) {
+			return ((PipeBlockEntity) blockEntity).rightClick(player, hand, hit);
 		}
 
 		return InteractionResult.PASS;

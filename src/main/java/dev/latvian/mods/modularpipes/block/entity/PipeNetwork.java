@@ -101,7 +101,7 @@ public class PipeNetwork implements ICapabilityProvider {
 				}
 			}
 
-			for (BasePipeBlockEntity pipe : pipes) {
+			for (PipeBlockEntity pipe : pipes) {
 				pipe.clearCache();
 			}
 

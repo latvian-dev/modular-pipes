@@ -1,6 +1,7 @@
 package dev.latvian.mods.modularpipes.item.module.energy;
 
 import dev.latvian.mods.modularpipes.ModularPipesConfig;
+import dev.latvian.mods.modularpipes.block.entity.ModularPipeBlockEntity;
 import dev.latvian.mods.modularpipes.item.module.PipeModule;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -20,7 +21,7 @@ public class ModuleEnergy extends PipeModule implements IEnergyStorage {
 
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction facing) {
-		return capability == CapabilityEnergy.ENERGY && facing == side ? thisOptional.cast() : super.getCapability(capability, facing);
+		return capability == CapabilityEnergy.ENERGY && facing == sideData.direction ? thisOptional.cast() : super.getCapability(capability, facing);
 	}
 
 	@Override
@@ -33,7 +34,7 @@ public class ModuleEnergy extends PipeModule implements IEnergyStorage {
 	public IEnergyStorage getFacingEnergyStorage() {
 		if (cachedEnergyStorage == null) {
 			BlockEntity tileEntity = getFacingTile();
-			cachedEnergyStorage = Optional.ofNullable(tileEntity == null ? null : tileEntity.getCapability(CapabilityEnergy.ENERGY, side.getOpposite()).orElse(null));
+			cachedEnergyStorage = Optional.ofNullable(tileEntity == null ? null : tileEntity.getCapability(CapabilityEnergy.ENERGY, sideData.direction.getOpposite()).orElse(null));
 		}
 
 		return cachedEnergyStorage.orElse(null);
@@ -51,12 +52,12 @@ public class ModuleEnergy extends PipeModule implements IEnergyStorage {
 
 	@Override
 	public int getEnergyStored() {
-		return pipe == null ? 0 : pipe.storedEnergy;
+		return ((ModularPipeBlockEntity) sideData.entity).storedEnergy;
 	}
 
 	@Override
 	public int getMaxEnergyStored() {
-		return pipe == null ? 0 : ModularPipesConfig.pipes.max_energy_stored;
+		return ModularPipesConfig.pipes.max_energy_stored;
 	}
 
 	@Override

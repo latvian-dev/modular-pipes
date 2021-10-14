@@ -1,7 +1,7 @@
 package dev.latvian.mods.modularpipes.item.module;
 
-import dev.latvian.mods.modularpipes.block.entity.ModularPipeBlockEntity;
 import dev.latvian.mods.modularpipes.block.entity.PipeNetwork;
+import dev.latvian.mods.modularpipes.block.entity.PipeSideData;
 import dev.latvian.mods.modularpipes.net.ModularPipesNet;
 import dev.latvian.mods.modularpipes.net.ParticleMessage;
 import net.minecraft.core.Direction;
@@ -22,23 +22,20 @@ import java.util.Optional;
 /**
  * @author LatvianModder
  */
-public class PipeModule implements ICapabilityProvider {
+public abstract class PipeModule implements ICapabilityProvider {
 	@CapabilityInject(PipeModule.class)
 	public static Capability<PipeModule> CAP;
 
-	public ModularPipeBlockEntity pipe = null;
+	public PipeSideData sideData;
 	public ItemStack moduleItem = ItemStack.EMPTY;
-	public Direction side = Direction.DOWN;
 
 	private Optional<BlockEntity> cachedEntity = Optional.empty();
 	protected LazyOptional<?> thisOptional = LazyOptional.of(() -> this);
 
 	public void writeData(CompoundTag nbt) {
-		nbt.putByte("Side", (byte) side.get3DDataValue());
 	}
 
 	public void readData(CompoundTag nbt) {
-		side = Direction.from3DDataValue(nbt.getByte("Side"));
 	}
 
 	public boolean canInsert(Player player, InteractionHand hand) {
@@ -48,18 +45,14 @@ public class PipeModule implements ICapabilityProvider {
 	public void onInserted(Player player, InteractionHand hand) {
 	}
 
-	public boolean canRemove(Player player) {
+	public boolean canRemove(Player player, InteractionHand hand) {
 		return true;
 	}
 
-	public void onRemoved(Player player) {
+	public void onRemoved(Player player, InteractionHand hand) {
 	}
 
 	public void onPipeBroken() {
-	}
-
-	public boolean canUpdate() {
-		return false;
 	}
 
 	public void updateModule() {
@@ -79,8 +72,8 @@ public class PipeModule implements ICapabilityProvider {
 	}
 
 	public final void refreshNetwork() {
-		if (pipe != null && pipe.hasLevel()) {
-			PipeNetwork.get(pipe.getLevel()).refresh();
+		if (sideData.entity.hasLevel()) {
+			PipeNetwork.get(sideData.entity.getLevel()).refresh();
 		}
 	}
 
@@ -93,18 +86,18 @@ public class PipeModule implements ICapabilityProvider {
 	@Nullable
 	public BlockEntity getFacingTile() {
 		if (!cachedEntity.isPresent()) {
-			cachedEntity = Optional.ofNullable(pipe == null || side == null || !pipe.hasLevel() ? null : pipe.getLevel().getBlockEntity(pipe.getBlockPos().relative(side)));
+			cachedEntity = Optional.ofNullable(!sideData.entity.hasLevel() ? null : sideData.entity.getLevel().getBlockEntity(sideData.entity.getBlockPos().relative(sideData.direction)));
 		}
 
 		return cachedEntity.orElse(null);
 	}
 
 	public void spawnParticle(int type) {
-		if (pipe.hasLevel() && !pipe.getLevel().isClientSide()) {
-			double x = pipe.getBlockPos().getX() + 0.5D + (side == null ? 0D : side.getStepX() * 0.3D);
-			double y = pipe.getBlockPos().getY() + 0.5D + (side == null ? 0D : side.getStepY() * 0.3D);
-			double z = pipe.getBlockPos().getZ() + 0.5D + (side == null ? 0D : side.getStepZ() * 0.3D);
-			ModularPipesNet.NET.send(PacketDistributor.NEAR.with(PacketDistributor.TargetPoint.p(x, y, z, 24, pipe.getLevel().dimension())), new ParticleMessage(pipe.getBlockPos(), null, type));
+		if (sideData.entity.hasLevel() && !sideData.entity.getLevel().isClientSide()) {
+			double x = sideData.entity.getBlockPos().getX() + 0.5D + sideData.direction.getStepX() * 0.3D;
+			double y = sideData.entity.getBlockPos().getY() + 0.5D + sideData.direction.getStepY() * 0.3D;
+			double z = sideData.entity.getBlockPos().getZ() + 0.5D + sideData.direction.getStepZ() * 0.3D;
+			ModularPipesNet.NET.send(PacketDistributor.NEAR.with(PacketDistributor.TargetPoint.p(x, y, z, 24, sideData.entity.getLevel().dimension())), new ParticleMessage(sideData.entity.getBlockPos(), null, type));
 		}
 	}
 }

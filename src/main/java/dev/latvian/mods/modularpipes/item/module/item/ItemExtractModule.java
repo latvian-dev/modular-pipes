@@ -30,11 +30,6 @@ public class ItemExtractModule extends ItemHandlerModule {
 	}
 
 	@Override
-	public boolean canUpdate() {
-		return true;
-	}
-
-	@Override
 	public void updateModule() {
 		tick++;
 
@@ -49,7 +44,7 @@ public class ItemExtractModule extends ItemHandlerModule {
 
 	private boolean extractItem() {
 		BlockEntity tile = getFacingTile();
-		IItemHandler handler = tile == null ? null : tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite()).orElse(null);
+		IItemHandler handler = tile == null ? null : tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, sideData.direction.getOpposite()).orElse(null);
 
 		if (handler != null) {
 			for (int slot = 0; slot < handler.getSlots(); slot++) {

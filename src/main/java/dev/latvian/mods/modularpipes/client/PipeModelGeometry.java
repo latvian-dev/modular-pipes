@@ -49,7 +49,7 @@ public class PipeModelGeometry implements IModelGeometry<PipeModelGeometry> {
 	public Material material;
 	public List<UnbakedModel> models = new ArrayList<>(7);
 	public UnbakedModel modelBase, modelConnection, modelVertical;
-	public UnbakedModel modelModule;
+	public UnbakedModel modelModule, modelLight;
 	public UnbakedModel modelGlassBase, modelGlassConnection, modelGlassVertical;
 	public UnbakedModel modelOverlay;
 

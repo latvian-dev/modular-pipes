@@ -1,0 +1,92 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"textures": {
+		"particle": "modularpipes:block/light",
+		"light": "modularpipes:block/light"
+	},
+	"elements": [
+		{
+			"name": "light",
+			"from": [
+				5,
+				7,
+				5
+			],
+			"to": [
+				11,
+				9,
+				11
+			],
+			"rotation": {
+				"angle": 0,
+				"axis": "x",
+				"origin": [
+					8,
+					8,
+					8
+				]
+			},
+			"faces": {
+				"north": {
+					"uv": [
+						5,
+						0,
+						11,
+						2
+					],
+					"rotation": 180,
+					"texture": "#light"
+				},
+				"east": {
+					"uv": [
+						5,
+						0,
+						11,
+						2
+					],
+					"rotation": 180,
+					"texture": "#light"
+				},
+				"south": {
+					"uv": [
+						5,
+						0,
+						11,
+						2
+					],
+					"rotation": 180,
+					"texture": "#light"
+				},
+				"west": {
+					"uv": [
+						5,
+						0,
+						11,
+						2
+					],
+					"rotation": 180,
+					"texture": "#light"
+				},
+				"up": {
+					"uv": [
+						5,
+						2,
+						11,
+						8
+					],
+					"texture": "#light"
+				},
+				"down": {
+					"uv": [
+						5,
+						8,
+						11,
+						14
+					],
+					"texture": "#light"
+				}
+			}
+		}
+	]
+}

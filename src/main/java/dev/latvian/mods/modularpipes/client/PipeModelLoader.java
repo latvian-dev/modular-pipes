@@ -60,6 +60,7 @@ public class PipeModelLoader implements IModelLoader<PipeModelGeometry> {
 		m.models.add(m.modelConnection = createUnbakedModel(context, pathFromType(m, "connection"), material));
 		m.models.add(m.modelVertical = createUnbakedModel(context, pathFromType(m, "vertical"), material));
 		m.models.add(m.modelModule = createUnbakedModel(context, path("module"), material));
+		m.models.add(m.modelLight = createUnbakedModel(context, path("light"), material));
 
 		if (m.pipeGlass) {
 			m.models.add(m.modelGlassBase = createUnbakedModel(context, path("glass_base"), material));

@@ -7,3 +7,4 @@ modId = "modularpipes"
 version = "${version}"
 displayName = "Modular Pipes"
 description = '''sick pipes init' fam'''
+logoFile = "assets/modularpipes/textures/logo.png"

@@ -2,6 +2,7 @@ package dev.latvian.mods.modularpipes.item.module.item;
 
 import dev.latvian.mods.itemfilters.api.ItemFiltersAPI;
 import dev.latvian.mods.modularpipes.block.entity.ModularPipeBlockEntity;
+import dev.latvian.mods.modularpipes.block.entity.PipeSideData;
 import dev.latvian.mods.modularpipes.item.module.PipeModule;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
@@ -45,10 +46,10 @@ public class ItemHandlerModule extends PipeModule implements IItemHandler {
 		if (storageModules == null) {
 			storageModules = new ArrayList<>(2);
 
-			for (ModularPipeBlockEntity pipe1 : pipe.getPipeNetwork()) {
-				for (PipeModule module : pipe1.modules) {
-					if (module instanceof ItemStorageModule) {
-						storageModules.add((ItemStorageModule) module);
+			for (ModularPipeBlockEntity pipe1 : ((ModularPipeBlockEntity) sideData.entity).getPipeNetwork()) {
+				for (PipeSideData data : pipe1.sideData) {
+					if (data.module instanceof ItemStorageModule) {
+						storageModules.add((ItemStorageModule) data.module);
 					}
 				}
 			}

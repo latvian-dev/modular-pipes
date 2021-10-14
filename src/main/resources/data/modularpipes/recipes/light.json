@@ -1,0 +1,21 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"group": "modularpipes:module",
+	"result": {
+		"item": "modularpipes:light",
+		"count": 4
+	},
+	"pattern": [
+		" M ",
+		"MGM",
+		" M "
+	],
+	"key": {
+		"M": {
+			"item": "modularpipes:module"
+		},
+		"G": {
+			"item": "minecraft:glowstone"
+		}
+	}
+}

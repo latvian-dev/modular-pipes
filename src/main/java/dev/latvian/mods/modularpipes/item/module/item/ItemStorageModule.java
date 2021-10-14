@@ -68,7 +68,7 @@ public class ItemStorageModule extends PipeModule {
 			}
 		} else {
 			filter = ItemHandlerHelper.copyStackWithSize(stack, 1);
-			pipe.setChanged();
+			sideData.entity.setChanged();
 
 			if (!player.level.isClientSide()) {
 				player.displayClientMessage(new TextComponent("Filter changed to " + filter.getDisplayName()), true); //LANG
@@ -90,6 +90,6 @@ public class ItemStorageModule extends PipeModule {
 			tileEntity = getFacingTile();
 		}
 
-		return tileEntity == null ? null : tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite()).orElse(null);
+		return tileEntity == null ? null : tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, sideData.direction.getOpposite()).orElse(null);
 	}
 }

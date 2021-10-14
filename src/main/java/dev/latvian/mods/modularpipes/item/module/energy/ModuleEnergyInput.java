@@ -1,6 +1,7 @@
 package dev.latvian.mods.modularpipes.item.module.energy;
 
 import dev.latvian.mods.modularpipes.ModularPipesConfig;
+import dev.latvian.mods.modularpipes.block.entity.ModularPipeBlockEntity;
 
 /**
  * @author LatvianModder
@@ -8,15 +9,11 @@ import dev.latvian.mods.modularpipes.ModularPipesConfig;
 public class ModuleEnergyInput extends ModuleEnergy {
 	@Override
 	public int receiveEnergy(int maxReceive, boolean simulate) {
-		if (pipe == null) {
-			return 0;
-		}
-
-		int a = Math.min(Math.min(maxReceive, 80), ModularPipesConfig.pipes.max_energy_stored - pipe.storedEnergy);
+		int a = Math.min(Math.min(maxReceive, 80), ModularPipesConfig.pipes.max_energy_stored - ((ModularPipeBlockEntity) sideData.entity).storedEnergy);
 
 		if (a > 0 && !simulate) {
-			pipe.storedEnergy += a;
-			pipe.setChanged();
+			((ModularPipeBlockEntity) sideData.entity).storedEnergy += a;
+			sideData.entity.setChanged();
 		}
 
 		return a;
@@ -24,6 +21,6 @@ public class ModuleEnergyInput extends ModuleEnergy {
 
 	@Override
 	public boolean canReceive() {
-		return pipe != null;
+		return true;
 	}
 }

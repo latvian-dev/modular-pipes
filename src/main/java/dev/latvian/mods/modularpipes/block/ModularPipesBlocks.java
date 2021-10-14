@@ -13,8 +13,8 @@ import java.util.function.Supplier;
 public interface ModularPipesBlocks {
 	DeferredRegister<Block> REGISTRY = DeferredRegister.create(ForgeRegistries.BLOCKS, ModularPipes.MOD_ID);
 
-	Supplier<Block> TRANSPORT_PIPE = REGISTRY.register("transport_pipe", () -> new BasePipeBlock(PipeTier.BASIC));
-	Supplier<Block> MODULAR_PIPE_MK1 = REGISTRY.register("modular_pipe_mk1", () -> new BasePipeBlock(PipeTier.MK1));
-	Supplier<Block> MODULAR_PIPE_MK2 = REGISTRY.register("modular_pipe_mk2", () -> new BasePipeBlock(PipeTier.MK2));
-	Supplier<Block> MODULAR_PIPE_MK3 = REGISTRY.register("modular_pipe_mk3", () -> new BasePipeBlock(PipeTier.MK3));
+	Supplier<Block> TRANSPORT_PIPE = REGISTRY.register("transport_pipe", () -> new PipeBlock(PipeTier.BASIC));
+	Supplier<Block> MODULAR_PIPE_MK1 = REGISTRY.register("modular_pipe_mk1", () -> new PipeBlock(PipeTier.MK1));
+	Supplier<Block> MODULAR_PIPE_MK2 = REGISTRY.register("modular_pipe_mk2", () -> new PipeBlock(PipeTier.MK2));
+	Supplier<Block> MODULAR_PIPE_MK3 = REGISTRY.register("modular_pipe_mk3", () -> new PipeBlock(PipeTier.MK3));
 }
