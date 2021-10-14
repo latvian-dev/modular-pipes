@@ -16,7 +16,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
@@ -42,8 +41,8 @@ public class ModularPipeBlockEntity extends BasePipeBlockEntity {
 	private int powerOutputIndex = -1;
 	private List<ModularPipeBlockEntity> cachedNetwork = null;
 
-	public ModularPipeBlockEntity(BlockEntityType<?> type) {
-		super(type);
+	public ModularPipeBlockEntity() {
+		super(ModularPipesBlockEntities.MODULAR_PIPE.get());
 	}
 
 	@Override

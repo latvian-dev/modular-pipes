@@ -1,10 +1,7 @@
 package dev.latvian.mods.modularpipes.block;
 
 import dev.latvian.mods.modularpipes.block.entity.BasePipeBlockEntity;
-import dev.latvian.mods.modularpipes.block.entity.FastTransportPipeBlockEntity;
-import dev.latvian.mods.modularpipes.block.entity.ModularPipeMK1BlockEntity;
-import dev.latvian.mods.modularpipes.block.entity.ModularPipeMK2BlockEntity;
-import dev.latvian.mods.modularpipes.block.entity.ModularPipeMK3BlockEntity;
+import dev.latvian.mods.modularpipes.block.entity.ModularPipeBlockEntity;
 import dev.latvian.mods.modularpipes.block.entity.TransportPipeBlockEntity;
 
 import java.util.function.Supplier;
@@ -14,10 +11,9 @@ import java.util.function.Supplier;
  */
 public enum PipeTier {
 	BASIC("basic", TransportPipeBlockEntity::new, 0),
-	FAST("fast", FastTransportPipeBlockEntity::new, 0),
-	MK1("mk1", ModularPipeMK1BlockEntity::new, 1),
-	MK2("mk2", ModularPipeMK2BlockEntity::new, 3),
-	MK3("mk3", ModularPipeMK3BlockEntity::new, 6);
+	MK1("mk1", ModularPipeBlockEntity::new, 1),
+	MK2("mk2", ModularPipeBlockEntity::new, 3),
+	MK3("mk3", ModularPipeBlockEntity::new, 6);
 
 	public final String name;
 	public final Supplier<? extends BasePipeBlockEntity> blockEntity;

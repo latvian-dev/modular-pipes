@@ -36,7 +36,6 @@ public interface ModularPipesItems {
 	}
 
 	Supplier<BlockItem> TRANSPORT_PIPE = blockItem("transport_pipe", ModularPipesBlocks.TRANSPORT_PIPE);
-	Supplier<BlockItem> FAST_TRANSPORT_PIPE = blockItem("fast_transport_pipe", ModularPipesBlocks.FAST_TRANSPORT_PIPE);
 	Supplier<BlockItem> MODULAR_PIPE_MK1 = blockItem("modular_pipe_mk1", ModularPipesBlocks.MODULAR_PIPE_MK1);
 	Supplier<BlockItem> MODULAR_PIPE_MK2 = blockItem("modular_pipe_mk2", ModularPipesBlocks.MODULAR_PIPE_MK2);
 	Supplier<BlockItem> MODULAR_PIPE_MK3 = blockItem("modular_pipe_mk3", ModularPipesBlocks.MODULAR_PIPE_MK3);
