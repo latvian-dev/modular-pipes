@@ -141,7 +141,7 @@ public class BakedPipeModel implements IDynamicBakedModel {
 		int baseIndex = 0;
 
 		for (int i = 0; i < 6; i++) {
-			int c = (modelIndex >> (i * 3)) & 7;
+			int c = (modelIndex >> (i * 5)) & 31;
 
 			if ((c & 1) != 0) {
 				nconnections |= 1 << i;
@@ -154,6 +154,10 @@ public class BakedPipeModel implements IDynamicBakedModel {
 			if ((c & 4) != 0) {
 				quads.addAll(light.get(i));
 			}
+
+			// 8
+
+			// 16
 		}
 
 		if (pipe.getTier().maxModules == 0) {

@@ -55,4 +55,5 @@ public interface ModularPipesItems {
 	Supplier<Item> ENERGY_INPUT_MODULE = REGISTRY.register("energy_input_module", () -> new ModuleItem(ModuleEnergyInput::new));
 	Supplier<Item> ENERGY_OUTPUT_MODULE = REGISTRY.register("energy_output_module", () -> new ModuleItem(ModuleEnergyOutput::new));
 	Supplier<Item> LIGHT = basicItem("light");
+	Supplier<Item> WRENCH = REGISTRY.register("wrench", WrenchItem::new);
 }

@@ -4,6 +4,7 @@ import dev.latvian.mods.modularpipes.ModularPipesConfig;
 import dev.latvian.mods.modularpipes.block.PipeBlock;
 import dev.latvian.mods.modularpipes.block.PipeTier;
 import dev.latvian.mods.modularpipes.item.ModularPipesItems;
+import dev.latvian.mods.modularpipes.item.WrenchItem;
 import dev.latvian.mods.modularpipes.item.module.PipeModule;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -55,10 +56,8 @@ public abstract class PipeBlockEntity extends BlockEntity {
 
 	public void writeData(CompoundTag nbt) {
 		for (PipeSideData data : sideData) {
-			CompoundTag t = data.write(new CompoundTag());
-
-			if (!t.isEmpty()) {
-				nbt.put("Data" + data.direction.getSerializedName().substring(0, 1).toUpperCase(), t);
+			if (data.shouldWrite()) {
+				nbt.put("Data" + data.direction.getSerializedName().substring(0, 1).toUpperCase(), data.write(new CompoundTag()));
 			}
 		}
 
@@ -196,27 +195,26 @@ public abstract class PipeBlockEntity extends BlockEntity {
 	@Override
 	public void setChanged() {
 		changed = true;
-	}
-
-	public void sync() {
-		setChanged();
-		sync = true;
 
 		if (this instanceof TransportPipeBlockEntity) {
 			sendUpdates();
 		}
 	}
 
+	public void sync() {
+		sync = true;
+		setChanged();
+	}
+
 	public final void sendUpdates() {
 		if (changed) {
+			changed = false;
 			level.blockEntityChanged(worldPosition, this);
 
 			if (sync) {
-				BlockState state = level.getBlockState(worldPosition);
-				level.sendBlockUpdated(worldPosition, state, state, 11);
+				sync = false;
+				level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 11);
 			}
-
-			changed = false;
 		}
 	}
 
@@ -258,9 +256,14 @@ public abstract class PipeBlockEntity extends BlockEntity {
 		int z = coord(hit.getLocation().z - worldPosition.getZ());
 		Direction side = coordDir(x, y, z, hit.getDirection());
 		PipeSideData data = sideData[side.get3DDataValue()];
+		boolean isWrench = stack.getHarvestLevel(WrenchItem.WRENCH_TYPE, player, null) >= 0;
 
-		if (stack.isEmpty()) {
-			if (player.isCrouching()) {
+		if (isWrench || stack.isEmpty()) {
+			if (level.isClientSide()) {
+				return InteractionResult.SUCCESS;
+			}
+
+			if (isWrench || player.isCrouching()) {
 				if (data.light) {
 					data.light = false;
 
@@ -298,6 +301,21 @@ public abstract class PipeBlockEntity extends BlockEntity {
 					data.module = null;
 					data.updateConnection();
 					sync();
+				} else if (isWrench) {
+					data.setDisabled(!data.disabled);
+
+					if (data.disabled) {
+						player.displayClientMessage(new TextComponent("Side disabled!"), true);
+					} else {
+						player.displayClientMessage(new TextComponent("Side enabled!"), true);
+					}
+
+					BlockEntity entity = level.getBlockEntity(worldPosition.relative(data.direction));
+
+					if (entity instanceof PipeBlockEntity) {
+						// ((PipeBlockEntity) entity).sideData[data.direction.getOpposite().get3DDataValue()].setDisabled(data.disabled);
+						((PipeBlockEntity) entity).sideData[data.direction.getOpposite().get3DDataValue()].updateConnection();
+					}
 				}
 			}
 
@@ -403,7 +421,7 @@ public abstract class PipeBlockEntity extends BlockEntity {
 		int index = 0;
 
 		for (int i = 0; i < 6; i++) {
-			index |= sideData[i].getModelIndex() << (i * 3);
+			index |= sideData[i].getModelIndex() << (i * 5);
 		}
 
 		return index;

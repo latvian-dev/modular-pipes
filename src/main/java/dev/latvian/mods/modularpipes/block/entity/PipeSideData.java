@@ -12,6 +12,7 @@ public class PipeSideData {
 	public boolean connect;
 	public PipeModule module;
 	public boolean light;
+	public boolean disabled;
 
 	public PipeSideData(PipeBlockEntity e, Direction d) {
 		entity = e;
@@ -19,6 +20,11 @@ public class PipeSideData {
 		connect = false;
 		module = null;
 		light = false;
+		disabled = false;
+	}
+
+	public boolean shouldWrite() {
+		return connect || module != null || light || disabled;
 	}
 
 	public CompoundTag write(CompoundTag tag) {
@@ -42,6 +48,10 @@ public class PipeSideData {
 			tag.putBoolean("Light", true);
 		}
 
+		if (disabled) {
+			tag.putBoolean("Disabled", true);
+		}
+
 		return tag;
 	}
 
@@ -63,12 +73,21 @@ public class PipeSideData {
 		}
 
 		light = tag.getBoolean("Light");
+		disabled = tag.getBoolean("Disabled");
 	}
 
 	private boolean updateConnection0() {
+		if (!canConnect()) {
+			return false;
+		}
+
 		BlockEntity tileEntity = entity.getLevel().getBlockEntity(entity.getBlockPos().relative(direction));
 
-		return tileEntity instanceof PipeBlockEntity;
+		if (tileEntity instanceof PipeBlockEntity) {
+			return ((PipeBlockEntity) tileEntity).sideData[direction.getOpposite().get3DDataValue()].canConnect();
+		}
+
+		return false;
 	}
 
 	public void updateConnection() {
@@ -99,6 +118,20 @@ public class PipeSideData {
 			index |= 4;
 		}
 
+		// 8
+
+		// 16
+
 		return index;
+	}
+
+	public boolean canConnect() {
+		return !disabled;
+	}
+
+	public void setDisabled(boolean d) {
+		disabled = d;
+		connect = updateConnection0();
+		entity.sync();
 	}
 }

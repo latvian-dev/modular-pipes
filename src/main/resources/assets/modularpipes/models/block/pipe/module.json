@@ -1,5 +1,5 @@
 {
-	"parent": "block/block",
+	"parent": "minecraft:block/block",
 	"credit": "Made with Blockbench",
 	"textures": {
 		"module": "modularpipes:block/module",

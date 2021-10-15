@@ -23,6 +23,8 @@
 	"item.modularpipes.energy_input_module": "Energy Input Module",
 	"item.modularpipes.energy_output_module": "Energy Output Module",
 	"item.modularpipes.light": "Pipe Light",
+	"item.modularpipes.wrench": "Pipe Wrench",
+	"item.modularpipes.wrench.info": "Right-click on pipe to toggle that side",
 	"modularpipes.general.dev_mode": "Dev Mode",
 	"modularpipes.pipes": "Pipes",
 	"modularpipes.pipes.base_speed": "Base Speed",
