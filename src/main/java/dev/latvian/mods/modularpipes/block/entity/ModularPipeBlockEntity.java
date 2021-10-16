@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,8 +23,8 @@ public class ModularPipeBlockEntity extends PipeBlockEntity {
 	private int powerOutputIndex = -1;
 	private List<ModularPipeBlockEntity> cachedNetwork = null;
 
-	public ModularPipeBlockEntity() {
-		super(ModularPipesBlockEntities.MODULAR_PIPE.get());
+	public ModularPipeBlockEntity(BlockPos pos, BlockState state) {
+		super(ModularPipesBlockEntities.MODULAR_PIPE.get(), pos, state);
 	}
 
 	@Override

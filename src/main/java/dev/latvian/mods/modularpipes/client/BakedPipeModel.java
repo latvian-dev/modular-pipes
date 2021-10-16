@@ -97,7 +97,7 @@ public class BakedPipeModel implements IDynamicBakedModel {
 
 		itemOverrideList = new ItemOverrides() {
 			@Override
-			public BakedModel resolve(BakedModel originalModel, ItemStack stack, @Nullable ClientLevel world, @Nullable LivingEntity entity) {
+			public BakedModel resolve(BakedModel originalModel, ItemStack stack, @Nullable ClientLevel world, @Nullable LivingEntity entity, int k) {
 				return bakedItem;
 			}
 		};

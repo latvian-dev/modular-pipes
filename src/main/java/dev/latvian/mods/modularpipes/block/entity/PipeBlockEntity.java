@@ -45,8 +45,8 @@ public abstract class PipeBlockEntity extends BlockEntity {
 	private PipeTier cachedTier;
 	public final PipeSideData[] sideData;
 
-	public PipeBlockEntity(BlockEntityType<?> tileEntityTypeIn) {
-		super(tileEntityTypeIn);
+	public PipeBlockEntity(BlockEntityType<?> tileEntityTypeIn, BlockPos pos, BlockState state) {
+		super(tileEntityTypeIn, pos, state);
 		sideData = new PipeSideData[6];
 
 		for (int i = 0; i < 6; i++) {
@@ -98,8 +98,8 @@ public abstract class PipeBlockEntity extends BlockEntity {
 	}
 
 	@Override
-	public void load(BlockState state, CompoundTag nbt) {
-		super.load(state, nbt);
+	public void load(CompoundTag nbt) {
+		super.load(nbt);
 		readData(nbt);
 	}
 
@@ -109,8 +109,8 @@ public abstract class PipeBlockEntity extends BlockEntity {
 	}
 
 	@Override
-	public void handleUpdateTag(BlockState state, CompoundTag tag) {
-		load(state, tag);
+	public void handleUpdateTag(CompoundTag tag) {
+		load(tag);
 	}
 
 	@Override
@@ -160,8 +160,8 @@ public abstract class PipeBlockEntity extends BlockEntity {
 	}
 
 	@Override
-	public void setLevelAndPosition(Level world, BlockPos pos) {
-		super.setLevelAndPosition(world, pos);
+	public void setLevel(Level level) {
+		super.setLevel(level);
 
 		if (hasLevel()) {
 			PipeNetwork.get(getLevel()).refresh();
@@ -209,7 +209,7 @@ public abstract class PipeBlockEntity extends BlockEntity {
 	public final void sendUpdates() {
 		if (changed) {
 			changed = false;
-			level.blockEntityChanged(worldPosition, this);
+			level.blockEntityChanged(worldPosition);
 
 			if (sync) {
 				sync = false;
@@ -256,7 +256,7 @@ public abstract class PipeBlockEntity extends BlockEntity {
 		int z = coord(hit.getLocation().z - worldPosition.getZ());
 		Direction side = coordDir(x, y, z, hit.getDirection());
 		PipeSideData data = sideData[side.get3DDataValue()];
-		boolean isWrench = stack.getHarvestLevel(WrenchItem.WRENCH_TYPE, player, null) >= 0;
+		boolean isWrench = stack.canPerformAction(WrenchItem.WRENCH_ACTION);
 
 		if (isWrench || stack.isEmpty()) {
 			if (level.isClientSide()) {
@@ -403,10 +403,14 @@ public abstract class PipeBlockEntity extends BlockEntity {
 			stack.shrink(1);
 		}
 
+		super.setChanged();
 		clearCache();
 		data.updateConnection();
 		sync();
 		return InteractionResult.SUCCESS;
+	}
+
+	public void clearCache() {
 	}
 
 	public PipeTier getTier() {

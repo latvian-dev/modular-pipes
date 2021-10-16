@@ -1,6 +1,6 @@
 package dev.latvian.mods.modularpipes.item.module.item;
 
-import dev.latvian.mods.itemfilters.api.ItemFiltersAPI;
+import dev.latvian.mods.modularpipes.FilterUtils;
 import dev.latvian.mods.modularpipes.ModularPipesCommon;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
@@ -50,7 +50,7 @@ public class ItemExtractModule extends ItemHandlerModule {
 			for (int slot = 0; slot < handler.getSlots(); slot++) {
 				ItemStack stack = handler.extractItem(slot, 1, true);
 
-				if (!stack.isEmpty() && ItemFiltersAPI.filter(filter, stack)) {
+				if (!stack.isEmpty() && FilterUtils.check(filter, stack)) {
 					ItemStack stack1 = insertItem(0, stack, false);
 
 					if (stack1.getCount() != stack.getCount()) {

@@ -49,7 +49,7 @@ public class PipeItem implements INBTSerializable<CompoundTag> {
 		CompoundTag nbt = stack.serializeNBT();
 		nbt.putInt("Age", age);
 		nbt.putFloat("Pos", pos);
-		nbt.putFloat("Prevpos", prevPos);
+		nbt.putFloat("PrevPos", prevPos);
 		nbt.putByte("Dir", (byte) (from | (to << 4)));
 
 		if (speed != 0.05F) {
@@ -68,7 +68,7 @@ public class PipeItem implements INBTSerializable<CompoundTag> {
 		stack = ItemStack.of(nbt);
 		age = nbt.getInt("Age");
 		pos = nbt.getFloat("Pos");
-		prevPos = nbt.getFloat("Prevpos");
+		prevPos = nbt.getFloat("PrevPos");
 		int dir = nbt.getByte("Dir") & 0xFF;
 		from = dir & 0xF;
 		to = (dir >> 4) & 0xF;
@@ -78,7 +78,8 @@ public class PipeItem implements INBTSerializable<CompoundTag> {
 
 	@OnlyIn(Dist.CLIENT)
 	public void render(PoseStack poseStack, ItemRenderer renderItem, MultiBufferSource multiBufferSource, int light, int overlay) {
-		renderItem.renderStatic(stack, ItemTransforms.TransformType.FIXED, light, overlay, poseStack, multiBufferSource);
+		// ItemStack arg, TransformType arg2, int i, int j, PoseStack arg3, MultiBufferSource arg4, int k
+		renderItem.renderStatic(stack, ItemTransforms.TransformType.FIXED, light, overlay, poseStack, multiBufferSource, 0);
 	}
 
 	@OnlyIn(Dist.CLIENT)

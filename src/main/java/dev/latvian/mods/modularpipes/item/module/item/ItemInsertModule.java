@@ -1,6 +1,6 @@
 package dev.latvian.mods.modularpipes.item.module.item;
 
-import dev.latvian.mods.itemfilters.api.ItemFiltersAPI;
+import dev.latvian.mods.modularpipes.FilterUtils;
 import dev.latvian.mods.modularpipes.ModularPipesCommon;
 import dev.latvian.mods.modularpipes.block.entity.ModularPipeBlockEntity;
 import dev.latvian.mods.modularpipes.block.entity.PipeSideData;
@@ -92,7 +92,7 @@ public class ItemInsertModule extends ItemHandlerModule {
 					for (int i = 0; i < handler1.getSlots(); i++) {
 						ItemStack stack = handler1.extractItem(i, 1, true);
 
-						if (!stack.isEmpty() && ItemFiltersAPI.filter(filter, stack)) {
+						if (!stack.isEmpty() && FilterUtils.check(filter, stack)) {
 							ItemStack stack1 = ItemHandlerHelper.insertItem(handler, stack, false);
 
 							if (stack.getCount() != stack1.getCount()) {

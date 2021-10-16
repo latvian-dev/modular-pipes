@@ -2,19 +2,21 @@ package dev.latvian.mods.modularpipes.item.module;
 
 import dev.latvian.mods.modularpipes.block.entity.PipeNetwork;
 import dev.latvian.mods.modularpipes.block.entity.PipeSideData;
-import dev.latvian.mods.modularpipes.net.ModularPipesNet;
 import dev.latvian.mods.modularpipes.net.ParticleMessage;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -23,8 +25,8 @@ import java.util.Optional;
  * @author LatvianModder
  */
 public abstract class PipeModule implements ICapabilityProvider {
-	@CapabilityInject(PipeModule.class)
-	public static Capability<PipeModule> CAP;
+	public static final Capability<PipeModule> CAP = CapabilityManager.get(new CapabilityToken<>() {
+	});
 
 	public PipeSideData sideData;
 	public ItemStack moduleItem = ItemStack.EMPTY;
@@ -97,7 +99,13 @@ public abstract class PipeModule implements ICapabilityProvider {
 			double x = sideData.entity.getBlockPos().getX() + 0.5D + sideData.direction.getStepX() * 0.3D;
 			double y = sideData.entity.getBlockPos().getY() + 0.5D + sideData.direction.getStepY() * 0.3D;
 			double z = sideData.entity.getBlockPos().getZ() + 0.5D + sideData.direction.getStepZ() * 0.3D;
-			ModularPipesNet.NET.send(PacketDistributor.NEAR.with(PacketDistributor.TargetPoint.p(x, y, z, 24, sideData.entity.getLevel().dimension())), new ParticleMessage(sideData.entity.getBlockPos(), null, type));
+			Packet<?> packet = new ParticleMessage(sideData.entity.getBlockPos(), null, type).toPacket();
+
+			for (ServerPlayer player : ((ServerLevel) sideData.entity.getLevel()).players()) {
+				if (player.distanceToSqr(x, y, z) <= 24D * 24D) {
+					player.connection.send(packet);
+				}
+			}
 		}
 	}
 }

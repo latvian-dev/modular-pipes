@@ -1,12 +1,10 @@
 package dev.latvian.mods.modularpipes.block.entity;
 
 import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -14,11 +12,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 
@@ -36,8 +34,9 @@ public class PipeNetwork implements ICapabilityProvider {
 	public static final float[] ROT_X = new float[6];
 	public static final float[] ROT_Y = new float[6];
 	public static final int[] OPPOSITE = new int[7];
-	@CapabilityInject(PipeNetwork.class)
-	public static Capability<PipeNetwork> CAP;
+
+	public static final Capability<PipeNetwork> CAP = CapabilityManager.get(new CapabilityToken<>() {
+	});
 
 	static {
 		Direction[] directions = Direction.values();
@@ -95,11 +94,13 @@ public class PipeNetwork implements ICapabilityProvider {
 		if (refresh) {
 			pipes.clear();
 
+			/*
 			for (BlockEntity tileEntity : world.blockEntityList) {
 				if (!tileEntity.isRemoved() && tileEntity instanceof ModularPipeBlockEntity) {
 					pipes.add((ModularPipeBlockEntity) tileEntity);
 				}
 			}
+			 */
 
 			for (PipeBlockEntity pipe : pipes) {
 				pipe.clearCache();
@@ -162,14 +163,14 @@ public class PipeNetwork implements ICapabilityProvider {
 		float pos;
 		float rx, ry, rz;
 		float scale, rotX, rotY;
-		double px = BlockEntityRenderDispatcher.instance.camera.getPosition().x;
-		double py = BlockEntityRenderDispatcher.instance.camera.getPosition().y;
-		double pz = BlockEntityRenderDispatcher.instance.camera.getPosition().z;
+		double px = mc.getBlockEntityRenderDispatcher().camera.getPosition().x;
+		double py = mc.getBlockEntityRenderDispatcher().camera.getPosition().y;
+		double pz = mc.getBlockEntityRenderDispatcher().camera.getPosition().z;
 		Frustum frustum = new Frustum(matrix.last().pose(), event.getProjectionMatrix());
 		frustum.prepare(px, py, pz);
 		matrix.pushPose();
 		matrix.translate(-px, -py, -pz);
-		RenderSystem.disableLighting();
+		// FIXME: RenderSystem.disableLighting();
 		Lighting.setupFor3DItems();
 
 		for (ModularPipeBlockEntity pipe : pipes) {
@@ -222,7 +223,7 @@ public class PipeNetwork implements ICapabilityProvider {
 		}
 
 		// Lighting.setupForFlatItems();
-		RenderSystem.enableLighting();
+		// FIXME: RenderSystem.enableLighting();
 		matrix.popPose();
 	}
 }

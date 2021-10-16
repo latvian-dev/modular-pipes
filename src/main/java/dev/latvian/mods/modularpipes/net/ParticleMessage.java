@@ -1,17 +1,19 @@
 package dev.latvian.mods.modularpipes.net;
 
+import dev.architectury.networking.NetworkManager;
+import dev.architectury.networking.simple.BaseS2CMessage;
+import dev.architectury.networking.simple.MessageType;
 import dev.latvian.mods.modularpipes.ModularPipes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nullable;
 
 /**
  * @author LatvianModder
  */
-public class ParticleMessage {
+public class ParticleMessage extends BaseS2CMessage {
 	public final int x, y, z, facing, type;
 
 	public ParticleMessage(BlockPos pos, @Nullable Direction f, int t) {
@@ -30,15 +32,22 @@ public class ParticleMessage {
 		type = buf.readUnsignedByte();
 	}
 
-	public void onMessage(NetworkEvent.Context ctx) {
-		ctx.enqueueWork(() -> ModularPipes.PROXY.spawnParticle(new BlockPos(x, y, z), facing == 6 ? null : Direction.values()[facing], type));
+	@Override
+	public MessageType getType() {
+		return ModularPipesNet.PARTICLE;
 	}
 
-	public void toBytes(FriendlyByteBuf buf) {
+	@Override
+	public void write(FriendlyByteBuf buf) {
 		buf.writeInt(x);
 		buf.writeByte(y);
 		buf.writeInt(z);
 		buf.writeByte(facing);
 		buf.writeByte(type);
+	}
+
+	@Override
+	public void handle(NetworkManager.PacketContext context) {
+		ModularPipes.PROXY.spawnParticle(new BlockPos(x, y, z), facing == 6 ? null : Direction.values()[facing], type);
 	}
 }

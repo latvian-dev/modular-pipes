@@ -12,7 +12,7 @@ import java.util.function.Supplier;
  * @author LatvianModder
  */
 public interface ModularPipesBlockEntities {
-	DeferredRegister<BlockEntityType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, ModularPipes.MOD_ID);
+	DeferredRegister<BlockEntityType<?>> REGISTRY = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, ModularPipes.MOD_ID);
 
 	Supplier<BlockEntityType<?>> TRANSPORT_PIPE = REGISTRY.register("transport_pipe", () -> BlockEntityType.Builder.of(TransportPipeBlockEntity::new, ModularPipesBlocks.TRANSPORT_PIPE.get()).build(null));
 	Supplier<BlockEntityType<?>> MODULAR_PIPE = REGISTRY.register("modular_pipe", () -> BlockEntityType.Builder.of(ModularPipeBlockEntity::new, ModularPipesBlocks.MODULAR_PIPE_MK1.get(), ModularPipesBlocks.MODULAR_PIPE_MK2.get(), ModularPipesBlocks.MODULAR_PIPE_MK3.get()).build(null));

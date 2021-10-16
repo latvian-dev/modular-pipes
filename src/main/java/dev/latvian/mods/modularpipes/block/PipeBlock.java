@@ -1,6 +1,5 @@
 package dev.latvian.mods.modularpipes.block;
 
-import dev.latvian.mods.modularpipes.ModularPipes;
 import dev.latvian.mods.modularpipes.block.entity.PipeBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -12,6 +11,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -29,7 +29,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.client.model.data.ModelProperty;
-import net.minecraftforge.common.ToolType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -38,7 +37,7 @@ import java.util.List;
 /**
  * @author LatvianModder
  */
-public class PipeBlock extends Block implements SimpleWaterloggedBlock {
+public class PipeBlock extends Block implements SimpleWaterloggedBlock, EntityBlock {
 	public static final double SIZE = 4D;
 	public static final double S0 = SIZE / 16D;
 	public static final double S1 = 1D - S0;
@@ -83,20 +82,22 @@ public class PipeBlock extends Block implements SimpleWaterloggedBlock {
 	public final PipeTier tier;
 
 	public PipeBlock(PipeTier t) {
-		super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY).strength(0.6F).sound(SoundType.METAL).noOcclusion().harvestTool(ToolType.PICKAXE).lightLevel(value -> value.getValue(LIGHT) ? 15 : 0));
+		super(Properties.of(Material.METAL, MaterialColor.COLOR_GRAY)
+						.strength(0.6F)
+						.sound(SoundType.METAL)
+						.noOcclusion()
+						.lightLevel(value -> value.getValue(LIGHT) ? 15 : 0)
+				//.harvestTool(ToolType.PICKAXE)
+		);
+
 		registerDefaultState(getStateDefinition().any().setValue(LIGHT, false).setValue(BlockStateProperties.WATERLOGGED, false));
 		tier = t;
 	}
 
-	@Override
-	public boolean hasTileEntity(BlockState state) {
-		return true;
-	}
-
 	@Nullable
 	@Override
-	public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
-		return tier.blockEntity.get();
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return tier.blockEntity.create(pos, state);
 	}
 
 	@Override
@@ -104,10 +105,10 @@ public class PipeBlock extends Block implements SimpleWaterloggedBlock {
 		def.add(LIGHT, BlockStateProperties.WATERLOGGED);
 	}
 
-	@Override
-	public int getLightValue(BlockState state, BlockGetter level, BlockPos pos) {
-		return state.getValue(LIGHT) ? 15 : ModularPipes.PROXY.getPipeLightValue(level);
-	}
+	// FIXME: @Override
+	// public int getLightValue(BlockState state, BlockGetter level, BlockPos pos) {
+	// 	return state.getValue(LIGHT) ? 15 : ModularPipes.PROXY.getPipeLightValue(level);
+	// }
 
 	@Override
 	@Deprecated

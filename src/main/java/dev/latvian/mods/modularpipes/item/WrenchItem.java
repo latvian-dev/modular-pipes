@@ -10,7 +10,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.ToolType;
+import net.minecraftforge.common.ToolAction;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -19,10 +19,15 @@ import java.util.List;
  * @author LatvianModder
  */
 public class WrenchItem extends Item {
-	public static final ToolType WRENCH_TYPE = ToolType.get("wrench");
+	public static final ToolAction WRENCH_ACTION = ToolAction.get("wrench");
 
 	public WrenchItem() {
-		super(new Properties().tab(ModularPipes.TAB).stacksTo(1).addToolType(WRENCH_TYPE, 0));
+		super(new Properties().tab(ModularPipes.TAB).stacksTo(1));
+	}
+
+	@Override
+	public boolean canPerformAction(ItemStack stack, ToolAction action) {
+		return action == WRENCH_ACTION;
 	}
 
 	@Override

@@ -2,25 +2,27 @@ package dev.latvian.mods.modularpipes;
 
 import dev.latvian.mods.modularpipes.block.ModularPipesBlocks;
 import dev.latvian.mods.modularpipes.block.entity.ModularPipesBlockEntities;
+import dev.latvian.mods.modularpipes.block.entity.PipeNetwork;
 import dev.latvian.mods.modularpipes.client.ModularPipesClient;
 import dev.latvian.mods.modularpipes.item.ModularPipesItems;
 import dev.latvian.mods.modularpipes.item.module.PipeModule;
 import dev.latvian.mods.modularpipes.net.ModularPipesNet;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.jetbrains.annotations.Nullable;
 
 @Mod(ModularPipes.MOD_ID)
 public class ModularPipes {
 	public static final String MOD_ID = "modularpipes";
+
 	public static final CreativeModeTab TAB = new CreativeModeTab(MOD_ID) {
 		@Override
 		public ItemStack makeIcon() {
@@ -28,11 +30,15 @@ public class ModularPipes {
 		}
 	};
 
+	private static final ResourceLocation WORLD_CAP_ID = new ResourceLocation(ModularPipes.MOD_ID, "pipe_network");
+
 	public static ModularPipesCommon PROXY;
 
 	public ModularPipes() {
 		PROXY = DistExecutor.safeRunForDist(() -> ModularPipesClient::new, () -> ModularPipesCommon::new);
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
+		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerCapabilities);
+		MinecraftForge.EVENT_BUS.addGenericListener(Level.class, this::attachLevelCap);
+		MinecraftForge.EVENT_BUS.addListener(this::tickServerWorld);
 		ModularPipesBlocks.REGISTRY.register(FMLJavaModLoadingContext.get().getModEventBus());
 		ModularPipesItems.REGISTRY.register(FMLJavaModLoadingContext.get().getModEventBus());
 		ModularPipesBlockEntities.REGISTRY.register(FMLJavaModLoadingContext.get().getModEventBus());
@@ -40,17 +46,22 @@ public class ModularPipes {
 		PROXY.init();
 	}
 
-	private void setup(FMLCommonSetupEvent event) {
-		CapabilityManager.INSTANCE.register(PipeModule.class, new Capability.IStorage<PipeModule>() {
-			@Nullable
-			@Override
-			public Tag writeNBT(Capability<PipeModule> capability, PipeModule object, Direction arg) {
-				return null;
-			}
+	private void registerCapabilities(RegisterCapabilitiesEvent event) {
+		event.register(PipeModule.class);
+		event.register(PipeNetwork.class);
+	}
 
-			@Override
-			public void readNBT(Capability<PipeModule> capability, PipeModule object, Direction arg, Tag arg2) {
+	private void attachLevelCap(AttachCapabilitiesEvent<Level> event) {
+		event.addCapability(WORLD_CAP_ID, new PipeNetwork(event.getObject()));
+	}
+
+	private void tickServerWorld(TickEvent.WorldTickEvent event) {
+		if (event.phase == TickEvent.Phase.END) {
+			PipeNetwork network = PipeNetwork.get(event.world);
+
+			if (network != null) {
+				network.tick();
 			}
-		}, () -> null);
+		}
 	}
 }

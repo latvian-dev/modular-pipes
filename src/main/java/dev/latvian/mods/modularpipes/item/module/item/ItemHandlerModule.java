@@ -1,6 +1,6 @@
 package dev.latvian.mods.modularpipes.item.module.item;
 
-import dev.latvian.mods.itemfilters.api.ItemFiltersAPI;
+import dev.latvian.mods.modularpipes.FilterUtils;
 import dev.latvian.mods.modularpipes.block.entity.ModularPipeBlockEntity;
 import dev.latvian.mods.modularpipes.block.entity.PipeSideData;
 import dev.latvian.mods.modularpipes.item.module.PipeModule;
@@ -81,7 +81,7 @@ public class ItemHandlerModule extends PipeModule implements IItemHandler {
 	@Override
 	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
 		for (ItemStorageModule module : getStorageModules()) {
-			if (ItemFiltersAPI.filter(module.filter, stack)) {
+			if (FilterUtils.check(module.filter, stack)) {
 				IItemHandler handler1 = module.getItemHandler();
 
 				if (handler1 != null) {
@@ -110,7 +110,7 @@ public class ItemHandlerModule extends PipeModule implements IItemHandler {
 	@Override
 	public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
 		for (ItemStorageModule module : getStorageModules()) {
-			if (ItemFiltersAPI.filter(module.filter, stack)) {
+			if (FilterUtils.check(module.filter, stack)) {
 				return true;
 			}
 		}

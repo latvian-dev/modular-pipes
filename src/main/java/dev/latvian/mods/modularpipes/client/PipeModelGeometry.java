@@ -12,8 +12,8 @@ import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.client.model.CompositeModelState;
 import net.minecraftforge.client.model.IModelConfiguration;
-import net.minecraftforge.client.model.ModelTransformComposition;
 import net.minecraftforge.client.model.geometry.IModelGeometry;
 
 import java.util.ArrayList;
@@ -85,7 +85,7 @@ public class PipeModelGeometry implements IModelGeometry<PipeModelGeometry> {
 
 		@Override
 		public BakedModel getModel(UnbakedModel model, ModelState rotation, boolean uvlock) {
-			return model.bake(bakery, spriteGetter, new ModelTransformComposition(modelState, rotation, uvlock), modelLocation);
+			return model.bake(bakery, spriteGetter, new CompositeModelState(modelState, rotation, uvlock), modelLocation);
 		}
 	}
 }

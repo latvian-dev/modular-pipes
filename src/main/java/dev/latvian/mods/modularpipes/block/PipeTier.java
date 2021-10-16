@@ -3,8 +3,7 @@ package dev.latvian.mods.modularpipes.block;
 import dev.latvian.mods.modularpipes.block.entity.ModularPipeBlockEntity;
 import dev.latvian.mods.modularpipes.block.entity.PipeBlockEntity;
 import dev.latvian.mods.modularpipes.block.entity.TransportPipeBlockEntity;
-
-import java.util.function.Supplier;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 
 /**
  * @author LatvianModder
@@ -16,12 +15,12 @@ public enum PipeTier {
 	MK3("mk3", ModularPipeBlockEntity::new, 6);
 
 	public final String name;
-	public final Supplier<? extends PipeBlockEntity> blockEntity;
+	public final BlockEntityType.BlockEntitySupplier<? extends PipeBlockEntity> blockEntity;
 	public final int maxModules;
 
-	PipeTier(String n, Supplier<? extends PipeBlockEntity> te, int m) {
+	PipeTier(String n, BlockEntityType.BlockEntitySupplier<? extends PipeBlockEntity> be, int m) {
 		name = n;
-		blockEntity = te;
+		blockEntity = be;
 		maxModules = m;
 	}
 }
