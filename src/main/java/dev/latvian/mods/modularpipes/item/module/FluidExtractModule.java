@@ -1,14 +1,20 @@
-package dev.latvian.mods.modularpipes.item.module.fluid;
+package dev.latvian.mods.modularpipes.item.module;
 
-import dev.latvian.mods.modularpipes.item.module.PipeModule;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * @author LatvianModder
  */
-public class FluidHandlerModule extends PipeModule implements IFluidHandler {
+public class FluidExtractModule extends PipeModule implements IFluidHandler {
+	@Override
+	public boolean isThisCapability(Capability<?> capability) {
+		return capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY;
+	}
+
 	@Override
 	public int getTanks() {
 		return 1;

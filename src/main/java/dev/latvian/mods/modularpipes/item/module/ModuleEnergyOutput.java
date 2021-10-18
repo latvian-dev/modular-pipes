@@ -1,4 +1,4 @@
-package dev.latvian.mods.modularpipes.item.module.energy;
+package dev.latvian.mods.modularpipes.item.module;
 
 import dev.latvian.mods.modularpipes.ModularPipesCommon;
 import dev.latvian.mods.modularpipes.block.entity.ModularPipeBlockEntity;

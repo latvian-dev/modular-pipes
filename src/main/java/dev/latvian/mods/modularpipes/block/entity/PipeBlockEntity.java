@@ -140,7 +140,7 @@ public abstract class PipeBlockEntity extends BlockEntity {
 	@Override
 	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
 		if (side != null && sideData[side.get3DDataValue()].module != null) {
-			LazyOptional<T> o = sideData[side.get3DDataValue()].module.getCapability(cap, side);
+			LazyOptional<T> o = sideData[side.get3DDataValue()].module.getCapability(cap);
 
 			if (o.isPresent()) {
 				return o;

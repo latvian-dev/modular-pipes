@@ -5,6 +5,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.items.CapabilityItemHandler;
 
 public class PipeSideData {
 	public final PipeBlockEntity entity;
@@ -81,10 +83,12 @@ public class PipeSideData {
 			return false;
 		}
 
-		BlockEntity tileEntity = entity.getLevel().getBlockEntity(entity.getBlockPos().relative(direction));
+		BlockEntity blockEntity = entity.getLevel().getBlockEntity(entity.getBlockPos().relative(direction));
 
-		if (tileEntity instanceof PipeBlockEntity) {
-			return ((PipeBlockEntity) tileEntity).sideData[direction.getOpposite().get3DDataValue()].canConnect();
+		if (blockEntity instanceof PipeBlockEntity) {
+			return ((PipeBlockEntity) blockEntity).sideData[direction.getOpposite().get3DDataValue()].canConnect();
+		} else if (blockEntity != null) {
+			return blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, direction.getOpposite()).isPresent() || blockEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, direction.getOpposite()).isPresent();
 		}
 
 		return false;

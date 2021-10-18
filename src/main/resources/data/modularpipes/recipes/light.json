@@ -1,21 +1,15 @@
 {
-	"type": "minecraft:crafting_shaped",
+	"type": "minecraft:crafting_shapeless",
 	"group": "modularpipes:module",
 	"result": {
-		"item": "modularpipes:light",
-		"count": 4
+		"item": "modularpipes:light"
 	},
-	"pattern": [
-		" M ",
-		"MGM",
-		" M "
-	],
-	"key": {
-		"M": {
+	"ingredients": [
+		{
 			"item": "modularpipes:module"
 		},
-		"G": {
-			"item": "minecraft:glowstone"
+		{
+			"tag": "forge:dusts/glowstone"
 		}
-	}
+	]
 }

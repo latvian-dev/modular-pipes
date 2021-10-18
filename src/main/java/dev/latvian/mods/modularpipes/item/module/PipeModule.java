@@ -66,9 +66,13 @@ public abstract class PipeModule implements ICapabilityProvider {
 		return false;
 	}
 
+	public boolean isThisCapability(Capability<?> capability) {
+		return false;
+	}
+
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction facing) {
-		return capability == CAP ? thisOptional.cast() : LazyOptional.empty();
+		return capability == CAP || isThisCapability(capability) ? thisOptional.cast() : LazyOptional.empty();
 	}
 
 	public final void refreshNetwork() {

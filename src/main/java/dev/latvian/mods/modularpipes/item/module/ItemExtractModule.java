@@ -1,27 +1,26 @@
-package dev.latvian.mods.modularpipes.item.module.item;
+package dev.latvian.mods.modularpipes.item.module;
 
 import dev.latvian.mods.itemfilters.api.ItemFiltersAPI;
-import dev.latvian.mods.modularpipes.block.entity.ModularPipeBlockEntity;
-import dev.latvian.mods.modularpipes.block.entity.PipeSideData;
-import dev.latvian.mods.modularpipes.item.module.PipeModule;
+import dev.latvian.mods.modularpipes.ModularPipesCommon;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author LatvianModder
  */
-public class ItemHandlerModule extends PipeModule implements IItemHandler {
+public class ItemExtractModule extends PipeModule implements IItemHandler {
 	public ItemStack filter = ItemStack.EMPTY;
-	private List<ItemStorageModule> storageModules = null;
+	public int tick = 0;
 
 	@Override
 	public void writeData(CompoundTag nbt) {
@@ -30,42 +29,63 @@ public class ItemHandlerModule extends PipeModule implements IItemHandler {
 		if (!filter.isEmpty()) {
 			nbt.put("Filter", filter.serializeNBT());
 		}
+
+		if (tick > 0) {
+			nbt.putByte("Tick", (byte) tick);
+		}
 	}
 
 	@Override
 	public void readData(CompoundTag nbt) {
 		super.readData(nbt);
-		filter = ItemStack.of(nbt.getCompound("Filter"));
 
-		if (filter.isEmpty()) {
+		if (nbt.contains("Filter")) {
+			filter = ItemStack.of(nbt.getCompound("Filter"));
+		} else {
 			filter = ItemStack.EMPTY;
 		}
-	}
 
-	public List<ItemStorageModule> getStorageModules() {
-		if (storageModules == null) {
-			storageModules = new ArrayList<>(2);
-
-			for (ModularPipeBlockEntity pipe1 : ((ModularPipeBlockEntity) sideData.entity).getPipeNetwork()) {
-				for (PipeSideData data : pipe1.sideData) {
-					if (data.module instanceof ItemStorageModule) {
-						storageModules.add((ItemStorageModule) data.module);
-					}
-				}
-			}
-
-			if (storageModules.size() > 1) {
-				storageModules.sort(ItemStorageModule.COMPARATOR);
-			}
-		}
-
-		return storageModules;
+		tick = nbt.getByte("Tick");
 	}
 
 	@Override
-	public void clearCache() {
-		super.clearCache();
-		storageModules = null;
+	public boolean isThisCapability(Capability<?> capability) {
+		return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
+	}
+
+	@Override
+	public void updateModule() {
+		tick++;
+
+		if (tick >= 7) {
+			if (extractItem()) {
+				spawnParticle(ModularPipesCommon.EXPLOSION);
+			}
+
+			tick = 0;
+		}
+	}
+
+	private boolean extractItem() {
+		BlockEntity tile = getFacingTile();
+		IItemHandler handler = tile == null ? null : tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, sideData.direction.getOpposite()).orElse(null);
+
+		if (handler != null) {
+			for (int slot = 0; slot < handler.getSlots(); slot++) {
+				ItemStack stack = handler.extractItem(slot, 1, true);
+
+				if (!stack.isEmpty() && ItemFiltersAPI.filter(filter, stack)) {
+					ItemStack stack1 = insertItem(0, stack, false);
+
+					if (stack1.getCount() != stack.getCount()) {
+						handler.extractItem(slot, stack.getCount() - stack1.getCount(), false);
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
 	}
 
 	@Override
@@ -80,6 +100,7 @@ public class ItemHandlerModule extends PipeModule implements IItemHandler {
 
 	@Override
 	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+		/*
 		for (ItemStorageModule module : getStorageModules()) {
 			if (ItemFiltersAPI.filter(module.filter, stack)) {
 				IItemHandler handler1 = module.getItemHandler();
@@ -93,6 +114,7 @@ public class ItemHandlerModule extends PipeModule implements IItemHandler {
 				}
 			}
 		}
+		 */
 
 		return stack;
 	}
@@ -109,11 +131,13 @@ public class ItemHandlerModule extends PipeModule implements IItemHandler {
 
 	@Override
 	public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+		/*
 		for (ItemStorageModule module : getStorageModules()) {
 			if (ItemFiltersAPI.filter(module.filter, stack)) {
 				return true;
 			}
 		}
+		 */
 		return false;
 	}
 

@@ -132,6 +132,28 @@ public class PipeBlock extends Block implements SimpleWaterloggedBlock {
 	}
 
 	@Override
+	@Deprecated
+	public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+		BlockEntity tileEntity = level.getBlockEntity(pos);
+
+		if (tileEntity instanceof PipeBlockEntity) {
+			PipeBlockEntity pipe = (PipeBlockEntity) tileEntity;
+
+			int id = 0;
+
+			for (int i = 0; i < 6; i++) {
+				if (pipe.sideData[i].connect) {
+					id |= 1 << i;
+				}
+			}
+
+			return getBox(id);
+		}
+
+		return getBox(0);
+	}
+
+	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
 		return super.getStateForPlacement(ctx).setValue(BlockStateProperties.WATERLOGGED, ctx.getLevel().getFluidState(ctx.getClickedPos()).getType() == Fluids.WATER);
 	}

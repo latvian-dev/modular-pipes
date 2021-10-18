@@ -2,14 +2,24 @@
 	"type": "minecraft:crafting_shapeless",
 	"group": "modularpipes:module",
 	"result": {
-		"item": "modularpipes:item_extract_module"
+		"item": "modularpipes:item_extract_module",
+		"count": 3
 	},
 	"ingredients": [
 		{
-			"item": "modularpipes:item_base_module"
+			"item": "modularpipes:module"
 		},
 		{
-			"item": "modularpipes:input_part"
+			"item": "modularpipes:module"
+		},
+		{
+			"item": "modularpipes:module"
+		},
+		{
+			"item": "modularpipes:output_part"
+		},
+		{
+			"tag": "minecraft:planks"
 		}
 	]
 }

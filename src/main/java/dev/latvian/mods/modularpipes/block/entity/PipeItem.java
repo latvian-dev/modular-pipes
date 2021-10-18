@@ -49,8 +49,9 @@ public class PipeItem implements INBTSerializable<CompoundTag> {
 		CompoundTag nbt = stack.serializeNBT();
 		nbt.putInt("Age", age);
 		nbt.putFloat("Pos", pos);
-		nbt.putFloat("Prevpos", prevPos);
-		nbt.putByte("Dir", (byte) (from | (to << 4)));
+		nbt.putFloat("PrevPos", prevPos);
+		nbt.putByte("From", (byte) from);
+		nbt.putByte("To", (byte) to);
 
 		if (speed != 0.05F) {
 			nbt.putFloat("Speed", speed);
@@ -68,10 +69,9 @@ public class PipeItem implements INBTSerializable<CompoundTag> {
 		stack = ItemStack.of(nbt);
 		age = nbt.getInt("Age");
 		pos = nbt.getFloat("Pos");
-		prevPos = nbt.getFloat("Prevpos");
-		int dir = nbt.getByte("Dir") & 0xFF;
-		from = dir & 0xF;
-		to = (dir >> 4) & 0xF;
+		prevPos = nbt.getFloat("PrevPos");
+		from = nbt.getByte("From");
+		to = nbt.getByte("To");
 		speed = nbt.contains("Speed") ? Mth.clamp(nbt.getFloat("Speed"), 0.01F, 1F) : 0.05F;
 		lifespan = nbt.contains("Lifespan") ? nbt.getInt("Lifespan") : 6000;
 	}

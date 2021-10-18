@@ -1,12 +1,9 @@
-package dev.latvian.mods.modularpipes.item.module.energy;
+package dev.latvian.mods.modularpipes.item.module;
 
 import dev.latvian.mods.modularpipes.ModularPipesConfig;
 import dev.latvian.mods.modularpipes.block.entity.ModularPipeBlockEntity;
-import dev.latvian.mods.modularpipes.item.module.PipeModule;
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 
@@ -20,8 +17,8 @@ public class ModuleEnergy extends PipeModule implements IEnergyStorage {
 	private Optional<IEnergyStorage> cachedEnergyStorage = null;
 
 	@Override
-	public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction facing) {
-		return capability == CapabilityEnergy.ENERGY && facing == sideData.direction ? thisOptional.cast() : super.getCapability(capability, facing);
+	public boolean isThisCapability(Capability<?> capability) {
+		return capability == CapabilityEnergy.ENERGY;
 	}
 
 	@Override

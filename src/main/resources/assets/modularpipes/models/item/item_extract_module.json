@@ -1,8 +1,8 @@
 {
 	"parent": "modularpipes:item/module_base",
 	"textures": {
-		"tex": "modularpipes:item/module/item/base",
+		"tex": "modularpipes:item/module/extract_base",
 		"layer2": "modularpipes:item/module/moving_center",
-		"layer3": "modularpipes:item/module/moving_sides_input"
+		"layer3": "modularpipes:item/module/moving_sides_item"
 	}
 }
