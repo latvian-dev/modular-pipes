@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -18,7 +17,7 @@ import java.util.List;
 
 public class ServerPipeNetwork extends PipeNetwork implements INBTSerializable<CompoundTag> {
 	public final List<ModularPipeBlockEntity> pipes;
-	public long nextItemID = 0L;
+	public long lastItemID = 0L;
 	private boolean refresh = true;
 
 	public ServerPipeNetwork(Level w) {
@@ -69,7 +68,7 @@ public class ServerPipeNetwork extends PipeNetwork implements INBTSerializable<C
 			profiler.push("PipeTick");
 
 			for (ModularPipeBlockEntity pipe : pipes) {
-				pipe.tickPipe();
+				pipe.tickPipe(this);
 				pipe.sendUpdates();
 			}
 
@@ -77,16 +76,10 @@ public class ServerPipeNetwork extends PipeNetwork implements INBTSerializable<C
 		}
 	}
 
-	public PipeItem insert(ItemStack stack) {
-		PipeItem item = new PipeItem(this, ++nextItemID, stack);
-		pipeItems.put(item.id, item);
-		return item;
-	}
-
 	@Override
 	public CompoundTag serializeNBT() {
 		CompoundTag tag = new CompoundTag();
-		tag.putLong("NextItemID", nextItemID);
+		tag.putLong("LastItemID", lastItemID);
 
 		ListTag itag = new ListTag();
 
@@ -101,7 +94,7 @@ public class ServerPipeNetwork extends PipeNetwork implements INBTSerializable<C
 
 	@Override
 	public void deserializeNBT(CompoundTag tag) {
-		nextItemID = tag.getLong("NextItemID");
+		lastItemID = tag.getLong("LastItemID");
 
 		pipeItems.clear();
 

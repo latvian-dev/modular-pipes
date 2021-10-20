@@ -2,6 +2,7 @@ package dev.latvian.mods.modularpipes.item.module;
 
 import dev.latvian.mods.itemfilters.api.ItemFiltersAPI;
 import dev.latvian.mods.modularpipes.client.PipeParticle;
+import dev.latvian.mods.modularpipes.util.ServerPipeNetwork;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.InteractionHand;
@@ -46,11 +47,11 @@ public class ItemExtractModule extends PipeModule {
 	}
 
 	@Override
-	public void updateModule() {
+	public void updateModule(ServerPipeNetwork network) {
 		tick++;
 
-		if (tick >= 7) {
-			if (extractItem()) {
+		if (tick >= 30) {
+			if (extractItem(network)) {
 				spawnParticle(PipeParticle.DEBUG_EXPLOSION);
 			}
 
@@ -58,7 +59,7 @@ public class ItemExtractModule extends PipeModule {
 		}
 	}
 
-	private boolean extractItem() {
+	private boolean extractItem(ServerPipeNetwork network) {
 		BlockEntity tile = getFacingTile();
 		IItemHandler handler = tile == null ? null : tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, sideData.direction.getOpposite()).orElse(null);
 
@@ -66,13 +67,9 @@ public class ItemExtractModule extends PipeModule {
 			for (int slot = 0; slot < handler.getSlots(); slot++) {
 				ItemStack stack = handler.extractItem(slot, 1, true);
 
-				if (!stack.isEmpty() && ItemFiltersAPI.filter(filter, stack)) {
-					ItemStack stack1 = sideData.insertItem(0, stack, false);
-
-					if (stack1.getCount() != stack.getCount()) {
-						handler.extractItem(slot, stack.getCount() - stack1.getCount(), false);
-						return true;
-					}
+				if (!stack.isEmpty() && ItemFiltersAPI.filter(filter, stack) && sideData.insertItem(network, stack)) {
+					handler.extractItem(slot, 1, false);
+					return true;
 				}
 			}
 		}

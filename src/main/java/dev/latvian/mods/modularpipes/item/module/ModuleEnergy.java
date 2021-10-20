@@ -10,14 +10,11 @@ import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
 
 /**
  * @author LatvianModder
  */
 public class ModuleEnergy extends PipeModule {
-	private Optional<IEnergyStorage> cachedEnergyStorage = null;
-
 	@Override
 	public boolean isThisCapability(Capability<?> capability) {
 		return capability == CapabilityEnergy.ENERGY;
@@ -26,17 +23,12 @@ public class ModuleEnergy extends PipeModule {
 	@Override
 	public void clearCache() {
 		super.clearCache();
-		cachedEnergyStorage = null;
 	}
 
 	@Nullable
 	public IEnergyStorage getFacingEnergyStorage() {
-		if (cachedEnergyStorage == null) {
-			BlockEntity tileEntity = getFacingTile();
-			cachedEnergyStorage = Optional.ofNullable(tileEntity == null ? null : tileEntity.getCapability(CapabilityEnergy.ENERGY, sideData.direction.getOpposite()).orElse(null));
-		}
-
-		return cachedEnergyStorage.orElse(null);
+		BlockEntity tileEntity = getFacingTile();
+		return tileEntity == null ? null : tileEntity.getCapability(CapabilityEnergy.ENERGY, sideData.direction.getOpposite()).orElse(null);
 	}
 
 	@Override

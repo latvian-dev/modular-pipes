@@ -1,0 +1,6 @@
+{
+	"parent": "modularpipes:item/module_base",
+	"textures": {
+		"tex": "modularpipes:item/module/round_robin"
+	}
+}

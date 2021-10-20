@@ -3,7 +3,7 @@ package dev.latvian.mods.modularpipes.item.module;
 /**
  * @author LatvianModder
  */
-public class ModuleEnergyOutput extends ModuleEnergy {
+public class EnergyOutputModule extends ModuleEnergy {
 	/*
 	private boolean hasMovedEnergy = false;
 	private int tick = 0;

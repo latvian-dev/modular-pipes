@@ -3,7 +3,7 @@ package dev.latvian.mods.modularpipes.item.module;
 /**
  * @author LatvianModder
  */
-public class ModuleEnergyInput extends ModuleEnergy {
+public class EnergyInputModule extends ModuleEnergy {
 	/*
 	@Override
 	public int receiveEnergy(int maxReceive, boolean simulate) {

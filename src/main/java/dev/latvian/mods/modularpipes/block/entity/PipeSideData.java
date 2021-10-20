@@ -1,6 +1,12 @@
 package dev.latvian.mods.modularpipes.block.entity;
 
 import dev.latvian.mods.modularpipes.item.module.PipeModule;
+import dev.latvian.mods.modularpipes.util.ModularPipesUtils;
+import dev.latvian.mods.modularpipes.util.PathSegment;
+import dev.latvian.mods.modularpipes.util.PipeItem;
+import dev.latvian.mods.modularpipes.util.PipeNetwork;
+import dev.latvian.mods.modularpipes.util.ServerPipeNetwork;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
@@ -22,7 +28,6 @@ public class PipeSideData implements ICapabilityProvider, IItemHandler {
 	public PipeModule module;
 	public boolean light;
 	public boolean disabled;
-	public int roundRobin;
 	LazyOptional<PipeSideData> thisOptional;
 
 	public PipeSideData(PipeBlockEntity e, Direction d) {
@@ -32,7 +37,6 @@ public class PipeSideData implements ICapabilityProvider, IItemHandler {
 		module = null;
 		light = false;
 		disabled = false;
-		roundRobin = 0;
 	}
 
 	public boolean shouldWrite() {
@@ -64,10 +68,6 @@ public class PipeSideData implements ICapabilityProvider, IItemHandler {
 			tag.putBoolean("Disabled", true);
 		}
 
-		if (roundRobin > 0) {
-			tag.putInt("RoundRobin", roundRobin);
-		}
-
 		return tag;
 	}
 
@@ -90,7 +90,6 @@ public class PipeSideData implements ICapabilityProvider, IItemHandler {
 
 		light = tag.getBoolean("Light");
 		disabled = tag.getBoolean("Disabled");
-		roundRobin = tag.getInt("RoundRobin");
 	}
 
 	private boolean updateConnection0() {
@@ -193,6 +192,26 @@ public class PipeSideData implements ICapabilityProvider, IItemHandler {
 		}
 	}
 
+	public boolean insertItem(ServerPipeNetwork network, ItemStack stack) {
+		PipeItem item = new PipeItem(network, network.lastItemID + 1L, stack);
+		BlockPos p = entity.getBlockPos();
+		int dir = direction.get3DDataValue();
+		int steps = 6;
+
+		item.path = new PathSegment();
+		item.path.x = p.getX() + ModularPipesUtils.POS_X[dir];
+		item.path.y = p.getY() + ModularPipesUtils.POS_Y[dir];
+		item.path.z = p.getZ() + ModularPipesUtils.POS_Z[dir];
+		item.path.steps = steps;
+		item.path.from = 6;
+		item.path.to = ModularPipesUtils.OPPOSITE[dir];
+		item.path.findNextSegment(entity, dir, steps * 2, 20);
+
+		network.pipeItems.put(item.id, item);
+		network.lastItemID++;
+		return true;
+	}
+
 	@Override
 	public int getSlots() {
 		return 1;
@@ -211,12 +230,12 @@ public class PipeSideData implements ICapabilityProvider, IItemHandler {
 			return stack;
 		}
 
-		ItemStack single = ItemHandlerHelper.copyStackWithSize(stack, 1);
+		PipeNetwork network = PipeNetwork.get(entity.getLevel());
 
-		for (int i = 0; i < 6; i++) {
-			if (i != direction.get3DDataValue()) {
-				// eat the item for now
-				System.out.println("Ate " + single);
+		if (network instanceof ServerPipeNetwork) {
+			ItemStack single = ItemHandlerHelper.copyStackWithSize(stack, 1);
+
+			if (insertItem((ServerPipeNetwork) network, single)) {
 				return ItemHandlerHelper.copyStackWithSize(stack, stack.getCount() - 1);
 			}
 		}

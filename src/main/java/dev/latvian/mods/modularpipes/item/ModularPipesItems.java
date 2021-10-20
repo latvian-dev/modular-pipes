@@ -3,10 +3,11 @@ package dev.latvian.mods.modularpipes.item;
 import dev.latvian.mods.modularpipes.ModularPipes;
 import dev.latvian.mods.modularpipes.block.ModularPipesBlocks;
 import dev.latvian.mods.modularpipes.item.module.CraftingModule;
+import dev.latvian.mods.modularpipes.item.module.EnergyInputModule;
+import dev.latvian.mods.modularpipes.item.module.EnergyOutputModule;
 import dev.latvian.mods.modularpipes.item.module.FluidExtractModule;
 import dev.latvian.mods.modularpipes.item.module.ItemExtractModule;
-import dev.latvian.mods.modularpipes.item.module.ModuleEnergyInput;
-import dev.latvian.mods.modularpipes.item.module.ModuleEnergyOutput;
+import dev.latvian.mods.modularpipes.item.module.RoundRobinModule;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -43,7 +44,7 @@ public interface ModularPipesItems {
 	Supplier<Item> ITEM_EXTRACT_MODULE = REGISTRY.register("item_extract_module", () -> new ModuleItem(ItemExtractModule::new));
 	Supplier<Item> FLUID_EXTRACT_MODULE = REGISTRY.register("fluid_extract_module", () -> new ModuleItem(FluidExtractModule::new));
 	Supplier<Item> CRAFTING_MODULE = REGISTRY.register("crafting_module", () -> new ModuleItem(CraftingModule::new));
-	Supplier<Item> ENERGY_INPUT_MODULE = REGISTRY.register("energy_input_module", () -> new ModuleItem(ModuleEnergyInput::new));
-	Supplier<Item> ENERGY_OUTPUT_MODULE = REGISTRY.register("energy_output_module", () -> new ModuleItem(ModuleEnergyOutput::new));
-
+	Supplier<Item> ENERGY_INPUT_MODULE = REGISTRY.register("energy_input_module", () -> new ModuleItem(EnergyInputModule::new));
+	Supplier<Item> ENERGY_OUTPUT_MODULE = REGISTRY.register("energy_output_module", () -> new ModuleItem(EnergyOutputModule::new));
+	Supplier<Item> ROUND_ROBIN_MODULE = REGISTRY.register("round_robin_module", () -> new ModuleItem(RoundRobinModule::new));
 }

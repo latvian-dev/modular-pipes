@@ -3,7 +3,9 @@ package dev.latvian.mods.modularpipes.item.module;
 import dev.latvian.mods.modularpipes.block.entity.PipeSideData;
 import dev.latvian.mods.modularpipes.client.PipeParticle;
 import dev.latvian.mods.modularpipes.net.ParticleMessage;
+import dev.latvian.mods.modularpipes.util.PipeItem;
 import dev.latvian.mods.modularpipes.util.PipeNetwork;
+import dev.latvian.mods.modularpipes.util.ServerPipeNetwork;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -20,7 +22,6 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
 
 /**
  * @author LatvianModder
@@ -32,7 +33,6 @@ public abstract class PipeModule implements ICapabilityProvider {
 	public PipeSideData sideData;
 	public ItemStack moduleItem = ItemStack.EMPTY;
 
-	private Optional<BlockEntity> cachedEntity = Optional.empty();
 	private LazyOptional<?> thisOptional = null;
 
 	public LazyOptional<?> getThisOptional() {
@@ -74,11 +74,10 @@ public abstract class PipeModule implements ICapabilityProvider {
 	public void onPipeBroken() {
 	}
 
-	public void updateModule() {
+	public void updateModule(ServerPipeNetwork network) {
 	}
 
 	public void clearCache() {
-		cachedEntity = Optional.empty();
 	}
 
 	public boolean onModuleRightClick(Player player, InteractionHand hand) {
@@ -108,11 +107,7 @@ public abstract class PipeModule implements ICapabilityProvider {
 
 	@Nullable
 	public BlockEntity getFacingTile() {
-		if (!cachedEntity.isPresent()) {
-			cachedEntity = Optional.ofNullable(!sideData.entity.hasLevel() ? null : sideData.entity.getLevel().getBlockEntity(sideData.entity.getBlockPos().relative(sideData.direction)));
-		}
-
-		return cachedEntity.orElse(null);
+		return !sideData.entity.hasLevel() ? null : sideData.entity.getLevel().getBlockEntity(sideData.entity.getBlockPos().relative(sideData.direction));
 	}
 
 	public void spawnParticle(PipeParticle type) {
@@ -133,5 +128,26 @@ public abstract class PipeModule implements ICapabilityProvider {
 				}
 			}
 		}
+	}
+
+	/**
+	 * @return Direction the item should go to next
+	 */
+	public int onEnter(PipeItem item) {
+		return -1;
+	}
+
+	/**
+	 * @return True if item is allowed to pass through
+	 */
+	public boolean canExit(PipeItem item, boolean pipeConnected) {
+		return pipeConnected;
+	}
+
+	/**
+	 * @return Priority of item exiting on the direction of module
+	 */
+	public int getExitPriority(PipeItem item) {
+		return 0;
 	}
 }

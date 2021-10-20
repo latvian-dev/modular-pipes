@@ -1,83 +1,131 @@
 package dev.latvian.mods.modularpipes.util;
 
+import dev.latvian.mods.modularpipes.block.entity.PipeBlockEntity;
+import dev.latvian.mods.modularpipes.block.entity.TransportPipeBlockEntity;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class PathSegment {
-	public final int x, y, z, from, to, steps;
+	public int x, y, z, steps, from, to;
+	public PathSegment next;
 
-	public PathSegment(int _x, int _y, int _z, int _from, int _to, int _steps) {
-		x = _x;
-		y = _y;
-		z = _z;
-		from = _from;
-		to = _to;
-		steps = _steps;
+	public PathSegment() {
 	}
 
 	public PathSegment(int[] ai) {
-		this(ai[0], ai[1], ai[2], ai[3], ai[4], ai[5]);
-	}
+		x = ai[0];
+		y = ai[1];
+		z = ai[2];
+		steps = ai[3];
+		from = ai[4];
+		to = ai[5];
 
-	public PathSegment(FriendlyByteBuf buf) {
-		x = buf.readVarInt();
-		y = buf.readVarInt();
-		z = buf.readVarInt();
-		from = buf.readByte();
-		to = buf.readByte();
-		steps = buf.readVarInt();
+		PathSegment s = this;
+
+		for (int i = 6; i < ai.length; i += 2) {
+			s.next = chain(ai[i], ai[i + 1]);
+			s = s.next;
+		}
+
+		System.out.println(this);
 	}
 
 	public int[] toIntArray() {
-		return new int[]{x, y, z, from, to, steps};
-	}
+		IntArrayList list = new IntArrayList();
+		list.add(x);
+		list.add(y);
+		list.add(z);
+		list.add(steps);
+		list.add(from);
+		list.add(to);
+		PathSegment n = next;
 
-	public void write(FriendlyByteBuf buf) {
-		buf.writeVarInt(x);
-		buf.writeVarInt(y);
-		buf.writeVarInt(z);
-		buf.writeByte(from);
-		buf.writeByte(to);
-		buf.writeVarInt(steps);
+		while (n != null) {
+			list.add(n.steps);
+			list.add(n.to);
+			n = n.next;
+		}
+
+		return list.toIntArray();
 	}
 
 	@Override
 	public String toString() {
-		return "PathSegment{" +
-				"x=" + x +
-				", y=" + y +
-				", z=" + z +
-				", from=" + ModularPipesUtils.DIRECTIONS[from].getSerializedName() +
-				", to=" + ModularPipesUtils.DIRECTIONS[to].getSerializedName() +
-				", steps=" + steps +
-				'}';
+		StringBuilder sb = new StringBuilder("Path{");
+		sb.append(x);
+		sb.append(",");
+		sb.append(y);
+		sb.append(",");
+		sb.append(z);
+		sb.append(",");
+		sb.append(ModularPipesUtils.DIR_CHAR[from]);
+		sb.append("=>");
+		sb.append(steps);
+		sb.append(ModularPipesUtils.DIR_CHAR[to]);
+
+		PathSegment n = next;
+
+		while (n != null) {
+			sb.append('+');
+			sb.append(n.steps);
+			sb.append(ModularPipesUtils.DIR_CHAR[n.to]);
+			n = n.next;
+		}
+
+		return sb.toString();
 	}
 
-	public void translate(int pos, double[] position) {
-		if (pos < steps * 2) {
-			double p = pos / (steps * 2D);
-			double r = 0.5D - p * 0.5D;
-			position[0] = x + 0.5D + ModularPipesUtils.POS_X[from] * r;
-			position[1] = y + 0.5D + ModularPipesUtils.POS_Y[from] * r;
-			position[2] = z + 0.5D + ModularPipesUtils.POS_Z[from] * r;
-			position[3] = ModularPipesUtils.ROT_X[ModularPipesUtils.OPPOSITE[from]];
-			position[4] = ModularPipesUtils.ROT_Y[ModularPipesUtils.OPPOSITE[from]];
-		} else {
-			double p = (pos - steps * 2) / (steps * 2D);
-			double r = (p * 0.5D);
-			position[0] = x + 0.5D + ModularPipesUtils.POS_X[to] * r;
-			position[1] = y + 0.5D + ModularPipesUtils.POS_Y[to] * r;
-			position[2] = z + 0.5D + ModularPipesUtils.POS_Z[to] * r;
-			position[3] = ModularPipesUtils.ROT_X[to];
-			position[4] = ModularPipesUtils.ROT_Y[to];
-		}
+	public boolean translate(int pos, double[] position) {
+		return ModularPipesUtils.translate(x + 0.5D, y + 0.5D, z + 0.5D, pos, steps, from, to, position);
 	}
 
 	public boolean contains(BlockPos pos) {
 		return x == pos.getX() && y == pos.getY() && z == pos.getZ();
 	}
 
-	public PathSegment chain(int newTo) {
-		return new PathSegment(x + ModularPipesUtils.POS_X[to], y + ModularPipesUtils.POS_Y[to], z + ModularPipesUtils.POS_Z[to], ModularPipesUtils.OPPOSITE[to], newTo, steps);
+	public PathSegment chain(int newSteps, int newTo) {
+		PathSegment s = new PathSegment();
+		s.x = x + ModularPipesUtils.POS_X[to];
+		s.y = y + ModularPipesUtils.POS_Y[to];
+		s.z = z + ModularPipesUtils.POS_Z[to];
+		s.steps = newSteps;
+		s.from = ModularPipesUtils.OPPOSITE[to];
+		s.to = newTo;
+		return s;
+	}
+
+	public void findNextSegment(PipeBlockEntity entity, int ignore, int steps, int limit) {
+		if (limit <= 0) {
+			return;
+		}
+
+		PipeBlockEntity nextEntity = null;
+		int nextDir = 6;
+
+		for (int i = 0; i < 6; i++) {
+			if (i != ignore) {
+				BlockEntity e = entity.getLevel().getBlockEntity(entity.getBlockPos().relative(ModularPipesUtils.DIRECTIONS[i]));
+
+				if (e instanceof TransportPipeBlockEntity && ((TransportPipeBlockEntity) e).isValidSegment(ModularPipesUtils.OPPOSITE[i])) {
+					if (nextEntity != null) {
+						return;
+					}
+
+					nextEntity = (TransportPipeBlockEntity) e;
+					nextDir = i;
+				}
+			}
+
+			//if (i != ModularPipesUtils.OPPOSITE[current.to] && (pipeEntity.sideData[i].connect || pipeEntity.sideData[i].module != null && pipeEntity.sideData[i].module.canExit(item, pipeEntity.sideData[i].connect))) {
+			// BlockPos pos = new BlockPos(current.x + ModularPipesUtils.POS_X[i], current.y + ModularPipesUtils.POS_Y[i], current.z + ModularPipesUtils.POS_Z[i]);
+			// BlockEntity e = currentEntity.getLevel().getBlockEntity(pos);
+			//}
+		}
+
+		if (nextEntity != null) {
+			next = chain(steps, nextDir);
+			next.findNextSegment(nextEntity, ModularPipesUtils.OPPOSITE[nextDir], steps, limit - 1);
+		}
 	}
 }

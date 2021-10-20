@@ -17,6 +17,7 @@
 	"item.modularpipes.crafting_module": "Crafting Module",
 	"item.modularpipes.energy_input_module": "Energy Input Module",
 	"item.modularpipes.energy_output_module": "Energy Output Module",
+	"item.modularpipes.round_robin_module": "Round Robin Module",
 	"item.modularpipes.light": "Pipe Light",
 	"item.modularpipes.wrench": "Pipe Wrench",
 	"item.modularpipes.wrench.info": "Right-click on pipe to toggle that side",

@@ -1,7 +1,5 @@
 package dev.latvian.mods.modularpipes.client;
 
-import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import dev.latvian.mods.modularpipes.util.PipeItem;
@@ -43,9 +41,15 @@ public class ClientPipeNetwork extends PipeNetwork {
 		double pz = BlockEntityRenderDispatcher.instance.camera.getPosition().z;
 		Frustum frustum = new Frustum(matrix.last().pose(), event.getProjectionMatrix());
 		frustum.prepare(px, py, pz);
-		RenderSystem.disableLighting();
-		Lighting.setupFor3DItems();
-		RenderSystem.enableDepthTest();
+		//RenderSystem.disableLighting();
+		//Lighting.setupFor3DItems();
+		//RenderSystem.enableDepthTest();
+		//RenderSystem.enableRescaleNormal();
+		//RenderSystem.enableAlphaTest();
+		//RenderSystem.defaultAlphaFunc();
+		//RenderSystem.enableBlend();
+		//RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+		//RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 		double[] position = new double[5];
 
 		for (PipeItem item : pipeItems.values()) {
@@ -53,7 +57,10 @@ public class ClientPipeNetwork extends PipeNetwork {
 				continue;
 			}
 
-			item.path.translate(item.pos, position);
+			if (item.path.translate(item.pos, position)) {
+				continue;
+			}
+
 			double x = position[0];
 			double y = position[1];
 			double z = position[2];
@@ -69,15 +76,17 @@ public class ClientPipeNetwork extends PipeNetwork {
 
 			matrix.pushPose();
 			matrix.translate(Mth.lerp(delta, position[0], x) - px, Mth.lerp(delta, position[1], y) - py, Mth.lerp(delta, position[2], z) - pz);
-			matrix.mulPose(Vector3f.YP.rotationDegrees((float) Mth.lerp(delta, position[4], ry)));
-			matrix.mulPose(Vector3f.XP.rotationDegrees((float) Mth.lerp(delta, position[3], rx)));
+			// matrix.mulPose(Vector3f.YP.rotationDegrees((float) Mth.lerp(delta, position[4], ry)));
+			// matrix.mulPose(Vector3f.XP.rotationDegrees((float) Mth.lerp(delta, position[3], rx)));
+			matrix.mulPose(Vector3f.YP.rotationDegrees((float) ry));
+			matrix.mulPose(Vector3f.XP.rotationDegrees((float) rx));
 			matrix.scale((float) s, (float) s, (float) s);
 			item.render(matrix, itemRenderer, multiBufferSource, 15728880, OverlayTexture.NO_OVERLAY);
 			matrix.popPose();
 		}
 
 		// Lighting.setupForFlatItems();
-		RenderSystem.enableLighting();
+		// RenderSystem.enableLighting();
 
 		profiler.pop();
 	}
