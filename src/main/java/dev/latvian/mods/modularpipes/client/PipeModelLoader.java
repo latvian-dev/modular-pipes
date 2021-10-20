@@ -52,8 +52,8 @@ public class PipeModelLoader implements IModelLoader<PipeModelGeometry> {
 	public PipeModelGeometry read(JsonDeserializationContext context, JsonObject json) {
 		String material = json.get("material").getAsString();
 		PipeModelGeometry m = new PipeModelGeometry();
-		m.modelType = ModularPipesClientConfig.modelType;
-		m.pipeGlass = ModularPipesClientConfig.pipeGlass;
+		m.modelType = ModularPipesClientConfig.MODEL_TYPE;
+		m.pipeGlass = ModularPipesClientConfig.PIPE_GLASS;
 		m.material = new Material(TextureAtlas.LOCATION_BLOCKS, new ResourceLocation(material));
 
 		m.models.add(m.modelBase = createUnbakedModel(context, pathFromType(m, "base"), material));

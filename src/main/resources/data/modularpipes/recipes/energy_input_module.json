@@ -1,0 +1,18 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"group": "modularpipes:module",
+	"result": {
+		"item": "modularpipes:energy_input_module"
+	},
+	"ingredients": [
+		{
+			"item": "modularpipes:module"
+		},
+		{
+			"tag": "forge:storage_blocks/redstone"
+		},
+		{
+			"tag": "forge:ingots/iron"
+		}
+	]
+}

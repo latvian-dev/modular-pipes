@@ -1,6 +1,7 @@
 package dev.latvian.mods.modularpipes.net;
 
 import dev.latvian.mods.modularpipes.ModularPipes;
+import dev.latvian.mods.modularpipes.util.PipeItem;
 import me.shedaniel.architectury.networking.NetworkManager;
 import me.shedaniel.architectury.networking.simple.BaseS2CMessage;
 import me.shedaniel.architectury.networking.simple.MessageType;
@@ -9,39 +10,29 @@ import net.minecraft.network.FriendlyByteBuf;
 /**
  * @author LatvianModder
  */
-public class ParticleMessage extends BaseS2CMessage {
-	public final double x, y, z;
-	public final int type;
+public class UpdatePipeItemMessage extends BaseS2CMessage {
+	private final PipeItem item;
 
-	public ParticleMessage(double _x, double _y, double _z, int t) {
-		x = _x;
-		y = _y;
-		z = _z;
-		type = t;
+	public UpdatePipeItemMessage(PipeItem i) {
+		item = i;
 	}
 
-	public ParticleMessage(FriendlyByteBuf buf) {
-		x = buf.readDouble();
-		y = buf.readDouble();
-		z = buf.readDouble();
-		type = buf.readVarInt();
+	public UpdatePipeItemMessage(FriendlyByteBuf buf) {
+		item = new PipeItem(buf);
 	}
 
 	@Override
 	public MessageType getType() {
-		return ModularPipesNet.PARTICLE;
+		return ModularPipesNet.UPDATE_PIPE_ITEM;
 	}
 
 	@Override
 	public void write(FriendlyByteBuf buf) {
-		buf.writeDouble(x);
-		buf.writeDouble(y);
-		buf.writeDouble(z);
-		buf.writeVarInt(type);
+		item.write(buf);
 	}
 
 	@Override
 	public void handle(NetworkManager.PacketContext context) {
-		ModularPipes.PROXY.spawnParticle(x, y, z, type);
+		ModularPipes.PROXY.updatePipeItem(item);
 	}
 }

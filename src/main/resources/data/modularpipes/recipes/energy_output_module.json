@@ -2,17 +2,17 @@
 	"type": "minecraft:crafting_shapeless",
 	"group": "modularpipes:module",
 	"result": {
-		"item": "modularpipes:crafting_module"
+		"item": "modularpipes:energy_output_module"
 	},
 	"ingredients": [
 		{
 			"item": "modularpipes:module"
 		},
 		{
-			"tag": "forge:gems/diamond"
+			"tag": "forge:storage_blocks/redstone"
 		},
 		{
-			"item": "minecraft:crafting_table"
+			"tag": "forge:ingots/gold"
 		}
 	]
 }

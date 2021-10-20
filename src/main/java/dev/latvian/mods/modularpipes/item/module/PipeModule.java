@@ -1,11 +1,15 @@
 package dev.latvian.mods.modularpipes.item.module;
 
-import dev.latvian.mods.modularpipes.block.entity.PipeNetwork;
 import dev.latvian.mods.modularpipes.block.entity.PipeSideData;
-import dev.latvian.mods.modularpipes.net.ModularPipesNet;
+import dev.latvian.mods.modularpipes.client.PipeParticle;
 import dev.latvian.mods.modularpipes.net.ParticleMessage;
+import dev.latvian.mods.modularpipes.util.PipeNetwork;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -14,7 +18,6 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -30,7 +33,22 @@ public abstract class PipeModule implements ICapabilityProvider {
 	public ItemStack moduleItem = ItemStack.EMPTY;
 
 	private Optional<BlockEntity> cachedEntity = Optional.empty();
-	protected LazyOptional<?> thisOptional = LazyOptional.of(() -> this);
+	private LazyOptional<?> thisOptional = null;
+
+	public LazyOptional<?> getThisOptional() {
+		if (thisOptional == null) {
+			thisOptional = LazyOptional.of(() -> this);
+		}
+
+		return thisOptional;
+	}
+
+	public void invalidateCaps() {
+		if (thisOptional != null) {
+			thisOptional.invalidate();
+			thisOptional = null;
+		}
+	}
 
 	public void writeData(CompoundTag nbt) {
 	}
@@ -38,8 +56,9 @@ public abstract class PipeModule implements ICapabilityProvider {
 	public void readData(CompoundTag nbt) {
 	}
 
-	public boolean canInsert(Player player, InteractionHand hand) {
-		return true;
+	@Nullable
+	public Component canInsert(Player player, InteractionHand hand) {
+		return null;
 	}
 
 	public void onInserted(Player player, InteractionHand hand) {
@@ -72,7 +91,7 @@ public abstract class PipeModule implements ICapabilityProvider {
 
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction facing) {
-		return capability == CAP || isThisCapability(capability) ? thisOptional.cast() : LazyOptional.empty();
+		return capability == CAP || isThisCapability(capability) ? getThisOptional().cast() : LazyOptional.empty();
 	}
 
 	public final void refreshNetwork() {
@@ -96,12 +115,23 @@ public abstract class PipeModule implements ICapabilityProvider {
 		return cachedEntity.orElse(null);
 	}
 
-	public void spawnParticle(int type) {
+	public void spawnParticle(PipeParticle type) {
 		if (sideData.entity.hasLevel() && !sideData.entity.getLevel().isClientSide()) {
 			double x = sideData.entity.getBlockPos().getX() + 0.5D + sideData.direction.getStepX() * 0.3D;
 			double y = sideData.entity.getBlockPos().getY() + 0.5D + sideData.direction.getStepY() * 0.3D;
 			double z = sideData.entity.getBlockPos().getZ() + 0.5D + sideData.direction.getStepZ() * 0.3D;
-			ModularPipesNet.NET.send(PacketDistributor.NEAR.with(PacketDistributor.TargetPoint.p(x, y, z, 24, sideData.entity.getLevel().dimension())), new ParticleMessage(sideData.entity.getBlockPos(), null, type));
+
+			Packet<?> packet = null;
+
+			for (ServerPlayer player : ((ServerLevel) sideData.entity.getLevel()).players()) {
+				if (type.canSee(player, x, y, z)) {
+					if (packet == null) {
+						packet = new ParticleMessage(x, y, z, type.ordinal()).toPacket();
+					}
+
+					player.connection.send(packet);
+				}
+			}
 		}
 	}
 }

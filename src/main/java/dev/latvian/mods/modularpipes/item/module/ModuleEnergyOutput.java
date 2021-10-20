@@ -1,13 +1,10 @@
 package dev.latvian.mods.modularpipes.item.module;
 
-import dev.latvian.mods.modularpipes.ModularPipesCommon;
-import dev.latvian.mods.modularpipes.block.entity.ModularPipeBlockEntity;
-import net.minecraftforge.energy.IEnergyStorage;
-
 /**
  * @author LatvianModder
  */
 public class ModuleEnergyOutput extends ModuleEnergy {
+	/*
 	private boolean hasMovedEnergy = false;
 	private int tick = 0;
 
@@ -38,4 +35,5 @@ public class ModuleEnergyOutput extends ModuleEnergy {
 			tick--;
 		}
 	}
+	 */
 }

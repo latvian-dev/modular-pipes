@@ -1,4 +1,4 @@
-package dev.latvian.mods.modularpipes.block.entity;
+package dev.latvian.mods.modularpipes.util;
 
 import net.minecraft.world.level.block.entity.BlockEntity;
 

@@ -1,0 +1,7 @@
+{
+	"variants": {
+		"": {
+			"model": "modularpipes:block/pipe_network_manager"
+		}
+	}
+}

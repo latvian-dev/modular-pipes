@@ -2,6 +2,8 @@ package dev.latvian.mods.modularpipes.block;
 
 import dev.latvian.mods.modularpipes.ModularPipes;
 import dev.latvian.mods.modularpipes.block.entity.PipeBlockEntity;
+import dev.latvian.mods.modularpipes.util.PipeNetwork;
+import dev.latvian.mods.modularpipes.util.ServerPipeNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -216,6 +218,12 @@ public class PipeBlock extends Block implements SimpleWaterloggedBlock {
 
 			if (blockEntity instanceof PipeBlockEntity) {
 				((PipeBlockEntity) blockEntity).dropItems();
+			}
+
+			PipeNetwork network = PipeNetwork.get(level);
+
+			if (network instanceof ServerPipeNetwork) {
+				((ServerPipeNetwork) network).pipeBroken(pos);
 			}
 		}
 

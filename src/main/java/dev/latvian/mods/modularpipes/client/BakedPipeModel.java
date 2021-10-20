@@ -1,8 +1,8 @@
 package dev.latvian.mods.modularpipes.client;
 
-import dev.latvian.mods.modularpipes.ModularPipesUtils;
 import dev.latvian.mods.modularpipes.block.PipeBlock;
 import dev.latvian.mods.modularpipes.block.entity.PipeBlockEntity;
+import dev.latvian.mods.modularpipes.util.ModularPipesUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.RenderType;

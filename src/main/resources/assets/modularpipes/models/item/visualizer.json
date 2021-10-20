@@ -1,6 +1,6 @@
 {
 	"parent": "minecraft:item/generated",
 	"textures": {
-		"layer0": "modularpipes:item/painter"
+		"layer0": "modularpipes:item/visualizer"
 	}
 }

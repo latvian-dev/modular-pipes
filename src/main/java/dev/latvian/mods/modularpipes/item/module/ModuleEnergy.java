@@ -1,7 +1,9 @@
 package dev.latvian.mods.modularpipes.item.module;
 
-import dev.latvian.mods.modularpipes.ModularPipesConfig;
-import dev.latvian.mods.modularpipes.block.entity.ModularPipeBlockEntity;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
@@ -13,7 +15,7 @@ import java.util.Optional;
 /**
  * @author LatvianModder
  */
-public class ModuleEnergy extends PipeModule implements IEnergyStorage {
+public class ModuleEnergy extends PipeModule {
 	private Optional<IEnergyStorage> cachedEnergyStorage = null;
 
 	@Override
@@ -38,32 +40,7 @@ public class ModuleEnergy extends PipeModule implements IEnergyStorage {
 	}
 
 	@Override
-	public int receiveEnergy(int maxReceive, boolean simulate) {
-		return 0;
-	}
-
-	@Override
-	public int extractEnergy(int maxExtract, boolean simulate) {
-		return 0;
-	}
-
-	@Override
-	public int getEnergyStored() {
-		return ((ModularPipeBlockEntity) sideData.entity).storedEnergy;
-	}
-
-	@Override
-	public int getMaxEnergyStored() {
-		return ModularPipesConfig.pipes.max_energy_stored;
-	}
-
-	@Override
-	public boolean canExtract() {
-		return false;
-	}
-
-	@Override
-	public boolean canReceive() {
-		return false;
+	public Component canInsert(Player player, InteractionHand hand) {
+		return new TextComponent("WIP!");
 	}
 }

@@ -4,6 +4,7 @@
 	"block.modularpipes.modular_pipe_mk1": "Modular Pipe MK1",
 	"block.modularpipes.modular_pipe_mk2": "Modular Pipe MK2",
 	"block.modularpipes.modular_pipe_mk3": "Modular Pipe MK3",
+	"block.modularpipes.pipe_network_manager": "Pipe Network Manager",
 	"item.modularpipes.tool": "Pipe Tool Base",
 	"item.modularpipes.visualizer": "Pipe Network Visualizer",
 	"item.modularpipes.input_part": "Module Input Part",

@@ -1,24 +1,21 @@
 package dev.latvian.mods.modularpipes.item.module;
 
 import dev.latvian.mods.itemfilters.api.ItemFiltersAPI;
-import dev.latvian.mods.modularpipes.ModularPipesCommon;
+import dev.latvian.mods.modularpipes.client.PipeParticle;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 
-import javax.annotation.Nonnull;
-
 /**
  * @author LatvianModder
  */
-public class ItemExtractModule extends PipeModule implements IItemHandler {
+public class ItemExtractModule extends PipeModule {
 	public ItemStack filter = ItemStack.EMPTY;
 	public int tick = 0;
 
@@ -49,17 +46,12 @@ public class ItemExtractModule extends PipeModule implements IItemHandler {
 	}
 
 	@Override
-	public boolean isThisCapability(Capability<?> capability) {
-		return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
-	}
-
-	@Override
 	public void updateModule() {
 		tick++;
 
 		if (tick >= 7) {
 			if (extractItem()) {
-				spawnParticle(ModularPipesCommon.EXPLOSION);
+				spawnParticle(PipeParticle.DEBUG_EXPLOSION);
 			}
 
 			tick = 0;
@@ -75,7 +67,7 @@ public class ItemExtractModule extends PipeModule implements IItemHandler {
 				ItemStack stack = handler.extractItem(slot, 1, true);
 
 				if (!stack.isEmpty() && ItemFiltersAPI.filter(filter, stack)) {
-					ItemStack stack1 = insertItem(0, stack, false);
+					ItemStack stack1 = sideData.insertItem(0, stack, false);
 
 					if (stack1.getCount() != stack.getCount()) {
 						handler.extractItem(slot, stack.getCount() - stack1.getCount(), false);
@@ -85,59 +77,6 @@ public class ItemExtractModule extends PipeModule implements IItemHandler {
 			}
 		}
 
-		return false;
-	}
-
-	@Override
-	public int getSlots() {
-		return 1;
-	}
-
-	@Override
-	public ItemStack getStackInSlot(int slot) {
-		return ItemStack.EMPTY;
-	}
-
-	@Override
-	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-		/*
-		for (ItemStorageModule module : getStorageModules()) {
-			if (ItemFiltersAPI.filter(module.filter, stack)) {
-				IItemHandler handler1 = module.getItemHandler();
-
-				if (handler1 != null) {
-					stack = ItemHandlerHelper.insertItem(handler1, stack, simulate);
-
-					if (stack.isEmpty()) {
-						return ItemStack.EMPTY;
-					}
-				}
-			}
-		}
-		 */
-
-		return stack;
-	}
-
-	@Override
-	public ItemStack extractItem(int slot, int amount, boolean simulate) {
-		return ItemStack.EMPTY;
-	}
-
-	@Override
-	public int getSlotLimit(int slot) {
-		return 64;
-	}
-
-	@Override
-	public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-		/*
-		for (ItemStorageModule module : getStorageModules()) {
-			if (ItemFiltersAPI.filter(module.filter, stack)) {
-				return true;
-			}
-		}
-		 */
 		return false;
 	}
 

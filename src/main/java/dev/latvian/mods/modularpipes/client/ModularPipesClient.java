@@ -3,12 +3,11 @@ package dev.latvian.mods.modularpipes.client;
 import dev.latvian.mods.modularpipes.ModularPipes;
 import dev.latvian.mods.modularpipes.ModularPipesCommon;
 import dev.latvian.mods.modularpipes.block.ModularPipesBlocks;
-import dev.latvian.mods.modularpipes.block.entity.PipeNetwork;
+import dev.latvian.mods.modularpipes.util.PipeItem;
+import dev.latvian.mods.modularpipes.util.PipeNetwork;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
@@ -19,8 +18,6 @@ import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-
-import javax.annotation.Nullable;
 
 /**
  * @author LatvianModder
@@ -34,20 +31,10 @@ public class ModularPipesClient extends ModularPipesCommon {
 	}
 
 	@Override
-	public void spawnParticle(BlockPos pos, @Nullable Direction facing, int type) {
-		Minecraft mc = Minecraft.getInstance();
-		double x = pos.getX() + 0.5D + (facing == null ? 0D : facing.getStepX() * 0.3D);
-		double y = pos.getY() + 0.5D + (facing == null ? 0D : facing.getStepY() * 0.3D);
-		double z = pos.getZ() + 0.5D + (facing == null ? 0D : facing.getStepZ() * 0.3D);
-
-		//		if (type == EXPLOSION)
-		//		{
-		//			mc.particles.addEffect(explosionFactory.createParticle(0, mc.world, x, y, z, 0D, 0D, 0D));
-		//		}
-		//		else if (type == SPARK)
-		//		{
-		//			mc.particles.addEffect(redstoneFactory.createParticle(0, mc.world, x, y, z, 1D, 0.8D, 0D));
-		//		}
+	public void spawnParticle(double x, double y, double z, int type) {
+		if (type >= 0 && type < PipeParticle.VALUES.length) {
+			PipeParticle.VALUES[type].factory.create(Minecraft.getInstance().level, x, y, z);
+		}
 	}
 
 	@Override
@@ -57,6 +44,30 @@ public class ModularPipesClient extends ModularPipesCommon {
 		}
 
 		return MinecraftForgeClient.getRenderLayer() == RenderType.cutoutMipped() ? 15 : 0;
+	}
+
+	@Override
+	public void updatePipeItem(PipeItem item) {
+		PipeNetwork network = PipeNetwork.get(Minecraft.getInstance().level);
+
+		if (network instanceof ClientPipeNetwork) {
+			item.network = network;
+			PipeItem prev = network.pipeItems.put(item.id, item);
+
+			if (prev != null) {
+				prev.ttl = 0;
+			}
+		}
+	}
+
+	@Override
+	public void removePipeItem(long id) {
+		PipeNetwork network = PipeNetwork.get(Minecraft.getInstance().level);
+		PipeItem item = network instanceof ClientPipeNetwork ? network.pipeItems.get(id) : null;
+
+		if (item != null) {
+			item.ttl = 0;
+		}
 	}
 
 	public void registerModels(ModelRegistryEvent event) {
@@ -71,11 +82,19 @@ public class ModularPipesClient extends ModularPipesCommon {
 		Minecraft mc = Minecraft.getInstance();
 
 		if (event.phase == TickEvent.Phase.END && mc.level != null && !mc.isPaused()) {
-			PipeNetwork.get(mc.level).tick();
+			PipeNetwork network = PipeNetwork.get(mc.level);
+
+			if (network instanceof ClientPipeNetwork) {
+				network.tick();
+			}
 		}
 	}
 
 	public void renderWorld(RenderWorldLastEvent event) {
-		PipeNetwork.get(Minecraft.getInstance().level).render(event);
+		PipeNetwork network = PipeNetwork.get(Minecraft.getInstance().level);
+
+		if (network instanceof ClientPipeNetwork) {
+			((ClientPipeNetwork) network).render(event);
+		}
 	}
 }

@@ -1,23 +1,19 @@
 package dev.latvian.mods.modularpipes.net;
 
 import dev.latvian.mods.modularpipes.ModularPipes;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import me.shedaniel.architectury.networking.simple.MessageType;
+import me.shedaniel.architectury.networking.simple.SimpleNetworkManager;
 
 /**
  * @author LatvianModder
  */
-public class ModularPipesNet {
-	public static final SimpleChannel NET = NetworkRegistry.newSimpleChannel(
-			new ResourceLocation(ModularPipes.MOD_ID, "channel"),
-			() -> "1.0.0",
-			s -> s.startsWith("1"),
-			s -> s.startsWith("1")
-	);
+public interface ModularPipesNet {
+	SimpleNetworkManager NET = SimpleNetworkManager.create(ModularPipes.MOD_ID);
 
-	public static void init() {
-		NET.registerMessage(0, SendPaintMessage.class, SendPaintMessage::toBytes, SendPaintMessage::new, (msg, ctx) -> msg.onMessage(ctx.get()));
-		NET.registerMessage(1, ParticleMessage.class, ParticleMessage::toBytes, ParticleMessage::new, (msg, ctx) -> msg.onMessage(ctx.get()));
+	MessageType PARTICLE = NET.registerS2C("particle", ParticleMessage::new);
+	MessageType UPDATE_PIPE_ITEM = NET.registerS2C("update_pipe_item", UpdatePipeItemMessage::new);
+	MessageType REMOVE_PIPE_ITEM = NET.registerS2C("remove_pipe_item", RemovePipeItemMessage::new);
+
+	static void init() {
 	}
 }

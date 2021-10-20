@@ -1,5 +1,9 @@
 package dev.latvian.mods.modularpipes.item.module;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
@@ -49,5 +53,10 @@ public class FluidExtractModule extends PipeModule implements IFluidHandler {
 	@Override
 	public FluidStack drain(int maxDrain, FluidAction action) {
 		return FluidStack.EMPTY;
+	}
+
+	@Override
+	public Component canInsert(Player player, InteractionHand hand) {
+		return new TextComponent("WIP!");
 	}
 }

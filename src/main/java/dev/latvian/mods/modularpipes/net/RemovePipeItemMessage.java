@@ -9,39 +9,29 @@ import net.minecraft.network.FriendlyByteBuf;
 /**
  * @author LatvianModder
  */
-public class ParticleMessage extends BaseS2CMessage {
-	public final double x, y, z;
-	public final int type;
+public class RemovePipeItemMessage extends BaseS2CMessage {
+	private final long id;
 
-	public ParticleMessage(double _x, double _y, double _z, int t) {
-		x = _x;
-		y = _y;
-		z = _z;
-		type = t;
+	public RemovePipeItemMessage(long i) {
+		id = i;
 	}
 
-	public ParticleMessage(FriendlyByteBuf buf) {
-		x = buf.readDouble();
-		y = buf.readDouble();
-		z = buf.readDouble();
-		type = buf.readVarInt();
+	public RemovePipeItemMessage(FriendlyByteBuf buf) {
+		id = buf.readVarLong();
 	}
 
 	@Override
 	public MessageType getType() {
-		return ModularPipesNet.PARTICLE;
+		return ModularPipesNet.REMOVE_PIPE_ITEM;
 	}
 
 	@Override
 	public void write(FriendlyByteBuf buf) {
-		buf.writeDouble(x);
-		buf.writeDouble(y);
-		buf.writeDouble(z);
-		buf.writeVarInt(type);
+		buf.writeVarLong(id);
 	}
 
 	@Override
 	public void handle(NetworkManager.PacketContext context) {
-		ModularPipes.PROXY.spawnParticle(x, y, z, type);
+		ModularPipes.PROXY.removePipeItem(id);
 	}
 }

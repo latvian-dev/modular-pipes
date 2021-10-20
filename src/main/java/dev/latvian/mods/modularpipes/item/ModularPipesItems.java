@@ -33,12 +33,13 @@ public interface ModularPipesItems {
 	Supplier<BlockItem> MODULAR_PIPE_MK1 = blockItem("modular_pipe_mk1", ModularPipesBlocks.MODULAR_PIPE_MK1);
 	Supplier<BlockItem> MODULAR_PIPE_MK2 = blockItem("modular_pipe_mk2", ModularPipesBlocks.MODULAR_PIPE_MK2);
 	Supplier<BlockItem> MODULAR_PIPE_MK3 = blockItem("modular_pipe_mk3", ModularPipesBlocks.MODULAR_PIPE_MK3);
+	Supplier<BlockItem> PIPE_NETWORK_MANAGER = blockItem("pipe_network_manager", ModularPipesBlocks.PIPE_NETWORK_MANAGER);
 
 	Supplier<Item> WRENCH = REGISTRY.register("wrench", WrenchItem::new);
+	Supplier<Item> VISUALIZER = REGISTRY.register("visualizer", VisualizerItem::new);
 	Supplier<Item> MODULE = basicItem("module");
 	Supplier<Item> LIGHT = basicItem("light");
-	Supplier<Item> INPUT_PART = basicItem("input_part");
-	Supplier<Item> OUTPUT_PART = basicItem("output_part");
+
 	Supplier<Item> ITEM_EXTRACT_MODULE = REGISTRY.register("item_extract_module", () -> new ModuleItem(ItemExtractModule::new));
 	Supplier<Item> FLUID_EXTRACT_MODULE = REGISTRY.register("fluid_extract_module", () -> new ModuleItem(FluidExtractModule::new));
 	Supplier<Item> CRAFTING_MODULE = REGISTRY.register("crafting_module", () -> new ModuleItem(CraftingModule::new));

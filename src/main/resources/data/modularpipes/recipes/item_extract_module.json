@@ -2,17 +2,14 @@
 	"type": "minecraft:crafting_shapeless",
 	"group": "modularpipes:module",
 	"result": {
-		"item": "modularpipes:energy_output_module"
+		"item": "modularpipes:item_extract_module"
 	},
 	"ingredients": [
 		{
 			"item": "modularpipes:module"
 		},
 		{
-			"item": "modularpipes:output_part"
-		},
-		{
-			"tag": "forge:ingots/gold"
+			"item": "minecraft:hopper"
 		}
 	]
 }

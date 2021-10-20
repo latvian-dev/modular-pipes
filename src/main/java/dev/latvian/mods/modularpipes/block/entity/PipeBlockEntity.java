@@ -1,16 +1,18 @@
 package dev.latvian.mods.modularpipes.block.entity;
 
-import dev.latvian.mods.modularpipes.ModularPipesConfig;
 import dev.latvian.mods.modularpipes.block.PipeBlock;
 import dev.latvian.mods.modularpipes.block.PipeTier;
 import dev.latvian.mods.modularpipes.item.ModularPipesItems;
 import dev.latvian.mods.modularpipes.item.WrenchItem;
 import dev.latvian.mods.modularpipes.item.module.PipeModule;
+import dev.latvian.mods.modularpipes.util.PipeItem;
+import dev.latvian.mods.modularpipes.util.PipeNetwork;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.network.Connection;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.InteractionHand;
@@ -26,14 +28,11 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author LatvianModder
@@ -41,7 +40,6 @@ import java.util.List;
 public abstract class PipeBlockEntity extends BlockEntity {
 	private boolean sync = false;
 	private boolean changed = false;
-	public List<PipeItem> items = new ArrayList<>(0);
 	private PipeTier cachedTier;
 	public final PipeSideData[] sideData;
 
@@ -60,32 +58,9 @@ public abstract class PipeBlockEntity extends BlockEntity {
 				nbt.put("Data" + data.direction.getSerializedName().substring(0, 1).toUpperCase(), data.write(new CompoundTag()));
 			}
 		}
-
-		if (!items.isEmpty()) {
-			ListTag list = new ListTag();
-
-			for (PipeItem item : items) {
-				list.add(item.serializeNBT());
-			}
-
-			nbt.put("Items", list);
-		}
 	}
 
 	public void readData(CompoundTag nbt) {
-		ListTag list = nbt.getList("Items", Constants.NBT.TAG_COMPOUND);
-		items = new ArrayList<>(list.size());
-
-		for (int i = 0; i < list.size(); i++) {
-			CompoundTag nbt1 = list.getCompound(i);
-			PipeItem item = new PipeItem();
-			item.deserializeNBT(nbt1);
-
-			if (!item.stack.isEmpty()) {
-				items.add(item);
-			}
-		}
-
 		for (PipeSideData data : sideData) {
 			data.read(nbt.getCompound("Data" + data.direction.getSerializedName().substring(0, 1).toUpperCase()));
 		}
@@ -168,6 +143,7 @@ public abstract class PipeBlockEntity extends BlockEntity {
 		}
 	}
 
+	/*
 	public void moveItem(PipeItem item) {
 		if (getTier() != PipeTier.BASIC) {
 			item.pos += item.speed;
@@ -175,7 +151,7 @@ public abstract class PipeBlockEntity extends BlockEntity {
 		}
 
 		item.pos += Math.min(item.speed, 0.99F);
-		float pipeSpeed = (float) ModularPipesConfig.pipes.base_speed;
+		float pipeSpeed = (float) ModularPipesConfig.BASE_SPEED;
 
 		if (item.speed > pipeSpeed) {
 			item.speed *= 0.99F;
@@ -191,6 +167,7 @@ public abstract class PipeBlockEntity extends BlockEntity {
 			}
 		}
 	}
+	 */
 
 	@Override
 	public void setChanged() {
@@ -219,10 +196,6 @@ public abstract class PipeBlockEntity extends BlockEntity {
 	}
 
 	public void dropItems() {
-		for (PipeItem item : items) {
-			Block.popResource(level, worldPosition, item.stack);
-		}
-
 		for (PipeSideData data : sideData) {
 			if (data.module != null) {
 				data.module.onPipeBroken();
@@ -288,7 +261,7 @@ public abstract class PipeBlockEntity extends BlockEntity {
 					}
 				} else if (data.module != null) {
 					if (!data.module.canRemove(player, hand)) {
-						player.displayClientMessage(new TextComponent("Can't remove this module!"), true);
+						player.displayClientMessage(new TextComponent("Can't remove this module!").withStyle(ChatFormatting.RED), true);
 						return InteractionResult.SUCCESS;
 					}
 
@@ -305,9 +278,9 @@ public abstract class PipeBlockEntity extends BlockEntity {
 					data.setDisabled(!data.disabled);
 
 					if (data.disabled) {
-						player.displayClientMessage(new TextComponent("Side disabled!"), true);
+						player.displayClientMessage(new TextComponent("Side disabled!").withStyle(ChatFormatting.RED), true);
 					} else {
-						player.displayClientMessage(new TextComponent("Side enabled!"), true);
+						player.displayClientMessage(new TextComponent("Side enabled!").withStyle(ChatFormatting.GREEN), true);
 					}
 
 					BlockEntity entity = level.getBlockEntity(worldPosition.relative(data.direction));
@@ -324,10 +297,10 @@ public abstract class PipeBlockEntity extends BlockEntity {
 
 		if (stack.getItem() == ModularPipesItems.LIGHT.get()) {
 			if (data.light) {
-				player.displayClientMessage(new TextComponent("This slot already has a light in it!"), true);
+				player.displayClientMessage(new TextComponent("This slot already has a light in it!").withStyle(ChatFormatting.RED), true);
 				return InteractionResult.SUCCESS;
 			} else if (data.module != null) {
-				player.displayClientMessage(new TextComponent("This slot already has a module in it!"), true);
+				player.displayClientMessage(new TextComponent("This slot already has a module in it!").withStyle(ChatFormatting.RED), true);
 				return InteractionResult.SUCCESS;
 			}
 
@@ -366,12 +339,12 @@ public abstract class PipeBlockEntity extends BlockEntity {
 		}
 
 		if (data.light) {
-			player.displayClientMessage(new TextComponent("This slot already has a light in it!"), true);
+			player.displayClientMessage(new TextComponent("This slot already has a light in it!").withStyle(ChatFormatting.RED), true);
 			return InteractionResult.SUCCESS;
 		}
 
 		if (data.module != null) {
-			player.displayClientMessage(new TextComponent("Module slot already occupied!"), true);
+			player.displayClientMessage(new TextComponent("Module slot already occupied!").withStyle(ChatFormatting.RED), true);
 			return InteractionResult.SUCCESS;
 		} else {
 			int currentModuleCount = 0;
@@ -383,16 +356,17 @@ public abstract class PipeBlockEntity extends BlockEntity {
 			}
 
 			if (currentModuleCount >= getTier().maxModules) {
-				player.displayClientMessage(new TextComponent("All module slots occupied!"), true);
+				player.displayClientMessage(new TextComponent("All module slots occupied!").withStyle(ChatFormatting.RED), true);
 				return InteractionResult.SUCCESS;
 			}
 		}
 
 		module.sideData = data;
 		module.moduleItem = ItemHandlerHelper.copyStackWithSize(stack, 1);
+		Component error = module.canInsert(player, hand);
 
-		if (!module.canInsert(player, hand)) {
-			player.displayClientMessage(new TextComponent("Module slot already occupied!"), true);
+		if (error != null) {
+			player.displayClientMessage(new TextComponent("").append(error).withStyle(ChatFormatting.RED), true);
 			return InteractionResult.SUCCESS;
 		}
 
@@ -425,5 +399,19 @@ public abstract class PipeBlockEntity extends BlockEntity {
 		}
 
 		return index;
+	}
+
+	@Nullable
+	public PipeItem insertPipeItem(PipeItem item, int from) {
+		return null;
+	}
+
+	@Override
+	protected void invalidateCaps() {
+		super.invalidateCaps();
+
+		for (PipeSideData data : sideData) {
+			data.invalidateCaps();
+		}
 	}
 }
