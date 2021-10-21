@@ -1,9 +1,6 @@
 package dev.latvian.mods.modularpipes.util;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -23,7 +20,7 @@ public class PipeItem {
 	public PathSegment path;
 
 	public boolean update = false;
-	private float scale = -1F;
+	private double scale = -1D;
 
 	public PipeItem(PipeNetwork n, long i, ItemStack is) {
 		network = n;
@@ -84,20 +81,15 @@ public class PipeItem {
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	public void render(PoseStack poseStack, ItemRenderer renderItem, MultiBufferSource multiBufferSource, int light, int overlay) {
-		renderItem.renderStatic(stack, ItemTransforms.TransformType.FIXED, light, overlay, poseStack, multiBufferSource);
-	}
-
-	@OnlyIn(Dist.CLIENT)
-	public float getScale(Minecraft mc, ItemRenderer itemRenderer) {
-		if (scale <= 0F) {
-			scale = 0.4F;
+	public double getScale(Minecraft mc, ItemRenderer itemRenderer) {
+		if (scale <= 0D) {
+			scale = 0.6D;
 
 			// if (renderItem.shouldRenderItemIn3D(stack)) {
 			// 	scale = 0.72F;
 			// }
 
-			scale += mc.level.random.nextFloat() * 0.01F;
+			scale += mc.level.random.nextFloat() * 0.01D;
 		}
 
 		return scale;

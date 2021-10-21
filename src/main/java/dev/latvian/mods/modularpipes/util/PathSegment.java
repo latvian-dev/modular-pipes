@@ -24,11 +24,9 @@ public class PathSegment {
 		PathSegment s = this;
 
 		for (int i = 6; i < ai.length; i += 2) {
-			s.next = chain(ai[i], ai[i + 1]);
+			s.next = s.chain(ai[i], ai[i + 1]);
 			s = s.next;
 		}
-
-		System.out.println(this);
 	}
 
 	public int[] toIntArray() {

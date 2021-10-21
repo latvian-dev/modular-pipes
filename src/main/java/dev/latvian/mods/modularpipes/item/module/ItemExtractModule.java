@@ -50,7 +50,7 @@ public class ItemExtractModule extends PipeModule {
 	public void updateModule(ServerPipeNetwork network) {
 		tick++;
 
-		if (tick >= 30) {
+		if (tick >= 8) {
 			if (extractItem(network)) {
 				spawnParticle(PipeParticle.DEBUG_EXPLOSION);
 			}
@@ -67,7 +67,7 @@ public class ItemExtractModule extends PipeModule {
 			for (int slot = 0; slot < handler.getSlots(); slot++) {
 				ItemStack stack = handler.extractItem(slot, 1, true);
 
-				if (!stack.isEmpty() && ItemFiltersAPI.filter(filter, stack) && sideData.insertItem(network, stack)) {
+				if (!stack.isEmpty() && ItemFiltersAPI.filter(filter, stack) && sideData.insertItem(network, stack, 3)) {
 					handler.extractItem(slot, 1, false);
 					return true;
 				}

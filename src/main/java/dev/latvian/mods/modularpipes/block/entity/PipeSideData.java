@@ -12,16 +12,14 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public class PipeSideData implements ICapabilityProvider, IItemHandler {
+public class PipeSideData implements IItemHandler {
 	public final PipeBlockEntity entity;
 	public final Direction direction;
 	public boolean connect;
@@ -155,22 +153,12 @@ public class PipeSideData implements ICapabilityProvider, IItemHandler {
 		entity.sync();
 	}
 
-	@NotNull
-	@Override
-	public <T> LazyOptional<T> getCapability(@NotNull Capability<T> capability, @Nullable Direction arg) {
-		if (arg != direction) {
-			return LazyOptional.empty();
-		} else if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
+	public <T> LazyOptional<T> getCapability(@NotNull Capability<T> capability) {
+		if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
 			return getThisOptional().cast();
 		}
 
-		return LazyOptional.empty();
-	}
-
-	@NotNull
-	@Override
-	public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap) {
-		return LazyOptional.empty();
+		return module == null ? LazyOptional.empty() : module.getCapability(capability);
 	}
 
 	public LazyOptional<?> getThisOptional() {
@@ -192,11 +180,10 @@ public class PipeSideData implements ICapabilityProvider, IItemHandler {
 		}
 	}
 
-	public boolean insertItem(ServerPipeNetwork network, ItemStack stack) {
+	public boolean insertItem(ServerPipeNetwork network, ItemStack stack, int steps) {
 		PipeItem item = new PipeItem(network, network.lastItemID + 1L, stack);
 		BlockPos p = entity.getBlockPos();
 		int dir = direction.get3DDataValue();
-		int steps = 6;
 
 		item.path = new PathSegment();
 		item.path.x = p.getX() + ModularPipesUtils.POS_X[dir];
@@ -235,7 +222,7 @@ public class PipeSideData implements ICapabilityProvider, IItemHandler {
 		if (network instanceof ServerPipeNetwork) {
 			ItemStack single = ItemHandlerHelper.copyStackWithSize(stack, 1);
 
-			if (insertItem((ServerPipeNetwork) network, single)) {
+			if (insertItem((ServerPipeNetwork) network, single, 3)) {
 				return ItemHandlerHelper.copyStackWithSize(stack, stack.getCount() - 1);
 			}
 		}

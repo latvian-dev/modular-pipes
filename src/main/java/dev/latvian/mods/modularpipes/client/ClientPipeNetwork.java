@@ -6,7 +6,7 @@ import dev.latvian.mods.modularpipes.util.PipeItem;
 import dev.latvian.mods.modularpipes.util.PipeNetwork;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -14,6 +14,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 
 public class ClientPipeNetwork extends PipeNetwork {
@@ -33,23 +34,15 @@ public class ClientPipeNetwork extends PipeNetwork {
 		ItemRenderer itemRenderer = mc.getItemRenderer();
 		PoseStack matrix = event.getMatrixStack();
 		float delta = event.getPartialTicks();
-		MultiBufferSource multiBufferSource = mc.renderBuffers().bufferSource();
+		MultiBufferSource.BufferSource multiBufferSource = mc.renderBuffers().bufferSource();
 
 		double renderDistanceSq = ModularPipesClientConfig.ITEM_RENDER_DISTANCE * ModularPipesClientConfig.ITEM_RENDER_DISTANCE;
-		double px = BlockEntityRenderDispatcher.instance.camera.getPosition().x;
-		double py = BlockEntityRenderDispatcher.instance.camera.getPosition().y;
-		double pz = BlockEntityRenderDispatcher.instance.camera.getPosition().z;
+		Vec3 camera = mc.getEntityRenderDispatcher().camera.getPosition();
+		double px = camera.x;
+		double py = camera.y;
+		double pz = camera.z;
 		Frustum frustum = new Frustum(matrix.last().pose(), event.getProjectionMatrix());
 		frustum.prepare(px, py, pz);
-		//RenderSystem.disableLighting();
-		//Lighting.setupFor3DItems();
-		//RenderSystem.enableDepthTest();
-		//RenderSystem.enableRescaleNormal();
-		//RenderSystem.enableAlphaTest();
-		//RenderSystem.defaultAlphaFunc();
-		//RenderSystem.enableBlend();
-		//RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-		//RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 		double[] position = new double[5];
 
 		for (PipeItem item : pipeItems.values()) {
@@ -81,12 +74,11 @@ public class ClientPipeNetwork extends PipeNetwork {
 			matrix.mulPose(Vector3f.YP.rotationDegrees((float) ry));
 			matrix.mulPose(Vector3f.XP.rotationDegrees((float) rx));
 			matrix.scale((float) s, (float) s, (float) s);
-			item.render(matrix, itemRenderer, multiBufferSource, 15728880, OverlayTexture.NO_OVERLAY);
+			itemRenderer.renderStatic(item.stack, ItemTransforms.TransformType.FIXED, 15728880, OverlayTexture.NO_OVERLAY, matrix, multiBufferSource);
 			matrix.popPose();
 		}
 
-		// Lighting.setupForFlatItems();
-		// RenderSystem.enableLighting();
+		multiBufferSource.endBatch();
 
 		profiler.pop();
 	}

@@ -114,8 +114,8 @@ public abstract class PipeBlockEntity extends BlockEntity {
 	@Nonnull
 	@Override
 	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-		if (side != null && sideData[side.get3DDataValue()].module != null) {
-			LazyOptional<T> o = sideData[side.get3DDataValue()].module.getCapability(cap);
+		if (side != null) {
+			LazyOptional<T> o = sideData[side.get3DDataValue()].getCapability(cap);
 
 			if (o.isPresent()) {
 				return o;
@@ -142,32 +142,6 @@ public abstract class PipeBlockEntity extends BlockEntity {
 			PipeNetwork.get(getLevel()).refresh();
 		}
 	}
-
-	/*
-	public void moveItem(PipeItem item) {
-		if (getTier() != PipeTier.BASIC) {
-			item.pos += item.speed;
-			return;
-		}
-
-		item.pos += Math.min(item.speed, 0.99F);
-		float pipeSpeed = (float) ModularPipesConfig.BASE_SPEED;
-
-		if (item.speed > pipeSpeed) {
-			item.speed *= 0.99F;
-
-			if (item.speed < pipeSpeed) {
-				item.speed = pipeSpeed;
-			}
-		} else if (item.speed < pipeSpeed) {
-			item.speed *= 1.3F;
-
-			if (item.speed > pipeSpeed) {
-				item.speed = pipeSpeed;
-			}
-		}
-	}
-	 */
 
 	@Override
 	public void setChanged() {
